@@ -410,10 +410,9 @@ Para llevar a cabo la medición del burnout a través de weareables, se pueden c
 
 | *Dimensión*             | *Indicadores Fisiológicos (Wearables)*           | *Métricas Laborales*                       | *Herramientas de Medición*                                |
 |-------------------------|--------------------------------------------------|--------------------------------------------|-----------------------------------------------------------|
-| *Agotamiento físico* | HRV nocturna < 50 ms<br> Sueño profundo < 1h 30min<br> Temperatura basalelevada<br> Cortisol matutino alto (si hay sensor) | Horas trabajadas/semana > 45h<br> Trabajo en fines de semana > 2 veces/mes | Oura Ring / Fitbit Sense<br> API de sistemas de horarios (ej: Calamari) |
-| *Despersonalización* | Actividad física ↓ 30%<br> Interacciones sociales ↓ (geolocalización)<br> Reducción pasos en oficina |  Tasa respuesta emails > 4h<br> Ausencia en reuniones clave<br> Feedback negativo en encuestas | Apple Watch/Samsung Galaxy<br> Análisis de correos (ej: Microsoft Viva) |
+| *Agotamiento físico* | HRV nocturna < 50 ms<br> Sueño profundo < 1h 30min | Horas trabajadas/semana > 45h<br> Trabajo en fines de semana > 2 veces/mes | Oura Ring / Fitbit Sense<br> API de sistemas de horarios (ej: Calamari) |
+| *Despersonalización* | Actividad física ↓ 30%<br> Interacciones sociales ↓ (geolocalización) |  Tasa respuesta emails > 4h<br> Ausencia en reuniones clave<br> Feedback negativo en encuestas | Apple Watch/Samsung Galaxy<br> Análisis de correos (ej: Microsoft Viva) |
 | *Eficacia reducida*  | Deterioro patrones de sueño REM<br> HR elevada en reposo (>75 lpm)<br> "Body Battery" (Garmin) < 30/100 | KPIs incumplidos > 25%<br> Plazos incumplidos<br> Errores en tareas rutinarias | Garmin Venu 3<br> Integración con ERP (ej: SAP/Salesforce) |
-| *Estrés cognitivo*   | Picos de EDA (sudor) durante trabajo<br> SpO2 < 92% en jornada<br> Variabilidad respiratoria anómala | Reuniones consecutivas > 4h/día<br> Cambios de prioridad > 3x/día<br> Uso nocturno de apps laborales | Empatica E4 / Whoop<br> Software de monitoreo de productividad (ej: RescueTime) | 
 
 
 <p align="right">
