@@ -377,11 +377,43 @@ El **burnout** es un estado de agotamiento físico, emocional y mental crónico 
 - Cinismo/Despersonalización: actitudes negativas, irritabilidad y distanciamiento emocional.
 - Reducción de la eficacia profesional: baja productividad, sensación de fracaso e insatisfacción.
 
+Su aparición no es abrupta, sino que es un proceso acumulativo en el que tienen influencia varios factores.
 
+**Factores desencadenantes**
+ - *<u>Entorno laboral tóxico</u>*: sobrecarga de trabajo, falta de control sobre tareas, escaso recoocimiento, conflictos interpersonales, etc.
+ - *<u>Desajuste persona-trabajo</u>*: expectativas irreales en comparación con la realidad laboral.
 
+**Factores personales**
+ - Perfeccionismo, baja autoestima o dificultad para gestionar emociones.
+ - Escasas habilidades sociales o tendencia a la sobreimplicación. 
 
+**Progresión de aparición del burnout**
+ 1. *<u>Entusiasmo inicial</u>*: Alta motivación e idealismo.  
+ 2. *<u>Estancamiento</u>*: Reducción de satisfacción.  
+ 3. *<u>Frustración crónica</u>*: Sentimientos de impotencia e irritabilidad.  
+ 4. *<u>Apatía</u>*: Desapego emocional y cinismo.  
+ 5. *<u>Burnout consolidado</u>*: Agotamiento severo y pérdida de funcionalidad.
+
+**¿El estrés es un factor desencadenante?**
+
+El burnout siempre proviene de un estrés laboral no resuelto. Sin embargo, no todo estrés deriva en burnout. Estas son las principales diferencias entre estrés y burnout.
+
+|  Característica         |  Estrés                        |  Burnout                           |
+|-------------------------|--------------------------------|------------------------------------|
+|  Implicación emocional  |  Hipreactividad, ansiedad	   |  Desapego, cinismo                 |
+|  Consecuencias          |  Físicas (Cefaleas, insomnio)  |  Emocionales (depresión, vacío)    |
+|  Energía	              |  Agotamiento temporal	       |  Pérdida crónica de motivación     |
+|  Riesgo principal	      |  Ansiedad	                   |  Depresión y pérdida de identidad  |
 
 ### Como medir el estres con weareables
+Para llevar a cabo la medición del burnout a través de weareables, se pueden combinar las métricas de dichos dispositivos con otras laborales. Para ello se puede usar el siguiente enfoque multidimensional basado en envidencias científicas. 
+
+| *Dimensión*             | *Indicadores Fisiológicos (Wearables)*           | *Métricas Laborales*                       | *Herramientas de Medición*                                |
+|-------------------------|--------------------------------------------------|--------------------------------------------|-----------------------------------------------------------|
+| *Agotamiento físico* | HRV nocturna < 50 ms<br> Sueño profundo < 1h 30min<br> Temperatura basalelevada<br> Cortisol matutino alto (si hay sensor) | Horas trabajadas/semana > 45h<br> Trabajo en fines de semana > 2 veces/mes | Oura Ring / Fitbit Sense<br> API de sistemas de horarios (ej: Calamari) |
+| *Despersonalización* | Actividad física ↓ 30%<br> Interacciones sociales ↓ (geolocalización)<br> Reducción pasos en oficina |  Tasa respuesta emails > 4h<br> Ausencia en reuniones clave<br> Feedback negativo en encuestas | Apple Watch/Samsung Galaxy<br> Análisis de correos (ej: Microsoft Viva) |
+| *Eficacia reducida*  | Deterioro patrones de sueño REM<br> HR elevada en reposo (>75 lpm)<br> "Body Battery" (Garmin) < 30/100 | KPIs incumplidos > 25%<br> Plazos incumplidos<br> Errores en tareas rutinarias | Garmin Venu 3<br> Integración con ERP (ej: SAP/Salesforce) |
+| *Estrés cognitivo*   | Picos de EDA (sudor) durante trabajo<br> SpO2 < 92% en jornada<br> Variabilidad respiratoria anómala | Reuniones consecutivas > 4h/día<br> Cambios de prioridad > 3x/día<br> Uso nocturno de apps laborales | Empatica E4 / Whoop<br> Software de monitoreo de productividad (ej: RescueTime) | 
 
 
 <p align="right">
