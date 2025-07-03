@@ -32,10 +32,6 @@ Los usuarios que gestionan proyectos (estudiantes, freelancers, equipos) deben u
 
 1) **Automatización inteligente**: Otras apps requieren acciones manuales para registrar tiempos. Tikal podría detectar automáticamente cuándo estás trabajando en una tarea mediante IA (sin activar timer manualmente).
 
-```
-2) **Predicciones útiles**: Ninguna competencia usa datos históricos para mejorar la planificación. Tikal podría aprender de tus hábitos y sugerir tiempos realistas.
-```
-
 3) **Bienestar integrado**: Las apps de productividad suelen olvidar el factor humano. Aquí hay espacio para innovar con descansos inteligentes y prevención de burnout.
 
 4) **Integración Contextual de Subtareas**: timer independiente para cada subtarea, Tiempo total = Σ subtareas + tiempo adicional en tarea padre.
@@ -110,7 +106,7 @@ Alertas de ineficiencia:
 
 ---
 
-## Requisitos Funcionales y no Funcionalese para Tikal
+## Requisitos Funcionales y no Funcionales para Tikal
 
 ### Requisitos Funcionales
 
@@ -118,7 +114,7 @@ Alertas de ineficiencia:
 
 1. Registro/Autenticación:
     - RF1: Registro con email y contraseña.
-    - RF2: Selección de perfil (Indeependiente/Cooperativo) durante onboarding.
+    - RF2: Selección de perfil (Independiente/Cooperativo) durante onboarding.
 2. Perfil de Usuario:
     - RF3: Personalización de avatar tema (desbloqueables con logros).
     - RF4: Conmutador entre perfiles (puede cambiar entre el cooperativo y el independiente).
@@ -126,22 +122,22 @@ Alertas de ineficiencia:
 **B. Perfil Independiente**
 
 3. Listas y Tareas:
-    - RF5: creación de listas con anidación de hasta ¿4/3? niveles *(Proyecto → Fase → Tarea → Subtarea)*.
+    - RF5: creación de listas con anidación de hasta 4 niveles *(Proyecto → Fase → Tarea → Subtarea)*.
     - RF6: asignación de tiempo estimado por lista/tarea (opcional).
     - RF7: timer manual/automático (al completar tarea).
-    - RF8: campos opcionales: descripción + enlace a GitHub (con rama específica), además de la asígnación de ganancias o dinero que generas con cierta tarea.
+    - RF8: campos opcionales: descripción + enlace a GitHub (con rama específica), además de la asignación de ganancias o dinero que generas con cierta tarea.
 4. Integración con GitHub:
     - RF9: Análisis de commits en la rama especificada y el tiempo de la tarea en función de estos.
 5. Modo templo:
-    - RF10: Activación con bloqueo de notificaciones y aplicaciones (en movil) y sonidos ambientales
+    - RF10: Activación con bloqueo de notificaciones y aplicaciones (en móvil) y sonidos ambientales
     - RF11: asignación de tareas a concentrarse en el modo templo.
-    - RF12: opción de entrar en modo templo con cronometro o poniendo un tiempo de cuanto quieres estar concentrado.
-    - RF13: desbloqueo de temas y trofeos según las horas concentrado.
+    - RF12: opción de entrar en modo templo con cronómetro o poniendo un tiempo de cuanto quieres estar concentrado.
+    - RF13: desbloqueo de temas y trofeos según las horas concentradas.
     - RF14: al terminar el modo templo si se han introducido más de una tarea que se quería hacer en modo templo, al final se preguntará el porcentaje de tiempo que se le ha dedicado a cada una. Además se preguntará si las tareas se han terminado o no (si hay una o más tareas).
 6. Sistema de logros:
     - RF15: Glifos desbloqueables por horas acumuladas (*ej: 4h = Imix, 8h = kawak*).
-    - RF16: Estos trofeos se quedarán un altar de trofeos.
-7. Estadíticas:
+    - RF16: Estos trofeos se quedarán en un altar de trofeos.
+7. Estadísticas:
     - RF17: gráfico de efectividad (Tiempo estimado vs. tiempo real por tarea).
     - RF18: Reporte semanal de productividad, podrás ver a que le dedicas más tiempo tanto semanal como diariamente para así minimizar distracciones.
 
@@ -155,15 +151,15 @@ Alertas de ineficiencia:
         - Colaborador: añadir subtareas, registrar tiempo en tareas asignadas.
 9. Sistema de logros públicos:
     - RF22: trofeos visibles para el equipo.
-    - RF23: tablero de líderes por metricas como eficiencia o trofeos.
+    - RF23: tablero de líderes por métricas como eficiencia o trofeos.
 10. Fatiga laboral:
-    - RF24: Termometro de fatiga basado en horas trabajadas y datos de wearables (integración con APIs de Fitbit/Apple Health).
+    - RF24: Termómetro de fatiga basado en horas trabajadas y datos de wearables (integración con APIs de Fitbit/Apple Health).
     - RF25: Alertas personalizadas (*ej: "Nivel de fatiga: Alto. Sugerimos pausa"*).
-    - Fatiga = (Horas_trabajadas × 0.7) + (Ritmo_cardíaco_promedio × 0.3)
+    - Fatiga = (Horas Trabajadas × 0.7) + (Ritmo_cardíaco_promedio × 0.3)
 
 **D. Comunes a ambos perfiles**
 
-11. Sincronizacción:
+11. Sincronización:
     - RF26: sincronización en tiempo real móvil - web.
 12. Exportación:
     - RF27: Reportes exportables a PDF/CSV (estadísticas, tiempo por proyecto...).
@@ -194,7 +190,7 @@ Alertas de ineficiencia:
 **C. Escalabilidad**
 
 5. RNF7: Arquitectura con microservicios.
-6. RNF8: Bases de datos replicables (PostgreSQL para relaciones, Redis para caché).
+6. RNF8: Bases de datos replicables.
 
 **D. Integraciones**
 
@@ -202,7 +198,7 @@ Alertas de ineficiencia:
     - GitHub (webhooks para análisis de commits).
     - Wearables (Fitbit/Apple Health usando OAuth)
 
-**E. Automatizacion**
+**E. Automatización**
 
 8. RNF12: Privacidad estricta
     - Todos los datos de actividad se procesan localmente (nunca en servidores externos).
@@ -210,6 +206,14 @@ Alertas de ineficiencia:
 9. RNF13: Eficiencia en recursos
     - Consumo CPU < 3% en segundo plano.
     - Muestreo de actividad cada 2 min (no constante).
+
+### Funcionalidades que se pueden añadir
+
+- Se puede añadir un chatbot que te guíe en el uso de la aplicación y que pueda crear listas según las especificaciones que el usuario le proporcione (*ej: Usuario: necesito que me hagas una lista de tareas para un proyecto frontend... y el chatbot te da una respuesta de una posible lista de tarea y tu puedes añadirla a tu dashboard o pedir alguna modificación*).
+
+- Se puede añadir un chat para que en el perfil cooperativo puedas comunicarte con el resto del equipo y con tus compañeros de forma individual/privada.
+
+- Predicciones útiles: Tikal podría aprender de tus hábitos y sugerir tiempos realistas. En resumen el algoritmo analiza el historial para ajustar estimaciones y sugerir el tiempo que te podría llevar a realizar la tarea.
 
 <p align="right">
     <a href="#top">⬆️ volver arriba</a>
