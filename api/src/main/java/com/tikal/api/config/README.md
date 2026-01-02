@@ -1,0 +1,1 @@
+Aquí se pondran las configuraciones de CORS, Seguridad, Swagger, Beans de IA
