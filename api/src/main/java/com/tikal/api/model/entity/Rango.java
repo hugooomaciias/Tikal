@@ -9,7 +9,7 @@ import lombok.Data; // Lombok genera getters/setters auto
 public class Rango {
 
     @Id
-    private Integer id; // No es Auto-Increment en esta tabla, son IDs fijos (1-5)
+    private Integer id;
 
     @Column(name = "nombre_templo", nullable = false)
     private String nombreTemplo;

@@ -5,8 +5,8 @@ services:
     container_name: tikal-mysql
     restart: unless-stopped
     environment:
-      - 'MYSQL_DATABASE=tikal_db'
-      - 'MYSQL_PASSWORD=tu_password_secreta'
+      - MYSQL_DATABASE=tikal_db
+      - MYSQL_ROOT_PASSWORD=tu_password_secreta
     ports:
       - "3306:3306"
     volumes:
