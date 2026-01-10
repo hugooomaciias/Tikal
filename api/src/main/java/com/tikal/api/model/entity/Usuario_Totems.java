@@ -23,11 +23,13 @@ public class Usuario_Totems {
 
     // Relación con Usuario
     // Muchos totems pueden ser ganados por el mismo Usuario (Many-to-One)
+    @ManyToOne(optional = false)
     @JoinColumn(name = "id_usuario", nullable = false)
-    private Usuario idUsuario;
+    private Usuario usuario;
 
     // Relación con Catalogo_Totems
     // Muchos totems pueden ser ganados desde un mismo Catalogo_Totems (Many-to-One)
+    @ManyToOne(optional = false)
     @JoinColumn(name = "id_totem", nullable = false)
-    private Catalogo_Totems idTotem;
+    private Catalogo_Totems catalogoTotem;
 }

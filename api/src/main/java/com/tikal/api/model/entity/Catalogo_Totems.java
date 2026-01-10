@@ -21,7 +21,7 @@ public class Catalogo_Totems {
     private String descripcionCausa;
 
     @Column(name = "rango_necesario", nullable = false) 
-    private String rangoNecesario;
+    private Integer rangoNecesario;
 
     @Column(name = "imagen_url", length = 255)
     private String imagenUrl;

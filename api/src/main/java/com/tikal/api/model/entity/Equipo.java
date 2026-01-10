@@ -3,6 +3,7 @@ package com.tikal.api.model.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Data
 @NoArgsConstructor
@@ -22,6 +23,8 @@ public class Equipo {
 
     // Relación con Equipo
     // Pueden existir muchos subequipos (Many-to-One)
-    @JoinColumn(name = "id_equipo_padre", nullable = false)
-    private Equipo idEquipoPadre;
+    @ManyToOne(optional = true)
+    @JoinColumn(name = "id_equipo_padre", nullable = true)
+    @ToString.Exclude
+    private Equipo equipoPadre;
 }
