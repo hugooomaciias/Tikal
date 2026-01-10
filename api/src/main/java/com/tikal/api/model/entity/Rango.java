@@ -1,11 +1,11 @@
 package com.tikal.api.model.entity;
 
 import jakarta.persistence.*;
-import lombok.Data; // Lombok genera getters/setters auto
+import lombok.Data;                         // Lombok genera getters/setters auto
 
 @Data
 @Entity
-@Table(name = "rangos")
+@Table(name = "rango")
 public class Rango {
 
     @Id

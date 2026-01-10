@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @Entity
-@Table(name = "usuarios")
+@Table(name = "usuario")
 public class Usuario {
 
     @Id
@@ -23,16 +23,16 @@ public class Usuario {
     @Column(nullable = false)
     private String password;
 
-    @Enumerated(EnumType.STRING) // Guarda "GRATUITO" en vez de 0
+    @Enumerated(EnumType.STRING)                        // Guarda "GRATUITO" en vez de 0
     @Column(name = "tipo_plan")
-    private TipoPlan tipoPlan = TipoPlan.GRATUITO; // Valor por defecto
+    private TipoPlan tipoPlan = TipoPlan.GRATUITO;      // Valor por defecto
 
     @Column(name = "avatar_url")
     private String avatarUrl;
 
     // Relación con Rango
     // Muchos usuarios pueden tener el mismo Rango (Many-to-One)
-    @ManyToOne(fetch = FetchType.EAGER) // EAGER carga el rango automáticamente al pedir el usuario
+    @ManyToOne(fetch = FetchType.EAGER)                 // EAGER carga el rango automáticamente al pedir el usuario
     @JoinColumn(name = "rango_actual", nullable = false)
     private Rango rangoActual;
     
@@ -42,7 +42,7 @@ public class Usuario {
     public void prePersist() {
         if (this.rangoActual == null) {
             this.rangoActual = new Rango();
-            this.rangoActual.setId(1); // Asumimos que ID 1 es "Aprendiz"
+            this.rangoActual.setId(1);              // Asumimos que ID 1 es "Aprendiz"
         }
     }
 }
