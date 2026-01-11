@@ -18,7 +18,7 @@ public class Usuario_Totems {
     private Integer id;
 
     @CreationTimestamp
-    @Column(name = "fecha_obtencion", updatable = false)
+    @Column(name = "fecha_obtencion", updatable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private LocalDateTime fechaObtencion;
 
     // Relación con Usuario

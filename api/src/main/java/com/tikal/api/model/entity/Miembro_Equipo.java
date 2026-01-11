@@ -1,8 +1,8 @@
 package com.tikal.api.model.entity;
 
 import java.time.LocalDateTime;
-
 import org.hibernate.annotations.CreationTimestamp;
+
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -17,11 +17,11 @@ public class Miembro_Equipo {
     @GeneratedValue(strategy = GenerationType.IDENTITY) // Auto-increment en MySQL
     private Integer id;
 
-    @Column(name = "es_administrador", nullable = false, length = 100)
+    @Column(name = "es_administrador", nullable = false, columnDefinition = "TINYINT(1) DEFAULT 0")
     private Boolean esAdministrador = false; 
 
     @CreationTimestamp
-    @Column(name = "fecha_ingreso", updatable = false)
+    @Column(name = "fecha_ingreso", updatable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private LocalDateTime fechaIngreso;
 
     // Relación con Usuario

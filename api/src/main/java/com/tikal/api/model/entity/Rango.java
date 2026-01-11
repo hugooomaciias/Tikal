@@ -14,7 +14,7 @@ public class Rango {
     @Column(name = "nombre_templo", nullable = false)
     private String nombreTemplo;
 
-    @Column(name = "titulo_otorgado", nullable = false)
+    @Column(name = "titulo_otorgado", nullable = false, length = 100)
     private String tituloOtorgado;
 
     @Column(name = "horas_necesarias", nullable = false)

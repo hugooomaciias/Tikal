@@ -32,8 +32,8 @@ public class Usuario {
 
     // Relación con Rango
     // Muchos usuarios pueden tener el mismo Rango (Many-to-One)
-    @ManyToOne(fetch = FetchType.EAGER)                 // EAGER carga el rango automáticamente al pedir el usuario
-    @JoinColumn(name = "rango_actual", nullable = false)
+    @ManyToOne(optional = true, fetch = FetchType.EAGER)                 // EAGER carga el rango automáticamente al pedir el usuario
+    @JoinColumn(name = "rango_actual")
     private Rango rangoActual;
     
     // Al crear un usuario nuevo, por defecto le asignamos un objeto Rango con ID 1

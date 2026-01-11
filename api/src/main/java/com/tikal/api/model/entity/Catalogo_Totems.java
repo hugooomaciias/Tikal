@@ -17,7 +17,7 @@ public class Catalogo_Totems {
     @Column(nullable = false, length = 100)
     private String nombre;
 
-    @Column(name = "descripcion_causa", nullable = false)
+    @Column(name = "descripcion_causa", nullable = false, columnDefinition = "TEXT")
     private String descripcionCausa;
 
     @Column(name = "rango_necesario", nullable = false) 
