@@ -17,7 +17,7 @@ public class Miembro_Equipo {
     @GeneratedValue(strategy = GenerationType.IDENTITY) // Auto-increment en MySQL
     private Integer id;
 
-    @Column(name = "es_administrador", nullable = false, columnDefinition = "TINYINT(1) DEFAULT 0")
+    @Column(name = "es_administrador", columnDefinition = "TINYINT(1) DEFAULT 0")
     private Boolean esAdministrador = false; 
 
     @CreationTimestamp
@@ -27,12 +27,16 @@ public class Miembro_Equipo {
     // Relación con Usuario
     // Un mismo usuario puede ser miembro de diferentes equipos  
     @ManyToOne(optional = false)
-    @JoinColumn(name = "id_usuario", nullable = false)
+    @JoinColumn(name = "id_usuario")
     private Usuario usuario;
 
     // Relación con Equipo
     // Puede haber muchos miembros en un mismo Equipo (Many-to-One)
     @ManyToOne(optional = false)
-    @JoinColumn(name = "id_equipo", nullable = false)
+    @JoinColumn(name = "id_equipo")
     private Equipo equipo;
-} 
+
+    // Anadir restriccion unica de ambas relaciones
+}
+
+// COMPLETAMENTE CORRECTA

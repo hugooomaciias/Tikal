@@ -22,9 +22,11 @@ public class Equipo {
     private String codigoInvitacion;
 
     // Relación con Equipo
-    // Pueden existir muchos subequipos (Many-to-One)
+    // Pueden existir muchos equipos (subequipos) pertenecientes al mismo Equipo (Many-to-One)
     @ManyToOne(optional = true)
-    @JoinColumn(name = "id_equipo_padre", nullable = true)
+    @JoinColumn(name = "id_equipo_padre")
     @ToString.Exclude
     private Equipo equipoPadre;
 }
+
+// COMPLETAMENTE CORRECTA

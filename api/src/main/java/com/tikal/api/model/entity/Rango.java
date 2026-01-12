@@ -11,15 +11,17 @@ public class Rango {
     @Id
     private Integer id;
 
-    @Column(name = "nombre_templo", nullable = false)
+    @Column(name = "nombre_templo", length = 50)
     private String nombreTemplo;
 
-    @Column(name = "titulo_otorgado", nullable = false, length = 100)
+    @Column(name = "titulo_otorgado", length = 100)
     private String tituloOtorgado;
 
-    @Column(name = "horas_necesarias", nullable = false)
+    @Column(name = "horas_necesarias")
     private Integer horasNecesarias;
 
     @Column(name = "imagen_insignia_url")
     private String imagenInsigniaUrl;
 }
+
+// COMPLETAMENTE CORRECTA

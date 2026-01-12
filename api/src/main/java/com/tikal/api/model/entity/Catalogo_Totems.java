@@ -26,3 +26,5 @@ public class Catalogo_Totems {
     @Column(name = "imagen_url", length = 255)
     private String imagenUrl;
 }
+
+// COMPLETAMENTE CORRECTA

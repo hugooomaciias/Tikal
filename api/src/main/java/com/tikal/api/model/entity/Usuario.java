@@ -4,6 +4,11 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import com.tikal.api.model.entity.enumerado.Tipo_Plan;
+
+/* 
+* 
+*/
 @Data
 @NoArgsConstructor
 @Entity
@@ -11,29 +16,30 @@ import lombok.NoArgsConstructor;
 public class Usuario {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY) // Auto-increment en MySQL
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    /* --- Nombre del usuario --- */
     @Column(nullable = false, length = 100)
     private String nombre;
 
+    /* --- Email del usuario --- */
     @Column(nullable = false, unique = true, length = 100)
     private String email;
 
     @Column(nullable = false)
     private String password;
-
-    @Enumerated(EnumType.STRING)                        // Guarda "GRATUITO" en vez de 0
-    @Column(name = "tipo_plan")
-    private TipoPlan tipoPlan = TipoPlan.GRATUITO;      // Valor por defecto
+ 
+    @Enumerated(EnumType.STRING)                                                                            // Guarda "GRATUITO" en vez de 0
+    @Column(name = "tipo_plan", columnDefinition = "ENUM('GRATUITO', 'COMUNITARIO') DEFAULT 'GRATUITO'")
+    private Tipo_Plan tipoPlan = Tipo_Plan.GRATUITO;                                                        // Valor por defecto
 
     @Column(name = "avatar_url")
     private String avatarUrl;
 
-    // Relación con Rango
-    // Muchos usuarios pueden tener el mismo Rango (Many-to-One)
-    @ManyToOne(optional = true, fetch = FetchType.EAGER)                 // EAGER carga el rango automáticamente al pedir el usuario
-    @JoinColumn(name = "rango_actual")
+    /* --- Relación con Rango --> Muchos usuarios pueden tener el mismo Rango --- */
+    @ManyToOne(optional = true, fetch = FetchType.EAGER)
+    @JoinColumn(name = "rango_actual", columnDefinition = "INT DEFAULT 1")
     private Rango rangoActual;
     
     // Al crear un usuario nuevo, por defecto le asignamos un objeto Rango con ID 1
@@ -46,3 +52,5 @@ public class Usuario {
         }
     }
 }
+
+// COMPLETAMENTE CORRECTA
