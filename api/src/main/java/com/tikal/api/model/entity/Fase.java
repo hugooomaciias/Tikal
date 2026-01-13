@@ -22,6 +22,8 @@ public class Fase {
     // Relación con Proyecto
     // Muchas fases pueden pertenecer a un mismo Proyecto (Many-to-One)
     @ManyToOne(optional = false)
-    @JoinColumn(name = "id_proyecto")
+    @JoinColumn(name = "id_proyecto", nullable = false)
     private Proyecto proyecto;
 }
+
+// COMPLETAMENTE CORRECTA

@@ -23,13 +23,13 @@ public class Mensaje {
     @Column(name = "fecha_envio", updatable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private LocalDateTime fechaEnvio;
 
-    @Column(name = "leido", nullable = false, columnDefinition = "TINYINT(1) DEFAULT 0")
+    @Column(name = "leido", columnDefinition = "TINYINT(1) DEFAULT 0")
     private Boolean leido = false; 
 
     // Relación con Usuario
     // Puede haber muchos mensajes enviados por un unico Usuario emisor (Many-to-One)
     @ManyToOne(optional = false)
-    @JoinColumn(name = "id_emisor")
+    @JoinColumn(name = "id_emisor", nullable = false)
     private Usuario emisor;
 
     // Relación con Equipo
@@ -44,3 +44,5 @@ public class Mensaje {
     @JoinColumn(name = "id_usuario_destino")
     private Usuario usuarioDestino;
 }
+
+// COMPLETAMENTE CORRECTA

@@ -30,7 +30,7 @@ public class Evento_Calendario {
     @Column(name = "activar_tracker_automaticamente", columnDefinition = "TINYINT(1) DEFAULT 0")
     private Boolean activarTrackerAutomaticamente = false;
 
-    @Column(name = "color_personalizado_hex", nullable = false, length = 7)
+    @Column(name = "color_personalizado_hex", length = 7)
     private String colorPersonalizadoHex;
 
     // Relación con Proyecto
@@ -39,21 +39,23 @@ public class Evento_Calendario {
     @JoinColumn(name = "id_proyecto")
     private Proyecto proyecto;
 
-    // Relación con Tarea
-    // Muchos eventos de calendario pueden pertenecer a una misma Tarea (Many-to-One)
-    @ManyToOne(optional = true)
-    @JoinColumn(name = "id_tarea") 
-    private Tarea tarea;
-
     // Relación con Fase
     // Muchos eventos de calendario pueden pertenecer a una misma Fase (Many-to-One)
     @ManyToOne(optional = true)
     @JoinColumn(name = "id_fase")
     private Fase fase;
 
+    // Relación con Tarea
+    // Muchos eventos de calendario pueden pertenecer a una misma Tarea (Many-to-One)
+    @ManyToOne(optional = true)
+    @JoinColumn(name = "id_tarea") 
+    private Tarea tarea;
+
     // Relación con Usuario
     // Muchos eventos de calendario pueden pertenecer a un mismo Usuario  (Many-to-One)
     @ManyToOne(optional = false)
-    @JoinColumn(name = "id_usuario") 
+    @JoinColumn(name = "id_usuario", nullable = false) 
     private Usuario usuario;
 }
+
+// COMPLETAMENTE CORRECTA

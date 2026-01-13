@@ -10,7 +10,12 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @Entity
-@Table(name = "miembro_equipo")
+@Table(
+    name = "miembro_equipo",
+    uniqueConstraints = {
+        @UniqueConstraint(name = "uk_usuario_equipo", columnNames = {"id_usuario", "id_equipo"})
+    }
+)
 public class Miembro_Equipo {
     
     @Id
@@ -27,16 +32,14 @@ public class Miembro_Equipo {
     // Relación con Usuario
     // Un mismo usuario puede ser miembro de diferentes equipos  
     @ManyToOne(optional = false)
-    @JoinColumn(name = "id_usuario")
+    @JoinColumn(name = "id_usuario", nullable = false)
     private Usuario usuario;
 
     // Relación con Equipo
     // Puede haber muchos miembros en un mismo Equipo (Many-to-One)
     @ManyToOne(optional = false)
-    @JoinColumn(name = "id_equipo")
+    @JoinColumn(name = "id_equipo", nullable = false)
     private Equipo equipo;
-
-    // Anadir restriccion unica de ambas relaciones
 }
 
 // COMPLETAMENTE CORRECTA

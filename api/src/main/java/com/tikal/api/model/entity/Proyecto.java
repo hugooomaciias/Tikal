@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @NoArgsConstructor
 @Entity
@@ -33,4 +35,10 @@ public class Proyecto {
     @ManyToOne(optional = true)
     @JoinColumn(name = "id_equipo") 
     private Equipo equipo;
+
+    // Relación para eliminar todas las fases correspondientes a este proyecto al eliminar el proyecto
+    @OneToMany(mappedBy = "proyecto", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Fase> fases;
 }
+
+// COMPLETAMENTE CORRECTA

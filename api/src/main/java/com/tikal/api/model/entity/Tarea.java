@@ -37,7 +37,7 @@ public class Tarea {
     // Relación con Fase
     // Muchas tareas pueden pertenecer a una misma Fase (Many-to-One)
     @ManyToOne(optional = false)
-    @JoinColumn(name = "id_fase")
+    @JoinColumn(name = "id_fase", nullable = false)
     private Fase fase;
 
     // Relación con Usuario
@@ -52,3 +52,5 @@ public class Tarea {
     @JoinColumn(name = "id_tarea_padre") 
     private Tarea tareaPadre;
 }
+
+// COMPLETAMENTE CORRECTA
