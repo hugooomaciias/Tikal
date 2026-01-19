@@ -30,12 +30,12 @@ public class Calendar_Event {
     private String description;
 
     /* --- Inital time of the event --- */
-    @Column(name = "init_time", nullable = false, updatable = false, columnDefinition = "DATETIME")
-    private LocalDateTime initTime;
+    @Column(name = "init_date_time", nullable = false, updatable = false, columnDefinition = "DATETIME")
+    private LocalDateTime initDateTime;
 
     /* --- End time of the event --- */
-    @Column(name = "end_time", nullable = false, updatable = false, columnDefinition = "DATETIME")
-    private LocalDateTime endTime;
+    @Column(name = "end_date_time", nullable = false, updatable = false, columnDefinition = "DATETIME")
+    private LocalDateTime endDateTime;
 
     /* --- If you want to activate the time tracker automatically, this is 'True' --- */
     @Column(name = "is_activate_tracker_automatically", columnDefinition = "TINYINT(1) DEFAULT 0")
@@ -44,6 +44,11 @@ public class Calendar_Event {
     /* --- Colour of the event in case of don't have any task associated --- */
     @Column(name = "custom_colour", length = 7)
     private String customColour;
+
+    /* --- User relation ==> Many events can belong to the same User --- */
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "user_id", nullable = false) 
+    private User user;
 
     /* --- Project relation ==> Many envents can belong to the same Project --- */
     @ManyToOne(optional = true)
@@ -59,9 +64,4 @@ public class Calendar_Event {
     @ManyToOne(optional = true)
     @JoinColumn(name = "task_id") 
     private Task task;
-
-    /* --- User relation ==> Many events can belong to the same User --- */
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "user_id", nullable = false) 
-    private User user;
 }

@@ -33,6 +33,6 @@ public class Totem_Inventory {
 
     /* --- Totem List relation ==> Many totems can be won from the same Totem List --- */
     @ManyToOne(optional = false)
-    @JoinColumn(name = "id_totem")
-    private Totem_List totemList;
+    @JoinColumn(name = "totem_id")
+    private Totem_List totem;
 }

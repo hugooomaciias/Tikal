@@ -22,7 +22,7 @@ public class Team {
 
     /* --- Team name --- */
     @Column(nullable = false, length = 100)
-    private String nombre;
+    private String name;
 
     /* --- Invitation code for colleagues to join your team --- */
     @Column(name = "invitation_code", unique = true, length = 50)

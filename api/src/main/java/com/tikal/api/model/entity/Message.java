@@ -28,7 +28,7 @@ public class Message {
 
     /* --- Date when you send the message --- */
     @CreationTimestamp
-    @Column(name = "sendDate", updatable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
+    @Column(name = "send_date", updatable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private LocalDateTime sendDate;
 
     /* --- If the Message is read, this attribute has to be 'True' --- */

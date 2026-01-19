@@ -22,13 +22,13 @@ import org.hibernate.type.SqlTypes;
 public class User_Settings {
     /* --- User relation ==> Many settings can belong to the same User --- */
     @Id
-    @Column(name = "id_usuario")
+    @Column(name = "user_id")
     private Integer id;
 
     @OneToOne(fetch = FetchType.LAZY)
     @MapsId
-    @JoinColumn(name = "id_usuario")
-    private User usuario;
+    @JoinColumn(name = "user_id")
+    private User user;
 
     /* --- Time range setting --- */
     @Enumerated(EnumType.STRING)
@@ -41,7 +41,7 @@ public class User_Settings {
 
     /* --- Theme setting --- */
     @Enumerated(EnumType.STRING)
-    @Column(name = "theme", columnDefinition = "ENUM('CLARO', 'OSCURO', 'MAYA') DEFAULT 'MAYA'")
+    @Column(columnDefinition = "ENUM('CLARO', 'OSCURO', 'MAYA') DEFAULT 'MAYA'")
     private Theme_Setting theme = Theme_Setting.MAYA;
 
     /* --- Here we have the widgets position setting of the User --- */

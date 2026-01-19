@@ -22,12 +22,12 @@ public class Time_Log {
     private Integer id;
 
     /* --- Date when you start the time tracker --- */
-    @Column(name = "start_date", nullable = false, updatable = false, columnDefinition = "DATETIME")
-    private LocalDateTime startDate;
+    @Column(name = "init_date_time", nullable = false, updatable = false, columnDefinition = "DATETIME")
+    private LocalDateTime initDateTime;
 
     /* --- Date when you finish the time tracker --- */
-    @Column(name = "end_date", updatable = false, columnDefinition = "DATETIME")
-    private LocalDateTime endDate;
+    @Column(name = "end_date_time", updatable = false, columnDefinition = "DATETIME")
+    private LocalDateTime endDateTime;
 
     /* --- Target time for focusing on a Task --- */
     @Column(name = "target_time")
@@ -41,23 +41,23 @@ public class Time_Log {
     @Column(name = "activity_description")
     private String activityDescription;
 
+    /* --- User relation ==> Many time logs can be recorded by the same User --- */
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "user_id", nullable = false) 
+    private User user;
+
     /* --- Project relation ==> Many time logs can be recorded to the same Project --- */
     @ManyToOne(optional = true)
-    @JoinColumn(name = "id_proyecto")
-    private Project proyecto;
+    @JoinColumn(name = "project_id")
+    private Project project;
 
     /* --- Stage relation ==> Many time logs can be recorded to the same Stage --- */
     @ManyToOne(optional = true)
-    @JoinColumn(name = "id_fase")
-    private Stage fase;
+    @JoinColumn(name = "stage_id")
+    private Stage stage;
 
     /* --- Task relation ==> Many time logs can be recorded to the same Task --- */
     @ManyToOne(optional = true)
-    @JoinColumn(name = "id_tarea") 
-    private Task tarea;
-
-    /* --- User relation ==> Many time logs can be recorded by the same User --- */
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "id_usuario", nullable = false) 
-    private User usuario;
+    @JoinColumn(name = "task_id") 
+    private Task task;
 }
