@@ -1,7 +1,6 @@
 package com.tikal.api.repository;
 
 import java.util.List;
-
 import org.springframework.stereotype.Repository;
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -14,4 +13,7 @@ public interface TaskRepository extends JpaRepository<Task, Integer>{
     
     /* --- Obtain subtasks from a parent task --- */
     List<Task> findByParentTask_Id(Integer parentTaskId);
+    
+    /* --- Obtain tasks from a assigned user --- */
+    List<Task> findByAssignedUser_Id(Integer userId);
 }

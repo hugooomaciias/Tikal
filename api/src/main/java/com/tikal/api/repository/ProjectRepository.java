@@ -1,7 +1,6 @@
 package com.tikal.api.repository;
 
 import java.util.List;
-
 import org.springframework.stereotype.Repository;
 import org.springframework.data.jpa.repository.JpaRepository;
 
