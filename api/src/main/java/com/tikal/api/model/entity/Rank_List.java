@@ -31,4 +31,16 @@ public class Rank_List {
     /* --- URL of the badge image's Rank --- */
     @Column(name = "badge_image_url")
     private String badgeImageUrl;
+
+    /* --- URL of the temple image's Rank --- */
+    @Column(name = "temple_image_url")
+    private String templeImageUrl;
+
+    /* --- URL of the clock image's Rank --- */
+    @Column(name = "clock_image_url")
+    private String clockImageUrl;
+
+    /* --- URL of the clock image's Rank --- */
+    @Column(length = 7)
+    private String colour;
 }
