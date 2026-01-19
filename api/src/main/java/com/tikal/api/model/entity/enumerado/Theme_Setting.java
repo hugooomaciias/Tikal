@@ -1,6 +1,6 @@
 package com.tikal.api.model.entity.enumerado;
 
-public enum Configuracion_Tema {
+public enum Theme_Setting {
     CLARO,
     OSCURO,
     MAYA

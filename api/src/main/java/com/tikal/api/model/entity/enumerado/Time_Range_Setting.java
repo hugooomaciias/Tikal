@@ -1,6 +1,6 @@
 package com.tikal.api.model.entity.enumerado;
 
-public enum Configuracion_Rango_Tiempo {
+public enum Time_Range_Setting {
     SEMANAL,
     MENSUAL,
     TRIMESTRAL,
