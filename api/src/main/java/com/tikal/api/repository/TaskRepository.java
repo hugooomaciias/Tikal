@@ -7,7 +7,7 @@ import com.networknt.schema.OutputFormat.List;
 import com.tikal.api.model.entity.Task;
 
 @Repository
-public class TaskRepository extends JpaRepository<Task, Integer>{
+public interface TaskRepository extends JpaRepository<Task, Integer>{
     /* --- Obtain tasks from a specific phase --- */
     List<Task> findByStage_Id(Integer stageId);
     
