@@ -12,8 +12,8 @@ import com.tikal.api.model.entity.Team_Member;
 
 @Repository
 public interface TeamMemberRepository extends JpaRepository<Team_Member, Integer> {
-    @Query("SELECT new com.tikal.api.model.dto.TeamMemberDTO(u.name, u.avatarUrl, m.admin) " +
-           "FROM TeamMember m " +
+    @Query("SELECT new com.tikal.api.model.dto.TeamMemberDTO(u.name, u.avatarUrl, m.isAdmin) " +
+           "FROM Team_Member m " +
            "JOIN m.user u " +
            "WHERE m.team.id = :teamId")
     List<TeamMemberDTO> findMiembrosDeEquipo(@Param("teamId") Integer teamId);
