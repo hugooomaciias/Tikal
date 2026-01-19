@@ -1,6 +1,6 @@
 package com.tikal.api.model.entity.enumerado;
 
-public enum Tipo_Plan {
+public enum Subcription_Plan {
     GRATUITO,
     COMUNITARIO
 }
