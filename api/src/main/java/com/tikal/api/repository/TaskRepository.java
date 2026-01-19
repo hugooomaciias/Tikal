@@ -1,9 +1,10 @@
 package com.tikal.api.repository;
 
+import java.util.List;
+
 import org.springframework.stereotype.Repository;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.networknt.schema.OutputFormat.List;
 import com.tikal.api.model.entity.Task;
 
 @Repository

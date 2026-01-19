@@ -2,7 +2,10 @@ package com.tikal.api.repository;
 
 import java.util.Optional;
 
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
+
+import com.tikal.api.model.entity.User_Settings;
 
 @Repository
 public interface UserSettingsRepository extends JpaRepository<User_Settings, Integer> {
