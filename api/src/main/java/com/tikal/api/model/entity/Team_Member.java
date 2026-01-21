@@ -36,6 +36,11 @@ public class Team_Member {
     @Column(name = "joining_date", updatable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private LocalDateTime joiningDate;
 
+    /* --- Last date of reading messages from the Team --- */
+    @CreationTimestamp
+    @Column(name = "last_read_date", updatable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
+    private LocalDateTime lastReadDate;
+
     /* --- User relation ==> The same User can be a member of different teams --- */
     @ManyToOne(optional = false)
     @JoinColumn(name = "user_id", nullable = false)
