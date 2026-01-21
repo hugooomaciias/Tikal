@@ -38,8 +38,8 @@ public class Calendar_Event {
     private LocalDateTime endDateTime;
 
     /* --- If you want to activate the time tracker automatically, this is 'True' --- */
-    @Column(name = "is_activate_tracker_automatically", columnDefinition = "TINYINT(1) DEFAULT 0")
-    private Boolean isActivateTrackerAutomatically = false;
+    @Column(name = "is_activate_tracker", columnDefinition = "TINYINT(1) DEFAULT 0")
+    private Boolean isActivateTracker = false;
 
     /* --- Colour of the event in case of don't have any task associated --- */
     @Column(name = "custom_colour", length = 7)
