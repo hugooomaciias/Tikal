@@ -1,130 +1,79 @@
-:root {
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-  font-size: 16px;
-  line-height: 24px;
-  font-weight: 400;
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+@layer base {
+  html {
+    @apply scroll-smooth;
+  }
 
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  -webkit-text-size-adjust: 100%;
+  body {
+    @apply font-sans antialiased text-gray-900;
+  }
 }
 
-body {
-  margin: 0;
-  display: flex;
-  justify-content: center;
-  min-width: 320px;
-  min-height: 100vh;
+@layer components {
+  .btn {
+    @apply px-8 py-3 border-none rounded-lg font-semibold cursor-pointer transition-all duration-300 text-center inline-block text-base;
+  }
+
+  .btn-primary {
+    @apply bg-gradient-primary text-white hover:shadow-lg hover:-translate-y-0.5;
+  }
+
+  .btn-primary:disabled {
+    @apply opacity-60 cursor-not-allowed;
+  }
+
+  .btn-secondary {
+    @apply bg-transparent text-white border-2 border-white hover:bg-white hover:text-primary-600;
+  }
+
+  .btn-secondary:disabled {
+    @apply opacity-60 cursor-not-allowed;
+  }
+
+  .btn-logout {
+    @apply bg-red-500 text-white px-6 py-2 rounded-lg font-semibold cursor-pointer hover:bg-red-600 transition-colors duration-300;
+  }
+
+  .form-group {
+    @apply flex flex-col gap-2;
+  }
+
+  .form-group label {
+    @apply text-gray-700 font-semibold text-sm;
+  }
+
+  .form-group input {
+    @apply px-4 py-3 border-2 border-gray-200 rounded-lg text-base transition-colors duration-300 focus:outline-none focus:border-primary-500;
+  }
+
+  .form-group input:disabled {
+    @apply bg-gray-100 cursor-not-allowed;
+  }
+
+  .error {
+    @apply text-red-500 text-xs mt-1;
+  }
+
+  .card {
+    @apply bg-white p-8 rounded-lg shadow-md transition-all duration-300 cursor-pointer hover:shadow-lg hover:-translate-y-1.5;
+  }
 }
 
-* {
-  padding: 0;
-  margin: 0;
-  box-sizing: border-box;
+::-webkit-scrollbar {
+  @apply w-2.5;
 }
 
-.board {
-  width: fit-content;
-  margin: 40px auto;
-  text-align: center;
+::-webkit-scrollbar-track {
+  @apply bg-gray-100;
 }
 
-.board h1 {
-  color: #eee;
-  margin-bottom: 16px;
+::-webkit-scrollbar-thumb {
+  @apply bg-primary-500 rounded-full;
 }
 
-.board button {
-  padding: 8px 12px;
-  margin: 25px;
-  background: transparent;
-  border: 2px solid #eee;
-  color: #eee;
-  width: 100px;
-  border-radius: 5px;
-  transition: 0.2s;
-  font-weight: bold;
-  cursor: pointer;
-}
-
-.board button:hover {
-  background: #eee;
-  color: #222;
-}
-
-.board .game {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
-}
-
-.turn {
-  display: flex;
-  justify-content: center;
-  margin: 15px auto;
-  width: fit-content;
-  position: relative;
-  border-radius: 10px;
-}
-
-.turn .square,
-.winner .square {
-  width: 70px;
-  height: 70px;
-  pointer-events: none;
-  border-color: transparent;
-}
-
-.square.is-selected {
-  color: #fff;
-  background: #09f;
-}
-
-.winner {
-  position: absolute;
-  width: 100vw;
-  height: 100vh;
-  top: 0;
-  left: 0;
-  display: grid;
-  place-items: center;
-  background-color: rgba(0, 0, 0, 0.7);
-}
-
-.winner .text {
-  background: #111;
-  height: 300px;
-  width: 320px;
-  border: 2px solid #eee;
-  border-radius: 10px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  gap: 20px;
-}
-
-.winner .win {
-  margin: 0 auto;
-  width: fit-content;
-  border-radius: 10px;
-  display: flex;
-  gap: 15px;
-}
-
-.square {
-  width: 100px;
-  height: 100px;
-  border: 2px solid #eee;
-  border-radius: 5px;
-  display: grid;
-  place-items: center;
-  cursor: pointer;
-  font-size: 48px;
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-primary-600;
 }
