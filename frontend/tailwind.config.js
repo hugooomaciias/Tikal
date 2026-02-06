@@ -6,6 +6,10 @@ export default {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        onest: ['Onest', 'sans-serif'],
+        passero: ['Passero One', 'cursive'],
+      },
       colors: {
         primary: {
           DEFAULT: '#F1F8F3',
@@ -78,8 +82,8 @@ export default {
       },
       keyframes: {
         float: {
-          '0%, 100%': { transform: 'translateY(0)' },
-          '50%': { transform: 'translateY(-20px)' },
+          '0%, 100%': { transform: 'translateY(0) rotate(12deg)' },
+          '50%': { transform: 'translateY(-10px) rotate(12deg)' },
         }
       }
     },

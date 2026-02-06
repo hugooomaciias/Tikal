@@ -1,7 +1,8 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider } from './context/AuthContext'
 import { ProtectedRoute } from './components/layout/ProtectedRoute'
-import { LandingPage } from './pages/LandingPage'
+import { LandingPage } from './pages/landing/LandingPage'
+import { PaymentPage } from './pages/landing/PaymentPage'
 import { LoginPage } from './pages/auth/LoginPage'
 import { RegisterPage } from './pages/auth/RegisterPage'
 import { LoadingScreen } from './pages/LoadingScreen'
@@ -14,6 +15,7 @@ function App() {
         <Routes>
           {/* Ruta pública - Landing Page */}
           <Route path="/" element={<LandingPage />} />
+          <Route path="/payment" element={<PaymentPage />} />
 
           {/* Rutas de autenticación */}
           <Route path="/login" element={<LoginPage />} />
