@@ -15,8 +15,8 @@ import java.time.LocalDateTime;
 @Data
 @NoArgsConstructor
 @Entity
-@Table(name = "time_log")
-public class Time_Log {
+@Table(name = "time_logs")
+public class TimeLog {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY) // Auto-increment en MySQL
     private Integer id;

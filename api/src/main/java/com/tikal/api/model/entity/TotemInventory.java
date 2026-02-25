@@ -16,7 +16,7 @@ import org.hibernate.annotations.CreationTimestamp;
 @NoArgsConstructor
 @Entity
 @Table(name = "totem_inventory")
-public class Totem_Inventory {
+public class TotemInventory {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
@@ -34,5 +34,5 @@ public class Totem_Inventory {
     /* --- Totem List relation ==> Many totems can be won from the same Totem List --- */
     @ManyToOne(optional = false)
     @JoinColumn(name = "totem_id")
-    private Totem_List totem;
+    private TotemList totem;
 }

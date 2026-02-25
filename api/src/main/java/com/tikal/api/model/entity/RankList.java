@@ -12,7 +12,7 @@ import lombok.Data;
 @Data
 @Entity
 @Table(name = "rank_list")
-public class Rank_List {
+public class RankList {
     @Id
     private Integer id;
 

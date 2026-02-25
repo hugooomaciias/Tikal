@@ -7,11 +7,11 @@ import java.util.Optional;
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.tikal.api.model.entity.Calendar_Event;
+import com.tikal.api.model.entity.CalendarEvent;
 import com.tikal.api.model.entity.Project;
 import com.tikal.api.model.entity.Stage;
 import com.tikal.api.model.entity.Task;
-import com.tikal.api.model.entity.Time_Log;
+import com.tikal.api.model.entity.TimeLog;
 import com.tikal.api.model.entity.User;
 import com.tikal.api.repository.CalendarEventRepository;
 import com.tikal.api.repository.ProjectRepository;
@@ -207,8 +207,8 @@ public class TimeService {
      * @param isTempleMode Whether temple mode is activated
      * @return The created Time_Log entry
      */
-    public Time_Log startProjectTimer(User user, Project project, Integer targetTime, Boolean isTempleMode) {
-        Time_Log timeLog = new Time_Log();
+    public TimeLog startProjectTimer(User user, Project project, Integer targetTime, Boolean isTempleMode) {
+        TimeLog timeLog = new TimeLog();
         timeLog.setUser(user);
         timeLog.setProject(project);
         timeLog.setInitDateTime(LocalDateTime.now());
@@ -226,8 +226,8 @@ public class TimeService {
      * @param isTempleMode Whether temple mode is activated
      * @return The created Time_Log entry
      */
-    public Time_Log startStageTimer(User user, Stage stage, Integer targetTime, Boolean isTempleMode) {
-        Time_Log timeLog = new Time_Log();
+    public TimeLog startStageTimer(User user, Stage stage, Integer targetTime, Boolean isTempleMode) {
+        TimeLog timeLog = new TimeLog();
         timeLog.setUser(user);
         timeLog.setStage(stage);
         timeLog.setInitDateTime(LocalDateTime.now());
@@ -245,8 +245,8 @@ public class TimeService {
      * @param isTempleMode Whether temple mode is activated
      * @return The created Time_Log entry
      */
-    public Time_Log startTaskTimer(User user, Task task, Integer targetTime, Boolean isTempleMode) {
-        Time_Log timeLog = new Time_Log();
+    public TimeLog startTaskTimer(User user, Task task, Integer targetTime, Boolean isTempleMode) {
+        TimeLog timeLog = new TimeLog();
         timeLog.setUser(user);
         timeLog.setTask(task);
         timeLog.setInitDateTime(LocalDateTime.now());
@@ -262,11 +262,11 @@ public class TimeService {
      * @param activityDescription Optional description of the activity performed
      * @return The updated Time_Log entry, or empty Optional if not found
      */
-    public Optional<Time_Log> stopTimer(Integer timeLogId, String activityDescription) {
-        Optional<Time_Log> timeLog = timeLogRepo.findById(timeLogId);
+    public Optional<TimeLog> stopTimer(Integer timeLogId, String activityDescription) {
+        Optional<TimeLog> timeLog = timeLogRepo.findById(timeLogId);
         
         if (timeLog.isPresent()) {
-            Time_Log log = timeLog.get();
+            TimeLog log = timeLog.get();
             log.setEndDateTime(LocalDateTime.now());
             log.setActivityDescription(activityDescription);
 
@@ -281,7 +281,7 @@ public class TimeService {
      * @param timeLogId The ID of the Time_Log entry
      * @return The updated Time_Log entry, or empty Optional if not found
      */
-    public Optional<Time_Log> stopTimer(Integer timeLogId) {
+    public Optional<TimeLog> stopTimer(Integer timeLogId) {
         return stopTimer(timeLogId, null);
     }
     
@@ -291,10 +291,10 @@ public class TimeService {
      * @return The elapsed time in seconds, or 0 if not found or not stopped
      */
     public long getElapsedTime(Integer timeLogId) {
-        Optional<Time_Log> timeLog = timeLogRepo.findById(timeLogId);
+        Optional<TimeLog> timeLog = timeLogRepo.findById(timeLogId);
         
         if (timeLog.isPresent()) {
-            Time_Log log = timeLog.get();
+            TimeLog log = timeLog.get();
             LocalDateTime endTime = log.getEndDateTime() != null ? log.getEndDateTime() : LocalDateTime.now();
             return Duration.between(log.getInitDateTime(), endTime).getSeconds();
         }
@@ -307,7 +307,7 @@ public class TimeService {
      * @param userId The ID of the user
      * @return List of time logs for the user
      */
-    public List<Time_Log> getTimeLogsByUser(Integer userId) {
+    public List<TimeLog> getTimeLogsByUser(Integer userId) {
         return timeLogRepo.findByUser_Id(userId);
     }
     
@@ -316,7 +316,7 @@ public class TimeService {
      * @param projectId The ID of the project
      * @return List of time logs for the project
      */
-    public List<Time_Log> getTimeLogsByProject(Integer projectId) {
+    public List<TimeLog> getTimeLogsByProject(Integer projectId) {
         return timeLogRepo.findByProject_Id(projectId);
     }
     
@@ -325,7 +325,7 @@ public class TimeService {
      * @param stageId The ID of the stage
      * @return List of time logs for the stage
      */
-    public List<Time_Log> getTimeLogsByStage(Integer stageId) {
+    public List<TimeLog> getTimeLogsByStage(Integer stageId) {
         return timeLogRepo.findByStage_Id(stageId);
     }
     
@@ -334,7 +334,7 @@ public class TimeService {
      * @param taskId The ID of the task
      * @return List of time logs for the task
      */
-    public List<Time_Log> getTimeLogsByTask(Integer taskId) {
+    public List<TimeLog> getTimeLogsByTask(Integer taskId) {
         return timeLogRepo.findByTask_Id(taskId);
     }
     
@@ -343,7 +343,7 @@ public class TimeService {
      * @param event The calendar event to create
      * @return The saved calendar event
      */
-    public Calendar_Event createCalendarEvent(Calendar_Event event) {
+    public CalendarEvent createCalendarEvent(CalendarEvent event) {
         return calendarRepo.save(event);
     }
     
@@ -352,7 +352,7 @@ public class TimeService {
      * @param userId The ID of the user
      * @return List of calendar events ordered by date
      */
-    public List<Calendar_Event> getCalendarEventsByUser(Integer userId) {
+    public List<CalendarEvent> getCalendarEventsByUser(Integer userId) {
         return calendarRepo.findByUserIdOrderByInitDateTimeAsc(userId);
     }
     
@@ -363,8 +363,8 @@ public class TimeService {
      * @param end The end date and time
      * @return List of calendar events in the time range
      */
-    public List<Calendar_Event> getCalendarEventsByUserAndDateRange(Integer userId, LocalDateTime start, LocalDateTime end) {
-        return calendarRepo.findByUserIdAndInitDateTimeBetweenOrderByStartTimeAsc(userId, start, end);
+    public List<CalendarEvent> getCalendarEventsByUserAndDateRange(Integer userId, LocalDateTime start, LocalDateTime end) {
+        return calendarRepo.findByUserIdAndInitDateTimeBetweenOrderByInitDateTimeAsc(userId, start, end);
     }
     
     /**
@@ -372,7 +372,7 @@ public class TimeService {
      * @param userId The ID of the user
      * @return List of linked calendar events
      */
-    public List<Calendar_Event> getLinkedCalendarEventsByUser(Integer userId) {
+    public List<CalendarEvent> getLinkedCalendarEventsByUser(Integer userId) {
         return calendarRepo.findLinkedEventsByUserId(userId);
     }
     
@@ -382,7 +382,7 @@ public class TimeService {
      * @param name The name to search for
      * @return List of calendar events matching the name
      */
-    public List<Calendar_Event> searchCalendarEventsByName(Integer userId, String name) {
+    public List<CalendarEvent> searchCalendarEventsByName(Integer userId, String name) {
         return calendarRepo.findByUserIdAndNameContainingIgnoreCaseOrderByInitDateTimeAsc(userId, name);
     }
     
@@ -391,7 +391,7 @@ public class TimeService {
      * @param eventId The ID of the event
      * @return The calendar event if found, empty Optional otherwise
      */
-    public Optional<Calendar_Event> getCalendarEventById(Integer eventId) {
+    public Optional<CalendarEvent> getCalendarEventById(Integer eventId) {
         return calendarRepo.findById(eventId);
     }
     
@@ -401,7 +401,7 @@ public class TimeService {
      * @param event The updated event data
      * @return The updated calendar event
      */
-    public Calendar_Event updateCalendarEvent(Integer eventId, Calendar_Event event) {
+    public CalendarEvent updateCalendarEvent(Integer eventId, CalendarEvent event) {
         event.setId(eventId);
         return calendarRepo.save(event);
     }

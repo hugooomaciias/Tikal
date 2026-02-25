@@ -1,6 +1,6 @@
 package com.tikal.api.model.entity;
 
-import com.tikal.api.model.entity.enumerado.*;
+import com.tikal.api.model.entity.enumerated.*;
 
 import jakarta.persistence.*;
 import lombok.Data;
@@ -19,7 +19,7 @@ import org.hibernate.type.SqlTypes;
 @NoArgsConstructor
 @Entity
 @Table(name = "user_settings")
-public class User_Settings {
+public class UserSettings {
     /* --- User relation ==> Many settings can belong to the same User --- */
     @Id
     @Column(name = "user_id")
@@ -33,7 +33,7 @@ public class User_Settings {
     /* --- Time range setting --- */
     @Enumerated(EnumType.STRING)
     @Column(name = "time_range", columnDefinition = "ENUM('SEMANAL', 'MENSUAL', 'TRIMESTRAL', 'ANUAL') DEFAULT 'SEMANAL'")
-    private Time_Range_Setting timeRange = Time_Range_Setting.SEMANAL;
+    private TimeRangeSetting timeRange = TimeRangeSetting.SEMANAL;
 
     /* --- Goal of hours to work --- */
     @Column(name = "hours_goal", columnDefinition = "INT DEFAULT 40")
@@ -41,11 +41,11 @@ public class User_Settings {
 
     /* --- Theme setting --- */
     @Enumerated(EnumType.STRING)
-    @Column(columnDefinition = "ENUM('CLARO', 'OSCURO', 'MAYA') DEFAULT 'MAYA'")
-    private Theme_Setting theme = Theme_Setting.MAYA;
+    @Column(name = "theme_setting", columnDefinition = "ENUM('CLARO', 'OSCURO', 'MAYA') DEFAULT 'MAYA'")
+    private ThemeSetting theme = ThemeSetting.MAYA;
 
     /* --- Here we have the widgets position setting of the User --- */
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "layout_dashboard")
-    private Layout_Dashboard_Metadata layoutDashboard;
+    private LayoutDashboardMetadata layoutDashboard;
 }

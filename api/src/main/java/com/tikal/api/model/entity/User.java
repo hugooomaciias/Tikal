@@ -1,10 +1,12 @@
 package com.tikal.api.model.entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import com.tikal.api.model.entity.enumerado.Subcription_Plan;
+import com.tikal.api.model.entity.enumerated.SubscriptionPlan;
 
 /** 
  * This class represents the core User entity within the application's persistence
@@ -12,9 +14,11 @@ import com.tikal.api.model.entity.enumerado.Subcription_Plan;
  * credentials, profile information, subscription plans, and Rank
  */
 @Data
+@Builder
 @NoArgsConstructor
+@AllArgsConstructor
 @Entity
-@Table(name = "user")
+@Table(name = "users")
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -35,7 +39,7 @@ public class User {
     /* --- User subscription plan --- */
     @Enumerated(EnumType.STRING)                                                                            // Guarda "GRATUITO" en vez de 0
     @Column(name = "subscription_plan", columnDefinition = "ENUM('GRATUITO', 'COMUNITARIO') DEFAULT 'GRATUITO'")
-    private Subcription_Plan subscriptionPlan = Subcription_Plan.GRATUITO;                                                        // Valor por defecto
+    private SubscriptionPlan subscriptionPlan = SubscriptionPlan.GRATUITO;                                                        // Valor por defecto
 
     /* --- User avatar URL --- */
     @Column(name = "avatar_url")
@@ -44,13 +48,13 @@ public class User {
     /* --- Rank relation ==> Many users may have the same Rank --- */
     @ManyToOne(optional = true, fetch = FetchType.EAGER)
     @JoinColumn(name = "current_rank", columnDefinition = "INT DEFAULT 1")
-    private Rank_List currentRank;
+    private RankList currentRank;
     
     /* --- When a new User is created, they are assigned Rank 1 --- */
     @PrePersist
     public void prePersist() {
         if (this.currentRank == null) {
-            this.currentRank = new Rank_List();
+            this.currentRank = new RankList();
             this.currentRank.setId(1);
         }
     }

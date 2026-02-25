@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 import com.tikal.api.model.dto.TeamDTO;
 import com.tikal.api.model.dto.TeamMemberDTO;
 import com.tikal.api.model.entity.Team;
-import com.tikal.api.model.entity.Team_Member;
+import com.tikal.api.model.entity.TeamMember;
 import com.tikal.api.model.entity.User;
 import com.tikal.api.repository.TeamMemberRepository;
 import com.tikal.api.repository.TeamRepository;
@@ -188,7 +188,7 @@ public class TeamService {
      * @param isAdmin Whether the user should be added as admin
      * @return The created Team_Member, or null if team or user not found
      */
-    public Team_Member addUserToTeamByCode(Integer userId, String invitationCode, Boolean isAdmin) {
+    public TeamMember addUserToTeamByCode(Integer userId, String invitationCode, Boolean isAdmin) {
         Optional<TeamDTO> teamDTO = teamRepo.findByInvitationCode(invitationCode);
         Optional<User> user = userRepo.findById(userId);
         
@@ -223,7 +223,7 @@ public class TeamService {
      * @param isAdmin Whether the user should be added as admin
      * @return The created Team_Member, or null if team or user not found
      */
-    public Team_Member addUserToTeam(Integer userId, Integer teamId, Boolean isAdmin) {
+    public TeamMember addUserToTeam(Integer userId, Integer teamId, Boolean isAdmin) {
         Optional<User> user = userRepo.findById(userId);
         Optional<Team> team = teamRepo.findById(teamId);
         
@@ -231,7 +231,7 @@ public class TeamService {
             return null; // User or team not found
         }
         
-        Team_Member member = new Team_Member();
+        TeamMember member = new TeamMember();
         member.setUser(user.get());
         member.setTeam(team.get());
         member.setIsAdmin(isAdmin != null ? isAdmin : false);
@@ -245,9 +245,9 @@ public class TeamService {
      * @param teamId The ID of the team
      */
     public void removeUserFromTeam(Integer userId, Integer teamId) {
-        List<Team_Member> members = teamMemberRepo.findAll();
+        List<TeamMember> members = teamMemberRepo.findAll();
         
-        for (Team_Member member : members) {
+        for (TeamMember member : members) {
             if (member.getUser().getId().equals(userId) && member.getTeam().getId().equals(teamId)) {
                 teamMemberRepo.deleteById(member.getId());
                 break;
@@ -279,10 +279,10 @@ public class TeamService {
      * @param teamId The ID of the team
      * @return The updated Team_Member, or null if not found
      */
-    public Team_Member promoteToAdmin(Integer userId, Integer teamId) {
-        List<Team_Member> members = teamMemberRepo.findAll();
+    public TeamMember promoteToAdmin(Integer userId, Integer teamId) {
+        List<TeamMember> members = teamMemberRepo.findAll();
         
-        for (Team_Member member : members) {
+        for (TeamMember member : members) {
             if (member.getUser().getId().equals(userId) && member.getTeam().getId().equals(teamId)) {
                 member.setIsAdmin(true);
                 return teamMemberRepo.save(member);
@@ -298,10 +298,10 @@ public class TeamService {
      * @param teamId The ID of the team
      * @return The updated Team_Member, or null if not found
      */
-    public Team_Member demoteFromAdmin(Integer userId, Integer teamId) {
-        List<Team_Member> members = teamMemberRepo.findAll();
+    public TeamMember demoteFromAdmin(Integer userId, Integer teamId) {
+        List<TeamMember> members = teamMemberRepo.findAll();
         
-        for (Team_Member member : members) {
+        for (TeamMember member : members) {
             if (member.getUser().getId().equals(userId) && member.getTeam().getId().equals(teamId)) {
                 member.setIsAdmin(false);
                 return teamMemberRepo.save(member);
@@ -318,9 +318,9 @@ public class TeamService {
      * @return true if user is a team member, false otherwise
      */
     public boolean isTeamMember(Integer userId, Integer teamId) {
-        List<Team_Member> members = teamMemberRepo.findAll();
+        List<TeamMember> members = teamMemberRepo.findAll();
         
-        for (Team_Member member : members) {
+        for (TeamMember member : members) {
             if (member.getUser().getId().equals(userId) && member.getTeam().getId().equals(teamId)) {
                 return true;
             }
@@ -336,9 +336,9 @@ public class TeamService {
      * @return true if user is a team admin, false otherwise
      */
     public boolean isTeamAdmin(Integer userId, Integer teamId) {
-        List<Team_Member> members = teamMemberRepo.findAll();
+        List<TeamMember> members = teamMemberRepo.findAll();
         
-        for (Team_Member member : members) {
+        for (TeamMember member : members) {
             if (member.getUser().getId().equals(userId) && member.getTeam().getId().equals(teamId) && member.getIsAdmin()) {
                 return true;
             }

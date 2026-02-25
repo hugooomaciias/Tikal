@@ -17,12 +17,12 @@ import org.hibernate.annotations.CreationTimestamp;
 @NoArgsConstructor
 @Entity
 @Table(
-    name = "team_member",
+    name = "team_members",
     uniqueConstraints = {
         @UniqueConstraint(name = "uk_user_team", columnNames = {"user_id", "team_id"})
     }
 )
-public class Team_Member {
+public class TeamMember {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
