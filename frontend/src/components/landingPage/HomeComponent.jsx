@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { TimeTracker } from "../widgets/TimeTracker.jsx";
 import { Statistics } from "../widgets/Statistics.jsx";
 
@@ -8,21 +8,14 @@ import { Statistics } from "../widgets/Statistics.jsx";
  * This component renders the "above-the-fold" area of the landing page. It
  * serves as the primary entry point for user engagement, displaying the unique
  * value proposition, the brand identity with distinct visual styles, and the
- * main Call-to-Action (CTA) buttons
- *
- * Additionally, it features a visual composition of the application's widgets on
- * larger screens to provide an immediate preview of the product's interface
+ * main Call-to-Action (CTA) buttons. Additionally, it features a visual
+ * composition of the application's widgets on larger screens to provide an
+ * immediate preview of the product's interface.
  *
  * @component
  * @returns {JSX.Element} The rendered Hero section with a responsive grid layout
  */
 export const HomeComponent = () => {
-    /**
-     * Hook for programmatic navigation. Used here to redirect users to
-     * authentication routes without triggering a full page reload.
-     */
-    const navigate = useNavigate();
-
     return (
         <div className="w-full max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 items-center justify-items-center gap-16 p-12 md:p-8 mt-28 md:mt-0">
             {/* Left Column - Brand Messaging & Actions */}
@@ -47,12 +40,12 @@ export const HomeComponent = () => {
 
                 {/* Call-to-Action Buttons */}
                 <div className="flex flex-col md:flex-row gap-4">
-                    <button className="btn btn-primary" onClick={() => navigate("/login")}>
-                            Iniciar Sesión
-                        </button>
-                    <button className="btn btn-secondary" onClick={() => navigate("/register")}>
+                    <Link to="/login" className="btn btn-primary">
+                        Iniciar Sesión
+                    </Link>
+                    <Link to="/register" className="btn btn-secondary">
                         Comenzar gratis
-                    </button>
+                    </Link>
                 </div>
             </div>
 

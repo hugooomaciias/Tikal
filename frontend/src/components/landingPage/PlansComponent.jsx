@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom"; 
 import { UserIcon } from "../../assets/icons/userIcon.jsx";
 import { GroupIcon } from "../../assets/icons/groupIcon.jsx";
 import { CheckIcon } from "../../assets/icons/checkIcon.jsx";
@@ -11,20 +11,11 @@ import { XIcon } from "../../assets/icons/xIcon.jsx";
  * outlines the different tiers available, presenting a clear comparison of their
  * respective features.
  *
- * Key Features:
- * - Dynamic color theming based on the plan type.
- * - Icon mapping strategy.
- *
  * @component
  * @returns {JSX.Element} The rendered plans section with a responsive grid
  * layout.
  */
 export const PlansComponent = () => {
-    /**
-     * Hook for programmatic navigation. Used here to redirect users to
-     * authentication routes without triggering a full page reload.
-     */
-    const navigate = useNavigate();
 
     /**
      * Color Theme Configuration
@@ -75,7 +66,7 @@ export const PlansComponent = () => {
                 { text: "Reportes PDF & Excel", included: false }
             ],
             textButton: "Comenzar Gratis",
-            action: () => navigate("/register")
+            action: "/register"
         },
         {
             colour: "tertiary",
@@ -93,7 +84,7 @@ export const PlansComponent = () => {
                 { text: "Reportes PDF & Excel", included: true }
             ],
             textButton: "Prueba Premium",
-            action: () => navigate("/payment")
+            action: "/payment"
         }
     ];
 
@@ -163,9 +154,9 @@ export const PlansComponent = () => {
                                 </div>
 
                                 {/* Call-to-Action Button */}
-                                <button className={`btn md:w-1/2 ${styles.bg} text-primary`} onClick={plan.action}>
-                                    {plan.textButton} 
-                                </button>
+                                <Link to={plan.action} className={`btn md:w-1/2 ${styles.bg} text-primary`}>
+                                    {plan.textButton}
+                                </Link>
                             </div>
                         );
                     })}

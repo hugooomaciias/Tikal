@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { ChevronLeftIcon } from "../../assets/icons/chevronLeftIcon.jsx";
 
 /**
@@ -8,20 +8,10 @@ import { ChevronLeftIcon } from "../../assets/icons/chevronLeftIcon.jsx";
  * preferred billing cycle (Monthly, Quarterly, or Annual). It features a
  * responsive grid layout with pricing cards.
  *
- * Key Features:
- * - Dynamic color theming based on the plan type.
- * - Deep linking navigation back to the main landing page.
- *
  * @component
  * @returns {JSX.Element} The full-screen payment selection interface.
  */
 export const PaymentPage = () => {
-    /**
-     * Hook for programmatic navigation. Used here to redirect users to
-     * authentication routes without triggering a full page reload.
-     */
-    const navigate = useNavigate();
-
     /**
      * Color Theme Configuration
      * 
@@ -81,15 +71,17 @@ export const PaymentPage = () => {
                 <header className="fixed z-50 top-0 right-0 left-0 bg-primary-300 bg-opacity-80 backdrop-blur-md transition-all duration-500 ease-in-out">
                     <div className="w-full mx-auto flex items-center justify-between p-8">
                         {/* Brand Logo */}
-                        <div>
-                            <img className="h-10 w-auto cursor-pointer" src="/public/logoHeader_2.svg" alt="Logo Tikal" onClick={() => navigate("/")} />
-                        </div>
+                        <Link to="/">
+                            <img className="h-10 w-auto cursor-pointer" src="/public/logoHeader_2.svg" alt="Logo Tikal"/>
+                        </Link>
             
                         {/* Navigation */}
-                        <nav className="h-10 flex items-center gap-2 bg-primary-50 font-semibold p-2 rounded-full shadow-md" onClick={() => navigate("/#plans")}>
-                            {/* Navigation links with conditional class rendering */}
-                            <ChevronLeftIcon className="h-6 w-6 text-primary-300 cursor-pointer" />
-                        </nav>
+                        <Link to="/#plans">
+                            <nav className="h-10 flex items-center gap-2 bg-primary-50 font-semibold p-2 rounded-full shadow-md">
+                                {/* Navigation links with conditional class rendering */}
+                                <ChevronLeftIcon className="h-6 w-6 text-primary-300 cursor-pointer" />
+                            </nav>
+                        </Link>
                     </div>
                 </header>
 
@@ -141,9 +133,9 @@ export const PaymentPage = () => {
                                     </div>
 
                                     {/* Call-to-Action Button */}
-                                    <button className={`btn ${styles.bg} text-primary`}>
+                                    <Link to="/register" className={`btn ${styles.bg} text-primary`}>
                                         {option.textButton}
-                                    </button>
+                                    </Link>
                                 </div>
                             );
                         })}

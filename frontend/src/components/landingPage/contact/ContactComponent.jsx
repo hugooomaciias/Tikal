@@ -7,11 +7,6 @@ import { FormContactComponent } from "./FormContactComponent.jsx";
  * It implements a responsive split-view layout that combines the brand's
  * customer service philosophy with the functional input mechanism.
  *
- * Key Features:
- * - Responsive Grid Layout: Two-column design on desktop, stacked on mobile.
- * - Brand Messaging: Displays the core values and support commitment text.
- * - Component Composition: Encapsulates the logic-heavy 'FormContactComponent'.
- *
  * @component
  * @returns {JSX.Element} The visual layout of the contact section.
  */

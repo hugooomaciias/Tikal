@@ -5,6 +5,7 @@ import { XIcon } from "../../assets/icons/xIcon.jsx";
 import { HomeComponent } from "../../components/landingPage/HomeComponent.jsx";
 import { PlansComponent } from "../../components/landingPage/PlansComponent.jsx";
 import { ContactComponent } from "../../components/landingPage/contact/ContactComponent.jsx";
+import { FooterComponent } from "../../components/landingPage/FooterComponent.jsx";
 
 /**
  * Main Landing Page Component
@@ -13,10 +14,8 @@ import { ContactComponent } from "../../components/landingPage/contact/ContactCo
  * application layout. It implements a "Scroll Spy" pattern to detect the
  * currently active section within the viewport and dynamically adapts the
  * Header's appearance (logo, background color, and text color) to ensure optimal
- * contrast against the content.
- *
- * It also handles deep linking (hash navigation) and responsive mobile menu
- * states.
+ * contrast against the content. It also handles deep linking (hash navigation)
+ * and responsive mobile menu states.
  *
  * @component
  * @returns {JSX.Element} The rendered Landing Page with sticky navigation and
@@ -100,8 +99,6 @@ export const LandingPage = () => {
 	
 				if (currentElement) {
 					const rect = currentElement.getBoundingClientRect();
-					
-					console.log(rect.top)
 					
 					isAtSectionStart = (rect.top < 104) && (rect.top > -10);
 				}
@@ -254,6 +251,8 @@ export const LandingPage = () => {
 			<section id="contact" className="min-h-screen flex items-center justify-center bg-primary-50">
 				<ContactComponent />
 			</section>
+
+			<FooterComponent />
 		</div>
 	);
 };

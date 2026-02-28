@@ -1,126 +1,94 @@
-import { useState } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
-import { useAuth } from '../../hooks/useAuth'
+import { Link } from "react-router-dom";
+import { FormLoginComponent } from "../../components/auth/FormLoginComponent.jsx";
+import { GoogleIcon } from "../../assets/icons/googleIcon.jsx"
+import { AppleIcon } from "../../assets/icons/appleIcon.jsx"
+import { GithubIcon } from "../../assets/icons/githubIcon.jsx"
 
+/**
+ * Login Page Layout
+ *
+ * This component serves as the authentication gateway for returning users.
+ * Like the registration page, it uses a centralized, distraction-free layout
+ * to ensure users focus entirely on the credential entry process. It acts as
+ * the visual container (View), delegating the complex authentication logic,
+ * state management, and API interactions to the `FormLoginComponent`.
+ *
+ * @component
+ * @returns {JSX.Element} The rendered login page layout.
+ */
 export const LoginPage = () => {
-  const navigate = useNavigate()
-  const { login, isLoading } = useAuth()
-  const [formData, setFormData] = useState({
-    email: '',
-    password: ''
-  })
-  const [errors, setErrors] = useState({})
+    const iconMap = {
+        "GoogleIcon": GoogleIcon,
+        "AppleIcon": AppleIcon,
+        "GithubIcon": GithubIcon,
+    };
 
-  const handleChange = (e) => {
-    const { name, value } = e.target
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }))
-  }
+    const signInOptions = [
+        {
+            title: "Google",
+            icon: "GoogleIcon"
+        },
+        {
+            title: "Apple",
+            icon: "AppleIcon"
+        },
+        {
+            title: "Github",
+            icon: "GithubIcon"
+        },
+    ];
 
-  const validateForm = () => {
-    const newErrors = {}
-    
-    if (!formData.email) {
-      newErrors.email = 'El email es requerido'
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = 'El email no es válido'
-    }
-    
-    if (!formData.password) {
-      newErrors.password = 'La contraseña es requerida'
-    } else if (formData.password.length < 6) {
-      newErrors.password = 'La contraseña debe tener al menos 6 caracteres'
-    }
-    
-    return newErrors
-  }
+    return (
+        <div className="min-h-screen flex items-center justify-center bg-primary p-0 md:p-4">
 
-  const handleSubmit = (e) => {
-    e.preventDefault()
-    const newErrors = validateForm()
-    
-    if (Object.keys(newErrors).length === 0) {
-      login({
-        email: formData.email,
-        id: Math.random(),
-        name: formData.email.split('@')[0]
-      })
-      navigate('/loading')
-    } else {
-      setErrors(newErrors)
-    }
-  }
+            {/* Login Card Container */}
+            <div className="min-h-screen md:min-h-fit w-full max-w-md flex flex-col bg-primary-50 p-6 md:p-10 md:rounded-xl md:shadow-2xl">
 
-  return (
-    <div className="min-h-screen bg-gradient-primary flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
-        <div className="bg-white rounded-xl shadow-2xl p-10">
-          <h1 className="text-3xl font-bold text-center text-gray-800 mb-2">
-            Iniciar Sesión
-          </h1>
-          <p className="text-center text-gray-600 mb-8">
-            Bienvenido de vuelta a TIKAL
-          </p>
-          
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="form-group">
-              <label htmlFor="email">Email</label>
-              <input
-                type="email"
-                id="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                placeholder="tu@email.com"
-                disabled={isLoading}
-              />
-              {errors.email && <span className="error">{errors.email}</span>}
+                {/* Header Section: Branding & Title */}
+                <div className="flex items-center justify-between mb-8">
+                    <Link to="/" className="text-primary-300 font-semibold cursor-pointer transition-colors duration-300">
+                        <img className="h-10 w-auto" src="/public/logoHeader_1.svg" alt="Logo Tikal" />
+                    </Link>
+
+                    <h1 className="text-primary-300 text-3xl text-center font-bold">Iniciar Sesión</h1>
+                </div>
+
+                <div className="flex-1 flex flex-col justify-center">
+                    {/* Login Form */}
+                    <FormLoginComponent  />
+
+                    {/* Forgot Password */}
+                    <div className="relative w-full flex items-center justify-center p-8">
+                        <div className="absolute w-full border-primary border-t-[3px]"></div>
+                        
+                        <span className="relative px-3 bg-primary-50 text-primary-500 text-sm font-medium">
+                            O continúa con
+                        </span>
+                    </div>
+
+                    {/* SignIn options buttons */}
+                    <div className="flex justify-center gap-4">
+                        {signInOptions.map((option, index) => {
+                            const IconComponent = iconMap[option.icon];
+
+                            return (
+                                <button key={index} type="button" title={option.title}
+                                    className="btn-primary h-12 w-12 flex items-center justify-center rounded-full md:opacity-80 hover:opacity-100 transition-all duration-500 shadow-md"
+                                >
+                                    <IconComponent />
+                                </button>
+                            );
+                        })}
+                    </div>
+
+                    {/* Footer Section: Link to Register */}
+                    <div className="text-center mt-8 space-y-2">
+                        <p className="text-quaternary-700 text-sm">
+                            ¿No eres miembro de Tikal? <Link to="/register" className="text-primary-600 font-semibold transition-colors hover:text-primary-700">Regístrate</Link>
+                        </p>
+                    </div>
+                </div>
             </div>
-
-            <div className="form-group">
-              <label htmlFor="password">Contraseña</label>
-              <input
-                type="password"
-                id="password"
-                name="password"
-                value={formData.password}
-                onChange={handleChange}
-                placeholder="Tu contraseña"
-                disabled={isLoading}
-              />
-              {errors.password && <span className="error">{errors.password}</span>}
-            </div>
-
-            <button
-              type="submit"
-              className="btn btn-primary w-full"
-              disabled={isLoading}
-            >
-              {isLoading ? 'Iniciando sesión...' : 'Iniciar Sesión'}
-            </button>
-          </form>
-
-          <div className="mt-8 space-y-4 text-center">
-            <p className="text-gray-700">
-              ¿No tienes cuenta?{' '}
-              <Link
-                to="/register"
-                className="text-primary-600 font-semibold hover:text-primary-700 transition-colors"
-              >
-                Registrarse
-              </Link>
-            </p>
-            <Link
-              to="/"
-              className="inline-block text-gray-500 font-medium hover:text-primary-600 transition-colors"
-            >
-              ← Volver a inicio
-            </Link>
-          </div>
         </div>
-      </div>
-    </div>
-  )
+    )
 }

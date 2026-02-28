@@ -15,11 +15,6 @@ import { LoaderIcon } from "../../../assets/icons/loaderIcon.jsx";
  * form. It acts as the functional core of the contact section, handling user
  * input validation and serverless email transmission via EmailJS.
  *
- * Key Features:
- * - Strict client-side validation with real-time visual cues.
- * - Asynchronous state handling for submission life-cycle.
- * - Adaptive button UI providing immediate feedback on transaction status.
- *
  * @component
  * @returns {JSX.Element} The interactive form element with dynamic styling.
  */
@@ -91,7 +86,7 @@ export const FormContactComponent = () => {
             tempErrors.email = "Por favor, introduce un email";
             isValid = false;
         } else if (! emailRegex.test(formData.email)) {
-            tempErrors.email = "Por favor, introduce un email valido";
+            tempErrors.email = "Por favor, introduce un email válido";
             isValid = false;
         }
 
@@ -120,20 +115,9 @@ export const FormContactComponent = () => {
             ...prev,
             [name]: value
         }));
-    };
-
-    /**
-     * Input Focus Handler
-     * 
-     * Clears validation errors for a specific field as soon as the user
-     * interacts with it, improving the user experience.
-     * @param {React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>} e - The focus event.
-     */
-    const handleFocus = (e) => {
-        const { name } = e.target;
 
         if (errors[name]) {
-            setErrors(prev => ({
+             setErrors(prev => ({
                 ...prev,
                 [name]: ""
             }));
@@ -189,11 +173,12 @@ export const FormContactComponent = () => {
      * @param {string} fieldName - The name of the field to check.
      */
     const getInputClass = (fieldName) => {
-        const baseInputClass = "input focus:ring-primary-500 peer";
-        const baseTextareaClass = "textarea focus:ring-primary-500 peer";
-        const errorClass = "ring-[3px] ring-tertiary-200";
+        const baseInputClass = "input input-textarea-primary peer";
+        const baseTextareaClass = "textarea input-textarea-primary peer";
+        const errorNoEmailClass = "ring-[3px] ring-tertiary-200";
         
         const baseClass = fieldName === "message" ? baseTextareaClass : baseInputClass;
+        const errorClass = `${errors[fieldName] === "Por favor, introduce un email válido" ? "" : errorNoEmailClass}`;
 
         return `${baseClass} ${errors[fieldName] ? errorClass : ""}`;
     };
@@ -211,7 +196,7 @@ export const FormContactComponent = () => {
         const errorClass = "peer-focus:text-tertiary-200 peer-[:not(:placeholder-shown)]:text-tertiary-200";
         const normalClass = "peer-focus:text-primary-500 peer-[:not(:placeholder-shown)]:text-primary-500";      
 
-        return `${baseClass}  ${errors[fieldName] === "Por favor, introduce un email valido" ? errorClass : normalClass}`;
+        return `${baseClass}  ${errors[fieldName] === "Por favor, introduce un email válido" ? errorClass : normalClass}`;
     };
 
     /**
@@ -237,12 +222,11 @@ export const FormContactComponent = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="relative w-full">
                     <input type="text" id="name" name="name" placeholder=" "
-                        value={formData.name} onChange={handleChange} onFocus={handleFocus} required
+                        value={formData.name} onChange={handleChange} required
                         className={getInputClass("name")}
-                        
                     />
 
-                    <label htmlFor="name" className="input-label peer-focus:text-primary-500 peer-[:not(:placeholder-shown)]:text-primary-500">
+                    <label htmlFor="name" className="input-label input-textarea-label-primary">
                         Nombre
                     </label>
 
@@ -255,11 +239,11 @@ export const FormContactComponent = () => {
 
                 <div className="relative w-full">
                     <input type="email" id="email" name="email" placeholder=" "
-                        value={formData.email} onChange={handleChange} onFocus={handleFocus} required
+                        value={formData.email} onChange={handleChange} required
                         className={getInputClass("email")}
                     />
 
-                    <label htmlFor="email" className="input-label peer-focus:text-primary-500 peer-[:not(:placeholder-shown)]:text-primary-500">
+                    <label htmlFor="email" className="input-label input-textarea-label-primary">
                         Email
                     </label>
 
@@ -275,10 +259,10 @@ export const FormContactComponent = () => {
             <div className="relative w-full">
                 <input type="text" id="subject" name="subject" placeholder=" "
                     value={formData.subject} onChange={handleChange}
-                    className="input focus:ring-primary-500 peer"
+                    className={getInputClass("subject")}
                 />
 
-                <label htmlFor="subject" className="input-label peer-focus:text-primary-500 peer-[:not(:placeholder-shown)]:text-primary-500">
+                <label htmlFor="subject" className="input-label input-textarea-label-primary">
                     Asunto
                 </label>
 
@@ -290,11 +274,11 @@ export const FormContactComponent = () => {
             {/* Textarea: Message */}
             <div className="relative w-full">
                 <textarea id="message" name="message" rows="4" placeholder=" "
-                    value={formData.message} onChange={handleChange} onFocus={handleFocus} required
+                    value={formData.message} onChange={handleChange} required
                     className={getInputClass("message")}
                 ></textarea>
 
-                <label htmlFor="message" className="textarea-label peer-focus:text-primary-500 peer-[:not(:placeholder-shown)]:text-primary-500">
+                <label htmlFor="message" className="textarea-label input-textarea-label-primary">
                     Escribe tu consulta aquí...
                 </label>
 

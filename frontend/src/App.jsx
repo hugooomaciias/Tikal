@@ -5,8 +5,10 @@ import { LandingPage } from './pages/landing/LandingPage'
 import { PaymentPage } from './pages/landing/PaymentPage'
 import { LoginPage } from './pages/auth/LoginPage'
 import { RegisterPage } from './pages/auth/RegisterPage'
+import { ForgotPasswordPage } from './pages/auth/ForgotPasswordPage'
+import { ResetPasswordPage } from './pages/auth/ResetPasswordPage'
 import { LoadingScreen } from './pages/LoadingScreen'
-import { Dashboard } from './pages/Dashboard'
+import { Dashboard } from './pages/principal/Dashboard'
 
 function App() {
   return (
@@ -20,6 +22,8 @@ function App() {
           {/* Rutas de autenticación */}
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+          <Route path="/reset-password" element={<ResetPasswordPage />} />
 
           {/* Ruta de carga */}
           <Route path="/loading" element={<LoadingScreen />} />
