@@ -13,8 +13,8 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @Entity
-@Table(name = "totem_list")
-public class Totem_List {
+@Table(name = "totem_lists")
+public class TotemList {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY) // Auto-increment en MySQL
     private Integer id;

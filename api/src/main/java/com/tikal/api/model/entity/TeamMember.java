@@ -17,12 +17,12 @@ import org.hibernate.annotations.CreationTimestamp;
 @NoArgsConstructor
 @Entity
 @Table(
-    name = "team_member",
+    name = "team_members",
     uniqueConstraints = {
         @UniqueConstraint(name = "uk_user_team", columnNames = {"user_id", "team_id"})
     }
 )
-public class Team_Member {
+public class TeamMember {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
@@ -35,6 +35,11 @@ public class Team_Member {
     @CreationTimestamp
     @Column(name = "joining_date", updatable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private LocalDateTime joiningDate;
+
+    /* --- Last date of reading messages from the Team --- */
+    @CreationTimestamp
+    @Column(name = "last_read_date", updatable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
+    private LocalDateTime lastReadDate;
 
     /* --- User relation ==> The same User can be a member of different teams --- */
     @ManyToOne(optional = false)

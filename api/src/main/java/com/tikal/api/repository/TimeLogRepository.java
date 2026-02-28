@@ -4,19 +4,19 @@ import java.util.List;
 import org.springframework.stereotype.Repository;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.tikal.api.model.entity.Time_Log;
+import com.tikal.api.model.entity.TimeLog;
 
 @Repository
-public interface TimeLogRepository extends JpaRepository<Time_Log, Integer> {
+public interface TimeLogRepository extends JpaRepository<TimeLog, Integer> {
     /* --- Obtain time logs from a specific user --- */
-    List<Time_Log> findByUser_Id(Integer userId);
+    List<TimeLog> findByUser_Id(Integer userId);
     
     /* --- Obtain time logs from a specific project --- */
-    List<Time_Log> findByProject_Id(Integer projectId);
+    List<TimeLog> findByProject_Id(Integer projectId);
     
     /* --- Obtain time logs from a specific stage --- */
-    List<Time_Log> findByStage_Id(Integer stageId);
+    List<TimeLog> findByStage_Id(Integer stageId);
     
     /* --- Obtain time logs from a specific task --- */
-    List<Time_Log> findByTask_Id(Integer taskId);
+    List<TimeLog> findByTask_Id(Integer taskId);
 }
