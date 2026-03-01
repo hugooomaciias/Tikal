@@ -9,5 +9,5 @@ import com.tikal.api.model.entity.Project;
 @Repository
 public interface ProjectRepository extends JpaRepository<Project, Integer> {
     /* --- Obtains the projects from the user with this 'Id' --- */
-    List<Project> findByOwnerUser_Id(Integer userId);
+    List<Project> findByUserOwner_Id(Integer userId);
 }
