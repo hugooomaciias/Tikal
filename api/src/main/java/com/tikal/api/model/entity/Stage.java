@@ -5,15 +5,17 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * This class represents the Stage entity within the application's work breakdown
+ * This class represents the Stage entity within the application's work
+ * breakdown
  * structure. It maps to the stage table in the database and acts as the
- * intermediate layer between Projects and Tasks, allowing users to group related
+ * intermediate layer between Projects and Tasks, allowing users to group
+ * related
  * tasks together
  */
 @Data
 @NoArgsConstructor
 @Entity
-@Table(name = "stage")
+@Table(name = "stages")
 public class Stage {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -21,7 +23,7 @@ public class Stage {
 
     /* --- Stage name --- */
     @Column(nullable = false, length = 100)
-    private String name; 
+    private String name;
 
     /* --- Project description --- */
     @Column(columnDefinition = "TEXT")

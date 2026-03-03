@@ -14,24 +14,26 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/auth")
+@CrossOrigin(origins = "*")
 @RequiredArgsConstructor
 public class AuthController {
     private final AuthService service;
 
     @PostMapping("/register")
-    public ResponseEntity<TokenResponse> register(@RequestBody RegisterRequest request){
+    public ResponseEntity<TokenResponse> register(@RequestBody RegisterRequest request) {
         final TokenResponse token = service.register(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(token);
     }
 
     @PostMapping("/login")
-    public ResponseEntity<TokenResponse> login(@RequestBody LoginRequest request){
+    public ResponseEntity<TokenResponse> login(@RequestBody LoginRequest request) {
         final TokenResponse token = service.login(request);
         return ResponseEntity.ok(token);
     }
 
     @PostMapping("/refresh")
-    public ResponseEntity<TokenResponse> refreshToken(@RequestHeader(HttpHeaders.AUTHORIZATION) final String authHeader){
+    public ResponseEntity<TokenResponse> refreshToken(
+            @RequestHeader(HttpHeaders.AUTHORIZATION) final String authHeader) {
         final TokenResponse token = service.refreshToken(authHeader);
         return ResponseEntity.ok(token);
     }

@@ -3,15 +3,16 @@ package com.tikal.api.model.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 
-/** 
+/**
  * This class represents the Rank entity, which is the cornerstone of the
  * application's gamification system. It maps to the rank table in the database
- * and defines the static progression levels that users can achieve based on their
+ * and defines the static progression levels that users can achieve based on
+ * their
  * productivity
  */
 @Data
 @Entity
-@Table(name = "rank_list")
+@Table(name = "rank_lists")
 public class RankList {
     @Id
     private Integer id;
