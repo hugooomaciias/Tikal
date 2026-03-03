@@ -25,7 +25,7 @@ public class User {
     private Integer id;
 
     /* --- Username --- */
-    @Column(nullable = false, length = 100)
+    @Column(nullable = false, unique = true, length = 100)
     private String name;
 
     /* --- User email --- */

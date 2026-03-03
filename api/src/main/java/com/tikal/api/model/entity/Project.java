@@ -36,8 +36,8 @@ public class Project {
 
     /* --- User relation ==> Many projects can xbelong to the same User --- */
     @ManyToOne(optional = true)
-    @JoinColumn(name = "owner_user_id")
-    private User ownerUser;
+    @JoinColumn(name = "user_owner_id")
+    private User userOwner;
 
     /* --- Team relation ==> Many projects can belong to the same Team --- */
     @ManyToOne(optional = true)

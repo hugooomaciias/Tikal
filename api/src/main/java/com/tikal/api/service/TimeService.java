@@ -58,7 +58,7 @@ public class TimeService {
      * @return List of projects owned by the user
      */
     public List<Project> getProjectsByUser(Integer userId) {
-        return projectRepo.findByOwnerUser_Id(userId);
+        return projectRepo.findByUserOwner_Id(userId);
     }
     
     /**

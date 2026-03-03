@@ -8,4 +8,5 @@ import com.tikal.api.model.entity.UserSettings;
 
 @Repository
 public interface UserSettingsRepository extends JpaRepository<UserSettings, Integer> {
+    // Spring Data JPA already provides us with findById(Integer id) for free.
 }
