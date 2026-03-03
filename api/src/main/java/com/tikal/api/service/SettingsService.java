@@ -106,12 +106,3 @@ public class SettingsService {
         return settingsRepository.save(current);
     }
 }
-
-/*
-* INSERT INTO tikal_db.rank_list (id, temple_name, awarded_title, required_hours) VALUES
-(1, 'Templo de los Orígenes',       'Aprendiz maya',                  0),
-(2, 'Templo del Camino Interior',   'Iniciado del Agua y del Fuego',  70),
-(3, 'Templo de la Sabiduría',       'Guía del Sendero Secreto',       140),
-(4, 'Templo del Sol',               'Sabio del Tiempo',               260),
-(5, 'Gran Pirámide de Tikal',       'Señor del Quinto Sol',           420);
-* */

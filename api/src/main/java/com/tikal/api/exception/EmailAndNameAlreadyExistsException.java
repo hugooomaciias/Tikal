@@ -2,6 +2,6 @@ package com.tikal.api.exception;
 
 public class EmailAndNameAlreadyExistsException extends ResourceAlreadyExistsException {
     public EmailAndNameAlreadyExistsException (String email, String name) {
-        super("The email " + email + " and the user name " + name + " already exists", "3 Data conflict");
+        super("El email '" + email + "' y el nombre de usuario '" + name + "' ya existen", "3 Data conflict");
     }
 }

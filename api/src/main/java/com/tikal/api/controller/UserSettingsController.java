@@ -38,12 +38,12 @@ public class UserSettingsController {
      * Receives the complete JSON modified by the client and saves it.
      */
     @PutMapping
-    public ResponseEntity<UserSettings> updateMySettings(@RequestBody UserSettings updatedSettings) {
+    public ResponseEntity<UserSettingsDTO> updateMySettings(@RequestBody UserSettings updatedSettings) {
         Integer myId = userService.getAuthenticatedUserID();
 
         UserSettings savedSettings = settingsService.updateSettings(myId, updatedSettings);
 
-        return ResponseEntity.ok(savedSettings);
+        return ResponseEntity.ok(settingsService.mapToDTO(savedSettings));
     }
 
     /**
@@ -51,11 +51,11 @@ public class UserSettingsController {
      * Solo actualiza las posiciones de las cajas del dashboard.
      */
     @PatchMapping("/layout")
-    public ResponseEntity<UserSettings> updateLayout(@RequestBody LayoutsDashboardMetadata layout) {
+    public ResponseEntity<UserSettingsDTO> updateLayout(@RequestBody LayoutsDashboardMetadata layout) {
         Integer myId = userService.getAuthenticatedUserID();
 
         UserSettings savedSettings = settingsService.updateLayout(myId, layout);
-        return ResponseEntity.ok(savedSettings);
+        return ResponseEntity.ok(settingsService.mapToDTO(savedSettings));
     }
 
     /**
@@ -63,10 +63,10 @@ public class UserSettingsController {
      * Solo actualiza los filtros internos de los widgets (ej: ocultar proyectos).
      */
     @PatchMapping("/widget-preferences")
-    public ResponseEntity<UserSettings> updateWidgetPreferences(@RequestBody WidgetPreferencesMetadata preferences) {
+    public ResponseEntity<UserSettingsDTO> updateWidgetPreferences(@RequestBody WidgetPreferencesMetadata preferences) {
         Integer myId = userService.getAuthenticatedUserID();
 
         UserSettings savedSettings = settingsService.updateWidgetPreferences(myId, preferences);
-        return ResponseEntity.ok(savedSettings);
+        return ResponseEntity.ok(settingsService.mapToDTO(savedSettings));
     }
 }
