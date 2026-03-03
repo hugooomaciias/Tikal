@@ -2,11 +2,6 @@ import { createContext, useState, useEffect } from 'react'
 import { API_BASE_URL } from '../config/api'
 import { useNavigate } from 'react-router-dom'
 
-/**
- * Authentication Context
- * 
- * Provides global authentication state and methods to the application.
- */
 // eslint-disable-next-line react-refresh/only-export-components
 export const AuthContext = createContext()
 /**
