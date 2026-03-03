@@ -85,7 +85,7 @@ export const LoadingScreen = () => {
 			<div className="text-center">
 
 				{/* Animation */}
-				<div className="relative w-full h-full mx-auto mb-8 flex items-center justify-center">
+				<div className="relative w-80 h-80 md:w-96 md:h-96 mx-auto mb-8 flex items-center justify-center">
 					{! showSecondPartAnimation ? (
 						<Lottie key="firstPhase" animationData={firstPartAnimation}
 								loop={true} autoplay={true} onLoopComplete={handleFirstPhaseLoopComplete}

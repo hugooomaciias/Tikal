@@ -1,5 +1,7 @@
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { FormRegisterComponent } from "../../components/auth/FormRegisterComponent.jsx";
+import { CircleXIcon } from "../../assets/icons/circleXIcon.jsx";
 
 /**
  * Registration Page Layout
@@ -14,8 +16,59 @@ import { FormRegisterComponent } from "../../components/auth/FormRegisterCompone
  * @returns {JSX.Element} The rendered registration page layout.
  */
 export const RegisterPage = () => {
+    /**
+     * API Error State
+     *
+     * Stores the error message returned by the backend to display an alert.
+     */
+    const [apiError, setApiError] = useState("");
+
+    /**
+     * Popup Visibility State
+     *
+     * Controls the visibility of the error popup for animation purposes.
+     * When true, the popup scales in and becomes fully opaque.
+     */
+    const [isVisible, setIsVisible] = useState(false);
+
+    useEffect(() => {
+        if (apiError) {
+            setIsVisible(true);
+            
+            const timer = setTimeout(() => {
+                closePopup();
+            }, 5000);
+
+            return () => clearTimeout(timer);
+        }
+    }, [apiError]);
+
+    const closePopup = () => {
+        setIsVisible(false);
+        
+        setTimeout(() => {
+            setApiError("");
+        }, 300);
+    };
+
     return (
         <div className="min-h-screen flex items-center justify-center bg-primary p-0 md:p-4">
+
+            {/* API Error Alert */}
+            {apiError && (
+                    <div
+                        className={`absolute top-10 md:top-16 h-16 w-[89%] md:w-1/4 bg-primary border-2 border-tertiary-200 text-tertiary-200 px-4 py-3 rounded-lg flex items-center justify-center gap-3 shadow-xl transition-all duration-300 animate-fade-in-up z-50
+                        ${isVisible
+                            ? 'md:top-16 h-16 opacity-100 scale-100'
+                            : 'md:top-16 h-16 opacity-0 scale-95 pointer-events-none'
+                        }`}
+                        role="alert"
+                    >
+                        <CircleXIcon className="h-6 w-6" />
+                        <span className="block sm:inline font-medium text-center">{apiError}</span>
+                    </div>
+                )
+            }
 
             {/* Registration Card Container */}
             <div className="min-h-screen md:min-h-fit w-full max-w-md flex flex-col bg-primary-50 p-6 md:p-10 md:rounded-xl md:shadow-2xl">
@@ -31,7 +84,7 @@ export const RegisterPage = () => {
 
                 <div className="flex flex-1 flex-col justify-center">
                     {/* Registration Form */}
-                    <FormRegisterComponent  />
+                    <FormRegisterComponent apiError={apiError} setApiError={setApiError} />
 
                     {/* Footer Section: Link to Login */}
                     <div className="text-center mt-8 space-y-2">

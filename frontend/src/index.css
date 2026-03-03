@@ -1,9 +1,9 @@
 /* ============================================
    IMPORTACIÓN DE FUENTES
    ============================================ */
-@import url('https://fonts.googleapis.com/css2?family=Onest:wght@100;200;300;400;500;600;700;800;900&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Onest:wght@100;200;300;400;500;600;700;800;900&display=swap");
 
-@import url('https://fonts.googleapis.com/css2?family=Passero+One&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Passero+One&display=swap");
 
 /* ============================================
    DIRECTIVAS PRINCIPALES DE TAILWIND CSS
@@ -16,113 +16,113 @@
    ESTILOS BASE - VARIABLES GLOBALES
    ============================================ */
 @layer base {
-	html {
-		@apply scroll-smooth;
-	}
+  html {
+    @apply scroll-smooth;
+  }
 
-	body {
-		@apply font-onest antialiased;
-	}
+  body {
+    @apply font-onest antialiased;
+  }
 
-	input:-webkit-autofill,
-	input:-webkit-autofill:hover, 
-	input:-webkit-autofill:focus, 
-	textarea:-webkit-autofill,
-	textarea:-webkit-autofill:hover,
-	textarea:-webkit-autofill:focus,
-	select:-webkit-autofill,
-	select:-webkit-autofill:hover,
-	select:-webkit-autofill:focus {
-		-webkit-text-fill-color: theme('colors.quaternary.700') !important;
-		-webkit-box-shadow: 0 0 0px 1000px theme('colors.primary.DEFAULT') inset !important;
-		font-family: inherit !important;
-	}
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus,
+  textarea:-webkit-autofill,
+  textarea:-webkit-autofill:hover,
+  textarea:-webkit-autofill:focus,
+  select:-webkit-autofill,
+  select:-webkit-autofill:hover,
+  select:-webkit-autofill:focus {
+    -webkit-text-fill-color: theme("colors.quaternary.700") !important;
+    -webkit-box-shadow: 0 0 0px 1000px theme("colors.primary.DEFAULT") inset !important;
+    font-family: inherit !important;
+  }
 }
 
 /* COMPONENTES REUTILIZABLES */
 @layer components {
-	/* ############### BOTONES ################ */
-		/* Botón base */
-		.btn {
-			@apply px-8 py-3 rounded-lg font-semibold cursor-pointer transition-all duration-500 text-center inline-block text-base hover:shadow-lg hover:-translate-y-0.5;
-		}
-		/* ------------------------------------ */
+  /* ############### BOTONES ################ */
+  /* Botón base */
+  .btn {
+    @apply px-8 py-3 rounded-lg font-semibold cursor-pointer transition-all duration-500 text-center inline-block text-base hover:shadow-lg hover:-translate-y-0.5;
+  }
+  /* ------------------------------------ */
 
-		/* Botón primario */
-		.btn-primary {
-			@apply bg-gradient-to-r from-primary-600 to-secondary-600 text-primary;
-		}
-		/* ------------------------------------ */
+  /* Botón primario */
+  .btn-primary {
+    @apply bg-gradient-to-r from-primary-600 to-secondary-600 text-primary;
+  }
+  /* ------------------------------------ */
 
-		/* Botón secundario */
-		.btn-secondary {
-			@apply bg-gradient-to-r from-primary-600 to-secondary-600 bg-clip-text text-transparent border-2 border-primary-600;
-		}
-		/* ------------------------------------ */
-	/* ######################################## */
+  /* Botón secundario */
+  .btn-secondary {
+    @apply bg-gradient-to-r from-primary-600 to-secondary-600 bg-clip-text text-transparent border-2 border-primary-600;
+  }
+  /* ------------------------------------ */
+  /* ######################################## */
 
-	/* ################ INPUTS ################ */
-		/* Input */
-		.input {
-			@apply h-[52px] w-full pl-4 pr-10 rounded-lg outline-none focus:ring-2 focus:pt-8 focus:pb-4 transition-all;
+  /* ################ INPUTS ################ */
+  /* Input */
+  .input {
+    @apply h-[52px] w-full pl-4 pr-10 rounded-lg outline-none focus:ring-2 focus:pt-8 focus:pb-4 transition-all;
 
-			&:not(:placeholder-shown) {
-				@apply pt-8 pb-4;
-			}
-		}
-		/* ------------------------------------ */
+    &:not(:placeholder-shown) {
+      @apply pt-8 pb-4;
+    }
+  }
+  /* ------------------------------------ */
 
-		/* Textarea */
-		.textarea {
-			@apply h-28 w-full pl-4 pr-10 rounded-lg outline-none focus:ring-2 focus:pt-6 transition-all;
+  /* Textarea */
+  .textarea {
+    @apply h-28 w-full pl-4 pr-10 rounded-lg outline-none focus:ring-2 focus:pt-6 transition-all;
 
-			&:not(:placeholder-shown) {
-				@apply pt-6;
-			}
-		}
-		/* ------------------------------------ */
+    &:not(:placeholder-shown) {
+      @apply pt-6;
+    }
+  }
+  /* ------------------------------------ */
 
-		/* Input & Textarea Specific */
-		.input-textarea-primary {
-			@apply bg-primary text-quaternary-700 focus:ring-primary-500
-		}
-		/* ------------------------------------ */
+  /* Input & Textarea Specific */
+  .input-textarea-primary {
+    @apply bg-primary text-quaternary-700 focus:ring-primary-500;
+  }
+  /* ------------------------------------ */
 
-		/* Input Label */
-		.input-label {
-			@apply absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none opacity-50 transition-all duration-[400ms];
-		}
+  /* Input Label */
+  .input-label {
+    @apply absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none opacity-50 transition-all duration-[400ms];
+  }
 
-		.peer:focus ~ .input-label,
-		.peer:not(:placeholder-shown) ~ .input-label {
-			@apply -translate-y-3 text-xs opacity-100 font-medium;
-		}
-		/* ------------------------------------ */
+  .peer:focus ~ .input-label,
+  .peer:not(:placeholder-shown) ~ .input-label {
+    @apply -translate-y-3 text-xs opacity-100 font-medium;
+  }
+  /* ------------------------------------ */
 
-		/* Textarea Label */
-		.textarea-label {
-			@apply absolute inset-y-0 left-0 max-w-36 text-left md:max-w-full flex items-start pt-3 pl-4 pointer-events-none opacity-50 transition-all duration-[400ms];
-		}
+  /* Textarea Label */
+  .textarea-label {
+    @apply absolute inset-y-0 left-0 max-w-36 text-left md:max-w-full flex items-start pt-3 pl-4 pointer-events-none opacity-50 transition-all duration-[400ms];
+  }
 
-		.peer:focus ~ .textarea-label,
-		.peer:not(:placeholder-shown) ~ .textarea-label {
-			@apply -translate-y-1 text-xs max-w-full opacity-100 font-medium;
-		}
-		/* ------------------------------------ */
+  .peer:focus ~ .textarea-label,
+  .peer:not(:placeholder-shown) ~ .textarea-label {
+    @apply -translate-y-1 text-xs max-w-full opacity-100 font-medium;
+  }
+  /* ------------------------------------ */
 
-		.input-textarea-label-primary {
-			@apply text-quaternary-700 peer-focus:text-primary-500 peer-[:not(:placeholder-shown)]:text-primary-500
-		}
+  .input-textarea-label-primary {
+    @apply text-quaternary-700 peer-focus:text-primary-500 peer-[:not(:placeholder-shown)]:text-primary-500;
+  }
 
-		/* Icon */
-		.input-icon {
-			@apply absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none text-quaternary-700 opacity-50;
-		}
+  /* Icon */
+  .input-icon {
+    @apply absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none text-quaternary-700 opacity-50;
+  }
 
-		.peer:focus ~ .input-icon,
-		.peer:not(:placeholder-shown) ~ .input-icon {
-			@apply opacity-100;
-		}
-		/* ------------------------------------ */
-	/* ######################################## */
+  .peer:focus ~ .input-icon,
+  .peer:not(:placeholder-shown) ~ .input-icon {
+    @apply opacity-100;
+  }
+  /* ------------------------------------ */
+  /* ######################################## */
 }

@@ -23,7 +23,7 @@ import { InfoIcon } from "../../assets/icons/infoIcon.jsx";
  * @component
  * @returns {JSX.Element} The interactive login form.
  */
-export const FormLoginComponent = () => {
+export const FormLoginComponent = ({ apiError, setApiError }) => {
     /**
      * Hook for programmatic navigation.
      */
@@ -121,26 +121,27 @@ export const FormLoginComponent = () => {
                 [name]: ""
             }));
         }
+
+        if (apiError) {
+            setApiError("");
+        }
     };
 
-    /**
-     * Form Submission Handler
-     * 
-     * Orchestrates the submission process: prevents default behavior, runs
-     * validation, and redirects the user if successful.
-     * @param {React.FormEvent} e - The form submission event.
-     */
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
 
         if (validateForm()) {
             try {
-                login(formData);
+                await login({
+                    identifier: formData.username,
+                    password: formData.password
+                });
                 navigate("/loading")
                 
                 setFormData({ username: "", password: "" });
             } catch (error) {
                 console.error("Error al iniciar sesión", error);
+                setApiError(error.message || "Error al iniciar sesión. Por favor, inténtalo de nuevo.");
             }
 
         }

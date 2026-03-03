@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../hooks/useAuth";
 import { UserIcon } from "../../assets/icons/userIcon.jsx";
 import { MailIcon } from "../../assets/icons/mailIcon.jsx";
 import { TagIcon } from "../../assets/icons/tagIcon.jsx";
@@ -21,11 +22,18 @@ import { InfoIcon } from "../../assets/icons/infoIcon.jsx";
  * @component
  * @returns {JSX.Element} The interactive registration form.
  */
-export const FormRegisterComponent = () => {
+export const FormRegisterComponent = ({ apiError, setApiError }) => {
     /**
      * Hook for programmatic navigation.
      */
     const navigate = useNavigate();
+
+    /**
+     * Authentication Hook
+     * 
+     * Provides the 'register' function to communicate with the Auth Context/API.
+     */
+    const { register } = useAuth();
 
     /**
      * Form Input State
@@ -49,14 +57,14 @@ export const FormRegisterComponent = () => {
 
     /**
      * Validation Error State
-     * 
+     *
      * Stores specific error messages for each field to be displayed in the UI.
      */
     const [errors, setErrors] = useState({});
 
     /**
      * Form Validation Logic
-     * 
+     *
      * Performs client-side checks for required fields and validates non-empty
      * fields, the email format using a strict Regex pattern, strong password and
      * password confirmation matching.
@@ -114,7 +122,7 @@ export const FormRegisterComponent = () => {
 
     /**
      * Input Change Handler
-     * 
+     *
      * Updates the specific field in the state object while preserving other
      * values. Also implements if a field has an error, typing in it immediately
      * clears the visual error state to improve UX.
@@ -134,22 +142,36 @@ export const FormRegisterComponent = () => {
                 [name]: ""
             }));
         }
+        
+        if (apiError) {
+            setApiError("");
+        }
     };
 
     /**
      * Form Submission Handler
-     * 
+     *
      * Orchestrates the submission process: prevents default behavior, runs
-     * validation, and redirects the user if successful.
+     * validation, and registers user via AuthContext if successful.
      * @param {React.FormEvent} e - The form submission event.
      */
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
 
         if (validateForm()) {
-            navigate("/login")
+            try {
+                await register({
+                    username: formData.username,
+                    email: formData.email,
+                    password: formData.password
+                });
+                navigate("/loading");
 
-            setFormData({ username: "", email: "", password: "", passwordConf: "" });
+                setFormData({ username: "", email: "", password: "", passwordConf: "" });
+            } catch (error) {
+                console.error("Error al registrar", error);
+                setApiError(error.message || "Error al realizar el registro");
+            }
         }
     };
 
@@ -204,7 +226,7 @@ export const FormRegisterComponent = () => {
             {/* Username Input */}
             <div className="relative w-full">
                 <input type="text" id="username" name="username" placeholder=" "
-                    value={formData.name} onChange={handleChange} required
+                    value={formData.username} onChange={handleChange} required
                     className={getInputClass("username")}
                     
                 />
