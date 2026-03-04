@@ -1,5 +1,6 @@
 package com.tikal.api.config;
 
+import com.tikal.api.exception.InvalidTokenException;
 import com.tikal.api.model.entity.RefreshToken;
 import com.tikal.api.model.entity.User;
 import com.tikal.api.repository.TokenRepository;
@@ -53,6 +54,11 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         final String jwt = authHeader.substring(7);
         try {
             final String userEmail = jwtService.extractUsername(jwt);
+
+            final String tokenType = jwtService.extractTokenType(jwt);
+            if ("REFRESH".equals(tokenType)) {
+                throw new InvalidTokenException("Acceso denegado: El Refresh Token solo puede usarse para renovar credenciales, no para acceder a los recursos.");
+            }
 
             if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                 final UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);

@@ -12,6 +12,9 @@ Este documento describe todos los endpoints relacionados con la autenticación p
   - [2. Inicio de Sesión](#2-inicio-de-sesión-post-authlogin)
   - [3. Renovación de Sesión](#3-renovación-de-sesión-post-authrefresh)
   - [4. Cierre de Sesión](#4-cierre-de-sesión-post-authlogout)
+  - [5. Solicitar Recuperación de Contraseña](#5-solicitar-recuperación-de-contraseña-post-authforgot-password)
+  - [6. Verificar Código OTP](#6-verificar-código-otp-post-authverify-otp)
+  - [7. Restablecer Contraseña](#7-restablecer-contraseña-post-authreset-password)
 - [Manejo de Errores](#manejo-de-errores)
   - [Error 409 (Conflicto)](#1-error-409-conflicto)
   - [Error 404 (No Encontrado)](#2-error-404-no-encontrado)
@@ -111,8 +114,72 @@ Authorization: Bearer eyJhbGciOiJIUz... (el refresh token)
 ```
 **Response (200 OK)**: *(Cuerpo vacío, solo el código HTTP confirmando el éxito)*
 
+### 5. Solicitar Recuperación de Contraseña (`Post /auth/forgot-password`)
+
+**Propósito**: Inicia el flujo de recuperación de contraseña. Genera un código OTP seguro de 6 dígitos, lo asocia al usuario en la base de datos (con una validez temporal de 8 minutos) y envía un correo electrónico asíncrono en formato HTML. Si el usuario solicita un nuevo código, el anterior se sobrescribe (Upsert).
+
+**Request (Headers)**: `Content-Type: application/json`
+
+**Request (Body)**:
+
+```json
+{
+  "email": "user@example.com"
+}
+```
+
+**Response (200 OK)**:
+Devuelve un mensaje genérico (texto plano) siempre, independientemente de si el correo existe o no en la base de datos, para evitar ataques de enumeración de usuarios.
+
+```text
+Si los datos son correctos, se ha enviado un código a tu correo.
+```
+
+### 6. Verificar Código OTP (`Post /auth/verify-otp`)
+
+**Propósito**: Valida que el código OTP ingresado por el usuario coincide con el de la base de datos y no ha expirado. El frontend utiliza este endpoint de transición para decidir si permite al usuario acceder a la pantalla final de "Nueva Contraseña".
+
+**Request (Headers)**: `Content-Type: application/json`
+
+**Request (Body)**:
+
+```json
+{
+  "email": "user@example.com",
+  "otpCode": "482910"
+}
+```
+
+**Response (200 OK)**: *(Texto plano)*
+
+```text
+Código verificado correctamente.
+```
+
+### 7. Restablecer Contraseña (`Post /auth/reset-password`)
+
+**Propósito**: Ejecuta el cambio definitivo de credenciales. Al ser una API sin estado (stateless), vuelve a validar el código OTP, encripta la nueva contraseña, la actualiza en la base de datos y, crucialmente, elimina el código OTP consumido para evitar que sea reutilizado.
+
+**Request (Headers)**: `Content-Type: application/json`
+
+**Request (Body)**:
+
+```json
+{
+  "email": "user@example.com",
+  "otpCode": "482910",
+  "newPassword": "newSecurePassword123"
+}
+```
+
+**Response (200 OK)**: *(Texto plano)*
+
+```text
+Contraseña actualizada con éxito.
+```
+
 <p align="right">
-    <a href="#top">⬆️ Volver arriba</a>
+<a href="#top">⬆️ Volver arriba</a>
 </p>
 
 ---
@@ -171,6 +238,15 @@ El usuario intenta autenticarse sin token, o utiliza un Refresh Token que ha sid
 }
 ```
 
+También se devuelve este error cuando el código de validación que ha introducido el usuario para cambiar la contraseña es incorrectoy no es el que se ha enviado por correo, se vería así:
+
+```json
+{
+  "error": "Invalid credentials",
+  "message": "El código introducido es incorrecto."
+}
+```
+
 ### 4. Error 400 (Solicitud Incorrecta)
 
 El cliente envía datos malformados (ej: un plan de suscripción inválido) o un encabezado mal formateado (ej: falta el prefijo "Bearer "):
@@ -179,6 +255,15 @@ El cliente envía datos malformados (ej: un plan de suscripción inválido) o un
 {
   "error": "Invalid data",
   "message": "Plan de suscripción inválido. Valores permitidos: [GRATUITO, COMUNITARIO]"
+}
+```
+
+En la parte del cambio de contraseña debido a un olvido del usuario, se envía este error en el caso de que el token haya caducado o no exista ninguna solicitud de cambio de contraseña pendiente.
+
+```json
+{
+  "error": "Expired resource",
+  "message": "El código ha caducado. Por favor, solicita uno nuevo."
 }
 ```
 

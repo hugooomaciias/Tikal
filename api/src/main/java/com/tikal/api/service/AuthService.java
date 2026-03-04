@@ -2,12 +2,12 @@ package com.tikal.api.service;
 
 import com.tikal.api.config.JwtService;
 import com.tikal.api.exception.*;
-import com.tikal.api.model.dto.auth.LoginRequest;
-import com.tikal.api.model.dto.auth.RegisterRequest;
-import com.tikal.api.model.dto.auth.TokenResponse;
+import com.tikal.api.model.dto.auth.*;
+import com.tikal.api.model.entity.PasswordResetOtp;
 import com.tikal.api.model.entity.RefreshToken;
 import com.tikal.api.model.entity.User;
 import com.tikal.api.model.entity.enumerated.SubscriptionPlan;
+import com.tikal.api.repository.PasswordResetOtpRepository;
 import com.tikal.api.repository.TokenRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -18,6 +18,9 @@ import org.springframework.stereotype.Service;
 
 import com.tikal.api.repository.UserRepository;
 
+import java.security.SecureRandom;
+import java.time.LocalDateTime;
+
 /**
  * User register and user login
  */
@@ -26,8 +29,10 @@ import com.tikal.api.repository.UserRepository;
 public class AuthService {
     private final UserRepository userRepository;
     private final TokenRepository tokenRepository;
+    private final PasswordResetOtpRepository otpRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
+    private final EmailService emailService;
     private final AuthenticationManager authenticationManager;
 
     public TokenResponse register (RegisterRequest request) {
@@ -60,16 +65,6 @@ public class AuthService {
         var refreshToken = jwtService.generateRefreshToken(user);
         saveUserToken(user, refreshToken);
         return new TokenResponse(jwtToken, refreshToken);
-    }
-
-    private void saveUserToken(User user, String jwtToken) {
-        var token = RefreshToken.builder()
-                .user(user)
-                .token(jwtToken)
-                .expired(false)
-                .revoked(false)
-                .build();
-        tokenRepository.save(token);
     }
 
     public TokenResponse login(LoginRequest request){
@@ -136,5 +131,75 @@ public class AuthService {
         storedToken.setRevoked(true);
         storedToken.setExpired(true);
         tokenRepository.save(storedToken);
+    }
+
+    public void forgotPassword(ForgotPasswordRequest request) {
+        var userOptional = userRepository.findByEmail(request.getEmail());
+        if (userOptional.isEmpty()) {
+            return;
+        }
+
+        User user = userOptional.get();
+
+        String otpCode = generateSecureOtp();
+        PasswordResetOtp otpEntity = otpRepository.findById(user.getId())
+                .orElse(new PasswordResetOtp());
+
+        otpEntity.setUser(user);
+        otpEntity.setOtpCode(otpCode);
+        otpEntity.setExpirationDate(LocalDateTime.now().plusMinutes(8));
+
+        otpRepository.save(otpEntity);
+
+        emailService.sendPasswordResetOtp(user.getEmail(), otpCode);
+    }
+
+    public void verifyOtp(VerifyOtpRequest request) {
+        PasswordResetOtp otpEntity = validateAndGetOtp(request.getEmail(), request.getOtpCode());
+    }
+
+    public void resetPassword(ResetPasswordRequest request) {
+        PasswordResetOtp otpEntity = validateAndGetOtp(request.getEmail(), request.getOtpCode());
+
+        User user = otpEntity.getUser();
+        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        userRepository.save(user);
+
+        otpRepository.delete(otpEntity);
+    }
+
+    // ==========================================
+    // AUXILIARY METHODS
+    // ==========================================
+    private void saveUserToken(User user, String jwtToken) {
+        var token = RefreshToken.builder()
+                .user(user)
+                .token(jwtToken)
+                .expired(false)
+                .revoked(false)
+                .build();
+        tokenRepository.save(token);
+    }
+
+    private PasswordResetOtp validateAndGetOtp(String email, String otpCode) {
+        PasswordResetOtp otpEntity = otpRepository.findByUserEmail(email)
+                .orElseThrow(() -> new IllegalOtpException("No se ha solicitado ningún cambio de contraseña para este email."));
+
+        if (!otpEntity.getOtpCode().equals(otpCode)) {
+            throw new WrongOtpException("El código introducido es incorrecto.");
+        }
+
+        if (otpEntity.isExpired()) {
+            otpRepository.delete(otpEntity);
+            throw new IllegalOtpException("El código ha caducado. Por favor, solicita uno nuevo.");
+        }
+
+        return otpEntity;
+    }
+
+    private String generateSecureOtp() {
+        SecureRandom secureRandom = new SecureRandom();
+        int otp = 100000 + secureRandom.nextInt(900000);
+        return String.valueOf(otp);
     }
 }
