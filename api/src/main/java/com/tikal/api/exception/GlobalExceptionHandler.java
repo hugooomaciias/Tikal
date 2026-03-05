@@ -3,6 +3,7 @@ package com.tikal.api.exception;
 import io.jsonwebtoken.ExpiredJwtException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.handler.annotation.support.MethodArgumentNotValidException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -25,7 +26,7 @@ public class GlobalExceptionHandler {
     }
 
     // Bad request 400: the client is not sending the information correctly
-    @ExceptionHandler({InvalidUserPlanException.class, IllegalArgumentException.class})
+    @ExceptionHandler({InvalidUserPlanException.class, IllegalArgumentException.class, IllegalOtpException.class, MethodArgumentNotValidException.class})
     public ResponseEntity<Map<String, String>> handleInvalidArgumentFromClient(RuntimeException ex) {
         Map<String, String> error = new HashMap<>();
         error.put("error", "Invalid data");
@@ -45,8 +46,8 @@ public class GlobalExceptionHandler {
     }
 
     // Unauthorized 401: I don't know who you are or the token is revoked/expired
-    @ExceptionHandler(InvalidTokenException.class)
-    public ResponseEntity<Map<String, String>> handleUnauthorized(InvalidTokenException ex) {
+    @ExceptionHandler({InvalidTokenException.class, WrongOtpException.class})
+    public ResponseEntity<Map<String, String>> handleUnauthorized(RuntimeException ex) {
         Map<String, String> errorResponse = new HashMap<>();
         errorResponse.put("error", "Authentication failed");
         errorResponse.put("message", ex.getMessage());

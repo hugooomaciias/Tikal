@@ -35,18 +35,28 @@ public class JwtService {
         return jwtToken.getSubject();
     }
 
+    public String extractTokenType(final String token) {
+        final Claims jwtToken = Jwts.parser()
+                .verifyWith(getSignInKey())
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
+
+        return jwtToken.get("token_type", String.class);
+    }
+
     public String generateToken(User user) {
         Map<String, Object> extraClaims = new HashMap<>();
         extraClaims.put("userId", user.getId());
         extraClaims.put("plan", user.getSubscriptionPlan().toString());
+        extraClaims.put("token_type", "ACCESS");
 
         return buildToken(extraClaims, user, jwtExpiration);
     }
 
     public String generateRefreshToken(User user) {
         Map<String, Object> extraClaims = new HashMap<>();
-        extraClaims.put("userId", user.getId());
-        extraClaims.put("plan", user.getSubscriptionPlan().toString());
+        extraClaims.put("token_type", "REFRESH");
 
         return buildToken(extraClaims, user, refreshExpiration);
     }

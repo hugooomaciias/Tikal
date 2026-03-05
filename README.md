@@ -1,5 +1,5 @@
 <a id="top"></a>
-# <img src="logoReadmeDarkMode.png" align="left" width=48/> Tikal
+# <img src="frontend/public/logoDarkMode.svg" align="left" width=48/> Tikal
 Sistema de Gestión de tareas con registro de Tiempo para Proyectos.
 
 ## Índice
