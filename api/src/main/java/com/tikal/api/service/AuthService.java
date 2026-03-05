@@ -217,7 +217,7 @@ public class AuthService {
 
             return new TokenResponse(accessToken, refreshToken);
         } catch (Exception e) {
-            throw new InvalidTokenException("Error en la autenticación con Google: " + e.getMessage());
+            throw new InvalidTokenException("Error en la autenticación con Google");
         }
     }
 

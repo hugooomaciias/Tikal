@@ -77,7 +77,7 @@ export const LoadingScreen = () => {
      * ensuring a seamless transition to the dashboard.
      */
 	const handleAnimationComplete = () => {
-		navigate('/dashboard')
+		navigate('/home')
 	}
 
 	return (

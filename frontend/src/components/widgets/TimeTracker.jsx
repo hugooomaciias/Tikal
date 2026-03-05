@@ -4,7 +4,7 @@ import StopIcon from "../../assets/icons/stopIcon.jsx";
 
 export const TimeTracker = ({ className }) => {
     return (
-        <div className={`h-auto w-full bg-secondary-800 rounded-3xl flex flex-col p-5 transform shadow-md ${className}`}>
+        <div className={`h-auto bg-secondary-800 rounded-3xl flex flex-col p-5 transform shadow-md ${className}`}>
             {/* Header Tarjeta */}
             <p className="text-primary text-2xl font-semibold">
                 Time tracker

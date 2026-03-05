@@ -52,10 +52,10 @@ export const HomeComponent = () => {
             {/* Right Column - Product Visualization */}
             <div className="hidden md:flex items-center justify-center">
                 {/* Primary Widget showcase */}
-                <TimeTracker className="animate-float mb-40" />
+                <TimeTracker className="animate-float mb-40 w-1/2" />
 
                 {/* Secondary Widget showcase */}
-                <Statistics className="animate-float mb-40" />
+                <Statistics className="animate-float mt-40 w-1/2" />
             </div>
         </div>
     );

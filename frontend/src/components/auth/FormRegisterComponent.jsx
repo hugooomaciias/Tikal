@@ -48,9 +48,10 @@ export const FormRegisterComponent = ({ apiError, setApiError }) => {
     });
 
     /**
-     * Visibility Toggles
-     * 
-     * Boolean states to handle the masking/unmasking of password fields.
+     * Password Visibility States
+     *
+     * Toggles the input type between "password" and "text" for the
+     * respective fields.
      */
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);

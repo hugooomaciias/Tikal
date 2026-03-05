@@ -1,10 +1,12 @@
 import { useState, useEffect } from "react";
+import { useAuth } from "../../hooks/useAuth";
+import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 import { FormLoginComponent } from "../../components/auth/FormLoginComponent.jsx";
-import { GoogleIcon } from "../../assets/icons/googleIcon.jsx"
-import { AppleIcon } from "../../assets/icons/appleIcon.jsx"
-import { GithubIcon } from "../../assets/icons/githubIcon.jsx"
+import { GoogleIcon } from "../../assets/icons/googleIcon.jsx";
+import { GithubIcon } from "../../assets/icons/githubIcon.jsx";
 import { CircleXIcon } from "../../assets/icons/circleXIcon.jsx";
+import { GoogleLogin } from '@react-oauth/google';
 
 /**
  * Login Page Layout
@@ -20,11 +22,23 @@ import { CircleXIcon } from "../../assets/icons/circleXIcon.jsx";
  */
 export const LoginPage = () => {
     /**
+     * Hook for programmatic navigation.
+     */
+    const navigate = useNavigate();
+
+    /**
      * API Error State
      *
      * Stores the error message returned by the backend to display an alert.
      */
     const [apiError, setApiError] = useState("");
+
+    /**
+     * Authentication Hook
+     *
+     * Provides the 'login' function to communicate with the Auth Context/API.
+     */
+    const { googleLogin, githubLogin } = useAuth();
 
     /**
      * Popup Visibility State
@@ -34,6 +48,29 @@ export const LoginPage = () => {
      */
     const [isVisible, setIsVisible] = useState(false);
 
+    /**
+     * Closes the Error Popup
+     *
+     * Triggers the exit animation by setting `isVisible` to false, and then
+     * clears the `apiError` message after the animation duration (300ms).
+     *
+     * @function
+     */
+    const closePopup = () => {
+        setIsVisible(false);
+        
+        setTimeout(() => {
+            setApiError("");
+        }, 300);
+    };
+
+    /**
+     * Popup Auto-Hide Effect
+     *
+     * Monitors the `apiError` state. When an error is present, it displays
+     * the popup and sets a timeout to automatically close it after 5 seconds.
+     * It cleans up the timeout if the component unmounts or if the error changes.
+     */
     useEffect(() => {
         if (apiError) {
             setIsVisible(true);
@@ -46,13 +83,39 @@ export const LoginPage = () => {
         }
     }, [apiError]);
 
-    const closePopup = () => {
-        setIsVisible(false);
-        
-        setTimeout(() => {
-            setApiError("");
-        }, 300);
+    /**
+     * Google Login Handler
+     *
+     * Processes the response from the Google OAuth provider. Extracts the credential
+     * (ID token) and forwards it to the backend via the AuthContext. Navigates to
+     * the home page upon success or displays an API error.
+     *
+     * @async
+     * @function
+     * @param {Object} credentialResponse - The response object from Google Login popup.
+     */
+    const handleGoogleLogin = async (credentialResponse) => {
+        try {
+            await googleLogin(credentialResponse.credential);
+            navigate("/loading");
+
+        } catch (error) {
+            setApiError(error.message);
+        }
     };
+
+    /**
+     * GitHub Login Handler
+     *
+     * Prepares the structure for processing GitHub OAuth responses in the future.
+     *
+     * @async
+     * @function
+     * @param {Object} credentialResponse - The response object from GitHub Login.
+     */
+    /*const handleGithubLogin = async (credentialResponse) => {
+
+    };*/
 
     /**
      * Icon Component Map
@@ -62,8 +125,19 @@ export const LoginPage = () => {
      */
     const iconMap = {
         "GoogleIcon": GoogleIcon,
-        "AppleIcon": AppleIcon,
         "GithubIcon": GithubIcon,
+    };
+
+    /**
+     * Provider Component Map
+     *
+     * Maps string identifiers to their corresponding OAuth provider components
+     * or context logic functions. Used for dynamically rendering the right handler
+     * within the social login buttons below.
+     */
+    const loginMap = {
+        "Google": GoogleLogin,
+        "Github": githubLogin
     };
 
     /**
@@ -74,16 +148,14 @@ export const LoginPage = () => {
     const signInOptions = [
         {
             title: "Google",
-            icon: "GoogleIcon"
+            icon: "GoogleIcon",
+            action: handleGoogleLogin
         },
-        {
-            title: "Apple",
-            icon: "AppleIcon"
-        },
-        {
+        /*{
             title: "Github",
-            icon: "GithubIcon"
-        },
+            icon: "GithubIcon",
+            action: handleGithubLogin
+        }*/
     ];
 
     return (
@@ -94,8 +166,8 @@ export const LoginPage = () => {
                     <div
                         className={`absolute top-10 md:top-16 h-16 w-[89%] md:w-1/4 bg-primary border-2 border-tertiary-200 text-tertiary-200 px-4 py-3 rounded-lg flex items-center justify-center gap-3 shadow-xl transition-all duration-300 animate-fade-in-up z-50
                         ${isVisible
-                            ? 'md:top-16 h-16 opacity-100 scale-100'
-                            : 'md:top-16 h-16 opacity-0 scale-95 pointer-events-none'
+                            ? 'opacity-100 scale-100'
+                            : 'opacity-0 scale-95 pointer-events-none'
                         }`}
                         role="alert"
                     >
@@ -134,13 +206,19 @@ export const LoginPage = () => {
                     <div className="flex justify-center gap-4">
                         {signInOptions.map((option, index) => {
                             const IconComponent = iconMap[option.icon];
+                            const LoginComponent = loginMap[option.title];
 
                             return (
-                                <button key={index} type="button" title={option.title}
-                                    className="btn-primary h-12 w-12 flex items-center justify-center rounded-full md:opacity-80 hover:opacity-100 transition-all duration-500 shadow-md"
-                                >
-                                    <IconComponent />
-                                </button>
+                                <div className="relative btn-primary h-12 w-12 rounded-full md:opacity-80 hover:opacity-100 transition-all duration-300 shadow-md bg-white overflow-hidden">
+                                    <div key={index} className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                                        <IconComponent />
+                                    </div>
+
+                                    <div className="absolute inset-0 opacity-0 z-10 flex items-center justify-center transform scale-[1.5]">
+                                        <LoginComponent type="button" title={option.title} onSuccess={option.action} type="icon" shape="circle" size="large">
+                                        </LoginComponent>
+                                    </div>
+                                </div>
                             );
                         })}
                     </div>

@@ -1,5 +1,6 @@
-import { useState } from "react";
-import { Link } from "react-router-dom"
+import { useState, useContext } from "react";
+import { Link, useNavigate } from "react-router-dom"
+import { AuthContext } from "../../context/AuthContext.jsx"
 import { HomeIcon } from "../../assets/icons/homeIcon.jsx"
 import { ListCheckIcon } from "../../assets/icons/listCheckIcon.jsx"
 import { CalendarIcon } from "../../assets/icons/calendarIcon.jsx"
@@ -23,7 +24,19 @@ import "react-resizable/css/styles.css";
 const ResponsiveGridLayout = WidthProvider(Responsive);
 
 export const Home = () => {
-	const [isExpanded, setIsExpanded] = useState(true);
+	const { logout } = useContext(AuthContext);
+	const navigate = useNavigate();
+
+	const handleLogout = async () => {
+		try {
+			await logout();
+			navigate('/login');
+		} catch (error) {
+			console.error('Error al cerrar sesión', error);
+		}
+	};
+
+	const [isExpanded, setIsExpanded] = useState(false);
 
 	const [activeTab, setActiveTab] = useState("Inicio");
 
@@ -94,11 +107,15 @@ export const Home = () => {
 	];
 
 	return (
-		<div className="flex h-screen bg-gradient-to-r from-primary-50 to-primary-300 p-4 gap-8 overflow-hidden">
+		<div className="flex flex-col md:flex-row h-[100dvh] bg-gradient-to-r from-primary-50 to-primary-300 p-2 md:p-4 gap-4 md:gap-8 overflow-hidden">
 			{/* Vertical Navbar (Left Side) - Completely rounded */}
-			<aside className={`flex flex-col bg-primary-300 text-primary shadow-2xl rounded-[3rem] p-5 justify-between transition-all duration-[300ms]
-								${isExpanded ? 'w-72' : 'w-[104px]'}`}
-			>
+			<aside className={`flex bg-primary-300 text-primary shadow-2xl transition-all duration-[300ms] shrink-0 z-50
+                                /* ESCRITORIO (Diseño base original intocable) */
+                                flex-col p-5 justify-between rounded-[3rem] h-full
+                                ${isExpanded ? 'w-72' : 'w-[104px]'}
+                                /* MÓVIL (Anula lo anterior solo en pantallas < 768px) */
+                                max-md:order-last max-md:flex-row max-md:w-full max-md:h-[72px] max-md:p-2 max-md:rounded-[2rem] max-md:items-center max-md:justify-around`}
+            >
 				{/* Logo Placeholder */}
 				<div className={`h-10 w-auto flex items-center  gap-12 cursor-pointer ${isExpanded ? 'justify-between' : 'justify-center'}`}
 						onClick={() => setIsExpanded(! isExpanded)}
@@ -151,7 +168,7 @@ export const Home = () => {
                             <span className="text-primary-600 text-lg font-medium whitespace-nowrap">
                                 Hugo
                             </span>
-                            <span className="text-primary-600 cursor-pointer whitespace-nowrap hover:underline">
+                            <span onClick={handleLogout} className="text-primary-600 cursor-pointer whitespace-nowrap hover:underline">
                                 Cerrar sesión
                             </span>
                         </div>
