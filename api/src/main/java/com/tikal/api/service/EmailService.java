@@ -33,7 +33,7 @@ public class EmailService {
             ClassPathResource logo = new ClassPathResource("images/logo-tikal.png");
 
             String baseLink = "http://localhost:5173";
-            String recoverLink = baseLink + "/reset-password?email=" + toEmail;
+            String recoverLink = baseLink + "/forgot-password?email=" + toEmail;
             String htmlContent = """
                     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 2px solid #63A47D; border-radius: 10px; background-color: #f1f8f3;">
                         <div href="%4$s" style="text-align: center; margin-bottom: 20px;">

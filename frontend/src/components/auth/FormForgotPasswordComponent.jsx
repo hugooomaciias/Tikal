@@ -1,5 +1,6 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { useAuth } from "../../hooks/useAuth";
 import { UserIcon } from "../../assets/icons/userIcon.jsx";
 import { MailIcon } from "../../assets/icons/mailIcon.jsx";
 import { TagIcon } from "../../assets/icons/tagIcon.jsx";
@@ -21,55 +22,137 @@ import { InfoIcon } from "../../assets/icons/infoIcon.jsx";
  * @component
  * @returns {JSX.Element} The interactive password recovery form.
  */
-export const FormForgotPasswordComponent = () => {
+export const FormForgotPasswordComponent = ({ apiError, setApiError }) => {
     /**
      * Hook for programmatic navigation.
      */
     const navigate = useNavigate();
 
     /**
+     * Hook for URL search parameters.
+     */
+    const [searchParams] = useSearchParams();
+
+    /**
+     * Authentication Hook
+     *
+     * Provides differents functions to communicate with the Auth Context/API.
+     */
+    const { forgotPassword, verifyOTP, resetPassword } = useAuth();
+
+    /**
      * Form Input State
-     * 
+     *
      * Manages the controlled inputs for the contact form.
      */
     const [formData, setFormData] = useState({
-        username: "",
-        email: ""
+        email: "",
+        otpCode: "",
+        password: "",
+        confirmPassword: ""
     });
 
     /**
+     * Recovery Step State
+     *
+     * Tracks the current phase of the recovery process:
+     * 1 - Email input
+     * 2 - OTP verification
+     * 3 - New password creation
+     */
+    const [step, setStep] = useState(1);
+
+    /**
+     * Password Visibility States
+     *
+     * Toggles the input type between "password" and "text" for the
+     * respective fields.
+     */
+    const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+    /**
      * Validation Error State
-     * 
+     *
      * Stores specific error messages for each field to be displayed in the UI.
      */
     const [errors, setErrors] = useState({});
 
     /**
+     * URL Parameter Initialization Effect
+     *
+     * Checks if an email is provided in the URL search parameters.
+     * If found, automatically populates the email field and advances the form
+     * to the OTP verification step.
+     */
+    useEffect(() => {
+        const emailFromUrl = searchParams.get("email");
+
+        if (emailFromUrl) {
+            setFormData(prev => ({
+                ...prev,
+                email: emailFromUrl
+            }));
+            
+            setStep(2);
+        }
+    }, [searchParams]);
+
+    /**
      * Form Validation Logic
-     * 
-     * Performs client-side checks for required fields and validates non-empty
-     * fields and the email format using a strict Regex pattern.
-     * @returns {boolean} True if the form is valid, false otherwise.
+     *
+     * Performs client-side checks based on the current step.
+     * @returns {boolean} True if the form step is valid, false otherwise.
      */
     const validateForm = () => {
         let tempErrors = {};
         let isValid = true;
 
-        // Validate username
-        if (! formData.username.trim()) {
-            tempErrors.username = "Por favor, introduce un nombre de usuario";
-            isValid = false;
-        }
+        if (step === 1) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-        // Validate Email
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (! formData.email.trim()) {
+                tempErrors.email = "Por favor, introduce un email";
+                isValid = false;
+            } else if (! emailRegex.test(formData.email)) {
+                tempErrors.email = "Por favor, introduce un email válido";
+                isValid = false;
+            }
 
-        if (! formData.email.trim()) {
-            tempErrors.email = "Por favor, introduce un email";
-            isValid = false;
-        } else if (! emailRegex.test(formData.email)) {
-            tempErrors.email = "Por favor, introduce un email válido";
-            isValid = false;
+        } else if (step === 2) {
+            const otpClean = (formData.otpCode || "").replace(/\s/g, "");
+
+            if (! otpClean) {
+                tempErrors.otpCode = "Por favor, introduce el código";
+                isValid = false;
+            } else if (otpClean.length < 6) {
+                tempErrors.otpCode = "El código debe tener 6 carácteres";
+                isValid = false;
+            }
+
+        } else if (step === 3) {
+            const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
+
+            if (! formData.password) {
+                tempErrors.password = "Por favor, introduce una contraseña";
+                isValid = false;
+            } else if (! passwordRegex.test(formData.password)) {
+                tempErrors.password = "Por favor, introduce una contraseña válida";
+                isValid = false;
+            }
+
+            // Validate Confirm Password
+            if (! formData.passwordConf) {
+                tempErrors.passwordConf = "Por favor, introduce una contraseña";
+                isValid = false;
+            } else if (! passwordRegex.test(formData.passwordConf)) {
+                tempErrors.passwordConf = "Por favor, introduce una contraseña válida";
+                isValid = false;
+
+            } else if (formData.password !== formData.passwordConf) {
+                tempErrors.passwordConf = "Las contraseñas no coinciden";
+                isValid = false;
+            }
         }
 
         setErrors(tempErrors);
@@ -78,8 +161,109 @@ export const FormForgotPasswordComponent = () => {
     };
 
     /**
+     * Handles typing in the individual OTP inputs.
+     * Overwrites the character at the specified index and auto-focuses the next input.
+     *
+     * @param {number} index - The index of the OTP input field (0-5).
+     * @param {React.ChangeEvent<HTMLInputElement>} e - The change event.
+     */
+    const handleOtpChange = (index, e) => {
+        const value = e.target.value;
+        const char = value.slice(-1);
+        const currentOtpStr = (formData.otpCode || "").padEnd(6, " ");
+        let newOtpArray = currentOtpStr.split("");
+        
+        newOtpArray[index] = char === "" ? " " : char;
+        const newOtp = newOtpArray.join("");
+        
+        setFormData(prev => ({ ...prev, otpCode: newOtp }));
+
+        if (errors.otpCode) {
+            setErrors(prev => ({ ...prev, otpCode: "" }));
+        }
+
+        if (char !== "" && char !== " " && index < 5) {
+            const nextInput = document.getElementById(`otp-${index + 1}`);
+            if (nextInput) nextInput.focus();
+        }
+    };
+
+    /**
+     * Handles keyboard navigation and backspace inside the OTP inputs.
+     * Allows seamless moving backward and forward between the separate boxes.
+     *
+     * @param {number} index - The index of the OTP input field (0-5).
+     * @param {React.KeyboardEvent<HTMLInputElement>} e - The keyboard event.
+     */
+    const handleOtpKeyDown = (index, e) => {
+        if (e.key === "Backspace") {
+            const currentOtpStr = (formData.otpCode || "").padEnd(6, " ");
+            const char = currentOtpStr[index];
+
+            if ((char === " " || !char) && index > 0) {
+                const prevInput = document.getElementById(`otp-${index - 1}`);
+                if (prevInput) prevInput.focus();
+            }
+
+        } else if (e.key === "ArrowLeft" && index > 0) {
+            const prevInput = document.getElementById(`otp-${index - 1}`);
+            if (prevInput) prevInput.focus();
+
+        } else if (e.key === "ArrowRight" && index < 5) {
+            const nextInput = document.getElementById(`otp-${index + 1}`);
+            if (nextInput) nextInput.focus();
+        }
+    };
+
+    /**
+     * Handles pasting logic for the OTP inputs.
+     * Extracts exactly 6 valid characters and populates the separated inputs automatically.
+     *
+     * @param {React.ClipboardEvent<HTMLDivElement>} e - The paste event.
+     */
+    const handleOtpPaste = (e) => {
+        e.preventDefault();
+
+        const pastedData = e.clipboardData.getData("Text").replace(/\s/g, '').slice(0, 6);
+        if (! pastedData) return;
+        
+        const newOtp = pastedData.padEnd(6, " ");
+        setFormData(prev => ({ ...prev, otpCode: newOtp }));
+        
+        if (errors.otpCode) {
+            setErrors(prev => ({ ...prev, otpCode: "" }));
+        }
+
+        const focusIndex = Math.min(pastedData.length, 5);
+
+        if (focusIndex < 6) {
+            const input = document.getElementById(`otp-${focusIndex}`);
+            if (input) input.focus();
+        } else {
+             const input = document.getElementById(`otp-5`);
+             if (input) input.focus();
+        }
+    };
+
+    /**
+     * OTP Resend Handler
+     *
+     * Invokes the forgotPassword flow again to generate and mail a new code securely.
+     *
+     * @async
+     * @function
+     */
+    const handleResendOTP = async () => {
+        try {
+            await forgotPassword(formData.email);
+        } catch (error) {
+            console.error('Error al reenviar el código OTP:', error);
+        }
+    };
+
+    /**
      * Input Change Handler
-     * 
+     *
      * Updates the specific field in the state object while preserving other
      * values. Also implements if a field has an error, typing in it immediately
      * clears the visual error state to improve UX.
@@ -99,34 +283,64 @@ export const FormForgotPasswordComponent = () => {
                 [name]: ""
             }));
         }
+
+        if (apiError) {
+            setApiError("");
+        }
     };
 
     /**
      * Form Submission Handler
-     * 
+     *
      * Orchestrates the submission process: prevents default behavior, runs
-     * validation, and redirects the user if successful.
+     * validation, advances the steps, and redirects the user if successful.
      * @param {React.FormEvent} e - The form submission event.
      */
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
 
         if (validateForm()) {
-            navigate("/login")
+            if (step === 1) {
+                try {
+                    await forgotPassword(formData.email);
+                    setStep(2);
+                } catch (error) {
+                    console.error('Error al enviar el correo de recuperación:', error);
+                    setApiError("Error al enviar el correo de recuperación. Por favor, inténtalo de nuevo.");
+                }
 
-            setFormData({ username: "", email: ""});
+            } else if (step === 2) {
+                try {
+                    await verifyOTP(formData);
+                    setStep(3);
+                } catch (error) {
+                    console.error('Error al verificar el código OTP:', error);
+                    setApiError(error.message || "Error al verificar el código OTP. Por favor, inténtalo de nuevo.");
+                }
+
+            } else if (step === 3) {
+                try {
+                    await resetPassword(formData);
+
+                    navigate("/login");
+                    setFormData({ email: "", otpCode: "", password: "", confirmPassword: "" });
+                } catch (error) {
+                    console.error('Error al verificar el código OTP:', error);
+                    setApiError(error.message || "Error al verificar el código OTP. Por favor, inténtalo de nuevo.");
+                }
+            }
         }
     };
 
     /**
      * Dynamic Input Styling Helper
-     * 
+     *
      * Computes the Tailwind classes for input fields based on their current
      * validation state.
      * @param {string} fieldName - The name of the field to check.
      */
     const getInputClass = (fieldName) => {
-        const baseInputClass = "input input-textarea-primary peer";
+        const baseInputClass = "input input-textarea-primary peer disabled:opacity-50 disabled:cursor-not-allowed";
         const errorNoEmailClass = "ring-[3px] ring-tertiary-200";
 
         const errorClass = `${errors[fieldName] === "Por favor, introduce un email válido" ? "" : errorNoEmailClass}`;
@@ -136,46 +350,40 @@ export const FormForgotPasswordComponent = () => {
 
     /**
      * Dynamic Icon Styling Helper
-     * 
+     *
      * Determines the color and styling of input icons based on error presence
      * or user interaction.
      * @param {string} fieldName - The name of the field associated with the
      * icon.
      */
     const getIconClass = (fieldName) => {
-        const baseClass = "input-icon";
+        const baseNoPassClass = "input-icon";
+        const basePassClass = "input-icon cursor-pointer pointer-events-auto";
         const errorClass = "peer-focus:text-tertiary-200 peer-[:not(:placeholder-shown)]:text-tertiary-200";
         const normalClass = "peer-focus:text-primary-500 peer-[:not(:placeholder-shown)]:text-primary-500";
 
-        return `${baseClass} ${errors[fieldName] === "Por favor, introduce un email válido" ? errorClass : normalClass}`;
+        let isPass = false;
+        let errorText = "";
+
+        if (fieldName === "password" || fieldName === "passwordConf") {
+            isPass = true;
+            errorText = "Por favor, introduce una contraseña";
+        } else {
+            errorText =  "Por favor, introduce un email";
+        }
+
+        const baseClass = isPass ? basePassClass : baseNoPassClass;
+
+        return `${baseClass} ${errors[fieldName] !== undefined && errors[fieldName] !== errorText ? errorClass : normalClass}`;
     };
 
     return (
         <form onSubmit={handleSubmit} className="flex flex-col items-center justify-center gap-6" noValidate>
-
-            {/* Username Input */}
-            <div className="relative w-full">
-                <input type="text" id="username" name="username" placeholder=" "
-                    value={formData.name} onChange={handleChange} required
-                    className={getInputClass("username")}   
-                />
-
-                <label htmlFor="username" className="input-label input-textarea-label-primary">
-                    Nombre de usuario
-                </label>
-
-                <div className="input-icon peer-focus:text-primary-500 peer-[:not(:placeholder-shown)]:text-primary-500">
-                    <UserIcon className="h-5 w-5" />
-                </div>
-
-                {errors.username && <span className="absolute -bottom-5 left-0 text-tertiary-200 text-xs font-semibold">{errors.username}</span>}
-            </div>
-
             {/* Email Input */}
             <div className="relative w-full">
                 <input type="text" id="email" name="email" placeholder=" "
                     value={formData.email} onChange={handleChange} required
-                    className={getInputClass("email")}
+                    className={getInputClass("email")} disabled={step > 1}
                 />
 
                 <label htmlFor="email" className="input-label input-textarea-label-primary">
@@ -189,9 +397,157 @@ export const FormForgotPasswordComponent = () => {
                 {errors.email && <span className="absolute -bottom-5 left-0 text-tertiary-200 text-xs font-semibold">{errors.email}</span>}
             </div>
 
+            {/* OTP Input */}
+            {step >= 2 && (
+                <div className="relative w-full">
+                    <div className="flex justify-between items-center w-full">
+                        <label className="text-primary-500 font-semibold text-sm">
+                            Código de verificación
+                        </label>
+                        <button type="button" onClick={handleResendOTP} disabled={step > 2}
+                                className="text-primary-500/70 font-semibold text-xs cursor-pointer hover:text-primary-500 hover:underline disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            Reenviar código
+                        </button>
+                    </div>
+
+                    <div className="flex items-center justify-between gap-2 md:gap-4 w-full mt-1" onPaste={handleOtpPaste}>
+                        {[0, 1, 2].map(index => {
+                            const val = (formData.otpCode || "").padEnd(6, " ")[index];
+                            return (
+                                <input
+                                    key={`otp-grp1-${index}`}
+                                    id={`otp-${index}`}
+                                    type="text"
+                                    value={val !== " " ? val : ""}
+                                    onChange={(e) => handleOtpChange(index, e)}
+                                    onKeyDown={(e) => handleOtpKeyDown(index, e)}
+                                    disabled={step > 2}
+                                    className={`${getInputClass("otp")} text-center text-2xl font-semibold w-10 md:w-12 h-14 !p-0`}
+                                />
+                            );
+                        })}
+                        
+                        <span className="text-2xl font-bold text-primary-300">-</span>
+                        
+                        {[3, 4, 5].map(index => {
+                            const val = (formData.otpCode || "").padEnd(6, " ")[index];
+                            return (
+                                <input
+                                    key={`otp-grp2-${index}`}
+                                    id={`otp-${index}`}
+                                    type="text"
+                                    value={val !== " " ? val : ""}
+                                    onChange={(e) => handleOtpChange(index, e)}
+                                    onKeyDown={(e) => handleOtpKeyDown(index, e)}
+                                    disabled={step > 2}
+                                    className={`${getInputClass("otp")} text-center text-2xl font-semibold w-10 md:w-12 h-14 !p-0`}
+                                />
+                            );
+                        })}
+                    </div>
+                    {errors.otpCode && <span className="absolute -bottom-5 left-0 text-tertiary-200 text-xs font-semibold">{errors.otpCode}</span>}
+                </div>
+            )}
+
+            {/* Passwords Input */}
+            {step >= 3 && (
+                <>
+                    {/* Password Input */}
+                    <div className="relative w-full">
+                        <input type={showPassword ? "text" : "password"} id="password" name="password" placeholder=" "
+                            value={formData.password} onChange={handleChange}
+                            className={getInputClass("password")}
+                        />
+
+                        <label htmlFor="password" className="input-label input-textarea-label-primary">
+                            Contraseña
+                        </label>
+
+                        <div className={getIconClass("password")} onClick={() => setShowPassword(! showPassword)}>
+                            {showPassword ? (
+                                <EyeOpenIcon className="h-5 w-5" />
+                            ) : (
+                                <EyeCloseIcon className="h-5 w-5" />
+                            )}
+                        </div>
+
+                        {errors.password && (
+                            <div className="absolute -bottom-5 left-0 flex items-center gap-1 text-tertiary-200 text-xs font-semibold">
+                                <span>{errors.password}</span>
+                                
+                                {errors.password === "Por favor, introduce una contraseña válida" && (
+                                    <div className="relative group flex items-center">
+                                        {/* Usamos el InfoIcon importado */}
+                                        <InfoIcon className="h-4 w-4 cursor-pointer" />
+                                        
+                                        <div className="absolute left-6 z-40 w-48 bg-tertiary-200 text-primary p-3 rounded-lg shadow-xl opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none group-hover:pointer-events-auto">
+                                            <p className="text-primary font-bold mb-1">Requisitos:</p>
+                                            <ul className="list-disc list-inside space-y-1 text-[10px]">
+                                                <li>Mínimo 8 caracteres</li>
+                                                <li>Una mayúscula (A-Z)</li>
+                                                <li>Una minúscula (a-z)</li>
+                                                <li>Un número (0-9)</li>
+                                                <li>Un carácter especial (!@#$...)</li>
+                                            </ul>
+                                            <div className="absolute top-1/2 -left-1 h-2 w-2 bg-tertiary-200 transform -translate-y-1/2 rotate-45"></div>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Confirm Password Input */}
+                    <div className="relative w-full">
+                        <input type={showConfirmPassword ? "text" : "password"} id="passwordConf" name="passwordConf" placeholder=" "
+                            value={formData.passwordConf} onChange={handleChange}
+                            className={getInputClass("passwordConf")}
+                        />
+
+                        <label htmlFor="passwordConf" className="input-label input-textarea-label-primary">
+                            Confirmar contraseña
+                        </label>
+
+                        <div className={getIconClass("passwordConf")} onClick={() => setShowConfirmPassword(! showConfirmPassword)}>
+                            {showConfirmPassword ? (
+                                <EyeOpenIcon className="h-5 w-5" />
+                            ) : (
+                                <EyeCloseIcon className="h-5 w-5" />
+                            )}
+                        </div>
+
+                        {errors.passwordConf && (
+                            <div className="absolute -bottom-5 left-0 flex items-center gap-1 text-tertiary-200 text-xs font-semibold">
+                                <span>{errors.passwordConf}</span>
+                                
+                                {errors.passwordConf === "Por favor, introduce una contraseña válida" && (
+                                    <div className="relative group flex items-center">
+                                        {/* Usamos el InfoIcon importado */}
+                                        <InfoIcon className="h-4 w-4" />
+                                        
+                                        <div className="absolute left-6 z-40 w-48 bg-tertiary-200 text-primary p-3 rounded-lg shadow-xl opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none group-hover:pointer-events-auto">
+                                            <p className="text-primary font-bold mb-1">Requisitos:</p>
+                                            <ul className="list-disc list-inside space-y-1 text-[10px]">
+                                                <li>Mínimo 8 caracteres</li>
+                                                <li>Una mayúscula (A-Z)</li>
+                                                <li>Una minúscula (a-z)</li>
+                                                <li>Un número (0-9)</li>
+                                                <li>Un carácter especial (!@#$...)</li>
+                                            </ul>
+                                            <div className="absolute top-1/2 -left-1 h-2 w-2 bg-tertiary-200 transform -translate-y-1/2 rotate-45"></div>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        )}
+                    </div>
+                </>
+            )}
+
             {/* Submit Button */}
             <button type="submit" className="btn md:w-1/2 btn-primary mt-6">
-                <span>Restablecer</span>
+                <span>{step === 1 ? 'Enviar código' : step === 2 ? 'Verificar código' : 'Restablecer'}</span>
             </button>
         </form>
     )

@@ -41,10 +41,10 @@ export const AuthProvider = ({ children }) => {
 
 	/**
 	 * Initial Authentication Check Effect
-	 * 
+	 *
 	 * Runs once when the AuthProvider mounts. Checks `localStorage` for an `accessToken`.
-	 * If present, it securely decodes it, checking the expiration time (`exp`). 
-	 * If expired, it automatically attempts to use the `refreshToken` to acquire 
+	 * If present, it securely decodes it, checking the expiration time (`exp`).
+	 * If expired, it automatically attempts to use the `refreshToken` to acquire
 	 * a new access token before marking the user as authenticated.
 	 */
 	useEffect(() => {
@@ -124,10 +124,10 @@ export const AuthProvider = ({ children }) => {
 
 	/**
 	 * Executes the login flow.
-	 * 
+	 *
 	 * Sends credentials to the backend. On success, securely saves the newly
 	 * acquired access and refresh tokens in `localStorage` and updates context state.
-	 * 
+	 *
 	 * @async
 	 * @function
 	 * @param {Object} userData - User credentials.
@@ -141,9 +141,7 @@ export const AuthProvider = ({ children }) => {
 		try {
 			const response = await fetch(`${API_BASE_URL}/auth/login`, {
 				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json'
-				},
+				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify(userData)
 			})
 
@@ -171,10 +169,10 @@ export const AuthProvider = ({ children }) => {
 
 	/**
 	 * Executes the registration flow.
-	 * 
+	 *
 	 * Formats the user data, creates the account via the backend API, and then
 	 * directly logs the user in by saving the issued tokens and updating state.
-	 * 
+	 *
 	 * @async
 	 * @function
 	 * @param {Object} userData - New user details.
@@ -224,22 +222,180 @@ export const AuthProvider = ({ children }) => {
 
 	/**
 	 * Executes the logout flow.
-	 * 
+	 *
 	 * Clears local state and removes authentication tokens from `localStorage`.
-	 * 
+	 *
 	 * @function
 	 */
-	const logout = () => {
-		setUser(null)
-		setIsAuthenticated(false)
+	const logout = async () => {
+		try {
+			const response = await fetch(`${API_BASE_URL}/auth/logout`, {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({"refresh_token": localStorage.getItem('refreshToken')})
+			})
 
-		localStorage.removeItem('accessToken')
-        localStorage.removeItem('refreshToken')
+			if (! response.ok) {
+				throw new Error('Error al cerrar sesión')
+			}
+
+			setUser(null)
+			setIsAuthenticated(false)
+
+			localStorage.removeItem('accessToken')
+			localStorage.removeItem('refreshToken')
+		} catch (error) {
+			console.error('Logout error', error)
+			throw error
+		}
+	}
+
+	/**
+	 * Initiates the password recovery flow.
+	 *
+	 * Sends the user's email to the backend to request a password reset OTP.
+	 *
+	 * @async
+	 * @function
+	 * @param {string} userData - The email address of the user requesting the reset.
+	 * @throws {Error} Throws an error if the request fails.
+	 */
+	const forgotPassword = async (userData) => {
+		try {
+			const response = await fetch(`${API_BASE_URL}/auth/forgot-password`, {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({"email": userData})
+			})
+
+			if (! response.ok) {
+				throw new Error('Error al enviar el correo de recuperación')
+			}
+
+		} catch (error) {
+			console.error('Forgot password error', error)
+			throw error
+		}
+	}
+
+	/**
+	 * Verifies the password reset OTP.
+	 *
+	 * Sends the provided OTP code and user email to the backend for validation.
+	 *
+	 * @async
+	 * @function
+	 * @param {Object} userData - OTP verification details.
+	 * @param {string} userData.email - The user's email address.
+	 * @param {string} userData.otpCode - The 6-digit OTP code sent to the user.
+	 * @throws {Error} Throws an error if the OTP validation fails.
+	 */
+	const verifyOTP = async (userData) => {
+		try {
+			const verifyOTPPayload = {
+				email: userData.email,
+				otpCode: userData.otpCode
+			}
+
+			const response = await fetch(`${API_BASE_URL}/auth/verify-otp`, {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify(verifyOTPPayload)
+			})
+
+			const text = await response.text();
+
+			if (! response.ok) {
+				const data = text ? JSON.parse(text) : {};
+
+				throw new Error(data.message)
+			}
+		} catch (error) {
+			console.error('Verify OTP error', error)
+			throw error
+		}
+	}
+
+	/**
+	 * Executes the password reset confirm flow.
+	 *
+	 * Sends the validated OTP, email, and the new password to the backend
+	 * to successfully complete the password reset process.
+	 *
+	 * @async
+	 * @function
+	 * @param {Object} userData - Reset password details.
+	 * @param {string} userData.email - The user's email address.
+	 * @param {string} userData.otpCode - The validated 6-digit OTP code.
+	 * @param {string} userData.password - The user's new password.
+	 * @throws {Error} Throws an error if the password reset fails.
+	 */
+	const resetPassword = async (userData) => {
+		try {
+			const resetPasswordPayload = {
+				email: userData.email,
+				otpCode: userData.otpCode,
+				newPassword: userData.password
+			}
+
+			const response = await fetch(`${API_BASE_URL}/auth/reset-password`, {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify(resetPasswordPayload)
+			})
+
+			if (! response.ok) {
+				throw new Error('Error al restablecer la contraseña')
+			}
+
+		} catch (error) {
+			console.error('Reset password error', error)
+			throw error
+		}
+	}
+
+	/**
+	 * Executes the Google Login flow.
+	 *
+	 * Sends the Google-provided ID token to the backend for verification and authentication.
+	 * On success, securely saves the newly acquired JWT access and refresh tokens in
+	 * `localStorage` and updates the context state.
+	 *
+	 * @async
+	 * @function
+	 * @param {string} googleIdToken - The ID token provided by Google OAuth.
+	 * @throws {Error} Throws an error if the Google login request fails.
+	 */
+	const googleLogin = async (googleIdToken) => {
+		try {
+			const response = await fetch(`${API_BASE_URL}/auth/google`, {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({"idToken": googleIdToken})
+			})
+
+			const text = await response.text()
+            const data = text ? JSON.parse(text) : {}
+
+			if (response.ok) {
+				localStorage.setItem('accessToken', data.access_token)
+				localStorage.setItem('refreshToken', data.refresh_token)
+
+				setUser({ identifier: data.email })
+				setIsAuthenticated(true)
+			} else {
+				throw new Error(data.message || 'Error en el login con Google')
+			}
+
+		} catch (error) {
+			console.error('Google login error', error)
+			throw error
+		}
 	}
 
 	return (
 		<AuthContext.Provider
-			value={{ user, isAuthenticated, isLoading, login, register, logout }}
+			value={{ user, isAuthenticated, isLoading, login, register, logout, forgotPassword, verifyOTP, resetPassword, googleLogin }}
 		>
 			{children}
 		</AuthContext.Provider>

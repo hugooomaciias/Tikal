@@ -31,14 +31,14 @@ export const FormLoginComponent = ({ apiError, setApiError }) => {
 
     /**
      * Authentication Hook
-     * 
+     *
      * Provides the 'login' function to communicate with the Auth Context/API.
      */
     const { login } = useAuth();
 
     /**
      * Form Input State
-     * 
+     *
      * Manages the controlled inputs for the contact form.
      */
     const [formData, setFormData] = useState({
@@ -47,22 +47,23 @@ export const FormLoginComponent = ({ apiError, setApiError }) => {
     });
 
     /**
-     * Visibility Toggle
-     * 
-     * Boolean state to handle the masking/unmasking of password field.
+     * Password Visibility States
+     *
+     * Toggles the input type between "password" and "text" for the
+     * respective fields.
      */
     const [showPassword, setShowPassword] = useState(false);
 
     /**
      * Validation Error State
-     * 
+     *
      * Stores specific error messages for each field to be displayed in the UI.
      */
     const [errors, setErrors] = useState({});
 
     /**
      * Form Validation Logic
-     * 
+     *
      * Performs client-side checks for required fields and validates the email
      * format using a strict Regex pattern and strong password.
      * @returns {boolean} True if the form is valid, false otherwise.

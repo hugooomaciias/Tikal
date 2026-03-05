@@ -77,15 +77,15 @@ export const LoadingScreen = () => {
      * ensuring a seamless transition to the dashboard.
      */
 	const handleAnimationComplete = () => {
-		navigate('/dashboard')
+		navigate('/home')
 	}
 
 	return (
-		<div className="min-h-screen bg-primary flex items-center justify-center">
-			<div className="text-center">
+		<div className="min-h-screen bg-primary flex items-center justify-center overflow-hidden">
+			<div className="text-center w-full h-full flex items-center justify-center">
 
 				{/* Animation */}
-				<div className="relative w-80 h-80 md:w-96 md:h-96 mx-auto mb-8 flex items-center justify-center">
+				<div className="relative w-full h-full flex items-center justify-center scale-[3] md:scale-100 transition-transform duration-300">
 					{! showSecondPartAnimation ? (
 						<Lottie key="firstPhase" animationData={firstPartAnimation}
 								loop={true} autoplay={true} onLoopComplete={handleFirstPhaseLoopComplete}

@@ -31,6 +31,29 @@ export const RegisterPage = () => {
      */
     const [isVisible, setIsVisible] = useState(false);
 
+    /**
+     * Closes the Error Popup
+     *
+     * Triggers the exit animation by setting `isVisible` to false, and then
+     * clears the `apiError` message after the animation duration (300ms).
+     *
+     * @function
+     */
+    const closePopup = () => {
+        setIsVisible(false);
+        
+        setTimeout(() => {
+            setApiError("");
+        }, 300);
+    };
+
+    /**
+     * Popup Auto-Hide Effect
+     *
+     * Monitors the `apiError` state. When an error is present, it displays
+     * the popup and sets a timeout to automatically close it after 5 seconds.
+     * It cleans up the timeout if the component unmounts or if the error changes.
+     */
     useEffect(() => {
         if (apiError) {
             setIsVisible(true);
@@ -43,14 +66,6 @@ export const RegisterPage = () => {
         }
     }, [apiError]);
 
-    const closePopup = () => {
-        setIsVisible(false);
-        
-        setTimeout(() => {
-            setApiError("");
-        }, 300);
-    };
-
     return (
         <div className="min-h-screen flex items-center justify-center bg-primary p-0 md:p-4">
 
@@ -59,8 +74,8 @@ export const RegisterPage = () => {
                     <div
                         className={`absolute top-10 md:top-16 h-16 w-[89%] md:w-1/4 bg-primary border-2 border-tertiary-200 text-tertiary-200 px-4 py-3 rounded-lg flex items-center justify-center gap-3 shadow-xl transition-all duration-300 animate-fade-in-up z-50
                         ${isVisible
-                            ? 'md:top-16 h-16 opacity-100 scale-100'
-                            : 'md:top-16 h-16 opacity-0 scale-95 pointer-events-none'
+                            ? 'opacity-100 scale-100'
+                            : 'opacity-0 scale-95 pointer-events-none'
                         }`}
                         role="alert"
                     >
