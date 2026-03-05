@@ -41,10 +41,10 @@ export const AuthProvider = ({ children }) => {
 
 	/**
 	 * Initial Authentication Check Effect
-	 * 
+	 *
 	 * Runs once when the AuthProvider mounts. Checks `localStorage` for an `accessToken`.
-	 * If present, it securely decodes it, checking the expiration time (`exp`). 
-	 * If expired, it automatically attempts to use the `refreshToken` to acquire 
+	 * If present, it securely decodes it, checking the expiration time (`exp`).
+	 * If expired, it automatically attempts to use the `refreshToken` to acquire
 	 * a new access token before marking the user as authenticated.
 	 */
 	useEffect(() => {
@@ -124,10 +124,10 @@ export const AuthProvider = ({ children }) => {
 
 	/**
 	 * Executes the login flow.
-	 * 
+	 *
 	 * Sends credentials to the backend. On success, securely saves the newly
 	 * acquired access and refresh tokens in `localStorage` and updates context state.
-	 * 
+	 *
 	 * @async
 	 * @function
 	 * @param {Object} userData - User credentials.

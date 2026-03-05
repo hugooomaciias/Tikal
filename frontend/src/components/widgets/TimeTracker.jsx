@@ -2,9 +2,9 @@ import DatabaseIcon from "../../assets/icons/databaseIcon.jsx";
 import PlayIcon from "../../assets/icons/playIcon.jsx";
 import StopIcon from "../../assets/icons/stopIcon.jsx";
 
-export const TimeTracker = () => {
+export const TimeTracker = ({ className }) => {
     return (
-        <div className="w-64 h-auto bg-secondary-800 rounded-3xl flex flex-col p-5 mb-40 animate-float transform shadow-xl">
+        <div className={`h-auto w-full bg-secondary-800 rounded-3xl flex flex-col p-5 transform shadow-md ${className}`}>
             {/* Header Tarjeta */}
             <p className="text-primary text-2xl font-semibold">
                 Time tracker

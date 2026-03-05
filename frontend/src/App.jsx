@@ -8,7 +8,7 @@ import { RegisterPage } from './pages/auth/RegisterPage'
 import { ForgotPasswordPage } from './pages/auth/ForgotPasswordPage'
 import { ResetPasswordPage } from './pages/auth/ResetPasswordPage'
 import { LoadingScreen } from './pages/LoadingScreen'
-import { Dashboard } from './pages/principal/Dashboard'
+import { Home } from './pages/main/HomePage'
 
 function App() {
   return (
@@ -33,7 +33,7 @@ function App() {
             path="/dashboard"
             element={
               <ProtectedRoute>
-                <Dashboard />
+                <Home />
               </ProtectedRoute>
             }
           />
