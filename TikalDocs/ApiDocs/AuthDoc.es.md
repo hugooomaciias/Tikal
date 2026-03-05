@@ -15,6 +15,7 @@ Este documento describe todos los endpoints relacionados con la autenticación p
   - [5. Solicitar Recuperación de Contraseña](#5-solicitar-recuperación-de-contraseña-post-authforgot-password)
   - [6. Verificar Código OTP](#6-verificar-código-otp-post-authverify-otp)
   - [7. Restablecer Contraseña](#7-restablecer-contraseña-post-authreset-password)
+  - [8. Inicio de sesión con google](#8-inicio-de-sesión-con-google-post-authgoogle)
 - [Manejo de Errores](#manejo-de-errores)
   - [Error 409 (Conflicto)](#1-error-409-conflicto)
   - [Error 404 (No Encontrado)](#2-error-404-no-encontrado)
@@ -178,6 +179,29 @@ Código verificado correctamente.
 Contraseña actualizada con éxito.
 ```
 
+### 8. Inicio de Sesión con Google (`Post /auth/google`)
+
+**Propósito**: Autenticar a un usuario mediante Google (Social Login). Recibe un ID Token de Google generado por el frontend, verifica su firma criptográfica y extrae los datos del usuario. Si el email no existe en la base de datos, realiza un "registro silencioso": crea la cuenta, le asigna una contraseña aleatoria inaccesible para forzar el uso de Google, establece el plan "GRATUITO" por defecto y prepara su entorno inicial. Si el usuario ya existe, inicia la sesión normalmente. En ambos casos, delega el control devolviendo los tokens estándar de Tikal.
+
+**Request (Headers)**: `Content-Type: application/json`
+
+**Request (Body)**:
+
+```json
+{
+  "idToken": "eyJhbGciOiJSUzI1Ni... (Google ID Token obtenido en el frontend)"
+}
+```
+
+**Response (200 OK)**:
+
+```json
+{
+  "access_token": "eyJhbGciOiJIUz... (Token corto de 15 min)",
+  "refresh_token": "eyJhbGciOiJIUz... (Token largo de 7 días)"
+}
+```
+
 <p align="right">
 <a href="#top">⬆️ Volver arriba</a>
 </p>
@@ -238,14 +262,23 @@ El usuario intenta autenticarse sin token, o utiliza un Refresh Token que ha sid
 }
 ```
 
-También se devuelve este error cuando el código de validación que ha introducido el usuario para cambiar la contraseña es incorrectoy no es el que se ha enviado por correo, se vería así:
+>También se devuelve este error cuando el código de validación que ha introducido el usuario para cambiar la contraseña es incorrectoy no es el que se ha enviado por correo, se vería así:
+>
+>```json
+>{
+>  "error": "Invalid credentials",
+>  "message": "El código introducido es incorrecto."
+>}
+>```
 
-```json
-{
-  "error": "Invalid credentials",
-  "message": "El código introducido es incorrecto."
-}
-```
+> También se devuelve este error cuando falla la autenticación de terceros (Social Login), por ejemplo, si el token de Google es inválido, ha sido manipulado o ha caducado:
+> ```json
+> {
+>   "error": "Authentication failed",
+>   "message": "El token de Google no es válido, ha expirado o está manipulado."
+> }
+> ```
+
 
 ### 4. Error 400 (Solicitud Incorrecta)
 
@@ -258,14 +291,14 @@ El cliente envía datos malformados (ej: un plan de suscripción inválido) o un
 }
 ```
 
-En la parte del cambio de contraseña debido a un olvido del usuario, se envía este error en el caso de que el token haya caducado o no exista ninguna solicitud de cambio de contraseña pendiente.
-
-```json
-{
-  "error": "Expired resource",
-  "message": "El código ha caducado. Por favor, solicita uno nuevo."
-}
-```
+>En la parte del cambio de contraseña debido a un olvido del usuario, se envía este error en el caso de que el token haya caducado o no exista ninguna solicitud de cambio de contraseña pendiente.
+>
+>```json
+>{
+>  "error": "Expired resource",
+>  "message": "El código ha caducado. Por favor, solicita uno nuevo."
+>}
+>```
 
 <p align="right">
     <a href="#top">⬆️ Volver arriba</a>

@@ -3,6 +3,7 @@ package com.tikal.api.controller;
 import com.tikal.api.model.dto.auth.*;
 import com.tikal.api.service.AuthService;
 import lombok.RequiredArgsConstructor;
+import org.antlr.runtime.Token;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -60,5 +61,11 @@ public class AuthController {
     public ResponseEntity<String> resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
         service.resetPassword(request);
         return ResponseEntity.ok("Contraseña actualizada con éxito");
+    }
+
+    @PostMapping("/google")
+    public ResponseEntity<TokenResponse> googleLogin(@RequestBody GoogleLoginRequest request) {
+        TokenResponse response = service.loginWithGoogle(request.getIdToken());
+        return ResponseEntity.ok(response);
     }
 }
