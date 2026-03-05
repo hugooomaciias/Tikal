@@ -43,6 +43,12 @@ public class AuthController {
         return ResponseEntity.ok().build();
     }
 
+    @PostMapping("/logout-all")
+    public  ResponseEntity<Void> logoutAll(@RequestBody LogoutRequest request) {
+        service.logoutAll(request.getRefreshToken());
+        return ResponseEntity.ok().build();
+    }
+
     @PostMapping("/forgot-password")
     public ResponseEntity<String> forgotPassword(@Valid @RequestBody ForgotPasswordRequest request) {
         service.forgotPassword(request);

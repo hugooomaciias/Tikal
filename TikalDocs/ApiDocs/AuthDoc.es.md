@@ -12,10 +12,11 @@ Este documento describe todos los endpoints relacionados con la autenticación p
   - [2. Inicio de Sesión](#2-inicio-de-sesión-post-authlogin)
   - [3. Renovación de Sesión](#3-renovación-de-sesión-post-authrefresh)
   - [4. Cierre de Sesión](#4-cierre-de-sesión-post-authlogout)
-  - [5. Solicitar Recuperación de Contraseña](#5-solicitar-recuperación-de-contraseña-post-authforgot-password)
-  - [6. Verificar Código OTP](#6-verificar-código-otp-post-authverify-otp)
-  - [7. Restablecer Contraseña](#7-restablecer-contraseña-post-authreset-password)
-  - [8. Inicio de sesión con google](#8-inicio-de-sesión-con-google-post-authgoogle)
+  - [5. Cierre de todas las sesiones](#5-cierre-de-todas-las-sesiones-post-authlogout-all)
+  - [6. Solicitar Recuperación de Contraseña](#6-solicitar-recuperación-de-contraseña-post-authforgot-password)
+  - [7. Verificar Código OTP](#7-verificar-código-otp-post-authverify-otp)
+  - [8. Restablecer Contraseña](#8-restablecer-contraseña-post-authreset-password)
+  - [9. Inicio de sesión con google](#9-inicio-de-sesión-con-google-post-authgoogle)
 - [Manejo de Errores](#manejo-de-errores)
   - [Error 409 (Conflicto)](#1-error-409-conflicto)
   - [Error 404 (No Encontrado)](#2-error-404-no-encontrado)
@@ -115,7 +116,23 @@ Authorization: Bearer eyJhbGciOiJIUz... (el refresh token)
 ```
 **Response (200 OK)**: *(Cuerpo vacío, solo el código HTTP confirmando el éxito)*
 
-### 5. Solicitar Recuperación de Contraseña (`Post /auth/forgot-password`)
+### 5. Cierre de todas las sesiones (`Post /auth/logout-all`)
+
+**Propósito**: Invalida todas las sesiones del usuario de la base de datos. Elimina todos los Refresh Token relacionados con ese usuario de la base de datos, cerrando así sesión en todos los dispositivos a los que estuviese conectado.
+
+**Request (Headers)**: `Content-Type: application/json`
+
+**Request (Body)**:
+
+```json
+{
+  "refresh_token": "eyJhbGciOiJIUz... (El Refresh Token que queremos destruir)"
+}
+```
+**Response (200 OK)**: *(Cuerpo vacío, solo el código HTTP confirmando el éxito)*
+
+
+### 6. Solicitar Recuperación de Contraseña (`Post /auth/forgot-password`)
 
 **Propósito**: Inicia el flujo de recuperación de contraseña. Genera un código OTP seguro de 6 dígitos, lo asocia al usuario en la base de datos (con una validez temporal de 8 minutos) y envía un correo electrónico asíncrono en formato HTML. Si el usuario solicita un nuevo código, el anterior se sobrescribe (Upsert).
 
@@ -136,7 +153,7 @@ Devuelve un mensaje genérico (texto plano) siempre, independientemente de si el
 Si los datos son correctos, se ha enviado un código a tu correo.
 ```
 
-### 6. Verificar Código OTP (`Post /auth/verify-otp`)
+### 7. Verificar Código OTP (`Post /auth/verify-otp`)
 
 **Propósito**: Valida que el código OTP ingresado por el usuario coincide con el de la base de datos y no ha expirado. El frontend utiliza este endpoint de transición para decidir si permite al usuario acceder a la pantalla final de "Nueva Contraseña".
 
@@ -157,7 +174,7 @@ Si los datos son correctos, se ha enviado un código a tu correo.
 Código verificado correctamente.
 ```
 
-### 7. Restablecer Contraseña (`Post /auth/reset-password`)
+### 8. Restablecer Contraseña (`Post /auth/reset-password`)
 
 **Propósito**: Ejecuta el cambio definitivo de credenciales. Al ser una API sin estado (stateless), vuelve a validar el código OTP, encripta la nueva contraseña, la actualiza en la base de datos y, crucialmente, elimina el código OTP consumido para evitar que sea reutilizado.
 
@@ -179,7 +196,7 @@ Código verificado correctamente.
 Contraseña actualizada con éxito.
 ```
 
-### 8. Inicio de Sesión con Google (`Post /auth/google`)
+### 9. Inicio de Sesión con Google (`Post /auth/google`)
 
 **Propósito**: Autenticar a un usuario mediante Google (Social Login). Recibe un ID Token de Google generado por el frontend, verifica su firma criptográfica y extrae los datos del usuario. Si el email no existe en la base de datos, realiza un "registro silencioso": crea la cuenta, le asigna una contraseña aleatoria inaccesible para forzar el uso de Google, establece el plan "GRATUITO" por defecto y prepara su entorno inicial. Si el usuario ya existe, inicia la sesión normalmente. En ambos casos, delega el control devolviendo los tokens estándar de Tikal.
 
@@ -275,7 +292,7 @@ El usuario intenta autenticarse sin token, o utiliza un Refresh Token que ha sid
 > ```json
 > {
 >   "error": "Authentication failed",
->   "message": "El token de Google no es válido, ha expirado o está manipulado."
+>   "message": "Error en la autenticación con Google."
 > }
 > ```
 

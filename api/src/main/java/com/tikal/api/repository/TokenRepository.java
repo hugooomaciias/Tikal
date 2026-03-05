@@ -13,4 +13,7 @@ public interface TokenRepository extends JpaRepository<RefreshToken, Integer> {
 
     /* --- Get the refresh token by its token string --- */
     Optional<RefreshToken> findByToken(String jwt);
+
+    /* --- Delete all tokens for a specific user --- */
+    void deleteByUser(User user);
 }

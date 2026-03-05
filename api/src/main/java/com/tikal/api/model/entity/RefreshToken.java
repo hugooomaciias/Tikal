@@ -22,11 +22,6 @@ public class RefreshToken {
     @Column(unique = true)
     public String token;
 
-    /* --- Closed session manually --- */
-    public boolean revoked;
-    /* --- Closed session by time --- */
-    public boolean expired;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     public User user;

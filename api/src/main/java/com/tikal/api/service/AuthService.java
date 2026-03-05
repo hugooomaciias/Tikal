@@ -20,6 +20,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import com.tikal.api.repository.UserRepository;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.Collections;
@@ -112,10 +114,6 @@ public class AuthService {
         RefreshToken tokenInDb = tokenRepository.findByToken(refreshTokenString)
                 .orElseThrow(() -> new InvalidTokenException("Refresh token not found in our records"));
 
-        if (tokenInDb.isRevoked() || tokenInDb.isExpired()) {
-            throw new InvalidTokenException("The refresh token has expired or been revoked. Please log in again");
-        }
-
         if (!jwtService.isTokenValid(refreshTokenString, user.getEmail())) {
             throw new InvalidTokenException("The refresh token signature is invalid");
         }
@@ -135,9 +133,22 @@ public class AuthService {
 
         var storedToken = tokenRepository.findByToken(refreshToken)
                 .orElseThrow(() -> new InvalidTokenException("The token does not exist or has already been deleted"));
-        storedToken.setRevoked(true);
-        storedToken.setExpired(true);
-        tokenRepository.save(storedToken);
+
+        tokenRepository.delete(storedToken);
+    }
+
+    @Transactional
+    public void logoutAll(String refreshToken) {
+        if (refreshToken == null || refreshToken.isBlank()) {
+            throw new IllegalArgumentException("Refresh token is required to close all sessions");
+        }
+
+        var storedToken = tokenRepository.findByToken(refreshToken)
+                .orElseThrow(() -> new InvalidTokenException("The token does not exist or has already been deleted"));
+
+        User user = storedToken.getUser();
+
+        tokenRepository.deleteByUser(user);
     }
 
     public void forgotPassword(ForgotPasswordRequest request) {
@@ -171,6 +182,8 @@ public class AuthService {
         User user = otpEntity.getUser();
         user.setPassword(passwordEncoder.encode(request.getNewPassword()));
         userRepository.save(user);
+
+        tokenRepository.deleteByUser(user);
 
         otpRepository.delete(otpEntity);
     }
@@ -228,8 +241,6 @@ public class AuthService {
         var token = RefreshToken.builder()
                 .user(user)
                 .token(jwtToken)
-                .expired(false)
-                .revoked(false)
                 .build();
         tokenRepository.save(token);
     }
