@@ -8,40 +8,44 @@ import { RegisterPage } from './pages/auth/RegisterPage'
 import { ForgotPasswordPage } from './pages/auth/ForgotPasswordPage'
 import { LoadingScreen } from './pages/LoadingScreen'
 import { Home } from './pages/main/HomePage'
+import { PublicRoute } from './components/auth/PublicRoute.jsx'
 
 function App() {
-  return (
-    <Router>
-      <AuthProvider>
-        <Routes>
-          {/* Ruta pública - Landing Page */}
-          <Route path="/" element={<LandingPage />} />
-          <Route path="/payment" element={<PaymentPage />} />
+	return (
+		<Router>
+			<AuthProvider>
+				<Routes>
+					{/* Ruta pública - Landing Page */}
+					<Route path="/" element={<LandingPage />} />
+					<Route path="/payment" element={<PaymentPage />} />
 
-          {/* Rutas de autenticación */}
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/register" element={<RegisterPage />} />
-          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+					{/* Rutas de autenticación */}
+					<Route element={<PublicRoute />}>
+						<Route path="/login" element={<LoginPage />} />
+						<Route path="/register" element={<RegisterPage />} />
+					</Route>
 
-          {/* Ruta de carga */}
-          <Route path="/loading" element={<LoadingScreen />} />
+					<Route path="/forgot-password" element={<ForgotPasswordPage />} />
 
-          {/* Rutas protegidas */}
-          <Route
-            path="/home"
-            element={
-              <ProtectedRoute>
-                <Home />
-              </ProtectedRoute>
-            }
-          />
+					{/* Ruta de carga */}
+					<Route path="/loading" element={<LoadingScreen />} />
 
-          {/* Redireccionar rutas desconocidas a landing */}
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-      </AuthProvider>
-    </Router>
-  )
+					{/* Rutas protegidas */}
+					<Route
+						path="/home"
+						element={
+						<ProtectedRoute>
+							<Home />
+						</ProtectedRoute>
+						}
+					/>
+
+					{/* Redireccionar rutas desconocidas a landing */}
+					<Route path="*" element={<Navigate to="/" replace />} />
+				</Routes>
+			</AuthProvider>
+		</Router>
+	)
 }
 
 export default App

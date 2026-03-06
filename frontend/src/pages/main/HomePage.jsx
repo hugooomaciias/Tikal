@@ -14,6 +14,7 @@ import { EditIcon } from "../../assets/icons/editIcon.jsx"
 import { SquaredRoundedXIcon } from "../../assets/icons/squaredRoundedXIcon.jsx"
 import { SquaredRoundedPlusIcon } from "../../assets/icons/squaredRoundedPlusIcon.jsx"
 import { CircleXIcon } from "../../assets/icons/circleXIcon.jsx"
+import { SquaredRoundedCheckIcon } from "../../assets/icons/squaredRoundedCheckIcon.jsx"
 import { TimeTracker } from "../../components/widgets/TimeTracker.jsx"
 import { Statistics } from "../../components/widgets/Statistics.jsx"
 import Responsive from "react-grid-layout/build/ResponsiveReactGridLayout";
@@ -44,6 +45,8 @@ export const Home = () => {
 
 	const [layouts, setLayouts] = useState({});
 
+	const [checkChanges, setCheckChanges] = useState(false);
+
 	const [widgets, setWidgets] = useState([
         { id: "tracker-1", type: "TimeTracker", grid: { x: 0, y: 0, w: 1, h: 1 } },
         { id: "tracker-2", type: "TimeTracker", grid: { x: 1, y: 0, w: 1, h: 1 } },
@@ -57,6 +60,30 @@ export const Home = () => {
 
 	const handleLayoutChange = (currentLayout, allLayouts) => {
         setLayouts(allLayouts);
+		setCheckChanges(true);
+
+		if (isEditing) {
+			setWidgets((prevWidgets) => {
+				return prevWidgets.map((widget) => {
+					const updatedLayout = currentLayout.find((item) => item.i === widget.id);
+					
+					if (updatedLayout) {
+						return {
+							...widget,
+							grid: {
+								x: updatedLayout.x,
+								y: updatedLayout.y,
+								w: updatedLayout.w,
+								h: updatedLayout.h
+							}
+						};
+					}
+					
+					return widget;
+				});
+				
+			});
+		}
     };
 
     const removeWidget = (idToRemove) => {
@@ -110,11 +137,9 @@ export const Home = () => {
 		<div className="flex flex-col md:flex-row h-[100dvh] bg-gradient-to-r from-primary-50 to-primary-300 p-2 md:p-4 gap-4 md:gap-8 overflow-hidden">
 			{/* Vertical Navbar (Left Side) - Completely rounded */}
 			<aside className={`flex bg-primary-300 text-primary shadow-2xl transition-all duration-[300ms] shrink-0 z-50
-                                /* ESCRITORIO (Diseño base original intocable) */
-                                flex-col p-5 justify-between rounded-[3rem] h-full
-                                ${isExpanded ? 'w-72' : 'w-[104px]'}
-                                /* MÓVIL (Anula lo anterior solo en pantallas < 768px) */
-                                max-md:order-last max-md:flex-row max-md:w-full max-md:h-[72px] max-md:p-2 max-md:rounded-[2rem] max-md:items-center max-md:justify-around`}
+                               flex-col p-5 justify-between rounded-[3rem] h-full
+                               max-md:order-last max-md:flex-row max-md:w-full max-md:h-[72px] max-md:p-2 max-md:rounded-[2rem] max-md:items-center max-md:justify-around
+                               ${isExpanded ? 'w-72' : 'w-[104px]'}`}
             >
 				{/* Logo Placeholder */}
 				<div className={`h-10 w-auto flex items-center  gap-12 cursor-pointer ${isExpanded ? 'justify-between' : 'justify-center'}`}
@@ -215,16 +240,22 @@ export const Home = () => {
 						<div className="w-fit h-fit flex flex-col items-center justify-between gap-2 cursor-pointer">
 							<img className="w-14 h-14" src="/public/sabidurIAIcon.svg" alt="Icono Dios de la Sabiduría" />
 
-							<div className="w-9 h-9 text-primary-600/70 flex items-center justify-center transition-all duration-200">
-								{!isEditing ? (
-									<div className="w-full h-full hover:text-primary-600" onClick={() => setIsEditing(! isEditing)}>
+							<div className="w-9 h-fit text-primary-600/70 flex items-center justify-center transition-all duration-200">
+								{! isEditing ? (
+									<div className="w-full h-full hover:text-primary-600" onClick={() => { setIsEditing(! isEditing); setCheckChanges(false); }}>
 										<EditIcon className="w-full h-full" />
 									</div>
                                 ) : (
 									<div className="w-full h-full flex flex-col items-center justify-between">
-										<div className="w-full h-full hover:text-primary-600" onClick={() => setIsEditing(! isEditing)}>
-											<SquaredRoundedXIcon className="w-full h-full" />
-										</div>
+										{! checkChanges ? (
+											<div className="w-full h-full hover:text-primary-600" onClick={() => setIsEditing(! isEditing)}>
+												<SquaredRoundedXIcon className="w-full h-full" />
+											</div>
+										) : (
+											<div className="w-full h-full hover:text-primary-600" onClick={() => setIsEditing(! isEditing)}>
+												<SquaredRoundedCheckIcon className="w-full h-full" />
+											</div>
+										)}
 										
 										<div className="w-full h-full hover:text-primary-600">
 											<SquaredRoundedPlusIcon className="w-full h-full" />

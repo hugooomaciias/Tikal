@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { TimeTracker } from "../widgets/TimeTracker.jsx";
 import { Statistics } from "../widgets/Statistics.jsx";
 
@@ -16,6 +17,19 @@ import { Statistics } from "../widgets/Statistics.jsx";
  * @returns {JSX.Element} The rendered Hero section with a responsive grid layout
  */
 export const HomeComponent = () => {
+    const navigate = useNavigate();
+
+    const handleAuthAccess = (destinationRoute) => {
+        const hasAccessToken = localStorage.getItem('accessToken');
+        const hasRefreshToken = localStorage.getItem('refreshToken');
+
+        if (hasAccessToken && hasRefreshToken) {
+            navigate('/loading');
+        } else {
+            navigate(destinationRoute);
+        }
+    };
+
     return (
         <div className="w-full max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 items-center justify-items-center gap-16 p-12 md:p-8 mt-28 md:mt-0">
             {/* Left Column - Brand Messaging & Actions */}
@@ -40,12 +54,12 @@ export const HomeComponent = () => {
 
                 {/* Call-to-Action Buttons */}
                 <div className="flex flex-col md:flex-row gap-4">
-                    <Link to="/login" className="btn btn-primary">
+                    <button className="btn btn-primary" onClick={() => handleAuthAccess('/login')}>
                         Iniciar Sesión
-                    </Link>
-                    <Link to="/register" className="btn btn-secondary">
+                    </button>
+                    <button className="btn btn-secondary" onClick={() => handleAuthAccess('/register')}>
                         Comenzar gratis
-                    </Link>
+                    </button>
                 </div>
             </div>
 

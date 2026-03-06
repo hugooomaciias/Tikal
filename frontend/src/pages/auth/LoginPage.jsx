@@ -38,7 +38,7 @@ export const LoginPage = () => {
      *
      * Provides the 'login' function to communicate with the Auth Context/API.
      */
-    const { googleLogin, githubLogin } = useAuth();
+    const { googleLogin } = useAuth();
 
     /**
      * Popup Visibility State
@@ -105,19 +105,6 @@ export const LoginPage = () => {
     };
 
     /**
-     * GitHub Login Handler
-     *
-     * Prepares the structure for processing GitHub OAuth responses in the future.
-     *
-     * @async
-     * @function
-     * @param {Object} credentialResponse - The response object from GitHub Login.
-     */
-    /*const handleGithubLogin = async (credentialResponse) => {
-
-    };*/
-
-    /**
      * Icon Component Map
      *
      * Maps string identifiers to their corresponding React icon components.
@@ -125,7 +112,6 @@ export const LoginPage = () => {
      */
     const iconMap = {
         "GoogleIcon": GoogleIcon,
-        "GithubIcon": GithubIcon,
     };
 
     /**
@@ -137,7 +123,6 @@ export const LoginPage = () => {
      */
     const loginMap = {
         "Google": GoogleLogin,
-        "Github": githubLogin
     };
 
     /**
@@ -150,12 +135,7 @@ export const LoginPage = () => {
             title: "Google",
             icon: "GoogleIcon",
             action: handleGoogleLogin
-        },
-        /*{
-            title: "Github",
-            icon: "GithubIcon",
-            action: handleGithubLogin
-        }*/
+        }
     ];
 
     return (
