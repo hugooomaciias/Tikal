@@ -83,8 +83,6 @@ export const AuthProvider = ({ children }) => {
 						const data = text ? JSON.parse(text) : {}
 
 						if (response.ok) {
-							console.log('Token refrescado correctamente')
-
 							localStorage.setItem('accessToken', data.access_token)
 							localStorage.setItem('refreshToken', data.refresh_token)
 

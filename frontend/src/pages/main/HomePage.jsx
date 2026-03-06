@@ -134,7 +134,7 @@ export const Home = () => {
 	];
 
 	return (
-		<div className="flex flex-col md:flex-row h-[100dvh] bg-gradient-to-r from-primary-50 to-primary-300 p-2 md:p-4 gap-4 md:gap-8 overflow-hidden">
+		<div className="flex flex-col md:flex-row h-[100dvh] bg-gradient-to-t from-primary-30 to-primary-300 md:bg-gradient-to-r from-primary-50 to-primary-300 p-2 md:p-4 gap-4 md:gap-8 overflow-hidden">
 			{/* Vertical Navbar (Left Side) - Completely rounded */}
 			<aside className={`flex bg-primary-300 text-primary shadow-2xl transition-all duration-[300ms] shrink-0 z-50
                                flex-col p-5 justify-between rounded-[3rem] h-full
@@ -142,7 +142,7 @@ export const Home = () => {
                                ${isExpanded ? 'w-72' : 'w-[104px]'}`}
             >
 				{/* Logo Placeholder */}
-				<div className={`h-10 w-auto flex items-center  gap-12 cursor-pointer ${isExpanded ? 'justify-between' : 'justify-center'}`}
+				<div className={`hidden h-10 w-auto md:flex items-center  gap-12 cursor-pointer ${isExpanded ? 'justify-between' : 'justify-center'}`}
 						onClick={() => setIsExpanded(! isExpanded)}
 				>
 					<img className="h-10 w-auto opacity-90 hover:opacity-100 transition-opacity" src="/public/logoHeader_2.svg" alt="Logo Tikal" />
@@ -155,7 +155,7 @@ export const Home = () => {
 				</div>
 					
 				{/* Navigation Links */}
-				<nav className={`flex flex-col gap-8 w-full ${isExpanded ? 'items-start' : 'items-center'}`}>
+				<nav className={`w-full flex flex-row md:flex-col justify-center gap-8 ${isExpanded ? 'items-start' : 'items-center'}`}>
 					{navbarOptions.map((option, index) => {
 						const IconComponent = iconMap[option.icon];
 
@@ -178,7 +178,7 @@ export const Home = () => {
 				</nav>
 				
 				{/* Bottom Action (e.g., Logout) */}
-                <div className={`h-fit w-full bg-primary-50 rounded-full mx-auto transition-colors duration-200 flex items-center mt-8 p-2
+                <div className={`hidden md:flex h-fit w-full bg-primary-50 rounded-full mx-auto transition-colors duration-200 items-center mt-8 p-2
 								${isExpanded ? 'w-full justify-start p-3' : 'w-fit justify-center p-2'}`}
 				>
                     
@@ -205,29 +205,29 @@ export const Home = () => {
 			<section className="flex-1 flex flex-col gap-6 w-full h-full overflow-hidden">
 				{/* Top Navbar - Wider than the vertical navbar */}
 				<header className="h-fit w-full bg-primary shadow-md rounded-[2.5rem] flex items-start justify-between py-6 px-8">
-					<div className="h-fit w-fit flex items-center justify-center gap-10">
-						<div className="relative h-36 w-36 flex items-center justify-center p-2 rounded-full overflow-hidden border-[3px] border-primary-600">
+					<div className="h-fit w-fit flex flex-col md:flex-row items-start md:items-center justify-center gap-5 md:gap-10">
+						<div className="relative h-24 w-24 md:h-36 md:w-36 flex items-center justify-center p-2 rounded-full overflow-hidden border-[3px] border-primary-600">
 							<div className="h-full w-full bg-primary-600/40 rounded-full overflow-hidden cursor-pointer">
 								<img className="w-full h-full object-cover shadow-md" src="/public/Avatar_0.svg" alt="Avatar Usuario" />
 							</div>
 						</div>
 
-						<div className="flex items-center gap-12">
+						<div className="flex items-center gap-7 md:gap-12">
 							{infoOptions.map((option, index) => {
 								const IconComponent = iconMap[option.icon];
 
 								return (
-									<div key={index} className="w-32 flex flex-col items-center gap-2 text-quaternary-700">
-										<div className="w-full flex items-center justify-between">
+									<div key={index} className="w-fit md:w-32 flex flex-col items-center text-quaternary-700">
+										<div className="w-full flex items-center md:justify-between gap-4 md:gap-8">
 											<div className="bg-primary-300 p-1 rounded-xl">
-												<IconComponent className="h-8 w-8 text-primary" />
+												<IconComponent className="h-7 w-7 md:h-8 md:w-8 text-primary" />
 											</div>
-											<span className="text-3xl font-bold">
+											<span className="text-2xl md:text-3xl font-bold">
 												{option.value}
 											</span>
 										</div>
 
-										<span className="text-center text-2xl font-light">
+										<span className="hidden md:block text-center text-2xl font-light">
 											{option.title}
 										</span>
 									</div>
@@ -240,7 +240,7 @@ export const Home = () => {
 						<div className="w-fit h-fit flex flex-col items-center justify-between gap-2 cursor-pointer">
 							<img className="w-14 h-14" src="/public/sabidurIAIcon.svg" alt="Icono Dios de la Sabiduría" />
 
-							<div className="w-9 h-fit text-primary-600/70 flex items-center justify-center transition-all duration-200">
+							<div className="hidden w-9 h-fit text-primary-600/70 md:flex items-center justify-center transition-all duration-200">
 								{! isEditing ? (
 									<div className="w-full h-full hover:text-primary-600" onClick={() => { setIsEditing(! isEditing); setCheckChanges(false); }}>
 										<EditIcon className="w-full h-full" />
