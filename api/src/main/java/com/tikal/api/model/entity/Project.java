@@ -34,7 +34,7 @@ public class Project {
     @Column(name = "is_group_based", columnDefinition = "TINYINT(1) DEFAULT 0")
     private Boolean isGroupBased = false;
 
-    /* --- User relation ==> Many projects can xbelong to the same User --- */
+    /* --- User relation ==> Many projects can belong to the same User --- */
     @ManyToOne(optional = true)
     @JoinColumn(name = "user_owner_id")
     private User userOwner;

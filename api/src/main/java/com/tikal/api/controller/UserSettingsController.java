@@ -19,7 +19,7 @@ public class UserSettingsController {
     private final UserService userService;
 
     /**
-     * GET /api/settings
+     * GET /settings
      * Returns all settings for the logged-in user.
      */
     @GetMapping
@@ -34,7 +34,7 @@ public class UserSettingsController {
     }
 
     /**
-     * PUT /api/settings
+     * PUT /settings
      * Receives the complete JSON modified by the client and saves it.
      */
     @PutMapping
@@ -47,7 +47,7 @@ public class UserSettingsController {
     }
 
     /**
-     * PATCH /api/settings/layout
+     * PATCH /settings/layout
      * Solo actualiza las posiciones de las cajas del dashboard.
      */
     @PatchMapping("/layout")
@@ -59,7 +59,7 @@ public class UserSettingsController {
     }
 
     /**
-     * PATCH /api/settings/widget-preferences
+     * PATCH /settings/widget-preferences
      * Solo actualiza los filtros internos de los widgets (ej: ocultar proyectos).
      */
     @PatchMapping("/widget-preferences")
