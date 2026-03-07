@@ -1,16 +1,15 @@
-import { useState, useEffect } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
-import { useAuth } from "../../hooks/useAuth";
-import { UserIcon } from "../../assets/icons/userIcon.jsx";
-import { MailIcon } from "../../assets/icons/mailIcon.jsx";
-import { TagIcon } from "../../assets/icons/tagIcon.jsx";
-import { MessageIcon } from "../../assets/icons/messageIcon.jsx";
-import { CircleCheckIcon } from "../../assets/icons/circleCheckIcon.jsx";
-import { CircleXIcon } from "../../assets/icons/circleXIcon.jsx";
-import { LoaderIcon } from "../../assets/icons/loaderIcon.jsx";
-import { EyeCloseIcon } from "../../assets/icons/eyeCloseIcon.jsx";
-import { EyeOpenIcon } from "../../assets/icons/eyeOpenIcon.jsx";
-import { InfoIcon } from "../../assets/icons/infoIcon.jsx";
+/** React & Third-Party Libraries */
+import { useState, useEffect } from "react"
+import { useNavigate, useSearchParams } from "react-router-dom"
+
+/** Components */
+import { useAuth } from "../../hooks/useAuth"
+
+/** Assets & Icons */
+import { MailIcon } from "../../assets/icons/mailIcon.jsx"
+import { EyeCloseIcon } from "../../assets/icons/eyeCloseIcon.jsx"
+import { EyeOpenIcon } from "../../assets/icons/eyeOpenIcon.jsx"
+import { InfoIcon } from "../../assets/icons/infoIcon.jsx"
 
 /**
  * Forgot Password Form Component
@@ -20,6 +19,9 @@ import { InfoIcon } from "../../assets/icons/infoIcon.jsx";
  * ownership before triggering the reset workflow.
  *
  * @component
+ * @param {Object} props - The component props.
+ * @param {string} props.apiError - The current API error state from the parent.
+ * @param {Function} props.setApiError - Function to set or clear API errors.
  * @returns {JSX.Element} The interactive password recovery form.
  */
 export const FormForgotPasswordComponent = ({ apiError, setApiError }) => {
@@ -36,7 +38,7 @@ export const FormForgotPasswordComponent = ({ apiError, setApiError }) => {
     /**
      * Authentication Hook
      *
-     * Provides differents functions to communicate with the Auth Context/API.
+     * Provides different functions to communicate with the Auth Context/API.
      */
     const { forgotPassword, verifyOTP, resetPassword } = useAuth();
 
@@ -265,8 +267,9 @@ export const FormForgotPasswordComponent = ({ apiError, setApiError }) => {
      * Input Change Handler
      *
      * Updates the specific field in the state object while preserving other
-     * values. Also implements if a field has an error, typing in it immediately
-     * clears the visual error state to improve UX.
+     * values. Also, if a field has an error, typing in it immediately clears
+     * the visual error state to improve UX.
+     * 
      * @param {React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>} e - The change event.
      */
     const handleChange = (e) => {
@@ -337,7 +340,7 @@ export const FormForgotPasswordComponent = ({ apiError, setApiError }) => {
      *
      * Computes the Tailwind classes for input fields based on their current
      * validation state.
-     * @param {string} fieldName - The name of the field to check.
+     * @returns {string} The computed CSS class string.
      */
     const getInputClass = (fieldName) => {
         const baseInputClass = "input input-textarea-primary peer disabled:opacity-50 disabled:cursor-not-allowed";
@@ -353,8 +356,8 @@ export const FormForgotPasswordComponent = ({ apiError, setApiError }) => {
      *
      * Determines the color and styling of input icons based on error presence
      * or user interaction.
-     * @param {string} fieldName - The name of the field associated with the
-     * icon.
+     * @param {string} fieldName - The name of the field associated with the icon.
+     * @returns {string} The computed CSS class string for the icon container.
      */
     const getIconClass = (fieldName) => {
         const baseNoPassClass = "input-icon";
@@ -478,7 +481,6 @@ export const FormForgotPasswordComponent = ({ apiError, setApiError }) => {
                                 
                                 {errors.password === "Por favor, introduce una contraseña válida" && (
                                     <div className="relative group flex items-center">
-                                        {/* Usamos el InfoIcon importado */}
                                         <InfoIcon className="h-4 w-4 cursor-pointer" />
                                         
                                         <div className="absolute left-6 z-40 w-48 bg-tertiary-200 text-primary p-3 rounded-lg shadow-xl opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none group-hover:pointer-events-auto">
@@ -523,7 +525,6 @@ export const FormForgotPasswordComponent = ({ apiError, setApiError }) => {
                                 
                                 {errors.passwordConf === "Por favor, introduce una contraseña válida" && (
                                     <div className="relative group flex items-center">
-                                        {/* Usamos el InfoIcon importado */}
                                         <InfoIcon className="h-4 w-4" />
                                         
                                         <div className="absolute left-6 z-40 w-48 bg-tertiary-200 text-primary p-3 rounded-lg shadow-xl opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none group-hover:pointer-events-auto">

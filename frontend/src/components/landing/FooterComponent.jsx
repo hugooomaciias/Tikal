@@ -1,10 +1,11 @@
-import { Link } from "react-router-dom";
+/** React & Third-Party Libraries */
+import { Link } from "react-router-dom"
 
 /**
  * Footer Component
  *
  * This component renders the footer of the landing page, displaying
- * branding, copyright information, and essential links.
+ * the branding logo, copyright information, and essential legal links.
  *
  * @component
  * @returns {JSX.Element} The rendered Footer section.

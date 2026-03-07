@@ -1,4 +1,4 @@
-export const playIcon = ({ className }) => (
+export const PlayIcon = ({ className }) => (
     <svg
         className={className}
         xmlns="http://www.w3.org/2000/svg"
@@ -11,4 +11,4 @@ export const playIcon = ({ className }) => (
     </svg>
 );
 
-export default playIcon;
+export default PlayIcon;

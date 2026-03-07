@@ -1,8 +1,11 @@
-import { Link } from "react-router-dom"; 
-import { UserIcon } from "../../assets/icons/userIcon.jsx";
-import { GroupIcon } from "../../assets/icons/groupIcon.jsx";
-import { CheckIcon } from "../../assets/icons/checkIcon.jsx";
-import { XIcon } from "../../assets/icons/xIcon.jsx";
+/** React & Third-Party Libraries */
+import { Link } from "react-router-dom"
+
+/** Assets & Icons */
+import { UserIcon } from "../../assets/icons/userIcon.jsx"
+import { GroupIcon } from "../../assets/icons/groupIcon.jsx"
+import { CheckIcon } from "../../assets/icons/checkIcon.jsx"
+import { XIcon } from "../../assets/icons/xIcon.jsx"
 
 /**
  * Plans & Pricing Section Component
@@ -35,7 +38,7 @@ export const PlansComponent = () => {
 
     /**
      * Icon Component Map
-     * 
+     *
      * Acts as a lookup table to resolve string identifiers from the data into
      * actual React functional components.
      */
@@ -46,8 +49,8 @@ export const PlansComponent = () => {
 
     /**
      * Pricing Options Data
-     * 
-     * Defines the content and visual style for each subcription plan.
+     *
+     * Defines the content and visual style for each subscription plan.
      */
     const plansOptions = [
         {
@@ -66,7 +69,8 @@ export const PlansComponent = () => {
                 { text: "Reportes PDF & Excel", included: false }
             ],
             textButton: "Comenzar Gratis",
-            action: "/register"
+            action: "/register",
+            state: { plan: 'GRATUITO' }
         },
         {
             colour: "tertiary",
@@ -116,7 +120,7 @@ export const PlansComponent = () => {
                                     <IconComponent className={`w-10 h-10 ${styles.text}`} />
 
                                     <div className={`${styles.bg} text-xl font-passero font-semibold px-4 py-2 rounded-full`}>
-                                        {plan.tagText}           
+                                        {plan.tagText}
                                     </div>
                                 </div>
 
@@ -154,7 +158,7 @@ export const PlansComponent = () => {
                                 </div>
 
                                 {/* Call-to-Action Button */}
-                                <Link to={plan.action} className={`btn md:w-1/2 ${styles.bg} text-primary`}>
+                                <Link to={plan.action} state={plan.state} className={`btn md:w-1/2 ${styles.bg} text-primary`}>
                                     {plan.textButton}
                                 </Link>
                             </div>

@@ -1,12 +1,15 @@
-import { useState, useEffect } from "react";
-import emailjs from "@emailjs/browser";
-import { UserIcon } from "../../../assets/icons/userIcon.jsx";
-import { MailIcon } from "../../../assets/icons/mailIcon.jsx";
-import { TagIcon } from "../../../assets/icons/tagIcon.jsx";
-import { MessageIcon } from "../../../assets/icons/messageIcon.jsx";
-import { CircleCheckIcon } from "../../../assets/icons/circleCheckIcon.jsx";
-import { CircleXIcon } from "../../../assets/icons/circleXIcon.jsx";
-import { LoaderIcon } from "../../../assets/icons/loaderIcon.jsx";
+/** React & Third-Party Libraries */
+import { useState, useEffect } from "react"
+import emailjs from "@emailjs/browser"
+
+/** Assets & Icons */
+import { UserIcon } from "../../../assets/icons/userIcon.jsx"
+import { MailIcon } from "../../../assets/icons/mailIcon.jsx"
+import { TagIcon } from "../../../assets/icons/tagIcon.jsx"
+import { MessageIcon } from "../../../assets/icons/messageIcon.jsx"
+import { CircleCheckIcon } from "../../../assets/icons/circleCheckIcon.jsx"
+import { CircleXIcon } from "../../../assets/icons/circleXIcon.jsx"
+import { LoaderIcon } from "../../../assets/icons/loaderIcon.jsx"
 
 /**
  * Contact Form Component
@@ -105,7 +108,8 @@ export const FormContactComponent = () => {
      * Input Change Handler
      * 
      * Updates the specific field in the state object while preserving
-     * other values.
+     * other values. Also, if a field has an error, typing in it
+     * immediately clears the visual error state to improve UX.
      * @param {React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>} e - The change event.
      */
     const handleChange = (e) => {
@@ -171,6 +175,7 @@ export const FormContactComponent = () => {
      * Computes the Tailwind classes for input fields based on their current
      * validation state.
      * @param {string} fieldName - The name of the field to check.
+     * @returns {string} The computed CSS class string.
      */
     const getInputClass = (fieldName) => {
         const baseInputClass = "input input-textarea-primary peer";
@@ -188,8 +193,8 @@ export const FormContactComponent = () => {
      * 
      * Determines the color and styling of input icons based on error presence
      * or user interaction.
-     * @param {string} fieldName - The name of the field associated with the
-     * icon.
+     * @param {string} fieldName - The name of the field associated with the icon.
+     * @returns {string} The computed CSS class string for the icon container.
      */
     const getIconClass = (fieldName) => {
         const baseClass = "input-icon";
@@ -204,6 +209,7 @@ export const FormContactComponent = () => {
      * 
      * Generates the button's class list to reflect its current state: sending,
      * success, error, or idle.
+     * @returns {string} The computed CSS class string for the submit button.
      */
     const getButtonClass = () => {
         const base = "btn md:w-1/2 bg-primary-700 text-primary";

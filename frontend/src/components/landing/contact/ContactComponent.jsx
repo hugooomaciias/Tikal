@@ -1,4 +1,5 @@
-import { FormContactComponent } from "./FormContactComponent.jsx";
+/** Components */
+import { FormContactComponent } from "./FormContactComponent.jsx"
 
 /**
  * Contact Support Section Layout
@@ -14,13 +15,16 @@ export const ContactComponent = () => {
     return (
         <div className="w-full max-w-6xl mx-auto flex items-center justify-items-center p-12 md:p-8 mt-28 md:m-28">
             <div className="text-primary-300 text-center">
+                
+                {/* Section Title */}
                 <h1 className="text-4xl md:text-5xl font-bold mb-4 md:mb-10 leading-tight">
                     Estamos aqui para escucharte
                 </h1>
 
+                {/* Split Content Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-2 items-center gap-10 md:gap-16">
 
-                    {/* Left Column - Brand Messaging */}
+                    {/* Left Column - Brand Messaging Description */}
                     <div>
                         <p className="text-primary-300 text-lg md:text-xl text-justify font-medium">
                             En Tikal, creemos que la mejor herramienta es la que
@@ -46,7 +50,7 @@ export const ContactComponent = () => {
                         </p>
                     </div>
 
-                    {/* Right Column - Contact Form */}
+                    {/* Right Column - Contact Form Container */}
                     <div className="bg-primary-300 p-8 rounded-xl shadow-lg">
                         <FormContactComponent />
                     </div>

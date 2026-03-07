@@ -1,7 +1,12 @@
-import { Link } from "react-router-dom";
-import { useState, useEffect } from "react";
-import { FormForgotPasswordComponent } from "../../components/auth/FormForgotPasswordComponent.jsx";
-import { CircleXIcon } from "../../assets/icons/circleXIcon.jsx";
+/** React & Third-Party Libraries */
+import { Link } from "react-router-dom"
+import { useState, useEffect } from "react"
+
+/** Components */
+import { FormForgotPasswordComponent } from "../../components/auth/FormForgotPasswordComponent.jsx"
+
+/** Assets & Icons */
+import { CircleXIcon } from "../../assets/icons/circleXIcon.jsx"
 
 /**
  * Forgot Password Page Layout
@@ -19,6 +24,7 @@ export const ForgotPasswordPage = () => {
      * API Error State
      *
      * Stores the error message returned by the backend to display an alert.
+     * @type {[string, function]}
      */
     const [apiError, setApiError] = useState("");
 
@@ -27,6 +33,7 @@ export const ForgotPasswordPage = () => {
      *
      * Controls the visibility of the error popup for animation purposes.
      * When true, the popup scales in and becomes fully opaque.
+     * @type {[boolean, function]}
      */
     const [isVisible, setIsVisible] = useState(false);
 

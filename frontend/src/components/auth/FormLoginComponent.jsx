@@ -1,17 +1,16 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { useAuth } from "../../hooks/useAuth";
-import { Link } from "react-router-dom";
-import { UserIcon } from "../../assets/icons/userIcon.jsx";
-import { MailIcon } from "../../assets/icons/mailIcon.jsx";
-import { TagIcon } from "../../assets/icons/tagIcon.jsx";
-import { MessageIcon } from "../../assets/icons/messageIcon.jsx";
-import { CircleCheckIcon } from "../../assets/icons/circleCheckIcon.jsx";
-import { CircleXIcon } from "../../assets/icons/circleXIcon.jsx";
-import { LoaderIcon } from "../../assets/icons/loaderIcon.jsx";
-import { EyeCloseIcon } from "../../assets/icons/eyeCloseIcon.jsx";
-import { EyeOpenIcon } from "../../assets/icons/eyeOpenIcon.jsx";
-import { InfoIcon } from "../../assets/icons/infoIcon.jsx";
+/** React & Third-Party Libraries */
+import { useState } from "react"
+import { useNavigate } from "react-router-dom"
+import { Link } from "react-router-dom"
+
+/** Components */
+import { useAuth } from "../../hooks/useAuth"
+
+/** Assets & Icons */
+import { UserIcon } from "../../assets/icons/userIcon.jsx"
+import { EyeCloseIcon } from "../../assets/icons/eyeCloseIcon.jsx"
+import { EyeOpenIcon } from "../../assets/icons/eyeOpenIcon.jsx"
+import { InfoIcon } from "../../assets/icons/infoIcon.jsx"
 
 /**
  * Login Form Component
@@ -21,6 +20,9 @@ import { InfoIcon } from "../../assets/icons/infoIcon.jsx";
  * input validation, credential submission, and error feedback.
  *
  * @component
+ * @param {Object} props - The component props.
+ * @param {string} props.apiError - The current API error state from the parent.
+ * @param {Function} props.setApiError - Function to set or clear API errors.
  * @returns {JSX.Element} The interactive login form.
  */
 export const FormLoginComponent = ({ apiError, setApiError }) => {
@@ -128,6 +130,15 @@ export const FormLoginComponent = ({ apiError, setApiError }) => {
         }
     };
 
+    /**
+     * Form Submission Handler
+     *
+     * Orchestrates the submission process: prevents default behavior, runs
+     * validation, and attempts to authenticate the user. On success, it navigates
+     * the user to the loading screen. On error, it displays the specific backend error message.
+     * 
+     * @param {React.FormEvent} e - The form submission event.
+     */
     const handleSubmit = async (e) => {
         e.preventDefault();
 
@@ -153,7 +164,7 @@ export const FormLoginComponent = ({ apiError, setApiError }) => {
      * 
      * Computes the Tailwind classes for input fields based on their current
      * validation state.
-     * @param {string} fieldName - The name of the field to check.
+     * @returns {string} The computed CSS class string.
      */
     const getInputClass = (fieldName) => {
         const baseInputClass = "input input-textarea-primary peer";
@@ -166,11 +177,11 @@ export const FormLoginComponent = ({ apiError, setApiError }) => {
 
     /**
      * Dynamic Icon Styling Helper
-     * 
+     *
      * Determines the color and styling of input icons based on error presence
      * or user interaction.
-     * @param {string} fieldName - The name of the field associated with the
-     * icon.
+     * @param {string} fieldName - The name of the field associated with the icon.
+     * @returns {string} The computed CSS class string for the icon container.
      */
     const getIconClass = (fieldName) => {
         const baseClass = "input-icon cursor-pointer pointer-events-auto";
@@ -227,7 +238,6 @@ export const FormLoginComponent = ({ apiError, setApiError }) => {
                         
                         {errors.password === "Por favor, introduce una contraseña válida" && (
                             <div className="relative group flex items-center">
-                                {/* Usamos el InfoIcon importado */}
                                 <InfoIcon className="h-4 w-4 cursor-pointer" />
 
                                 <div className="absolute left-6 z-40 w-48 bg-tertiary-200 text-primary p-3 rounded-lg shadow-xl opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none group-hover:pointer-events-auto">
@@ -247,6 +257,7 @@ export const FormLoginComponent = ({ apiError, setApiError }) => {
                 )}
             </div>
 
+            {/* Forgot Password Link */}
             <div className="w-full flex justify-end">
                 <Link 
                     to="/forgot-password" 

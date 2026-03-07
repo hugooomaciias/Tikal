@@ -1,16 +1,16 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { useAuth } from "../../hooks/useAuth";
-import { UserIcon } from "../../assets/icons/userIcon.jsx";
-import { MailIcon } from "../../assets/icons/mailIcon.jsx";
-import { TagIcon } from "../../assets/icons/tagIcon.jsx";
-import { MessageIcon } from "../../assets/icons/messageIcon.jsx";
-import { CircleCheckIcon } from "../../assets/icons/circleCheckIcon.jsx";
-import { CircleXIcon } from "../../assets/icons/circleXIcon.jsx";
-import { LoaderIcon } from "../../assets/icons/loaderIcon.jsx";
-import { EyeCloseIcon } from "../../assets/icons/eyeCloseIcon.jsx";
-import { EyeOpenIcon } from "../../assets/icons/eyeOpenIcon.jsx";
-import { InfoIcon } from "../../assets/icons/infoIcon.jsx";
+/** React & Third-Party Libraries */
+import { useState } from "react"
+import { useNavigate } from "react-router-dom"
+
+/** Components */
+import { useAuth } from "../../hooks/useAuth"
+
+/** Assets & Icons */
+import { UserIcon } from "../../assets/icons/userIcon.jsx"
+import { MailIcon } from "../../assets/icons/mailIcon.jsx"
+import { EyeCloseIcon } from "../../assets/icons/eyeCloseIcon.jsx"
+import { EyeOpenIcon } from "../../assets/icons/eyeOpenIcon.jsx"
+import { InfoIcon } from "../../assets/icons/infoIcon.jsx"
 
 /**
  * Registration Form Component
@@ -20,9 +20,12 @@ import { InfoIcon } from "../../assets/icons/infoIcon.jsx";
  * provides real-time visual feedback through dynamic styling and tooltips.
  *
  * @component
+ * @param {Object} props - The component props.
+ * @param {string} props.apiError - The current API error state from the parent.
+ * @param {Function} props.setApiError - Function to set or clear API errors.
  * @returns {JSX.Element} The interactive registration form.
  */
-export const FormRegisterComponent = ({ apiError, setApiError }) => {
+export const FormRegisterComponent = ({ apiError, setApiError, plan }) => {
     /**
      * Hook for programmatic navigation.
      */
@@ -125,7 +128,7 @@ export const FormRegisterComponent = ({ apiError, setApiError }) => {
      * Input Change Handler
      *
      * Updates the specific field in the state object while preserving other
-     * values. Also implements if a field has an error, typing in it immediately
+     * values. Also, if a field has an error, typing in it immediately
      * clears the visual error state to improve UX.
      * @param {React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>} e - The change event.
      */
@@ -164,7 +167,8 @@ export const FormRegisterComponent = ({ apiError, setApiError }) => {
                 await register({
                     username: formData.username,
                     email: formData.email,
-                    password: formData.password
+                    password: formData.password,
+                    plan: plan
                 });
                 navigate("/loading");
 
@@ -181,7 +185,7 @@ export const FormRegisterComponent = ({ apiError, setApiError }) => {
      * 
      * Computes the Tailwind classes for input fields based on their current
      * validation state.
-     * @param {string} fieldName - The name of the field to check.
+     * @returns {string} The computed CSS class string.
      */
     const getInputClass = (fieldName) => {
         const baseInputClass = "input input-textarea-primary peer";
@@ -197,14 +201,14 @@ export const FormRegisterComponent = ({ apiError, setApiError }) => {
      * 
      * Determines the color and styling of input icons based on error presence
      * or user interaction.
-     * @param {string} fieldName - The name of the field associated with the
-     * icon.
+     * @param {string} fieldName - The name of the field associated with the icon.
+     * @returns {string} The computed CSS class string for the icon container.
      */
     const getIconClass = (fieldName) => {
         const baseNoPassClass = "input-icon";
         const basePassClass = "input-icon cursor-pointer pointer-events-auto";
         const errorClass = "peer-focus:text-tertiary-200 peer-[:not(:placeholder-shown)]:text-tertiary-200";
-        const normalClass = "peer-focus:text-primary-500 peer-[:not(:placeholder-shown)]:text-primary-500";    
+        const normalClass = "peer-focus:text-primary-500 peer-[:not(:placeholder-shown)]:text-primary-500";
 
         let isPass = false;
         let errorText = "";
@@ -286,7 +290,6 @@ export const FormRegisterComponent = ({ apiError, setApiError }) => {
                         
                         {errors.password === "Por favor, introduce una contraseña válida" && (
                             <div className="relative group flex items-center">
-                                {/* Usamos el InfoIcon importado */}
                                 <InfoIcon className="h-4 w-4 cursor-pointer" />
                                 
                                 <div className="absolute left-6 z-40 w-48 bg-tertiary-200 text-primary p-3 rounded-lg shadow-xl opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none group-hover:pointer-events-auto">
@@ -331,7 +334,6 @@ export const FormRegisterComponent = ({ apiError, setApiError }) => {
                         
                         {errors.passwordConf === "Por favor, introduce una contraseña válida" && (
                             <div className="relative group flex items-center">
-                                {/* Usamos el InfoIcon importado */}
                                 <InfoIcon className="h-4 w-4" />
                                 
                                 <div className="absolute left-6 z-40 w-48 bg-tertiary-200 text-primary p-3 rounded-lg shadow-xl opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none group-hover:pointer-events-auto">

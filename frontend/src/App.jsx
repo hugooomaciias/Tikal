@@ -1,46 +1,64 @@
+/** React & Third-Party Libraries */
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
+
+/** Components */
 import { AuthProvider } from './context/AuthContext'
-import { ProtectedRoute } from './components/layout/ProtectedRoute'
+import { ProtectedRoute } from './components/security/ProtectedRoute.jsx'
+import { PublicRoute } from './components/security/PublicRoute.jsx'
 import { LandingPage } from './pages/landing/LandingPage'
 import { PaymentPage } from './pages/landing/PaymentPage'
 import { LoginPage } from './pages/auth/LoginPage'
 import { RegisterPage } from './pages/auth/RegisterPage'
 import { ForgotPasswordPage } from './pages/auth/ForgotPasswordPage'
-import { LoadingScreen } from './pages/LoadingScreen'
-import { Home } from './pages/main/HomePage'
-import { PublicRoute } from './components/auth/PublicRoute.jsx'
+import { LoadingPage } from './pages/LoadingPage'
+import { HomePage } from './pages/app/HomePage'
 
+/**
+ * Application Root Component
+ *
+ * The `App` component is the root of the React component tree. It sets up the
+ * application routing using `react-router-dom` and wraps the entire application
+ * with the `AuthProvider` to manage global authentication state.
+ *
+ * It defines public routes (like the landing and login pages), protected routes
+ * (like the home dashboard, requiring an active session), and handles redirection
+ * logic for unauthorized access or unknown paths.
+ *
+ * @component
+ * @returns {JSX.Element} The rendered React Router application.
+ */
 function App() {
 	return (
 		<Router>
 			<AuthProvider>
 				<Routes>
-					{/* Ruta pública - Landing Page */}
+					{/* Landing Pages */}
 					<Route path="/" element={<LandingPage />} />
 					<Route path="/payment" element={<PaymentPage />} />
 
-					{/* Rutas de autenticación */}
+					{/* Public Authentication Routes */}
 					<Route element={<PublicRoute />}>
 						<Route path="/login" element={<LoginPage />} />
 						<Route path="/register" element={<RegisterPage />} />
 					</Route>
 
+					{/* Password Recovery Routes */}
 					<Route path="/forgot-password" element={<ForgotPasswordPage />} />
 
-					{/* Ruta de carga */}
-					<Route path="/loading" element={<LoadingScreen />} />
+					{/* Loading Screen Route */}
+					<Route path="/loading" element={<LoadingPage />} />
 
-					{/* Rutas protegidas */}
+					{/* Protected App Routes */}
 					<Route
 						path="/home"
 						element={
 						<ProtectedRoute>
-							<Home />
+							<HomePage />
 						</ProtectedRoute>
 						}
 					/>
 
-					{/* Redireccionar rutas desconocidas a landing */}
+					{/* Fallback Redirection */}
 					<Route path="*" element={<Navigate to="/" replace />} />
 				</Routes>
 			</AuthProvider>

@@ -1,7 +1,9 @@
-import { Link } from "react-router-dom";
-import { useNavigate } from "react-router-dom";
-import { TimeTracker } from "../widgets/TimeTracker.jsx";
-import { Statistics } from "../widgets/Statistics.jsx";
+/** React & Third-Party Libraries */
+import { Link } from "react-router-dom"
+
+/** Components */
+import { TimeTracker } from "../app/widgets/TimeTracker.jsx"
+import { Statistics } from "../app/widgets/Statistics.jsx"
 
 /**
  * Hero Section Component (Home)
@@ -14,22 +16,9 @@ import { Statistics } from "../widgets/Statistics.jsx";
  * immediate preview of the product's interface.
  *
  * @component
- * @returns {JSX.Element} The rendered Hero section with a responsive grid layout
+ * @returns {JSX.Element} The rendered Hero section with a responsive grid layout.
  */
-export const HomeComponent = () => {
-    const navigate = useNavigate();
-
-    const handleAuthAccess = (destinationRoute) => {
-        const hasAccessToken = localStorage.getItem('accessToken');
-        const hasRefreshToken = localStorage.getItem('refreshToken');
-
-        if (hasAccessToken && hasRefreshToken) {
-            navigate('/loading');
-        } else {
-            navigate(destinationRoute);
-        }
-    };
-
+export const HeroComponent = () => {
     return (
         <div className="w-full max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 items-center justify-items-center gap-16 p-12 md:p-8 mt-28 md:mt-0">
             {/* Left Column - Brand Messaging & Actions */}
@@ -54,12 +43,12 @@ export const HomeComponent = () => {
 
                 {/* Call-to-Action Buttons */}
                 <div className="flex flex-col md:flex-row gap-4">
-                    <button className="btn btn-primary" onClick={() => handleAuthAccess('/login')}>
+                    <Link to="/login" className="btn btn-primary">
                         Iniciar Sesión
-                    </button>
-                    <button className="btn btn-secondary" onClick={() => handleAuthAccess('/register')}>
+                    </Link>
+                    <Link to="/register" state={{ plan: 'GRATUITO' }} className="btn btn-secondary">
                         Comenzar gratis
-                    </button>
+                    </Link>
                 </div>
             </div>
 

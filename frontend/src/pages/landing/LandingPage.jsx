@@ -1,11 +1,16 @@
-import { useState, useEffect } from "react";
-import { useLocation } from "react-router-dom";
-import { MobileMenuIcon } from "../../assets/icons/mobileMenuIcon.jsx";
-import { XIcon } from "../../assets/icons/xIcon.jsx";
-import { HomeComponent } from "../../components/landingPage/HomeComponent.jsx";
-import { PlansComponent } from "../../components/landingPage/PlansComponent.jsx";
-import { ContactComponent } from "../../components/landingPage/contact/ContactComponent.jsx";
-import { FooterComponent } from "../../components/landingPage/FooterComponent.jsx";
+/** React & Third-Party Libraries */
+import { useLocation } from "react-router-dom"
+import { useState, useEffect } from "react"
+
+/** Components */
+import { HeroComponent } from "../../components/landing/HeroComponent.jsx"
+import { PlansComponent } from "../../components/landing/PlansComponent.jsx"
+import { ContactComponent } from "../../components/landing/contact/ContactComponent.jsx"
+import { FooterComponent } from "../../components/landing/FooterComponent.jsx"
+
+/** Assets & Icons */
+import { MobileMenuIcon } from "../../assets/icons/mobileMenuIcon.jsx"
+import { XIcon } from "../../assets/icons/xIcon.jsx"
 
 /**
  * Main Landing Page Component
@@ -56,6 +61,8 @@ export const LandingPage = () => {
 	 * 
 	 * Detects if the user navigated here via a specific anchor. It performs a
 	 * smooth scroll to the target element after the component mounts.
+	 *
+	 * @function
 	 */
 	useEffect(() => {
 		if (hash) {
@@ -73,6 +80,8 @@ export const LandingPage = () => {
 	 *
 	 * It calculates which section is currently crossing the top threshold of the
 	 * screen to update the 'activeSection' state.
+	 *
+	 * @function
 	 */
 	useEffect(() => {
 		// Scroll event handler
@@ -129,7 +138,7 @@ export const LandingPage = () => {
 	 * Configuration object for section-specific visual styles.
 	 * Maps each section ID to its corresponding assets and color palette.
 	 *
-	 * @constant
+	 * @constant {Object}
 	 */
 	const section_config = {
 		home: {
@@ -159,6 +168,7 @@ export const LandingPage = () => {
 	 * Helper function to define navigation link classes dynamically.
 	 * Ensures visual consistency between active and inactive states.
 	 * 
+	 * @function
 	 * @param {string} sectionName - The ID of the target section.
 	 * @returns {string} Tailwind CSS class string.
 	 */
@@ -241,7 +251,7 @@ export const LandingPage = () => {
 			
 			{/* Sections Rendering */}
 			<section id="home" className=" min-h-screen flex items-center justify-center bg-primary-50">
-				<HomeComponent />
+				<HeroComponent />
 			</section>
 
 			<section id="plans" className="min-h-screen flex items-center justify-center bg-primary-300">

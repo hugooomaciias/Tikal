@@ -1,12 +1,15 @@
-import { useState, useEffect } from "react";
-import { useAuth } from "../../hooks/useAuth";
-import { useNavigate } from "react-router-dom";
-import { Link } from "react-router-dom";
-import { FormLoginComponent } from "../../components/auth/FormLoginComponent.jsx";
-import { GoogleIcon } from "../../assets/icons/googleIcon.jsx";
-import { GithubIcon } from "../../assets/icons/githubIcon.jsx";
-import { CircleXIcon } from "../../assets/icons/circleXIcon.jsx";
-import { GoogleLogin } from '@react-oauth/google';
+/** React & Third-Party Libraries */
+import { Link, useNavigate } from "react-router-dom"
+import { useState, useEffect } from "react"
+import { GoogleLogin } from '@react-oauth/google'
+
+/** Components */
+import { useAuth } from "../../hooks/useAuth"
+import { FormLoginComponent } from "../../components/auth/FormLoginComponent.jsx"
+
+/** Assets & Icons */
+import { GoogleIcon } from "../../assets/icons/googleIcon.jsx"
+import { CircleXIcon } from "../../assets/icons/circleXIcon.jsx"
 
 /**
  * Login Page Layout
@@ -30,6 +33,7 @@ export const LoginPage = () => {
      * API Error State
      *
      * Stores the error message returned by the backend to display an alert.
+     * @type {[string, function]}
      */
     const [apiError, setApiError] = useState("");
 
@@ -45,6 +49,7 @@ export const LoginPage = () => {
      *
      * Controls the visibility of the error popup for animation purposes.
      * When true, the popup scales in and becomes fully opaque.
+     * @type {[boolean, function]}
      */
     const [isVisible, setIsVisible] = useState(false);
 
@@ -109,6 +114,7 @@ export const LoginPage = () => {
      *
      * Maps string identifiers to their corresponding React icon components.
      * Used dynamically when rendering the sign-in options below.
+     * @type {Object<string, React.FC>}
      */
     const iconMap = {
         "GoogleIcon": GoogleIcon,
@@ -120,6 +126,7 @@ export const LoginPage = () => {
      * Maps string identifiers to their corresponding OAuth provider components
      * or context logic functions. Used for dynamically rendering the right handler
      * within the social login buttons below.
+     * @type {Object<string, React.FC>}
      */
     const loginMap = {
         "Google": GoogleLogin,
@@ -129,6 +136,7 @@ export const LoginPage = () => {
      * Social Sign-in Options
      *
      * Configuration array for rendering social login buttons.
+     * @type {Array<Object>}
      */
     const signInOptions = [
         {
@@ -206,7 +214,7 @@ export const LoginPage = () => {
                     {/* Footer Section: Link to Register */}
                     <div className="text-center mt-8 space-y-2">
                         <p className="text-quaternary-700 text-sm">
-                            ¿No eres miembro de Tikal? <Link to="/register" className="text-primary-600 font-semibold transition-colors hover:text-primary-700">Regístrate</Link>
+                            ¿No eres miembro de Tikal? <Link to="/register" state={{ plan: 'GRATUITO' }} className="text-primary-600 font-semibold transition-colors hover:text-primary-700">Regístrate</Link>
                         </p>
                     </div>
                 </div>

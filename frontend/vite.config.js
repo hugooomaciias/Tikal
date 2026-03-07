@@ -24,6 +24,9 @@ export default defineConfig({
       'Cross-Origin-Opener-Policy': 'same-origin-allow-popups'
     }
   },
+  optimizeDeps: {
+    include: ['react-grid-layout']
+  },
   test: {
     projects: [{
       extends: true,

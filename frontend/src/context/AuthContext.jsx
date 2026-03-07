@@ -1,6 +1,9 @@
-import { createContext, useState, useEffect } from 'react'
-import { API_BASE_URL } from '../config/api'
+/** React & Third-Party Libraries */
 import { useNavigate } from 'react-router-dom'
+import { createContext, useState, useEffect } from 'react'
+
+/** Components */
+import { API_BASE_URL } from '../config/api'
 
 // eslint-disable-next-line react-refresh/only-export-components
 export const AuthContext = createContext()
@@ -11,8 +14,9 @@ export const AuthContext = createContext()
  * fetches and refreshes JWT access tokens upon application load.
  *
  * @component
- * @param {Object} props
+ * @param {Object} props - The component props.
  * @param {React.ReactNode} props.children - Child components requiring access to the context.
+ * @returns {JSX.Element} The authentication context provider.
  */
 export const AuthProvider = ({ children }) => {
 	/**
@@ -187,7 +191,7 @@ export const AuthProvider = ({ children }) => {
                 name: userData.username,
                 email: userData.email,
                 password: userData.password,
-                subscriptionPlan: "GRATUITO"
+                subscriptionPlan: userData.plan || "GRATUITO"
             }
 
 			const response = await fetch(`${API_BASE_URL}/auth/register`, {

@@ -1,5 +1,8 @@
-import { Link } from "react-router-dom";
-import { ChevronLeftIcon } from "../../assets/icons/chevronLeftIcon.jsx";
+/** React & Third-Party Libraries */
+import { Link } from "react-router-dom"
+
+/** Assets & Icons */
+import { ChevronLeftIcon } from "../../assets/icons/chevronLeftIcon.jsx"
 
 /**
  * Payment Selection Page
@@ -16,6 +19,8 @@ export const PaymentPage = () => {
      * Color Theme Configuration
      * 
      * This object maps abstract theme keys to concrete Tailwind utility classes.
+     * 
+     * @constant {Object}
      */
     const coloursVariants = {
         tertiaryLight: {
@@ -36,6 +41,8 @@ export const PaymentPage = () => {
      * Pricing Options Data
      * 
      * Defines the content and visual style for each billing cycle card.
+     * 
+     * @type {Array<Object>}
      */
     const pricingOptions = [
         {
@@ -133,7 +140,7 @@ export const PaymentPage = () => {
                                     </div>
 
                                     {/* Call-to-Action Button */}
-                                    <Link to="/register" className={`btn ${styles.bg} text-primary`}>
+                                    <Link to="/register" state={{ plan: 'COMUNITARIO' }} className={`btn ${styles.bg} text-primary`}>
                                         {option.textButton}
                                     </Link>
                                 </div>

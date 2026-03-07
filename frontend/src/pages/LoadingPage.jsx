@@ -1,8 +1,12 @@
+/** React & Third-Party Libraries */
 import { useEffect, useState, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useAuth } from '../hooks/useAuth'
 import Lottie from 'lottie-react'
 
+/** Components */
+import { useAuth } from '../hooks/useAuth'
+
+/** Animations */
 import firstPartAnimation from '../assets/animations/firstPartAnimationLoadingScreen.json'
 import secondPartAnimation from '../assets/animations/secondPartAnimationLoadingScreen.json'
 
@@ -18,7 +22,7 @@ import secondPartAnimation from '../assets/animations/secondPartAnimationLoading
  * @component
  * @returns {JSX.Element} The rendered loading screen with animated feedback.
  */
-export const LoadingScreen = () => {
+export const LoadingPage = () => {
 	/**
      * Hook for programmatic navigation.
      */
@@ -36,6 +40,8 @@ export const LoadingScreen = () => {
 	 * 
      * We use a ref so the Lottie callback always reads the most recent value
      * without causing unnecessary re-renders or stale closure issues.
+     * 
+     * @type {React.MutableRefObject}
      */
     const isLoadingRef = useRef(isLoading)
 
@@ -47,10 +53,12 @@ export const LoadingScreen = () => {
 	const [showSecondPartAnimation, setShowSecondPartAnimation] = useState(false)
 
 	/**
-     * Athentication loading status effect
+     * Authentication Loading Status Effect
 	 * 
      * Instead of navigating immediately when data is ready, it smoothly triggers 
      * the secondary phase of animation.
+     * 
+     * @function
      */
 	useEffect(() => {
 		isLoadingRef.current = isLoading
@@ -62,6 +70,8 @@ export const LoadingScreen = () => {
      * Triggered every time the first animation finishes a loop.
      * Evaluates if the backend has finished loading. If so, it advances
      * to the second animation phase.
+     * 
+     * @function
      */
 	const handleFirstPhaseLoopComplete = () => {
         if (! isLoadingRef.current) {
@@ -75,6 +85,8 @@ export const LoadingScreen = () => {
      * Callback function triggered specifically by the Lottie component's `onComplete` prop.
      * It executes exactly when the second phase of animation reaches its final frame,
      * ensuring a seamless transition to the dashboard.
+     * 
+     * @function
      */
 	const handleAnimationComplete = () => {
 		navigate('/home')

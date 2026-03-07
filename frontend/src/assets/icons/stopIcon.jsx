@@ -1,4 +1,4 @@
-export const stopIcon = ({ className }) => (
+export const StopIcon = ({ className }) => (
     <svg
         className={className}
         xmlns="http://www.w3.org/2000/svg"
@@ -11,4 +11,4 @@ export const stopIcon = ({ className }) => (
     </svg>
 );
 
-export default stopIcon;
+export default StopIcon;

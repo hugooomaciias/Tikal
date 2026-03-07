@@ -1,7 +1,12 @@
-import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
-import { FormRegisterComponent } from "../../components/auth/FormRegisterComponent.jsx";
-import { CircleXIcon } from "../../assets/icons/circleXIcon.jsx";
+/** React & Third-Party Libraries */
+import { Link, useLocation } from "react-router-dom"
+import { useState, useEffect } from "react"
+
+/** Components */
+import { FormRegisterComponent } from "../../components/auth/FormRegisterComponent.jsx"
+
+/** Assets & Icons */
+import { CircleXIcon } from "../../assets/icons/circleXIcon.jsx"
 
 /**
  * Registration Page Layout
@@ -16,10 +21,14 @@ import { CircleXIcon } from "../../assets/icons/circleXIcon.jsx";
  * @returns {JSX.Element} The rendered registration page layout.
  */
 export const RegisterPage = () => {
+    const location = useLocation();
+    const plan = location.state?.plan || "GRATUITO";
+
     /**
      * API Error State
      *
      * Stores the error message returned by the backend to display an alert.
+     * @type {[string, function]}
      */
     const [apiError, setApiError] = useState("");
 
@@ -28,6 +37,7 @@ export const RegisterPage = () => {
      *
      * Controls the visibility of the error popup for animation purposes.
      * When true, the popup scales in and becomes fully opaque.
+     * @type {[boolean, function]}
      */
     const [isVisible, setIsVisible] = useState(false);
 
@@ -99,7 +109,7 @@ export const RegisterPage = () => {
 
                 <div className="flex flex-1 flex-col justify-center">
                     {/* Registration Form */}
-                    <FormRegisterComponent apiError={apiError} setApiError={setApiError} />
+                    <FormRegisterComponent apiError={apiError} setApiError={setApiError} plan={plan} />
 
                     {/* Footer Section: Link to Login */}
                     <div className="text-center mt-8 space-y-2">
