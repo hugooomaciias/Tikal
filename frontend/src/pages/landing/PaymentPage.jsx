@@ -2,7 +2,7 @@
 import { Link } from "react-router-dom"
 
 /** Assets & Icons */
-import { ChevronLeftIcon } from "../../assets/icons/chevronLeftIcon.jsx"
+import { IconChevronLeft } from '@tabler/icons-react';
 
 /**
  * Payment Selection Page
@@ -86,7 +86,7 @@ export const PaymentPage = () => {
                         <Link to="/#plans">
                             <nav className="h-10 flex items-center gap-2 bg-primary-50 font-semibold p-2 rounded-full shadow-md">
                                 {/* Navigation links with conditional class rendering */}
-                                <ChevronLeftIcon className="h-6 w-6 text-primary-300 cursor-pointer" />
+                                <IconChevronLeft className="h-6 w-6 text-primary-300 cursor-pointer" />
                             </nav>
                         </Link>
                     </div>

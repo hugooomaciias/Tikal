@@ -3,13 +3,13 @@ import { useState } from "react"
 import { Responsive, WidthProvider } from "react-grid-layout/legacy"
 
 /** Components */
-import { NavbarComponent } from "../../components/app/home/NavbarComponent.jsx"
+import { NavbarComponent } from "../../components/app/common/NavbarComponent.jsx"
 import { HeaderComponent } from "../../components/app/home/HeaderComponent.jsx"
 import { TimeTracker } from "../../components/app/widgets/TimeTracker.jsx"
 import { Statistics } from "../../components/app/widgets/Statistics.jsx"
 
 /** Assets & Icons */
-import { CircleXIcon } from "../../assets/icons/circleXIcon.jsx"
+import { IconCircleXFilled } from '@tabler/icons-react';
 
 /** Styles */
 import "react-grid-layout/css/styles.css"
@@ -60,6 +60,14 @@ export const HomePage = () => {
         { id: "stat-2", type: "Statistics", grid: { x: 1, y: 1, w: 1, h: 1 } },
 		{ id: "stat-3", type: "Statistics", grid: { x: 2, y: 1, w: 1, h: 1 } },
 		{ id: "stat-4", type: "Statistics", grid: { x: 3, y: 1, w: 1, h: 1 } },
+		{ id: "tracker-5", type: "TimeTracker", grid: { x: 0, y: 0, w: 1, h: 1 } },
+        { id: "tracker-6", type: "TimeTracker", grid: { x: 1, y: 0, w: 1, h: 1 } },
+        { id: "tracker-7", type: "TimeTracker", grid: { x: 2, y: 0, w: 1, h: 1 } },
+        { id: "tracker-8", type: "TimeTracker", grid: { x: 3, y: 0, w: 1, h: 1 } },
+		{ id: "stat-5", type: "Statistics", grid: { x: 0, y: 1, w: 1, h: 1 } },
+        { id: "stat-6", type: "Statistics", grid: { x: 1, y: 1, w: 1, h: 1 } },
+		{ id: "stat-7", type: "Statistics", grid: { x: 2, y: 1, w: 1, h: 1 } },
+		{ id: "stat-8", type: "Statistics", grid: { x: 3, y: 1, w: 1, h: 1 } },
     ]);
 
 	/**
@@ -121,8 +129,8 @@ export const HomePage = () => {
 				<HeaderComponent isEditing={isEditing} setIsEditing={setIsEditing} checkChanges={checkChanges} setCheckChanges={setCheckChanges}/>
 
 				{/* Dashboard Area */}
-				<div className="flex-1 overflow-y-auto pb-4 custom-scrollbar">
-					<ResponsiveGridLayout className="layout" rowHeight={240} margin={[16, 16]} compactType="vertical"
+				<div className="flex-1 overflow-y-auto custom-scrollbar">
+					<ResponsiveGridLayout className="layout" rowHeight={240}compactType="vertical"
      					                breakpoints={{ lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0 }} cols={{ lg: 4, md: 3, sm: 2, xs: 1, xxs: 1 }}
 										isDraggable={isEditing} isResizable={isEditing} onLayoutChange={handleLayoutChange}
                     >
@@ -133,7 +141,7 @@ export const HomePage = () => {
                                     <button onMouseDown={(e) => e.stopPropagation()} onClick={() => removeWidget(widget.id)} title="Eliminar widget"
                                         className="absolute z-50 -top-2 -right-2 w-8 h-8 bg-primary rounded-full flex items-center justify-center transition-all duration-300"
                                     >
-                                        <CircleXIcon className="w-full h-full text-tertiary-200/70 hover:text-tertiary-200" />
+                                        <IconCircleXFilled className="w-full h-full text-tertiary-200/70 hover:text-tertiary-200" />
                                     </button>
                                 )}
 

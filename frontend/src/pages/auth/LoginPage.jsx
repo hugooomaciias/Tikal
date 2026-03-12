@@ -8,8 +8,7 @@ import { useAuth } from "../../hooks/useAuth"
 import { FormLoginComponent } from "../../components/auth/FormLoginComponent.jsx"
 
 /** Assets & Icons */
-import { GoogleIcon } from "../../assets/icons/googleIcon.jsx"
-import { CircleXIcon } from "../../assets/icons/circleXIcon.jsx"
+import { IconBrandGoogleFilled, IconCircleXFilled } from '@tabler/icons-react';
 
 /**
  * Login Page Layout
@@ -117,7 +116,7 @@ export const LoginPage = () => {
      * @type {Object<string, React.FC>}
      */
     const iconMap = {
-        "GoogleIcon": GoogleIcon,
+        "GoogleIcon": IconBrandGoogleFilled,
     };
 
     /**
@@ -159,7 +158,7 @@ export const LoginPage = () => {
                         }`}
                         role="alert"
                     >
-                        <CircleXIcon className="h-6 w-6" />
+                        <IconCircleXFilled className="h-6 w-6" />
                         <span className="block sm:inline font-medium text-center">{apiError}</span>
                     </div>
                 )

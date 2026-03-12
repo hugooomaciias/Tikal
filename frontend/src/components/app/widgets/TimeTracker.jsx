@@ -1,7 +1,5 @@
 /** Assets & Icons */
-import { DatabaseIcon } from "../../../assets/icons/databaseIcon.jsx"
-import { PlayIcon } from "../../../assets/icons/playIcon.jsx"
-import { StopIcon } from "../../../assets/icons/stopIcon.jsx"
+import { IconDatabase, IconPlayerPlayFilled, IconPlayerStopFilled } from '@tabler/icons-react';
 
 /**
  * Time Tracker Widget
@@ -28,7 +26,7 @@ export const TimeTracker = ({ className }) => {
                 <p className="text-primary-50 text-lg font-semibold truncate">
                     Hacer página web
                 </p>
-                <DatabaseIcon className="w-6 h-auto text-primary-50 flex-shrink-0" />
+                <IconDatabase className="w-6 h-auto text-primary-50 flex-shrink-0" />
             </div>
 
             {/* Subtask Section */}
@@ -52,11 +50,11 @@ export const TimeTracker = ({ className }) => {
                 {/* Action Buttons (Play / Stop) */}
                 <div className="w-auto flex flex-col justify-between">
                     <div className="flex items-center justify-center bg-primary-50 rounded-full w-full aspect-square p-[6px] hover:bg-white transition-colors cursor-pointer group">
-                        <PlayIcon className="w-[22px] h-auto text-secondary-800 group-hover:scale-110 transition-transform"/>
+                        <IconPlayerPlayFilled className="w-[22px] h-auto text-secondary-800 group-hover:scale-110 transition-transform"/>
                     </div>
 
                     <div className="flex items-center justify-center bg-primary-50 rounded-full w-full aspect-square p-[6px] hover:bg-white transition-colors cursor-pointer group">
-                        <StopIcon className="w-[22px] h-auto text-secondary-800 group-hover:scale-110 transition-transform"/>
+                        <IconPlayerStopFilled className="w-[22px] h-auto text-secondary-800 group-hover:scale-110 transition-transform"/>
                     </div>
                 </div>
             </div>

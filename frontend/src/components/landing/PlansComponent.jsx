@@ -2,10 +2,7 @@
 import { Link } from "react-router-dom"
 
 /** Assets & Icons */
-import { UserIcon } from "../../assets/icons/userIcon.jsx"
-import { GroupIcon } from "../../assets/icons/groupIcon.jsx"
-import { CheckIcon } from "../../assets/icons/checkIcon.jsx"
-import { XIcon } from "../../assets/icons/xIcon.jsx"
+import { IconUser, IconUsersGroup, IconCheck, IconX } from '@tabler/icons-react';
 
 /**
  * Plans & Pricing Section Component
@@ -43,8 +40,8 @@ export const PlansComponent = () => {
      * actual React functional components.
      */
     const iconMap = {
-        "UserIcon": UserIcon,
-        "GroupIcon": GroupIcon
+        "UserIcon": IconUser,
+        "GroupIcon": IconUsersGroup
     };
 
     /**
@@ -145,7 +142,7 @@ export const PlansComponent = () => {
                                 <div className="flex flex-col text-left gap-4 text-quaternary-700 mb-8">
                                     {plan.featuresList.map((feature, index) => (
                                         <div key={index} className="flex items-center gap-4">
-                                            {feature.included ? (<CheckIcon className="w-5 h-5" />) : (<XIcon className="w-5 h-5" />)}
+                                            {feature.included ? (<IconCheck className="w-5 h-5" />) : (<IconX className="w-5 h-5" />)}
                                             
                                             <p className={`font-thin
                                                            ${feature.included ? "text-gray-700" : "text-gray-400 line-through decoration-gray-300"}

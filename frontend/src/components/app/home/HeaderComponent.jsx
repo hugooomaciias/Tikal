@@ -1,11 +1,5 @@
 /** Assets & Icons */
-import { CircleCheckIcon } from "../../../assets/icons/circleCheckIcon.jsx"
-import { TrendingUpIcon } from "../../../assets/icons/trendingUpIcon.jsx"
-import { ClipboardIcon } from "../../../assets/icons/clipboardIcon.jsx"
-import { EditIcon } from "../../../assets/icons/editIcon.jsx"
-import { SquaredRoundedXIcon } from "../../../assets/icons/squaredRoundedXIcon.jsx"
-import { SquaredRoundedPlusIcon } from "../../../assets/icons/squaredRoundedPlusIcon.jsx"
-import { SquaredRoundedCheckIcon } from "../../../assets/icons/squaredRoundedCheckIcon.jsx"
+import { IconCircleCheckFilled, IconTrendingUp, IconClipboardTextFilled, IconEditFilled, IconSquareRoundedXFilled, IconSquareRoundedPlus, IconSquareRoundedCheckFilled } from '@tabler/icons-react';
 
 /**
  * Header Component
@@ -30,9 +24,9 @@ export const HeaderComponent = ({ isEditing, setIsEditing, checkChanges, setChec
 	 * Used dynamically when rendering the project statistics below.
 	 */
 	const iconMap = {
-		"CircleCheckIcon": CircleCheckIcon,
-		"TrendingUpIcon": TrendingUpIcon,
-		"ClipboardIcon": ClipboardIcon
+		"CircleCheckIcon": IconCircleCheckFilled,
+		"TrendingUpIcon": IconTrendingUp,
+		"ClipboardIcon": IconClipboardTextFilled
 	};
 
 	/**
@@ -95,22 +89,22 @@ export const HeaderComponent = ({ isEditing, setIsEditing, checkChanges, setChec
                     <div className="hidden w-9 h-fit text-primary-600/70 md:flex items-center justify-center transition-all duration-200">
                         {! isEditing ? (
                             <div className="w-full h-full hover:text-primary-600" onClick={() => { setIsEditing(! isEditing); setCheckChanges(false); }}>
-                                <EditIcon className="w-full h-full" />
+                                <IconEditFilled className="w-full h-full" />
                             </div>
                         ) : (
                             <div className="w-full h-full flex flex-col items-center justify-between">
                                 {! checkChanges ? (
                                     <div className="w-full h-full hover:text-primary-600" onClick={() => setIsEditing(! isEditing)}>
-                                        <SquaredRoundedXIcon className="w-full h-full" />
+                                        <IconSquareRoundedXFilled className="w-full h-full" />
                                     </div>
                                 ) : (
                                     <div className="w-full h-full hover:text-primary-600" onClick={() => setIsEditing(! isEditing)}>
-                                        <SquaredRoundedCheckIcon className="w-full h-full" />
+                                        <IconSquareRoundedCheckFilled className="w-full h-full" />
                                     </div>
                                 )}
                                 
                                 <div className="w-full h-full hover:text-primary-600">
-                                    <SquaredRoundedPlusIcon className="w-full h-full" />
+                                    <IconSquareRoundedPlus className="w-full h-full" />
                                 </div>
                             </div>
                         )}

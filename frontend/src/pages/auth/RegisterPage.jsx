@@ -6,7 +6,7 @@ import { useState, useEffect } from "react"
 import { FormRegisterComponent } from "../../components/auth/FormRegisterComponent.jsx"
 
 /** Assets & Icons */
-import { CircleXIcon } from "../../assets/icons/circleXIcon.jsx"
+import { IconCircleXFilled } from '@tabler/icons-react';
 
 /**
  * Registration Page Layout
@@ -89,7 +89,7 @@ export const RegisterPage = () => {
                         }`}
                         role="alert"
                     >
-                        <CircleXIcon className="h-6 w-6" />
+                        <IconCircleXFilled className="h-6 w-6" />
                         <span className="block sm:inline font-medium text-center">{apiError}</span>
                     </div>
                 )

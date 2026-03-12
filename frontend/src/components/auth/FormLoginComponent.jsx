@@ -7,10 +7,7 @@ import { Link } from "react-router-dom"
 import { useAuth } from "../../hooks/useAuth"
 
 /** Assets & Icons */
-import { UserIcon } from "../../assets/icons/userIcon.jsx"
-import { EyeCloseIcon } from "../../assets/icons/eyeCloseIcon.jsx"
-import { EyeOpenIcon } from "../../assets/icons/eyeOpenIcon.jsx"
-import { InfoIcon } from "../../assets/icons/infoIcon.jsx"
+import { IconUser, IconEyeClosed, IconEye, IconInfoCircleFilled } from '@tabler/icons-react';
 
 /**
  * Login Form Component
@@ -186,7 +183,7 @@ export const FormLoginComponent = ({ apiError, setApiError }) => {
     const getIconClass = (fieldName) => {
         const baseClass = "input-icon cursor-pointer pointer-events-auto";
         const errorClass = "peer-focus:text-tertiary-200 peer-[:not(:placeholder-shown)]:text-tertiary-200";
-        const normalClass = "peer-focus:text-primary-500 peer-[:not(:placeholder-shown)]:text-primary-500";    
+        const normalClass = "peer-focus:text-primary-500 peer-[:not(:placeholder-shown)]:text-primary-500";
 
         return `${baseClass} ${errors[fieldName] !== undefined && errors[fieldName] !== "Por favor, introduce una contraseña" ? errorClass : normalClass}`;
     };
@@ -207,7 +204,7 @@ export const FormLoginComponent = ({ apiError, setApiError }) => {
                 </label>
 
                 <div className={getIconClass("username")}>
-                    <UserIcon className="h-5 w-5" />
+                    <IconUser className="h-5 w-5" />
                 </div>
 
                 {errors.username && <span className="absolute -bottom-5 left-0 text-tertiary-200 text-xs font-semibold">{errors.username}</span>}
@@ -226,9 +223,9 @@ export const FormLoginComponent = ({ apiError, setApiError }) => {
 
                 <div className={getIconClass("password")} onClick={() => setShowPassword(! showPassword)}>
                     {showPassword ? (
-                        <EyeOpenIcon className="h-5 w-5" />
+                        <IconEye className="h-5 w-5" />
                     ) : (
-                        <EyeCloseIcon className="h-5 w-5" />
+                        <IconEyeClosed className="h-5 w-5" />
                     )}
                 </div>
 
@@ -238,7 +235,7 @@ export const FormLoginComponent = ({ apiError, setApiError }) => {
                         
                         {errors.password === "Por favor, introduce una contraseña válida" && (
                             <div className="relative group flex items-center">
-                                <InfoIcon className="h-4 w-4 cursor-pointer" />
+                                <IconInfoCircleFilled className="h-4 w-4 cursor-pointer" />
 
                                 <div className="absolute left-6 z-40 w-48 bg-tertiary-200 text-primary p-3 rounded-lg shadow-xl opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none group-hover:pointer-events-auto">
                                     <p className="font-bold text-primary mb-1">Requisitos:</p>

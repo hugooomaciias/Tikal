@@ -9,8 +9,7 @@ import { ContactComponent } from "../../components/landing/contact/ContactCompon
 import { FooterComponent } from "../../components/landing/FooterComponent.jsx"
 
 /** Assets & Icons */
-import { MobileMenuIcon } from "../../assets/icons/mobileMenuIcon.jsx"
-import { XIcon } from "../../assets/icons/xIcon.jsx"
+import { IconMenu2Filled, IconX } from '@tabler/icons-react';
 
 /**
  * Main Landing Page Component
@@ -223,9 +222,9 @@ export const LandingPage = () => {
 								onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
 						>
 							{isMobileMenuOpen ? (
-								<XIcon className={`h-6 w-6 ${mobileTextColour}`} />
+								<IconX className={`h-6 w-6 ${mobileTextColour}`} />
 							) : (
-								<MobileMenuIcon className={`h-6 w-6 ${mobileTextColour}`} />
+								<IconMenu2Filled className={`h-6 w-6 ${mobileTextColour}`} />
 							)}
 						</button>
 					</div>

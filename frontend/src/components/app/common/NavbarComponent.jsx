@@ -1,17 +1,12 @@
 /** React & Third-Party Libraries */
-import { useState, useContext } from "react"
-import { Link, useNavigate } from "react-router-dom"
+import { useState, useContext, useEffect } from "react"
+import { Link, useNavigate, useLocation } from "react-router-dom"
 
 /** Components */
 import { AuthContext } from "../../../context/AuthContext.jsx"
 
 /** Assets & Icons */
-import { HomeIcon } from "../../../assets/icons/homeIcon.jsx"
-import { ListCheckIcon } from "../../../assets/icons/listCheckIcon.jsx"
-import { CalendarIcon } from "../../../assets/icons/calendarIcon.jsx"
-import { ChartBarIcon } from "../../../assets/icons/chartBarIcon.jsx"
-import { TempleIcon } from "../../../assets/icons/templeIcon.jsx"
-import { GroupIcon } from "../../../assets/icons/groupIcon.jsx"
+import { IconHome, IconListFilled, IconCalendarWeekFilled, IconChartBar, IconPyramid, IconUsersGroup } from '@tabler/icons-react';
 
 /**
  * Navbar Component
@@ -36,6 +31,8 @@ export const NavbarComponent = () => {
      */
 	const navigate = useNavigate();
 
+    const location = useLocation();
+
     /**
      * Sidebar Expanded State
      *
@@ -50,7 +47,7 @@ export const NavbarComponent = () => {
      * Stores the title of the currently selected navigation tab to apply
      * active styling to the corresponding link.
      */
-	const [activeTab, setActiveTab] = useState("Inicio");
+	const [activeTab, setActiveTab] = useState("");
 
     /**
      * Logout Handler
@@ -77,12 +74,12 @@ export const NavbarComponent = () => {
      * Used dynamically when rendering the navigation links below.
      */
     const iconMap = {
-        "HomeIcon": HomeIcon,
-        "ListCheckIcon": ListCheckIcon,
-        "CalendarIcon": CalendarIcon,
-        "ChartBarIcon": ChartBarIcon,
-        "TempleIcon": TempleIcon,
-        "GroupIcon": GroupIcon
+        "HomeIcon": IconHome,
+        "ListIcon": IconListFilled,
+        "CalendarIcon": IconCalendarWeekFilled,
+        "ChartBarIcon": IconChartBar,
+        "TempleIcon": IconPyramid,
+        "GroupIcon": IconUsersGroup
     };
 
     /**
@@ -92,13 +89,23 @@ export const NavbarComponent = () => {
 	 * Includes their titles and corresponding icon keys.
 	 */
 	const navbarOptions = [
-		{ icon: "HomeIcon", title: "Inicio" },
-		{ icon: "ListCheckIcon", title: "Tareas" },
-		{ icon: "CalendarIcon", title: "Calendario" },
-		{ icon: "ChartBarIcon", title: "Estadísticas" },
-		{ icon: "TempleIcon", title: "Modo Templo" },
-		{ icon: "GroupIcon", title: "Grupos" },
+		{ icon: "HomeIcon", title: "Inicio", to: "/home" },
+		{ icon: "ListIcon", title: "Tareas", to: "/tasks" },
+		{ icon: "CalendarIcon", title: "Calendario", to: "/home" },
+		{ icon: "ChartBarIcon", title: "Estadísticas", to: "/home" },
+		{ icon: "TempleIcon", title: "Modo Templo", to: "/home" },
+		{ icon: "GroupIcon", title: "Grupos", to: "/home" },
 	];
+
+    useEffect(() => {
+        const currentOption = navbarOptions.find(option => option.to === location.pathname);
+        
+        if (currentOption) {
+            setActiveTab(currentOption.title);
+        } else {
+            setActiveTab("");
+        }
+    }, [location.pathname]);
 
     return (
         <aside className={`flex bg-primary-300 text-primary shadow-2xl transition-all duration-[300ms] shrink-0 z-50
@@ -128,7 +135,7 @@ export const NavbarComponent = () => {
                     const isActive = activeTab === option.title;
 
                     return (
-                        <Link key={index} to="#" onClick={() => setActiveTab(option.title)}
+                        <Link key={index} to={option.to} onClick={() => setActiveTab(option.title)}
                                 className={`flex items-center gap-6 transition-all duration-200 ${isActive ? 'text-primary-50' : 'text-primary-500 hover:text-primary-200'}`}
                         >
                             <IconComponent className="h-8 w-8" />

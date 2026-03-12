@@ -12,6 +12,7 @@ import { RegisterPage } from './pages/auth/RegisterPage'
 import { ForgotPasswordPage } from './pages/auth/ForgotPasswordPage'
 import { LoadingPage } from './pages/LoadingPage'
 import { HomePage } from './pages/app/HomePage'
+import { TasksPage } from './pages/app/TasksPage'
 
 /**
  * Application Root Component
@@ -52,9 +53,18 @@ function App() {
 					<Route
 						path="/home"
 						element={
-						<ProtectedRoute>
-							<HomePage />
-						</ProtectedRoute>
+							<ProtectedRoute>
+								<HomePage />
+							</ProtectedRoute>
+						}
+					/>
+
+					<Route
+						path="/tasks"
+						element={
+							<ProtectedRoute>
+								<TasksPage />
+							</ProtectedRoute>
 						}
 					/>
 

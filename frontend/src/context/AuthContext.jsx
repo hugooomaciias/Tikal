@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { createContext, useState, useEffect } from 'react'
 
 /** Components */
-import { API_BASE_URL } from '../config/api'
+import { API_BASE_URL } from '../constants/api.js'
 
 // eslint-disable-next-line react-refresh/only-export-components
 export const AuthContext = createContext()

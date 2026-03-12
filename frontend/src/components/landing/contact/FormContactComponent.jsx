@@ -3,13 +3,7 @@ import { useState, useEffect } from "react"
 import emailjs from "@emailjs/browser"
 
 /** Assets & Icons */
-import { UserIcon } from "../../../assets/icons/userIcon.jsx"
-import { MailIcon } from "../../../assets/icons/mailIcon.jsx"
-import { TagIcon } from "../../../assets/icons/tagIcon.jsx"
-import { MessageIcon } from "../../../assets/icons/messageIcon.jsx"
-import { CircleCheckIcon } from "../../../assets/icons/circleCheckIcon.jsx"
-import { CircleXIcon } from "../../../assets/icons/circleXIcon.jsx"
-import { LoaderIcon } from "../../../assets/icons/loaderIcon.jsx"
+import { IconUser, IconMail, IconTag, IconMessage, IconCircleCheck, IconCircleX, IconLoader } from '@tabler/icons-react';
 
 /**
  * Contact Form Component
@@ -24,7 +18,7 @@ import { LoaderIcon } from "../../../assets/icons/loaderIcon.jsx"
 export const FormContactComponent = () => {
     /**
      * Form Input State
-     * 
+     *
      * Manages the controlled inputs for the contact form.
      */
     const [formData, setFormData] = useState({
@@ -36,14 +30,14 @@ export const FormContactComponent = () => {
 
     /**
      * Validation Error State
-     * 
+     *
      * Stores specific error messages for each field to be displayed in the UI.
      */
     const [errors, setErrors] = useState({});
 
     /**
      * UI Feedback State
-     * 
+     *
      * These booleans control the visibility of success/error notifications and
      * the active loading state of the submission button.
      */
@@ -53,7 +47,7 @@ export const FormContactComponent = () => {
 
     /**
      * Notification Auto-dismissal Effect
-     * 
+     *
      * Automatically clears success or error status messages after a predefined
      * timeout to maintain a clean user interface.
      */
@@ -67,7 +61,7 @@ export const FormContactComponent = () => {
 
     /**
      * Form Validation Logic
-     * 
+     *
      * Performs client-side checks for required fields and validates the email
      * format using a strict Regex pattern.
      * @returns {boolean} True if the form is valid, false otherwise.
@@ -106,7 +100,7 @@ export const FormContactComponent = () => {
 
     /**
      * Input Change Handler
-     * 
+     *
      * Updates the specific field in the state object while preserving
      * other values. Also, if a field has an error, typing in it
      * immediately clears the visual error state to improve UX.
@@ -130,7 +124,7 @@ export const FormContactComponent = () => {
 
     /**
      * Form Submission Handler
-     * 
+     *
      * Orchestrates the submission process: validates data, triggers the loading
      * state, sends the data via EmailJS, and handles the response.
      * @param {React.FormEvent} e - The form submission event.
@@ -157,7 +151,7 @@ export const FormContactComponent = () => {
             // Send email
             emailjs.send(serviceID, templateID, templateParams, publicKey)
                 .then(() => {
-                    setShowSuccess(true);         
+                    setShowSuccess(true);
                     setFormData({ name: "", email: "", subject: "", message: "" });
                 })
                 .catch(() => {
@@ -171,7 +165,7 @@ export const FormContactComponent = () => {
 
     /**
      * Dynamic Input Styling Helper
-     * 
+     *
      * Computes the Tailwind classes for input fields based on their current
      * validation state.
      * @param {string} fieldName - The name of the field to check.
@@ -190,7 +184,7 @@ export const FormContactComponent = () => {
 
     /**
      * Dynamic Icon Styling Helper
-     * 
+     *
      * Determines the color and styling of input icons based on error presence
      * or user interaction.
      * @param {string} fieldName - The name of the field associated with the icon.
@@ -199,14 +193,14 @@ export const FormContactComponent = () => {
     const getIconClass = (fieldName) => {
         const baseClass = "input-icon";
         const errorClass = "peer-focus:text-tertiary-200 peer-[:not(:placeholder-shown)]:text-tertiary-200";
-        const normalClass = "peer-focus:text-primary-500 peer-[:not(:placeholder-shown)]:text-primary-500";      
+        const normalClass = "peer-focus:text-primary-500 peer-[:not(:placeholder-shown)]:text-primary-500";
 
         return `${baseClass}  ${errors[fieldName] === "Por favor, introduce un email válido" ? errorClass : normalClass}`;
     };
 
     /**
      * Dynamic Button Styling Helper
-     * 
+     *
      * Generates the button's class list to reflect its current state: sending,
      * success, error, or idle.
      * @returns {string} The computed CSS class string for the submit button.
@@ -237,7 +231,7 @@ export const FormContactComponent = () => {
                     </label>
 
                     <div className="input-icon peer-focus:text-primary-500 peer-[:not(:placeholder-shown)]:text-primary-500">
-                        <UserIcon className="w-5 h-5" />
+                        <IconUser className="w-5 h-5" />
                     </div>
 
                     {errors.name && <span className="absolute -bottom-5 left-0 text-tertiary-200 text-xs font-semibold">{errors.name}</span>}
@@ -254,7 +248,7 @@ export const FormContactComponent = () => {
                     </label>
 
                     <div className={getIconClass("email")}>
-                        <MailIcon className="w-5 h-5" />
+                        <IconMail className="w-5 h-5" />
                     </div>
 
                     {errors.email && <span className="absolute -bottom-5 left-0 text-tertiary-200 text-xs font-semibold">{errors.email}</span>}
@@ -273,7 +267,7 @@ export const FormContactComponent = () => {
                 </label>
 
                 <div className="input-icon peer-focus:text-primary-500 peer-[:not(:placeholder-shown)]:text-primary-500">
-                    <TagIcon className="w-5 h-5" />
+                    <IconTag className="w-5 h-5" />
                 </div>
             </div>
 
@@ -289,7 +283,7 @@ export const FormContactComponent = () => {
                 </label>
 
                 <div className="input-icon peer-focus:text-primary-500 peer-[:not(:placeholder-shown)]:text-primary-500 items-start pt-3">
-                    <MessageIcon className="w-5 h-5" />
+                    <IconMessage className="w-5 h-5" />
                 </div>
 
                 {errors.message && <span className="absolute -bottom-[13px] left-0 text-tertiary-200 text-xs font-semibold">{errors.message}</span>}
@@ -300,17 +294,17 @@ export const FormContactComponent = () => {
                 {isSending ? (
                     <div className="flex items-center justify-center gap-2">
                         <span className="text-nowrap">Enviando...</span>
-                        <LoaderIcon className="h-6 w-6 text-primary-300 animate-spin" />
+                        <IconLoader className="h-6 w-6 text-primary-300 animate-spin" />
                     </div>
                 ) : showSuccess ? (
                     <div className="flex items-center justify-center gap-2">
                         <span className="text-nowrap">Consulta enviada</span>
-                        <CircleCheckIcon className="h-6 w-6 text-primary-300" />
+                        <IconCircleCheck className="h-6 w-6 text-primary-300" />
                     </div>
                 ) : showEmailError ? (
                     <div className="flex items-center justify-center gap-2">
                         <span className="text-nowrap">Error al enviar</span>
-                        <CircleXIcon className="h-6 w-6 text-primary-300" />
+                        <IconCircleX className="h-6 w-6 text-primary-300" />
                     </div>
                 ) : (
                     <span>Enviar consulta</span>
