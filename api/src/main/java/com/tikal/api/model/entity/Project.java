@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 /**
  * This class represents the Project entity, acting as the top-level container in
  * the application's work hierarchy. It maps to the project table in the database
@@ -28,11 +30,23 @@ public class Project {
 
     /* --- URL of the project logo --- */
     @Column(name = "logo_url")
-    private String logoUrl; 
+    private String logoUrl;
 
     /* --- If the Project is group-based, this attribute has to be 'True' --- */
     @Column(name = "is_group_based", columnDefinition = "TINYINT(1) DEFAULT 0")
     private Boolean isGroupBased = false;
+
+    /* --- Deadline for completing the project --- */
+    @Column(name = "deadline", columnDefinition = "DATETIME")
+    private LocalDateTime deadline;
+
+    /* --- Total time spent in minutes --- */
+    @Column(name = "total_logged_minutes", columnDefinition = "INT DEFAULT 0")
+    private Integer totalLoggedMinutes = 0;
+
+    /* --- Time spent specifically in Temple Mode (in minutes) --- */
+    @Column(name = "temple_logged_minutes", columnDefinition = "INT DEFAULT 0")
+    private Integer templeLoggedMinutes = 0;
 
     /* --- User relation ==> Many projects can belong to the same User --- */
     @ManyToOne(optional = true)

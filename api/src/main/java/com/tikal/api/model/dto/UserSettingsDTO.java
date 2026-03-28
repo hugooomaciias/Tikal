@@ -6,11 +6,15 @@ import com.tikal.api.model.entity.enumerated.TimeRangeSetting;
 import com.tikal.api.model.entity.metadata.LayoutsDashboardMetadata;
 import com.tikal.api.model.entity.metadata.NotificationSettingsMetadata;
 import com.tikal.api.model.entity.metadata.WidgetPreferencesMetadata;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
+@Builder
 @NoArgsConstructor
+@AllArgsConstructor
 public class UserSettingsDTO {
 
     // --- General Settings ---

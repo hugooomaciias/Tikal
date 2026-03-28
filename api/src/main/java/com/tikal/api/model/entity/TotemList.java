@@ -1,5 +1,6 @@
 package com.tikal.api.model.entity;
 
+import com.tikal.api.model.entity.enumerated.TypeOfGoal;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -16,7 +17,7 @@ import lombok.NoArgsConstructor;
 @Table(name = "totem_lists")
 public class TotemList {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY) // Auto-increment en MySQL
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
     /* --- Name of the totem --- */
@@ -26,6 +27,14 @@ public class TotemList {
     /* --- Description of the goal to achieve the Totem --- */
     @Column(name = "goal_description", nullable = false, columnDefinition = "TEXT")
     private String goalDescription;
+
+    /* --- Target progress to obtain this totem --- */
+    @Column(name = "target_progress", nullable = false)
+    private Integer targetProgress;
+
+    /* --- Type of goal that the user has to achieve to get the totem --- */
+    @Column(name = "type_of_goal", nullable = false)
+    private TypeOfGoal typeOfGoal;
 
     /* --- Required Rank to achieve the Totem --- */
     @Column(name = "required_rank", nullable = false) 

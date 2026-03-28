@@ -4,5 +4,6 @@ public enum TimeRangeSetting {
     SEMANAL,
     MENSUAL,
     TRIMESTRAL,
-    ANUAL
+    ANUAL,
+    GLOBAL
 }

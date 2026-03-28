@@ -4,6 +4,7 @@ import com.tikal.api.model.dto.UserDTO;
 import com.tikal.api.model.dto.UserSettingsDTO;
 import com.tikal.api.model.entity.UserSettings;
 import com.tikal.api.model.entity.metadata.LayoutsDashboardMetadata;
+import com.tikal.api.model.entity.metadata.NotificationSettingsMetadata;
 import com.tikal.api.model.entity.metadata.WidgetPreferencesMetadata;
 import com.tikal.api.service.SettingsService;
 import com.tikal.api.service.UserService;
@@ -38,7 +39,7 @@ public class UserSettingsController {
      * Receives the complete JSON modified by the client and saves it.
      */
     @PutMapping
-    public ResponseEntity<UserSettingsDTO> updateMySettings(@RequestBody UserSettings updatedSettings) {
+    public ResponseEntity<UserSettingsDTO> updateMySettings(@RequestBody UserSettingsDTO updatedSettings) {
         Integer myId = userService.getAuthenticatedUserID();
 
         UserSettings savedSettings = settingsService.updateSettings(myId, updatedSettings);
@@ -67,6 +68,18 @@ public class UserSettingsController {
         Integer myId = userService.getAuthenticatedUserID();
 
         UserSettings savedSettings = settingsService.updateWidgetPreferences(myId, preferences);
+        return ResponseEntity.ok(settingsService.mapToDTO(savedSettings));
+    }
+
+    /**
+     * PATCH /settings/widget-preferences
+     * Solo actualiza los filtros internos de los widgets (ej: ocultar proyectos).
+     */
+    @PatchMapping("/notification-preferences")
+    public ResponseEntity<UserSettingsDTO> updateNotificationPreferences(@RequestBody NotificationSettingsMetadata notificationPreferences) {
+        Integer myId = userService.getAuthenticatedUserID();
+
+        UserSettings savedSettings = settingsService.updateNotificationPreferences(myId, notificationPreferences);
         return ResponseEntity.ok(settingsService.mapToDTO(savedSettings));
     }
 }
