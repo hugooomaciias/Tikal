@@ -16,6 +16,18 @@ import {
 } from "@tabler/icons-react";
 
 /**
+ * Icon Component Map
+ *
+ * A static dictionary linking string keys to their corresponding React icon components.
+ * Declared outside the component to prevent unnecessary object recreation during re-renders.
+ */
+const ICON_MAP = {
+    OpenBookIcon: IconBook,
+    Database: IconDatabase,
+    AppWindowIcon: IconAppWindow,
+};
+
+/**
  * Projects Card Component
  *
  * This component renders a sidebar card displaying a list of projects.
@@ -27,17 +39,17 @@ import {
  */
 export const ProjectsCardComponent = ({ t }) => {
     /**
-     * Active Tab State
+     * Active Project State
      *
-     * Stores the title of the currently selected navigation tab to apply
-     * active styling to the corresponding link.
+     * Stores the title of the currently active project in the list to apply
+     * the highlighted visual styling.
      */
     const [activeProject, setActiveProject] = useState("Universidad");
 
     /**
      * Search Modal State
      *
-     * Toggles the visibility of the search input for projects.
+     * Toggles the visibility of the search input for filtering projects.
      */
     const [isProjectSearchOpen, setIsProjectSearchOpen] = useState(false);
 
@@ -52,27 +64,15 @@ export const ProjectsCardComponent = ({ t }) => {
      * Edit Project State
      *
      * Stores the project object to be edited, or 'new' if creating a new project.
-     * Controls the visibility and mode of the NewProjectPopUpComponent.
+     * Controls the visibility and mode of the ProjectPopUpComponent.
      */
     const [projectToEdit, setProjectToEdit] = useState(null);
 
     /**
-     * Icon Component Map
+     * Project List Options
      *
-     * Maps string identifiers to their corresponding React icon components.
-     * Used dynamically when rendering the navigation links below.
-     */
-    const iconMap = {
-        OpenBookIcon: IconBook,
-        Database: IconDatabase,
-        AppWindowIcon: IconAppWindow,
-    };
-
-    /**
-     * Navigation Options
-     *
-     * Configuration array for rendering the navigation links located in the sidebar.
-     * Includes their titles and corresponding icon keys.
+     * Configuration array for rendering the mock list of user projects,
+     * including their titles, icon bindings, and optional descriptive notes.
      */
     const projectsOptions = [
         {
@@ -125,7 +125,7 @@ export const ProjectsCardComponent = ({ t }) => {
                 {/* Projects List */}
                 <div className="h-fit w-full flex flex-col gap-3">
                     {projectsOptions.map((option, index) => {
-                        const IconComponent = iconMap[option.icon];
+                        const IconComponent = ICON_MAP[option.icon];
                         const isActive = activeProject === option.title;
                         const hasNote = option.note !== "";
 

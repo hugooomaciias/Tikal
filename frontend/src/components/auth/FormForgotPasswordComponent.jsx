@@ -19,6 +19,7 @@ import { IconMail, IconEyeClosed, IconEye, IconInfoCircleFilled } from "@tabler/
  * @param {Object} props - The component props.
  * @param {string} props.apiError - The current API error state from the parent.
  * @param {Function} props.setApiError - Function to set or clear API errors.
+ * @param {Function} props.t - Translation function from i18next.
  * @returns {JSX.Element} The interactive password recovery form.
  */
 export const FormForgotPasswordComponent = ({ apiError, setApiError, t }) => {
@@ -42,7 +43,7 @@ export const FormForgotPasswordComponent = ({ apiError, setApiError, t }) => {
     /**
      * Form Input State
      *
-     * Manages the controlled inputs for the contact form.
+     * Manages the controlled inputs for the password recovery form.
      */
     const [formData, setFormData] = useState({
         email: "",
@@ -138,7 +139,6 @@ export const FormForgotPasswordComponent = ({ apiError, setApiError, t }) => {
                 isValid = false;
             }
 
-            // Validate Confirm Password
             if (!formData.passwordConf) {
                 tempErrors.passwordConf = t("auth.forgot_password.form.errors.password");
                 isValid = false;
@@ -318,8 +318,8 @@ export const FormForgotPasswordComponent = ({ apiError, setApiError, t }) => {
                     navigate("/login");
                     setFormData({ email: "", otpCode: "", password: "", confirmPassword: "" });
                 } catch (error) {
-                    console.error("Error al verificar el código OTP:", error);
-                    setApiError(error.message || "Error al verificar el código OTP. Por favor, inténtalo de nuevo.");
+                    console.error("Error al restablecer la contraseña:", error);
+                    setApiError(error.message || "Error al restablecer la contraseña. Por favor, inténtalo de nuevo.");
                 }
             }
         }
@@ -330,6 +330,7 @@ export const FormForgotPasswordComponent = ({ apiError, setApiError, t }) => {
      *
      * Computes the Tailwind classes for input fields based on their current
      * validation state.
+     * @param {string} fieldName - The name of the field to check.
      * @returns {string} The computed CSS class string.
      */
     const getInputClass = (fieldName) => {

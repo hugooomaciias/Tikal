@@ -21,6 +21,8 @@ import {
  * input validation and serverless email transmission via EmailJS.
  *
  * @component
+ * @param {Object} props - The component props.
+ * @param {Function} props.t - Translation function from i18next.
  * @returns {JSX.Element} The interactive form element with dynamic styling.
  */
 export const FormContactComponent = ({ t }) => {
@@ -78,13 +80,11 @@ export const FormContactComponent = ({ t }) => {
         let tempErrors = {};
         let isValid = true;
 
-        // Validate Name
         if (!formData.name.trim()) {
             tempErrors.name = t("landing.contact.form.errors.name");
             isValid = false;
         }
 
-        // Validate Email
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
         if (!formData.email.trim()) {
@@ -95,7 +95,6 @@ export const FormContactComponent = ({ t }) => {
             isValid = false;
         }
 
-        // Validate Message
         if (!formData.message.trim()) {
             tempErrors.message = t("landing.contact.form.errors.message");
             isValid = false;
@@ -204,7 +203,7 @@ export const FormContactComponent = ({ t }) => {
         const errorClass = "peer-focus:text-tertiary-200 peer-[:not(:placeholder-shown)]:text-tertiary-200";
         const normalClass = "peer-focus:text-primary-500 peer-[:not(:placeholder-shown)]:text-primary-500";
 
-        return `${baseClass}  ${errors[fieldName] === t("landing.contact.form.errors.incorrect_email") ? errorClass : normalClass}`;
+        return `${baseClass} ${errors[fieldName] === t("landing.contact.form.errors.incorrect_email") ? errorClass : normalClass}`;
     };
 
     /**

@@ -2,18 +2,49 @@
 import { PROJECTS_ICONS } from "../../../../constants/projects_icons.js";
 import { PHASE_COLOURS } from "../../../../constants/phase_colours.js";
 
+/**
+ * Reusable Tabs Component
+ *
+ * A segmented control/tab switcher used in popups to toggle between two distinct modes.
+ * It visually animates between the two states and updates the parent form data accordingly.
+ *
+ * @component
+ * @param {Object} props - The component props.
+ * @param {string} props.page - The context or page where the tabs are used ("Project", "Stage", "Tasks", or default).
+ * @param {Object} props.formData - The current form data state from the parent.
+ * @param {Function} props.setFormData - Function to update the parent's form data state.
+ * @param {Function} props.setSelected - Function to update the currently selected icon/color in the parent.
+ * @param {string} props.fieldToUpdate - The key in `formData` that the tabs govern.
+ * @param {Function} props.t - The i18n translation function.
+ * @returns {JSX.Element} The rendered tabs component.
+ */
 export const TabsComponent = ({ page, formData, setFormData, setSelected, fieldToUpdate, t }) => {
+    /**
+     * Tab Type Identifiers
+     *
+     * Computes the underlying data string representation for the left (first)
+     * and right (second) tabs based on the contextual `page` prop.
+     */
     const firstTabType =
         page === "Project" ? "project" : page === "Stage" ? "stage" : page === "Tasks" ? "details" : "linked";
     const secondTabType =
         page === "Project" ? "list" : page === "Stage" ? "sublist" : page === "Tasks" ? "subtasks" : "unlinked";
 
     /**
+     * Current Selection State
+     *
+     * Retrieves the currently active tab value directly from the parent's form data
+     * to determine which side the animated slider should highlight.
+     */
+    const currentValue = formData[fieldToUpdate];
+
+    /**
      * Type Change Handler
      *
-     * Updates the form data type (project or list) and sets a default
-     * icon corresponding to the selected type.
-     * @param {string} newType - The newly selected type ("project" or "list").
+     * Updates the form data type and sets a default icon
+     * or colour corresponding to the newly selected type.
+     *
+     * @param {string} newType - The newly selected type string.
      */
     const handleTypeChange = (newType) => {
         setFormData((prev) => ({ ...prev, [fieldToUpdate]: newType }));
@@ -40,14 +71,14 @@ export const TabsComponent = ({ page, formData, setFormData, setSelected, fieldT
         }
     };
 
-    const currentValue = formData[fieldToUpdate];
-
     return (
         <div className="flex items-center justify-center w-full bg-primary-100 p-1.5 rounded-2xl relative overflow-hidden">
+            {/* Animated Background Indicator */}
             <div
                 className={`absolute top-1.5 bottom-1.5 w-[calc(50%-6px)] bg-primary rounded-xl shadow-sm transition-all duration-300 ease-out z-0 ${currentValue === firstTabType ? "left-1.5" : "left-[calc(50%+1.5px)]"}`}
             ></div>
 
+            {/* Left / First Tab Button */}
             <button
                 type="button"
                 onClick={() => handleTypeChange(firstTabType)}
@@ -62,6 +93,7 @@ export const TabsComponent = ({ page, formData, setFormData, setSelected, fieldT
                         : t("popup.tabs.linked")}
             </button>
 
+            {/* Right / Second Tab Button */}
             <button
                 type="button"
                 onClick={() => handleTypeChange(secondTabType)}

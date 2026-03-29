@@ -6,43 +6,63 @@ import { TaskPopUpComponent } from "./TaskPopUpComponent.jsx";
 
 /** Assets & Icons */
 import {
-    IconBook,
-    IconAppWindow,
     IconSearch,
     IconCircleXFilled,
     IconCircleCheckFilled,
     IconNote,
     IconCirclePlusFilled,
-    IconLink,
     IconPlayerPlayFilled,
     IconPencilFilled,
 } from "@tabler/icons-react";
 
+/**
+ * Tasks Card Component
+ *
+ * This component renders a list of tasks within a specific stage.
+ * It provides functionalities to select an active task, toggle completion,
+ * search through existing tasks, and edit or create a new task via a popup.
+ *
+ * @component
+ * @param {Object} props - The component props.
+ * @param {Function} props.t - Translation function from i18next.
+ * @returns {JSX.Element} The rendered tasks card.
+ */
 export const TasksCardComponent = ({ t }) => {
     /**
-     * Active Tab State
+     * Active Task State
      *
-     * Stores the title of the currently selected navigation tab to apply
-     * active styling to the corresponding link.
+     * Stores the title of the currently highlighted task row, driving
+     * the expanded subtask view UI.
      */
     const [activeTask, setActiveTask] = useState("Base de datos");
 
+    /**
+     * Search Modal State
+     *
+     * Toggles the visibility of the search input for filtering tasks.
+     */
     const [isTaskSearchOpen, setIsTaskSearchOpen] = useState(false);
+
+    /**
+     * Search Query State
+     *
+     * Stores the current text used to filter the tasks list.
+     */
     const [taskSearchQuery, setTaskSearchQuery] = useState("");
 
     /**
-     * Edit Stage State
+     * Edit Task State
      *
-     * Stores the stage object to be edited, or 'new' if creating a new stage.
-     * Controls the visibility and mode of the NewStagePopUpComponent.
+     * Stores the task object to be edited, or 'new' if creating a new task.
+     * Controls the visibility and mode of the TaskPopUpComponent.
      */
     const [taskToEdit, setTaskToEdit] = useState(null);
 
     /**
-     * Navigation Options
+     * Tasks List State
      *
-     * Configuration array for rendering the navigation links located in the sidebar.
-     * Includes their titles and corresponding icon keys.
+     * Configuration array representing the mock data for tasks and subtasks
+     * including completion status and optional notes.
      */
     const [tasksOptions, setTasksOptions] = useState([
         {
@@ -68,14 +88,20 @@ export const TasksCardComponent = ({ t }) => {
         },
     ]);
 
+    /**
+     * Task Completion Toggle Handler
+     *
+     * Specifically inverts the boolean 'completed' value for the target
+     * task ID without mutating other list items.
+     *
+     * @param {number} taskId - The ID of the task to toggle.
+     */
     const toggleTaskCompletion = (taskId) => {
         setTasksOptions((prevTasks) =>
             prevTasks.map((task) => {
-                // Si encontramos la tarea que hemos clickado, le invertimos el 'completed'
                 if (task.id === taskId) {
                     return { ...task, completed: !task.completed };
                 }
-                // Si no es la que hemos clickado, la devolvemos igual
                 return task;
             }),
         );
@@ -90,7 +116,7 @@ export const TasksCardComponent = ({ t }) => {
                     <div
                         className={`flex items-center justify-end transition-all duration-500 ease-in-out rounded-full ${isTaskSearchOpen ? "w-full bg-primary-50 px-3 py-1.5 shadow-inner" : "w-fit bg-transparent p-0"}`}
                     >
-                        {/* El input oculto que se expande */}
+                        {/* Expanding Search Input */}
                         <input
                             type="text"
                             placeholder={t("tasks.search")}
@@ -237,12 +263,12 @@ export const TasksCardComponent = ({ t }) => {
                 </div>
             </div>
 
-            {/* Create Stage Button */}
+            {/* Create Task Button */}
             <button onClick={() => setTaskToEdit("new")}>
                 <IconCirclePlusFilled className="h-10 w-10 text-primary-200/70 hover:text-primary-200" />
             </button>
 
-            {/* Create/Edit Stage PopUp Modal */}
+            {/* Create/Edit Task PopUp Modal */}
             {taskToEdit && (
                 <TaskPopUpComponent
                     onClose={() => setTaskToEdit(null)}

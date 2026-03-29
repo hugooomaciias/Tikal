@@ -19,6 +19,12 @@ import { useTranslation } from "react-i18next";
  * layout.
  */
 export const PlansComponent = () => {
+    /**
+     * Translation Hook
+     *
+     * Provides the 't' function to localize strings specifically for the
+     * landing page namespace.
+     */
     const { t } = useTranslation("landing");
 
     /**
@@ -104,12 +110,12 @@ export const PlansComponent = () => {
 
                 {/* Pricing Cards Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                    {plansOptions.map((plan, index) => {
+                    {plansOptions.map((plan, planIndex) => {
                         const styles = coloursVariants[plan.colour];
                         const IconComponent = iconMap[plan.icon];
 
                         return (
-                            <div key={index} className="bg-primary p-6 rounded-xl shadow-lg">
+                            <div key={planIndex} className="bg-primary p-6 rounded-xl shadow-lg">
                                 {/* Card Header */}
                                 <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-6">
                                     <IconComponent className={`w-10 h-10 ${styles.text}`} />
@@ -134,8 +140,8 @@ export const PlansComponent = () => {
 
                                 {/* Features List */}
                                 <div className="flex flex-col text-left gap-4 text-quaternary-700 mb-8">
-                                    {plan.featuresList.map((feature, index) => (
-                                        <div key={index} className="flex items-center gap-4">
+                                    {plan.featuresList.map((feature, featureIndex) => (
+                                        <div key={featureIndex} className="flex items-center gap-4">
                                             {feature.included ? (
                                                 <IconCheck className="w-5 h-5" />
                                             ) : (

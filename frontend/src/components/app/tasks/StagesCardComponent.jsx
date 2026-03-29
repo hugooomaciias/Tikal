@@ -5,15 +5,7 @@ import { useState } from "react";
 import { StagePopUpComponent } from "./StagePopUpComponent.jsx";
 
 /** Assets & Icons */
-import {
-    IconDatabase,
-    IconBook,
-    IconAppWindow,
-    IconSearch,
-    IconCircleXFilled,
-    IconNote,
-    IconCirclePlusFilled,
-} from "@tabler/icons-react";
+import { IconSearch, IconCircleXFilled, IconNote, IconCirclePlusFilled } from "@tabler/icons-react";
 
 /**
  * Stages Card Component
@@ -27,17 +19,17 @@ import {
  */
 export const StagesCardComponent = ({ t }) => {
     /**
-     * Active Tab State
+     * Active Stage State
      *
-     * Stores the title of the currently selected navigation tab to apply
-     * active styling to the corresponding link.
+     * Stores the title of the currently active stage in the list to apply
+     * the highlighted visual styling.
      */
     const [activeStage, setActiveStage] = useState("SIpI");
 
     /**
      * Search Modal State
      *
-     * Toggles the visibility of the search input for stages.
+     * Toggles the visibility of the search input for filtering stages.
      */
     const [isStageSearchOpen, setIsStageSearchOpen] = useState(false);
 
@@ -52,15 +44,15 @@ export const StagesCardComponent = ({ t }) => {
      * Edit Stage State
      *
      * Stores the stage object to be edited, or 'new' if creating a new stage.
-     * Controls the visibility and mode of the NewStagePopUpComponent.
+     * Controls the visibility and mode of the StagePopUpComponent.
      */
     const [stageToEdit, setStageToEdit] = useState(null);
 
     /**
-     * Navigation Options
+     * Stage List Options
      *
-     * Configuration array for rendering the navigation links located in the sidebar.
-     * Includes their titles and corresponding icon keys.
+     * Configuration array for rendering the mock list of project stages,
+     * including their titles, phase colours, and optional descriptive notes.
      */
     const stagesOptions = [
         {

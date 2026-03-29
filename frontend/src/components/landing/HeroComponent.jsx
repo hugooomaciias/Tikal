@@ -22,6 +22,12 @@ import { useTranslation } from "react-i18next";
  * @returns {JSX.Element} The rendered Hero section with a responsive grid layout.
  */
 export const HeroComponent = () => {
+    /**
+     * Translation Hook
+     *
+     * Provides the 't' function to localize strings specifically for the
+     * landing page namespace.
+     */
     const { t } = useTranslation("landing");
 
     return (

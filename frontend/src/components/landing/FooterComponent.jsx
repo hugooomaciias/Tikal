@@ -14,6 +14,12 @@ import { useTranslation } from "react-i18next";
  * @returns {JSX.Element} The rendered Footer section.
  */
 export const FooterComponent = () => {
+    /**
+     * Translation Hook
+     *
+     * Provides the 't' function to localize strings specifically for the
+     * landing page namespace.
+     */
     const { t } = useTranslation("landing");
 
     return (

@@ -1,12 +1,63 @@
 /** React & Third-Party Libraries */
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 
+/**
+ * Circular Dropdown Component
+ *
+ * A reusable, circular dropdown menu typically used for small selection options
+ * or actions. It includes a built-in tooltip on hover and handles outside clicks
+ * to close automatically.
+ *
+ * @component
+ * @param {Object} props - The component props.
+ * @param {string|number} props.value - The currently selected value.
+ * @param {JSX.Element|string} props.defaultIcon - The icon or fallback text displayed when no value is present.
+ * @param {string} props.tooltip - The explanatory text shown when hovering over the trigger.
+ * @param {Array<Object>} props.options - List of selectable options in the format { value, label }.
+ * @param {Function} props.onChange - Callback fired when a new option is selected.
+ * @returns {JSX.Element} The rendered circular dropdown component.
+ */
 export const CircularDropdownComponent = ({ value, defaultIcon, tooltip, options, onChange }) => {
+    /**
+     * Menu Visibility State
+     *
+     * Controls whether the dropdown menu list is currently open and visible.
+     */
     const [isOpen, setIsOpen] = useState(false);
 
+    /**
+     * Component Reference
+     *
+     * Local reference to the main container div, used to detect clicks outside
+     * of the component to automatically close the dropdown.
+     */
+    const dropdownRef = useRef(null);
+
+    /**
+     * Outside Click Detector Effect
+     *
+     * Attaches and detaches an event listener to the document to detect clicks
+     * outside the component boundary. Optimized to only listen when the menu is actively open.
+     */
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+                setIsOpen(false);
+            }
+        };
+
+        if (isOpen) {
+            document.addEventListener("mousedown", handleClickOutside);
+        }
+
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, [isOpen]);
+
     return (
-        <div className="relative inline-block text-left shrink-0">
-            {/* 1. Botón Circular (El disparador) */}
+        <div ref={dropdownRef} className="relative inline-block text-left shrink-0">
+            {/* Main Circular Button */}
             <button
                 type="button"
                 onClick={() => setIsOpen(!isOpen)}
@@ -20,10 +71,7 @@ export const CircularDropdownComponent = ({ value, defaultIcon, tooltip, options
                 </div>
             </button>
 
-            {/* 2. Fondo invisible para cerrar al hacer clic fuera */}
-            {isOpen && <div className="fixed inset-0 z-40" onClick={() => setIsOpen(false)}></div>}
-
-            {/* 3. El Menú Desplegable (Totalmente personalizable) */}
+            {/* Dropdown Menu Container */}
             <div
                 className={`absolute right-0 mt-2 w-20 origin-top-right bg-primary-400 rounded-xl shadow-lg z-50 transition-all duration-200 ${isOpen ? "scale-100 opacity-100" : "scale-95 opacity-0 pointer-events-none"}`}
             >

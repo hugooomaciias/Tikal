@@ -17,6 +17,7 @@ import { LoadingPage } from "./pages/LoadingPage";
 import { HomePage } from "./pages/app/HomePage";
 import { TasksPage } from "./pages/app/TasksPage";
 import { CalendarPage } from "./pages/app/CalendarPage";
+import { StatisticsPage } from "./pages/app/StatisticsPage";
 
 /** Languages */
 import "./i18n";
@@ -81,6 +82,15 @@ function App() {
                             element={
                                 <ProtectedRoute>
                                     <CalendarPage />
+                                </ProtectedRoute>
+                            }
+                        />
+
+                        <Route
+                            path="/statistics"
+                            element={
+                                <ProtectedRoute>
+                                    <StatisticsPage />
                                 </ProtectedRoute>
                             }
                         />

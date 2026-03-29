@@ -1,28 +1,111 @@
+/** React & Third-Party Libraries */
 import { useState, useRef, useEffect } from "react";
 
+/**
+ * Cascading Link Select Component
+ *
+ * This component provides a cascading dropdown for linking events to projects, phases, and tasks.
+ * It dynamically filters options based on the previously selected hierarchy level and updates
+ * the parent component with the final selection.
+ *
+ * @component
+ * @param {Object} props - The component props.
+ * @param {Array<Object>} props.options - Array of available link options (projects, phases, tasks).
+ * @param {string|null} props.currentLinkId - ID of the currently selected link.
+ * @param {Function} props.onSelect - Callback function triggered when an option is selected.
+ * @param {string} props.error - Validation error message to display, if any.
+ * @param {string} props.inputClass - CSS class string for styling the input field.
+ * @param {Function} props.t - Translation function.
+ * @returns {JSX.Element} The rendered cascading select component.
+ */
 export const CascadingLinkSelect = ({ options, currentLinkId, onSelect, error, inputClass, t }) => {
+    /**
+     * Dropdown Open State
+     *
+     * Controls whether the cascading selector dropdown is visible.
+     */
     const [isOpen, setIsOpen] = useState(false);
+
+    /**
+     * Active Tab State
+     *
+     * Tracks the currently active sorting tab ("project", "phase", or "task")
+     * within the cascading selector.
+     */
     const [activeLinkTab, setActiveLinkTab] = useState("project");
+
+    /**
+     * Cascading Path State
+     *
+     * Stores the IDs of the selected project, phase, and task to filter
+     * subsequent options in the hierarchy.
+     */
     const [cascadingPath, setCascadingPath] = useState({
         project: "",
         phase: "",
         task: "",
     });
 
+    /**
+     * Component DOM Reference
+     *
+     * Reference to the main component container, used to detect clicks outside
+     * for auto-closing the dropdown.
+     */
     const linkSelectorRef = useRef(null);
 
-    // Clic fuera del componente para cerrarlo
+    /**
+     * Current Selected Item Look-up
+     *
+     * Finds the full item object from the options array based on the `currentLinkId`.
+     */
+    const currentSelectedItem = options.find((opt) => opt.id === currentLinkId);
+
+    /**
+     * Filtered Options
+     *
+     * Dynamically computed list of options available based on the current active tab and cascading path.
+     */
+    const filteredOptions = options.filter((opt) => {
+        if (activeLinkTab === "project") return opt.type === "project";
+        if (activeLinkTab === "phase") return opt.type === "phase" && opt.projectId === cascadingPath.project;
+        if (activeLinkTab === "task") return opt.type === "task" && opt.phaseId === cascadingPath.phase;
+        return false;
+    });
+
+    // ==========================================
+    // 2. EFFECTS
+    // ==========================================
+
+    /**
+     * Click Outside Handler Effect
+     *
+     * Listens for mousedown events globally to close the dropdown if the
+     * user clicks outside of the component boundaries. Only attaches if dropdown is open.
+     */
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (linkSelectorRef.current && !linkSelectorRef.current.contains(event.target)) {
                 setIsOpen(false);
             }
         };
-        document.addEventListener("mousedown", handleClickOutside);
-        return () => document.removeEventListener("mousedown", handleClickOutside);
-    }, []);
 
-    // Lógica interna de selección
+        if (isOpen) {
+            document.addEventListener("mousedown", handleClickOutside);
+        }
+
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, [isOpen]);
+
+    /**
+     * Selection Handler
+     *
+     * Handles user clicks on individual options in the cascading list.
+     * Updates the local cascading path and internal tab state to proceed to the next selection level.
+     * Triggers the `onSelect` prop to notify the parent component of the selection.
+     *
+     * @param {Object} option - The option selected by the user.
+     */
     const handleCascadingSelection = (option) => {
         if (option.type === "project") {
             setCascadingPath({ project: option.id, phase: "", task: "" });
@@ -34,20 +117,25 @@ export const CascadingLinkSelect = ({ options, currentLinkId, onSelect, error, i
             setCascadingPath((prev) => ({ ...prev, task: option.id }));
         }
 
-        // 🟢 Avisamos al padre (EventPopUp) de lo que hemos seleccionado
         onSelect(option);
     };
 
+    /**
+     * Dynamic Tab Pill Width
+     *
+     * Computes the width of the animated highlight pill based on the active tab.
+     *
+     * @returns {string} Tailwind CSS class representing the calculated width.
+     */
     const getPillWidth = () => {
         if (activeLinkTab === "project") return "w-[calc(33.333%-4px)]";
         if (activeLinkTab === "phase") return "w-[calc(66.666%-4px)]";
         return "w-[calc(100%-12px)]";
     };
 
-    const currentSelectedItem = options.find((opt) => opt.id === currentLinkId);
-
     return (
         <div ref={linkSelectorRef} className="relative inline-block text-left shrink-0 w-full">
+            {/* Input Display Field */}
             <input
                 type="text"
                 id="linkId"
@@ -65,14 +153,16 @@ export const CascadingLinkSelect = ({ options, currentLinkId, onSelect, error, i
                 {t("popup.linked.name")}
             </label>
 
+            {/* Validation Error Message */}
             {error && (
                 <span className="absolute -bottom-5 left-0 text-tertiary-200 text-xs font-semibold">{error}</span>
             )}
 
+            {/* Dropdown Menu Container */}
             <div
                 className={`absolute left-0 lg:right-0 lg:left-auto mt-2 w-full origin-top bg-primary-400 rounded-2xl shadow-xl text-primary z-50 overflow-hidden transition-all duration-200 ${isOpen ? "scale-100 opacity-100" : "scale-95 opacity-0 pointer-events-none"}`}
             >
-                {/* Botonera superior */}
+                {/* Header Tabs: Project, Stage, Task */}
                 <div className="flex items-center justify-center w-full p-1.5 rounded-t-2xl relative overflow-hidden bg-primary-400">
                     <div
                         className={`absolute top-1.5 bottom-1.5 left-1.5 bg-primary-50 rounded-xl shadow-sm transition-all duration-300 ease-out z-0 ${getPillWidth()}`}
@@ -112,48 +202,37 @@ export const CascadingLinkSelect = ({ options, currentLinkId, onSelect, error, i
                     </button>
                 </div>
 
-                {/* Lista filtrada */}
+                {/* Filtered Options List */}
                 <div className="flex flex-col max-h-48 overflow-y-auto custom-scrollbar p-2 gap-1 bg-primary-400">
-                    {(() => {
-                        const filteredOptions = options.filter((opt) => {
-                            if (activeLinkTab === "project") return opt.type === "project";
-                            if (activeLinkTab === "phase")
-                                return opt.type === "phase" && opt.projectId === cascadingPath.project;
-                            if (activeLinkTab === "task")
-                                return opt.type === "task" && opt.phaseId === cascadingPath.phase;
-                            return false;
-                        });
-
-                        return filteredOptions.length > 0 ? (
-                            filteredOptions.map((option) => {
-                                const isSelected = cascadingPath[option.type] === option.id;
-                                return (
-                                    <button
-                                        key={option.id}
-                                        type="button"
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            handleCascadingSelection(option);
-                                        }}
-                                        className={`px-3 py-2 text-sm font-medium text-left rounded-xl transition-colors flex items-center gap-2 ${isSelected ? "bg-primary-100/50 text-primary" : "text-primary hover:bg-primary-100/20"}`}
-                                    >
-                                        {option.color && (
-                                            <span
-                                                className="w-3 h-3 rounded-full shrink-0"
-                                                style={{ backgroundColor: option.color }}
-                                            ></span>
-                                        )}
-                                        <span className="truncate">{option.name}</span>
-                                    </button>
-                                );
-                            })
-                        ) : (
-                            <p className="text-xs text-center text-primary/70 py-3">No hay opciones en este nivel</p>
-                        );
-                    })()}
+                    {filteredOptions.length > 0 ? (
+                        filteredOptions.map((option) => {
+                            const isSelected = cascadingPath[option.type] === option.id;
+                            return (
+                                <button
+                                    key={option.id}
+                                    type="button"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleCascadingSelection(option);
+                                    }}
+                                    className={`px-3 py-2 text-sm font-medium text-left rounded-xl transition-colors flex items-center gap-2 ${isSelected ? "bg-primary-100/50 text-primary" : "text-primary hover:bg-primary-100/20"}`}
+                                >
+                                    {option.color && (
+                                        <span
+                                            className="w-3 h-3 rounded-full shrink-0"
+                                            style={{ backgroundColor: option.color }}
+                                        ></span>
+                                    )}
+                                    <span className="truncate">{option.name}</span>
+                                </button>
+                            );
+                        })
+                    ) : (
+                        <p className="text-xs text-center text-primary/70 py-3">No hay opciones en este nivel</p>
+                    )}
                 </div>
 
-                {/* Footer del Modal */}
+                {/* Modal Footer Controls */}
                 <div className="p-3 border-t border-primary-50/70 bg-primary-400 flex items-center justify-between">
                     <span className="text-xs font-medium text-primary/80 truncate max-w-[60%]">
                         {currentLinkId ? `${currentSelectedItem?.name}` : ""}

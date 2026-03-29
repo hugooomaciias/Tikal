@@ -1,14 +1,14 @@
 /** React & Third-Party Libraries */
 import { Link } from "react-router-dom";
 
+/** Language */
+import { useTranslation } from "react-i18next";
+
 /** Components */
-import { LanguagePickerComponent } from "../../components/landing/languagePickerComponent.jsx";
+import { LanguagePickerComponent } from "../../components/landing/LanguagePickerComponent.jsx";
 
 /** Assets & Icons */
 import { IconChevronLeft } from "@tabler/icons-react";
-
-/** Language */
-import { useTranslation } from "react-i18next";
 
 /**
  * Payment Selection Page
@@ -21,6 +21,11 @@ import { useTranslation } from "react-i18next";
  * @returns {JSX.Element} The full-screen payment selection interface.
  */
 export const PaymentPage = () => {
+    /**
+     * Translation Hook
+     *
+     * Provides the 't' function to localize strings for the payment page.
+     */
     const { t } = useTranslation();
 
     /**

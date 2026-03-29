@@ -19,6 +19,8 @@ import { IconUser, IconMail, IconEyeClosed, IconEye, IconInfoCircleFilled } from
  * @param {Object} props - The component props.
  * @param {string} props.apiError - The current API error state from the parent.
  * @param {Function} props.setApiError - Function to set or clear API errors.
+ * @param {string} props.plan - The selected tier plan for registration.
+ * @param {Function} props.t - Translation function from i18next.
  * @returns {JSX.Element} The interactive registration form.
  */
 export const FormRegisterComponent = ({ apiError, setApiError, plan, t }) => {
@@ -37,7 +39,7 @@ export const FormRegisterComponent = ({ apiError, setApiError, plan, t }) => {
     /**
      * Form Input State
      *
-     * Manages the controlled inputs for the contact form.
+     * Manages the controlled inputs for the registration form.
      */
     const [formData, setFormData] = useState({
         username: "",
@@ -74,13 +76,11 @@ export const FormRegisterComponent = ({ apiError, setApiError, plan, t }) => {
         let tempErrors = {};
         let isValid = true;
 
-        // Validate username
         if (!formData.username.trim()) {
             tempErrors.username = t("auth.register.form.errors.username");
             isValid = false;
         }
 
-        // Validate Email
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
         if (!formData.email.trim()) {
@@ -93,7 +93,6 @@ export const FormRegisterComponent = ({ apiError, setApiError, plan, t }) => {
 
         const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
 
-        // Validate Password
         if (!formData.password) {
             tempErrors.password = t("auth.register.form.errors.password");
             isValid = false;
@@ -102,7 +101,6 @@ export const FormRegisterComponent = ({ apiError, setApiError, plan, t }) => {
             isValid = false;
         }
 
-        // Validate Confirm Password
         if (!formData.passwordConf) {
             tempErrors.passwordConf = t("auth.register.form.errors.password");
             isValid = false;
@@ -180,6 +178,7 @@ export const FormRegisterComponent = ({ apiError, setApiError, plan, t }) => {
      *
      * Computes the Tailwind classes for input fields based on their current
      * validation state.
+     * @param {string} fieldName - The name of the field to check.
      * @returns {string} The computed CSS class string.
      */
     const getInputClass = (fieldName) => {
@@ -206,18 +205,20 @@ export const FormRegisterComponent = ({ apiError, setApiError, plan, t }) => {
         const normalClass = "peer-focus:text-primary-500 peer-[:not(:placeholder-shown)]:text-primary-500";
 
         let isPass = false;
-        let errorText = "";
+        let blankErrorText = "";
 
         if (fieldName === "password" || fieldName === "passwordConf") {
             isPass = true;
-            errorText = t("auth.register.form.errors.password");
-        } else {
-            errorText = t("auth.register.form.errors.email");
+            blankErrorText = t("auth.register.form.errors.password");
+        } else if (fieldName === "email") {
+            blankErrorText = t("auth.register.form.errors.email");
+        } else if (fieldName === "username") {
+            blankErrorText = t("auth.register.form.errors.username");
         }
 
         const baseClass = isPass ? basePassClass : baseNoPassClass;
 
-        return `${baseClass} ${errors[fieldName] !== undefined && errors[fieldName] !== errorText ? errorClass : normalClass}`;
+        return `${baseClass} ${errors[fieldName] !== undefined && errors[fieldName] !== blankErrorText ? errorClass : normalClass}`;
     };
 
     return (

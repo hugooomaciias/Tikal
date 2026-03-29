@@ -1,7 +1,6 @@
 /** React & Third-Party Libraries */
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { Link } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 
 /** Components */
 import { useAuth } from "../../hooks/useAuth";
@@ -20,6 +19,7 @@ import { IconUser, IconEyeClosed, IconEye, IconInfoCircleFilled } from "@tabler/
  * @param {Object} props - The component props.
  * @param {string} props.apiError - The current API error state from the parent.
  * @param {Function} props.setApiError - Function to set or clear API errors.
+ * @param {Function} props.t - Translation function from i18next.
  * @returns {JSX.Element} The interactive login form.
  */
 export const FormLoginComponent = ({ apiError, setApiError, t }) => {
@@ -38,7 +38,7 @@ export const FormLoginComponent = ({ apiError, setApiError, t }) => {
     /**
      * Form Input State
      *
-     * Manages the controlled inputs for the contact form.
+     * Manages the controlled inputs for the login form.
      */
     const [formData, setFormData] = useState({
         username: "",
@@ -46,7 +46,7 @@ export const FormLoginComponent = ({ apiError, setApiError, t }) => {
     });
 
     /**
-     * Password Visibility States
+     * Password Visibility State
      *
      * Toggles the input type between "password" and "text" for the
      * respective fields.
@@ -71,7 +71,6 @@ export const FormLoginComponent = ({ apiError, setApiError, t }) => {
         let tempErrors = {};
         let isValid = true;
 
-        // Validate username
         if (!formData.username.trim()) {
             tempErrors.username = t("auth.login.form.errors.username");
             isValid = false;
@@ -86,7 +85,6 @@ export const FormLoginComponent = ({ apiError, setApiError, t }) => {
 
         const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
 
-        // Validate Password
         if (!formData.password) {
             tempErrors.password = t("auth.login.form.errors.password");
             isValid = false;
@@ -104,7 +102,7 @@ export const FormLoginComponent = ({ apiError, setApiError, t }) => {
      * Input Change Handler
      *
      * Updates the specific field in the state object while preserving
-     * other values.
+     * other values. Also clears visual errors.
      * @param {React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>} e - The change event.
      */
     const handleChange = (e) => {
@@ -160,6 +158,7 @@ export const FormLoginComponent = ({ apiError, setApiError, t }) => {
      *
      * Computes the Tailwind classes for input fields based on their current
      * validation state.
+     * @param {string} fieldName - The name of the field to check.
      * @returns {string} The computed CSS class string.
      */
     const getInputClass = (fieldName) => {
@@ -180,9 +179,18 @@ export const FormLoginComponent = ({ apiError, setApiError, t }) => {
      * @returns {string} The computed CSS class string for the icon container.
      */
     const getIconClass = (fieldName) => {
-        const baseClass = "input-icon cursor-pointer pointer-events-auto";
+        const baseNoPassClass = "input-icon";
+        const basePassClass = "input-icon cursor-pointer pointer-events-auto";
         const errorClass = "peer-focus:text-tertiary-200 peer-[:not(:placeholder-shown)]:text-tertiary-200";
         const normalClass = "peer-focus:text-primary-500 peer-[:not(:placeholder-shown)]:text-primary-500";
+
+        let isPass = false;
+
+        if (fieldName === "password") {
+            isPass = true;
+        }
+
+        const baseClass = isPass ? basePassClass : baseNoPassClass;
 
         return `${baseClass} ${errors[fieldName] !== undefined && errors[fieldName] !== t("auth.login.form.errors.password") ? errorClass : normalClass}`;
     };
@@ -196,7 +204,7 @@ export const FormLoginComponent = ({ apiError, setApiError, t }) => {
                     id="username"
                     name="username"
                     placeholder=" "
-                    value={formData.name}
+                    value={formData.username}
                     onChange={handleChange}
                     required
                     className={getInputClass("username")}

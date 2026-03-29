@@ -13,8 +13,13 @@ import { IconCircleXFilled, IconNote, IconCalendarWeekFilled } from "@tabler/ico
 /** Constants */
 import { PHASE_COLOURS } from "../../../constants/phase_colours.js";
 
-// 🟢 1. DATOS ACTUALIZADOS: Añadimos 'projectId' a las fases y 'phaseId' a las tareas
-// para que el filtro en cascada funcione lógicamente.
+/**
+ * Mock Data: Cascading Options
+ *
+ * Provides a mock hierarchy of projects, phases, and tasks used to populate
+ * the CascadingLinkSelect component. Includes relational IDs (projectId, phaseId)
+ * to allow proper filtering logic.
+ */
 const options = [
     { id: "p1", type: "project", name: "Proyecto E-commerce" },
     { id: "p2", type: "project", name: "App Móvil UX" },
@@ -26,6 +31,14 @@ const options = [
     { id: "t3", type: "task", name: "Diseñar Wireframes", phaseId: "f1" },
 ];
 
+/**
+ * Generate Time Options Helper
+ *
+ * Creates an array of time strings in 'HH:MM' format, spaced by 15-minute intervals,
+ * spanning a full 24-hour period. Used for time picker dropdowns.
+ *
+ * @returns {Array<string>} An array of formatted time strings.
+ */
 const generateTimeOptions = () => {
     const times = [];
     for (let h = 0; h < 24; h++) {
@@ -38,6 +51,12 @@ const generateTimeOptions = () => {
     return times;
 };
 
+/**
+ * Pre-computed Time Segment Options
+ *
+ * A static constant storing the generated 15-minute interval time options
+ * to avoid recalculation on subsequent component renders.
+ */
 const TIME_OPTIONS = generateTimeOptions();
 
 /**
@@ -84,37 +103,6 @@ export const EventPopUpComponent = ({ onClose, initialData, t }) => {
     const [isEndTimeOpen, setIsEndTimeOpen] = useState(false);
 
     /**
-     * Element References
-     *
-     * References to DOM elements for detecting outside clicks.
-     */
-    const startTimeRef = useRef(null);
-    const endTimeRef = useRef(null);
-
-    /**
-     * Outside Click Detector Engine
-     *
-     * Effect hook to handle clicks outside the respective dropdown components to close them.
-     */
-    useEffect(() => {
-        const handleClickOutside = (event) => {
-            if (startTimeRef.current && !startTimeRef.current.contains(event.target)) {
-                setIsStartTimeOpen(false);
-            }
-
-            if (endTimeRef.current && !endTimeRef.current.contains(event.target)) {
-                setIsEndTimeOpen(false);
-            }
-        };
-
-        document.addEventListener("mousedown", handleClickOutside);
-
-        return () => {
-            document.removeEventListener("mousedown", handleClickOutside);
-        };
-    }, []);
-
-    /**
      * Form Input State
      *
      * Manages the controlled inputs for the event form.
@@ -140,6 +128,48 @@ export const EventPopUpComponent = ({ onClose, initialData, t }) => {
      * Stores specific error messages for each field to be displayed in the UI.
      */
     const [errors, setErrors] = useState({});
+
+    /**
+     * Element References
+     *
+     * References to DOM elements for detecting outside clicks.
+     */
+    const startTimeRef = useRef(null);
+    const endTimeRef = useRef(null);
+
+    /**
+     * Colour Lock State
+     *
+     * Determines if the colour picker should be disabled because the event is linked to a phase or task
+     * that enforces its own colour.
+     */
+    const isColourLocked =
+        formData.type === "linked" && (formData.linkType === "phase" || formData.linkType === "task");
+
+    /**
+     * Outside Click Detector Engine
+     *
+     * Effect hook to handle clicks outside the respective dropdown components to close them.
+     */
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (startTimeRef.current && !startTimeRef.current.contains(event.target)) {
+                setIsStartTimeOpen(false);
+            }
+
+            if (endTimeRef.current && !endTimeRef.current.contains(event.target)) {
+                setIsEndTimeOpen(false);
+            }
+        };
+
+        if (isStartTimeOpen || isEndTimeOpen) {
+            document.addEventListener("mousedown", handleClickOutside);
+        }
+
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, [isStartTimeOpen, isEndTimeOpen]);
 
     /**
      * Cascading Selection Logic
@@ -244,19 +274,10 @@ export const EventPopUpComponent = ({ onClose, initialData, t }) => {
         return `${baseClass} ${errors[fieldName] ? errorClass : ""}`;
     };
 
-    /**
-     * Colour Lock State
-     *
-     * Determines if the colour picker should be disabled because the event is linked to a phase or task
-     * that enforces its own colour.
-     */
-    const isColourLocked =
-        formData.type === "linked" && (formData.linkType === "phase" || formData.linkType === "task");
-
     return (
         <div
             className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm"
-            onClick={() => onClose()}
+            onClick={onClose}
         >
             {/* Modal Container */}
             <div
@@ -268,10 +289,7 @@ export const EventPopUpComponent = ({ onClose, initialData, t }) => {
                     <span className="text-2xl font-bold text-quaternary-700">
                         {isEditing ? t("popup.title.edit") : t("popup.title.new")}
                     </span>
-                    <button
-                        className="text-primary-500/70 hover:text-primary-500 transition-colors"
-                        onClick={() => onClose()}
-                    >
+                    <button className="text-primary-500/70 hover:text-primary-500 transition-colors" onClick={onClose}>
                         <IconCircleXFilled className="h-8 w-8" />
                     </button>
                 </div>
@@ -290,6 +308,7 @@ export const EventPopUpComponent = ({ onClose, initialData, t }) => {
 
                     {formData.type === "linked" && (
                         <div className="flex flex-col gap-3">
+                            {/* Cascading Link Select */}
                             <CascadingLinkSelect
                                 options={options}
                                 currentLinkId={formData.linkId}
@@ -299,6 +318,7 @@ export const EventPopUpComponent = ({ onClose, initialData, t }) => {
                                 t={t}
                             />
 
+                            {/* Add Time Tracker Toggle */}
                             <div className="flex items-center justify-between">
                                 <span className="text-primary-500 text-sm font-bold">
                                     {t("popup.linked.start_time_tracker")}
@@ -356,15 +376,16 @@ export const EventPopUpComponent = ({ onClose, initialData, t }) => {
                     <div className="flex flex-col gap-3">
                         {!formData.allDay && (
                             <>
+                                {/* Start Date and Time */}
                                 <div className="flex items-center gap-3">
+                                    {/* Start Date */}
                                     <div className="transition-all duration-300 w-[65%]">
-                                        {/* Calendar Date Input */}
                                         <DatePickerComponent
                                             value={formData.initDate}
                                             onChange={(date) => {
                                                 setFormData((prev) => ({
                                                     ...prev,
-                                                    initDate: date ? date.toISOString() : "",
+                                                    initDate: date,
                                                 }));
                                             }}
                                             className={getInputClass("date")}
@@ -372,7 +393,7 @@ export const EventPopUpComponent = ({ onClose, initialData, t }) => {
                                         />
                                     </div>
 
-                                    {/* Time Input (Start Time) */}
+                                    {/* Start Time */}
                                     <div ref={startTimeRef} className="transition-all duration-300 w-[35%] relative">
                                         <input
                                             type="text"
@@ -394,7 +415,6 @@ export const EventPopUpComponent = ({ onClose, initialData, t }) => {
                                             {t("popup.start_time")}
                                         </label>
 
-                                        {/* El Menú Desplegable de Horas */}
                                         <div
                                             className={`absolute left-0 right-0 mt-2 origin-top bg-primary-400 rounded-2xl shadow-xl text-primary z-50 overflow-hidden transition-all duration-200 ${isStartTimeOpen ? "scale-100 opacity-100" : "scale-95 opacity-0 pointer-events-none"}`}
                                         >
@@ -419,8 +439,9 @@ export const EventPopUpComponent = ({ onClose, initialData, t }) => {
                                     </div>
                                 </div>
 
+                                {/* End Date and Time */}
                                 <div className="flex items-center gap-3">
-                                    {/* Calendar Date Input 2 */}
+                                    {/* End Date */}
                                     <div className="transition-all duration-300 w-[65%]">
                                         <DatePickerComponent
                                             value={formData.endDate}
@@ -435,7 +456,7 @@ export const EventPopUpComponent = ({ onClose, initialData, t }) => {
                                         />
                                     </div>
 
-                                    {/* Time Input (End Time) */}
+                                    {/* End Time */}
                                     <div ref={endTimeRef} className="transition-all duration-300 w-[35%] relative">
                                         <input
                                             type="text"
@@ -457,7 +478,6 @@ export const EventPopUpComponent = ({ onClose, initialData, t }) => {
                                             {t("popup.end_time")}
                                         </label>
 
-                                        {/* El Menú Desplegable de Horas */}
                                         <div
                                             className={`absolute left-0 right-0 mt-2 origin-top bg-primary-400 rounded-2xl shadow-xl text-primary z-50 overflow-hidden transition-all duration-200 ${isEndTimeOpen ? "scale-100 opacity-100" : "scale-95 opacity-0 pointer-events-none"}`}
                                         >
@@ -484,7 +504,7 @@ export const EventPopUpComponent = ({ onClose, initialData, t }) => {
                             </>
                         )}
 
-                        {/* All Day Toggle Switch */}
+                        {/* All Day Toggle */}
                         <div className="flex items-center justify-between">
                             <span className="text-primary-500 text-sm font-bold">{t("popup.all_day_event")}</span>
                             <button

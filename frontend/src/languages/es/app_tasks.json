@@ -31,7 +31,8 @@
                     "list": "Crear lista"
                 },
                 "edit": "Guardar cambios"
-            }
+            },
+            "error": "Por favor, introduce un nombre de proyecto"
         }
     },
     "stages": {
@@ -65,7 +66,8 @@
                     "sublist": "Crear sublista"
                 },
                 "edit": "Guardar cambios"
-            }
+            },
+            "error": "Por favor, introduce un nombre de fase"
         }
     },
     "tasks": {
@@ -100,7 +102,8 @@
             "button": {
                 "new": "Crear tarea",
                 "edit": "Guardar cambios"
-            }
+            },
+            "error": "Por favor, introduce un nombre de tarea"
         }
     }
 }

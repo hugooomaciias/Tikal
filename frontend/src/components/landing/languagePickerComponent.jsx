@@ -7,10 +7,40 @@ import { IconWorld } from "@tabler/icons-react";
 /** Language */
 import { useTranslation } from "react-i18next";
 
+/**
+ * Language Picker Component
+ *
+ * A floating widget that allows users to toggle the application's current
+ * locale. It includes dynamic styling to adapt to different background
+ * colors depending on the section of the landing page where it is accessed.
+ *
+ * @component
+ * @param {Object} props - The component props.
+ * @param {string} props.btnBgColour - Tailwind classes for the button background.
+ * @param {string} props.btnTextColour - Tailwind classes for the button text color.
+ * @param {string} props.langSection - Identifier for the current section (e.g., "plans", "footer").
+ * @returns {JSX.Element} The floating language selection widget.
+ */
 export const LanguagePickerComponent = ({ btnBgColour, btnTextColour, langSection }) => {
+    /**
+     * Translation Hook
+     *
+     * Provides access to the internationalization engine to configure the locale.
+     */
     const { i18n } = useTranslation();
 
+    /**
+     * Menu Visibility State
+     *
+     * Controls the open/closed state of the language selection dropdown.
+     */
     const [isLangMenuOpen, setIsLangMenuOpen] = useState(false);
+
+    /**
+     * Click Outside Reference
+     *
+     * Captures the DOM element of the widget to detect external clicks.
+     */
     const langMenuRef = useRef(null);
 
     /**
@@ -47,7 +77,6 @@ export const LanguagePickerComponent = ({ btnBgColour, btnTextColour, langSectio
         let baseClasses = "p-2 text-sm font-semibold text-center rounded-xl transition-colors duration-200 ";
 
         if (isLightBg) {
-            // 🟢 CLASES PARA FONDO CLARO (Planes y Footer)
             return (
                 baseClasses +
                 (isSelected
@@ -55,7 +84,6 @@ export const LanguagePickerComponent = ({ btnBgColour, btnTextColour, langSectio
                     : "text-primary-400 hover:bg-primary-100/50 hover:text-primary-600")
             );
         } else {
-            // 🟢 CLASES PARA FONDO OSCURO (Inicio y Contacto)
             return (
                 baseClasses +
                 (isSelected
@@ -65,13 +93,19 @@ export const LanguagePickerComponent = ({ btnBgColour, btnTextColour, langSectio
         }
     };
 
+    /**
+     * Language Change Handler
+     *
+     * Instructs the i18n engine to switch the current locale context.
+     * @param {string} lang - The new language code to apply safely context-wide.
+     */
     const changeLanguage = (lang) => {
         i18n.changeLanguage(lang);
     };
 
     return (
         <div ref={langMenuRef} className="fixed bottom-6 left-6 z-50">
-            {/* El menú desplegable (Se despliega hacia arriba) */}
+            {/* Dropdown Menu (Expands Upwards) */}
             <div
                 className={`absolute bottom-full left-0 w-full ${btnBgColour} rounded-t-2xl overflow-hidden origin-bottom
                     ${isLangMenuOpen ? "scale-100 opacity-100 translate-y-0" : "scale-95 opacity-0 translate-y-2 pointer-events-none"}`}
@@ -98,7 +132,7 @@ export const LanguagePickerComponent = ({ btnBgColour, btnTextColour, langSectio
                 </div>
             </div>
 
-            {/* El Botón Flotante (Globo) */}
+            {/* Floating Action Button */}
             <button
                 onClick={() => setIsLangMenuOpen(!isLangMenuOpen)}
                 className={`flex items-center justify-center w-fit gap-2 py-3 px-4 shadow-lg

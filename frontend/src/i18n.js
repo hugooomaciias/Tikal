@@ -8,6 +8,7 @@ import esAppCommon from "./languages/es/app_common.json";
 import esAppHome from "./languages/es/app_home.json";
 import esAppTasks from "./languages/es/app_tasks.json";
 import esAppCalendar from "./languages/es/app_calendar.json";
+import esAppStatistics from "./languages/es/app_statistics.json";
 
 import enLanding from "./languages/en/landing.json";
 import enAuth from "./languages/en/auth.json";
@@ -15,6 +16,7 @@ import enAppCommon from "./languages/en/app_common.json";
 import enAppHome from "./languages/en/app_home.json";
 import enAppTasks from "./languages/en/app_tasks.json";
 import enAppCalendar from "./languages/en/app_calendar.json";
+import enAppStatistics from "./languages/en/app_statistics.json";
 
 const resources = {
     es: {
@@ -24,6 +26,7 @@ const resources = {
         app_common: esAppCommon,
         app_tasks: esAppTasks,
         app_calendar: esAppCalendar,
+        app_statistics: esAppStatistics,
     },
     en: {
         landing: enLanding,
@@ -32,6 +35,7 @@ const resources = {
         app_common: enAppCommon,
         app_tasks: enAppTasks,
         app_calendar: enAppCalendar,
+        app_statistics: enAppStatistics,
     },
 };
 

@@ -2,18 +2,18 @@
 import { useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
 
+/** Language */
+import { useTranslation } from "react-i18next";
+
 /** Components */
 import { HeroComponent } from "../../components/landing/HeroComponent.jsx";
 import { PlansComponent } from "../../components/landing/PlansComponent.jsx";
 import { ContactComponent } from "../../components/landing/contact/ContactComponent.jsx";
 import { FooterComponent } from "../../components/landing/FooterComponent.jsx";
-import { LanguagePickerComponent } from "../../components/landing/languagePickerComponent.jsx";
+import { LanguagePickerComponent } from "../../components/landing/LanguagePickerComponent.jsx";
 
 /** Assets & Icons */
 import { IconMenu2Filled, IconX, IconWorld } from "@tabler/icons-react";
-
-/** Language */
-import { useTranslation } from "react-i18next";
 
 /**
  * Main Landing Page Component
@@ -30,6 +30,12 @@ import { useTranslation } from "react-i18next";
  * content sections.
  */
 export const LandingPage = () => {
+    /**
+     * Translation Hook
+     *
+     * Provides the 't' function to localize strings specifically for the
+     * landing namespace.
+     */
     const { t } = useTranslation("landing");
 
     /**
@@ -44,6 +50,14 @@ export const LandingPage = () => {
      * @type {[string, function]}
      */
     const [activeSection, setActiveSection] = useState("home");
+
+    /**
+     * Language Section State
+     *
+     * Tracks the current section bounding rect to conditionally style the floating
+     * language picker button.
+     * @type {[string, function]}
+     */
     const [langSection, setLangSection] = useState("home");
 
     /**
@@ -155,6 +169,26 @@ export const LandingPage = () => {
     }, [isMobileMenuOpen]);
 
     /**
+     * Helper function to define navigation link classes dynamically.
+     * Ensures visual consistency between active and inactive states.
+     *
+     * @function
+     * @param {string} sectionName - The ID of the target section.
+     * @returns {string} Tailwind CSS class string.
+     */
+    const getLinkClasses = (sectionName) => {
+        const isActive = activeSection === sectionName;
+
+        let classes = "transition-colors duration-300 font-semibold cursor-pointer ";
+
+        if (activeSection === "plans") {
+            return classes + (isActive ? "text-primary-300" : "text-primary-600");
+        }
+
+        return classes + (isActive ? "text-primary-50" : "text-primary-600");
+    };
+
+    /**
      * Configuration object for section-specific visual styles.
      * Maps each section ID to its corresponding assets and color palette.
      *
@@ -200,26 +234,6 @@ export const LandingPage = () => {
     } = section_config[activeSection];
 
     const { langBtnBg: langBtnBgColour, langBtnText: langBtnTextColour } = section_config[langSection];
-
-    /**
-     * Helper function to define navigation link classes dynamically.
-     * Ensures visual consistency between active and inactive states.
-     *
-     * @function
-     * @param {string} sectionName - The ID of the target section.
-     * @returns {string} Tailwind CSS class string.
-     */
-    const getLinkClasses = (sectionName) => {
-        const isActive = activeSection === sectionName;
-
-        let classes = "transition-colors duration-300 font-semibold cursor-pointer ";
-
-        if (activeSection === "plans") {
-            return classes + (isActive ? "text-primary-300" : "text-primary-600");
-        }
-
-        return classes + (isActive ? "text-primary-50" : "text-primary-600");
-    };
 
     return (
         <div className="w-full relative">

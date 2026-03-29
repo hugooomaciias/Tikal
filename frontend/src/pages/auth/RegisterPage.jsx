@@ -1,15 +1,15 @@
 /** React & Third-Party Libraries */
-import { Link, useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
+import { Link, useLocation } from "react-router-dom";
+
+/** Language */
+import { useTranslation } from "react-i18next";
 
 /** Components */
 import { FormRegisterComponent } from "../../components/auth/FormRegisterComponent.jsx";
 
 /** Assets & Icons */
 import { IconCircleXFilled } from "@tabler/icons-react";
-
-/** Language */
-import { useTranslation } from "react-i18next";
 
 /**
  * Registration Page Layout
@@ -24,9 +24,29 @@ import { useTranslation } from "react-i18next";
  * @returns {JSX.Element} The rendered registration page layout.
  */
 export const RegisterPage = () => {
+    /**
+     * Translation Hook
+     *
+     * Provides the 't' function to localize strings specifically for the
+     * auth namespace.
+     */
     const { t } = useTranslation("auth");
 
+    /**
+     * Router Location Hook
+     *
+     * Accesses the current router state to extract forwarded parameters,
+     * such as the selected subscription plan from the landing page.
+     */
     const location = useLocation();
+
+    /**
+     * Selected Plan State Evaluation
+     *
+     * Derives the plan explicitly requested by the user, defaulting to
+     * "GRATUITO" if none was provided.
+     * @type {string}
+     */
     const plan = location.state?.plan || "GRATUITO";
 
     /**
@@ -47,22 +67,6 @@ export const RegisterPage = () => {
     const [isVisible, setIsVisible] = useState(false);
 
     /**
-     * Closes the Error Popup
-     *
-     * Triggers the exit animation by setting `isVisible` to false, and then
-     * clears the `apiError` message after the animation duration (300ms).
-     *
-     * @function
-     */
-    const closePopup = () => {
-        setIsVisible(false);
-
-        setTimeout(() => {
-            setApiError("");
-        }, 300);
-    };
-
-    /**
      * Popup Auto-Hide Effect
      *
      * Monitors the `apiError` state. When an error is present, it displays
@@ -80,6 +84,22 @@ export const RegisterPage = () => {
             return () => clearTimeout(timer);
         }
     }, [apiError]);
+
+    /**
+     * Closes the Error Popup
+     *
+     * Triggers the exit animation by setting `isVisible` to false, and then
+     * clears the `apiError` message after the animation duration (300ms).
+     *
+     * @function
+     */
+    const closePopup = () => {
+        setIsVisible(false);
+
+        setTimeout(() => {
+            setApiError("");
+        }, 300);
+    };
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-primary p-0 md:p-4">

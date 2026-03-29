@@ -29,6 +29,12 @@ import i18n from "../../i18n.js";
  * @returns {JSX.Element} The rendered calendar page.
  */
 export const CalendarPage = () => {
+    /**
+     * Translation Hook
+     *
+     * Provides the 't' function to localize strings specifically for the
+     * calendar namespace.
+     */
     const { t } = useTranslation("app_calendar");
 
     /**
@@ -181,6 +187,24 @@ export const CalendarPage = () => {
     });
 
     /**
+     * Highlight Date Derivation
+     *
+     * In 'timeGridWeek' mode, computes a collection of 7 dates representing the visually selected
+     * week. This highlights the equivalent week chunk in the DatePicker.
+     */
+    const highlightDates = [];
+    if (currentView === "timeGridWeek") {
+        const startOfWeek = new Date(selectedDate);
+        startOfWeek.setDate(selectedDate.getDate() - selectedDate.getDay() + (selectedDate.getDay() === 0 ? -6 : 1));
+
+        for (let i = 0; i < 7; i++) {
+            const day = new Date(startOfWeek);
+            day.setDate(startOfWeek.getDate() + i);
+            highlightDates.push(day);
+        }
+    }
+
+    /**
      * View Synchronization Effect
      *
      * Ensures that when the user toggles calendar views,
@@ -192,6 +216,14 @@ export const CalendarPage = () => {
         }
     }, [currentView]);
 
+    /**
+     * Grid Date Click Handler
+     *
+     * Triggered when a blank space (specific date/time) is clicked on the Main Calendar.
+     * Selects the target date and prepares to create a new event wrapper entity.
+     *
+     * @param {Object} arg - Event argument containing the selected date.
+     */
     const handleDateClick = (arg) => {
         const clickedDate = arg.date;
 
@@ -200,6 +232,14 @@ export const CalendarPage = () => {
         setEventToEdit("new");
     };
 
+    /**
+     * Event Interaction Handler
+     *
+     * Handles clicks directly onto rendered event objects to allow for editing sequences.
+     * Extracts exact times and styling logic for the pop-up modal.
+     *
+     * @param {Object} clickInfo - Meta-payload regarding the specific DOM click element event.
+     */
     const handleEventClick = (clickInfo) => {
         const { event } = clickInfo;
 
@@ -271,6 +311,28 @@ export const CalendarPage = () => {
     };
 
     /**
+     * Month Change Navigation Handler
+     *
+     * Invoked specifically when sliding the central caret arrows inside the mini DatePicker header.
+     * @param {Date} newDate - Internal date token dictating the target rendered block view boundary.
+     */
+    const handleMonthChange = (newDate) => {
+        const today = new Date();
+        let dateToSelect;
+
+        if (newDate.getMonth() === today.getMonth() && newDate.getFullYear() === today.getFullYear()) {
+            dateToSelect = today;
+        } else {
+            dateToSelect = new Date(newDate.getFullYear(), newDate.getMonth(), 1);
+        }
+
+        setSelectedDate(dateToSelect);
+        if (calendarRef.current) {
+            calendarRef.current.getApi().gotoDate(dateToSelect);
+        }
+    };
+
+    /**
      * Group Upcoming Events Helper
      *
      * Filters event data to include only future/same-day events, then reduces them
@@ -312,24 +374,6 @@ export const CalendarPage = () => {
     };
 
     /**
-     * Highlight Date Derivation
-     *
-     * In 'timeGridWeek' mode, computes a collection of 7 dates representing the visually selected
-     * week. This highlights the equivalent week chunk in the DatePicker.
-     */
-    const highlightDates = [];
-    if (currentView === "timeGridWeek") {
-        const startOfWeek = new Date(selectedDate);
-        startOfWeek.setDate(selectedDate.getDate() - selectedDate.getDay() + (selectedDate.getDay() === 0 ? -6 : 1));
-
-        for (let i = 0; i < 7; i++) {
-            const day = new Date(startOfWeek);
-            day.setDate(startOfWeek.getDate() + i);
-            highlightDates.push(day);
-        }
-    }
-
-    /**
      * Extract Event Color Mapping
      *
      * Pre-calculates an index dictionary mapping specific chronological dates directly
@@ -345,31 +389,6 @@ export const CalendarPage = () => {
         });
         return colorMap;
     };
-
-    /**
-     * Month Change Navigation Handler
-     *
-     * Invoked specifically when sliding the central caret arrows inside the mini DatePicker header.
-     * @param {Date} newDate - Internal date token dictating the target rendered block view boundary.
-     */
-    const handleMonthChange = (newDate) => {
-        const today = new Date();
-        let dateToSelect;
-
-        if (newDate.getMonth() === today.getMonth() && newDate.getFullYear() === today.getFullYear()) {
-            dateToSelect = today;
-        } else {
-            dateToSelect = new Date(newDate.getFullYear(), newDate.getMonth(), 1);
-        }
-
-        setSelectedDate(dateToSelect);
-        if (calendarRef.current) {
-            calendarRef.current.getApi().gotoDate(dateToSelect);
-        }
-    };
-
-    const groupedEvents = getUpcomingEventsGrouped();
-    const eventsColorMap = getEventsColorsByDate();
 
     /**
      * Custom DatePicker Day Content Renderer
@@ -418,6 +437,9 @@ export const CalendarPage = () => {
         );
     };
 
+    const groupedEvents = getUpcomingEventsGrouped();
+    const eventsColorMap = getEventsColorsByDate();
+
     return (
         <div className="flex flex-col md:flex-row h-[100dvh] bg-gradient-to-t from-primary-30 to-primary-300 md:bg-gradient-to-r md:from-primary-50 md:to-primary-300 p-2 md:p-4 gap-4 md:gap-8 overflow-hidden">
             {/* Global Primary Navigation Menu Layer */}
@@ -426,7 +448,12 @@ export const CalendarPage = () => {
             {/* Viewport Action Context Section */}
             <section className="flex-1 flex flex-col gap-6 w-full h-full overflow-hidden">
                 {/* Universal Interactive Core Headers */}
-                <HeaderComponent page={t("calendar_title")} get={eventToEdit} set={() => setEventToEdit("new")} t={t} />
+                <HeaderComponent
+                    page={t("calendar_title")}
+                    get1={eventToEdit}
+                    set1={() => setEventToEdit("new")}
+                    t={t}
+                />
 
                 {/* Central Data Wrapper Container */}
                 <div className="flex-1 flex gap-2 overflow-hidden">

@@ -1,0 +1,9 @@
+{
+    "statistics_title": "Statistics",
+    "header": {
+        "first_stat": "Current project",
+        "second_stat": "Global efficiency",
+        "third_stat": "Global progress",
+        "fourth_stat": "Streak"
+    }
+}

@@ -9,7 +9,6 @@ import {
     IconTrash,
     IconInfoCircleFilled,
     IconStopwatch,
-    IconCoin,
 } from "@tabler/icons-react";
 
 /** Components */
@@ -18,16 +17,18 @@ import { TabsComponent } from "../common/popups/TabsComponent.jsx";
 import { DatePickerComponent } from "../common/popups/DatepickerComponent.jsx";
 
 /**
- * New Stage/Sublist PopUp Component
+ * New Task/Subtask PopUp Component
  *
  * This component renders a modal overlay that allows users to create a new
- * stage or sublist, or edit an existing one. It includes form fields for the
- * name, description (note), an colour picker, and a toggle between 'stage' and 'sublist'.
+ * task or subtask array, or edit an existing one. It includes form fields for the
+ * name, description (note), time tracking, profit tracking, and a toggle between
+ * 'details' and 'subtasks'.
  *
  * @component
  * @param {Object} props - The component props.
  * @param {Function} props.onClose - Function to close the modal.
- * @param {Object|null} props.initialData - Initial data for editing an existing stage/sublist.
+ * @param {Object|null} props.initialData - Initial data for editing an existing task.
+ * @param {Function} props.t - Translation function from i18next.
  * @returns {JSX.Element} The rendered modal component.
  */
 export const TaskPopUpComponent = ({ onClose, initialData, t }) => {
@@ -42,7 +43,7 @@ export const TaskPopUpComponent = ({ onClose, initialData, t }) => {
     /**
      * Form Input State
      *
-     * Manages the controlled inputs for the contact form.
+     * Manages the controlled inputs for the task form including dynamic subtasks.
      */
     const [formData, setFormData] = useState({
         view: "details",
@@ -60,30 +61,57 @@ export const TaskPopUpComponent = ({ onClose, initialData, t }) => {
      */
     const [errors, setErrors] = useState({});
 
+    /**
+     * Time Unit State
+     *
+     * Stores the selected metric for tracking time (hours, minutes, days).
+     */
     const [timeUnit, setTimeUnit] = useState(() => {
         return isEditing && initialData.time ? initialData.time.replace(/[\d.\s]/g, "") : "";
     });
 
+    /**
+     * Profit Unit/Currency State
+     *
+     * Stores the selected metric for calculating profit (defaults to Euros).
+     */
     const [profitUnit, setProfitUnit] = useState(() => {
         return isEditing && initialData.profit ? initialData.profit.replace(/[\d.\s,]/g, "") || "€" : "€";
     });
 
+    /**
+     * Deadline Toggle State
+     *
+     * Manages whether the user wants to insert the deadline date to the calendar.
+     */
     const [insertDeadline, setInsertDeadline] = useState(() => {
         return Boolean(isEditing && initialData.date);
     });
 
+    /**
+     * Input Focus State
+     *
+     * Tracks the currently focused input field to render dynamic placeholders.
+     */
     const [focusedInput, setFocusedInput] = useState(null);
 
+    /**
+     * Dropdown Selection Handler
+     *
+     * Updates the unit of measurement for time (hours, minutes, days) or profit
+     * and automatically formats the corresponding input values to match the new unit.
+     *
+     * @param {string} field - The key of the field being updated ('time' or 'profit').
+     * @param {string} newUnit - The newly selected unit value.
+     */
     const handleSelectChange = (field, newUnit) => {
         if (field === "time") {
             setTimeUnit(newUnit);
 
-            // Re-formateamos el valor actual si cambian la unidad
             setFormData((prev) => {
-                const currentDigits = prev.time.replace(/\D/g, ""); // Sacamos los números puros
+                const currentDigits = prev.time.replace(/\D/g, "");
                 let newValue = currentDigits;
 
-                // Si pasamos a horas y hay números suficientes, le volvemos a inyectar los ':'
                 if (currentDigits && newUnit === "h" && currentDigits.length > 2) {
                     newValue = currentDigits.slice(0, -2) + ":" + currentDigits.slice(-2);
                 }
@@ -96,6 +124,14 @@ export const TaskPopUpComponent = ({ onClose, initialData, t }) => {
         }
     };
 
+    /**
+     * Time Input Formatter
+     *
+     * Intercepts time input changes to dynamically format the string based on
+     * the selected unit (e.g. injecting ':' for hours).
+     *
+     * @param {React.ChangeEvent<HTMLInputElement>} e - The change event.
+     */
     const handleTimeChange = (e) => {
         let rawValue = e.target.value;
         let cleanValue = "";
@@ -120,44 +156,70 @@ export const TaskPopUpComponent = ({ onClose, initialData, t }) => {
         if (errors.time) setErrors((prev) => ({ ...prev, time: "" }));
     };
 
+    /**
+     * Profit Input Formatter
+     *
+     * Intercepts profit input changes to restrict characters to numbers and commas,
+     * and automatically injects decimal grouping periods (thousands separators).
+     *
+     * @param {React.ChangeEvent<HTMLInputElement>} e - The change event.
+     */
     const handleProfitChange = (e) => {
         let rawValue = e.target.value;
-
-        // 1. Limpiamos: permitimos solo números y comas
         let cleanValue = rawValue.replace(/[^\d,]/g, "");
 
-        // 2. Separamos la parte entera de los decimales por la coma
         const parts = cleanValue.split(",");
         let integerPart = parts[0];
-
-        // Si hay decimales, los guardamos (si intentan poner 2 comas, las ignoramos)
         let decimalPart = parts.length > 1 ? parts.slice(1).join("") : null;
 
-        // 3. Magia: Ponemos un punto cada 3 números en la parte entera (Miles)
         if (integerPart) {
             integerPart = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
         }
 
-        // 4. Volvemos a juntar todo
         let finalValue = integerPart;
+
         if (decimalPart !== null) {
-            finalValue += "," + decimalPart; // Puedes usar decimalPart.slice(0, 2) si quieres forzar máximo 2 decimales
+            finalValue += "," + decimalPart;
         }
 
         setFormData((prev) => ({ ...prev, profit: finalValue }));
         if (errors.profit) setErrors((prev) => ({ ...prev, profit: "" }));
     };
 
+    /**
+     * Subtask Content Handler
+     *
+     * Updates the value of a specific subtask entry within the dynamic array.
+     *
+     * @param {string} field - The target array field name.
+     * @param {number} index - The index of the subtask being modified.
+     * @param {string} value - The new string content.
+     */
     const handleArrayChange = (field, index, value) => {
         const newArray = [...formData[field]];
         newArray[index] = value;
         setFormData((prev) => ({ ...prev, [field]: newArray }));
     };
 
+    /**
+     * Subtask Addition Handler
+     *
+     * Appends a new, empty subtask entry to the end of the array.
+     *
+     * @param {string} field - The target array field name.
+     */
     const addArrayField = (field) => {
         setFormData((prev) => ({ ...prev, [field]: [...prev[field], ""] }));
     };
 
+    /**
+     * Subtask Removal Handler
+     *
+     * Deletes a specific subtask from the array by its index.
+     *
+     * @param {string} field - The target array field name.
+     * @param {number} index - The index of the subtask to remove.
+     */
     const removeArrayField = (field, index) => {
         const newArray = formData[field].filter((_, i) => i !== index);
         setFormData((prev) => ({ ...prev, [field]: newArray }));
@@ -166,17 +228,17 @@ export const TaskPopUpComponent = ({ onClose, initialData, t }) => {
     /**
      * Form Validation Logic
      *
-     * Performs client-side checks for required fields and validates the email
-     * format using a strict Regex pattern.
+     * Performs client-side checks to ensure all required fields,
+     * such as the task name, are properly filled out.
+     *
      * @returns {boolean} True if the form is valid, false otherwise.
      */
     const validateForm = () => {
         let tempErrors = {};
         let isValid = true;
 
-        // Validate Name
-        if (!formData.stage.trim()) {
-            tempErrors.stage = "Por favor, introduce un nombre de fase";
+        if (!formData.task.trim()) {
+            tempErrors.task = t("tasks.popup.error");
             isValid = false;
         }
 
@@ -191,6 +253,7 @@ export const TaskPopUpComponent = ({ onClose, initialData, t }) => {
      * Updates the specific field in the state object while preserving
      * other values. Also, if a field has an error, typing in it
      * immediately clears the visual error state to improve UX.
+     *
      * @param {React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>} e - The change event.
      */
     const handleChange = (e) => {
@@ -212,15 +275,16 @@ export const TaskPopUpComponent = ({ onClose, initialData, t }) => {
     /**
      * Form Submission Handler
      *
-     * Orchestrates the submission process: validates data, triggers the loading
-     * state, sends the data via EmailJS, and handles the response.
+     * Orchestrates the submission process: validates the user's input,
+     * processes the task/subtask creation logic, and safely closes the modal.
+     *
      * @param {React.FormEvent} e - The form submission event.
      */
     const handleSubmit = (e) => {
         e.preventDefault();
 
         if (validateForm()) {
-            setFormData({ stage: "", note: "" });
+            setFormData({ task: "", note: "" });
             onClose();
         }
     };
@@ -230,6 +294,7 @@ export const TaskPopUpComponent = ({ onClose, initialData, t }) => {
      *
      * Computes the Tailwind classes for input fields based on their current
      * validation state.
+     *
      * @param {string} fieldName - The name of the field to check.
      * @returns {string} The computed CSS class string.
      */
@@ -271,7 +336,7 @@ export const TaskPopUpComponent = ({ onClose, initialData, t }) => {
                 {/* Main Form */}
                 <form onSubmit={handleSubmit} className="flex flex-col gap-6" noValidate>
                     <div className="flex items-center gap-3">
-                        {/* Single Row: Name of Stage/Sublist */}
+                        {/* Single Row: Name of Task */}
                         <div className="relative w-full">
                             <input
                                 type="text"
@@ -307,7 +372,7 @@ export const TaskPopUpComponent = ({ onClose, initialData, t }) => {
                         />
                     </div>
 
-                    {/* Type Selection Toggle (Project / List) */}
+                    {/* Type Selection Toggle (Details / Subtasks) */}
                     <TabsComponent
                         page={"Tasks"}
                         formData={formData}
@@ -371,7 +436,7 @@ export const TaskPopUpComponent = ({ onClose, initialData, t }) => {
                                     </label>
                                 </div>
 
-                                {/* Icono de información (intacto) */}
+                                {/* Profit Info Icon */}
                                 <div className="relative group flex items-center justify-center cursor-pointer">
                                     <IconInfoCircleFilled className="group w-5 h-5 text-primary-500/70 hover:text-primary-500 transition-colors duration-200" />
 
@@ -383,19 +448,19 @@ export const TaskPopUpComponent = ({ onClose, initialData, t }) => {
                             </div>
 
                             <div className="flex flex-col gap-3">
-                                {/* El Input del Calendario */}
+                                {/* Calendar Date Input */}
                                 <div className="transition-all duration-300">
                                     <DatePickerComponent
                                         value={formData.date}
                                         onChange={(date) => {
-                                            setFormData((prev) => ({ ...prev, date: date ? date.toISOString() : "" }));
+                                            setFormData((prev) => ({ ...prev, date: date }));
                                         }}
                                         className={getInputClass("date")}
                                         label={t("stages.popup.deadline")}
                                     />
                                 </div>
 
-                                {/* Toggle Switch personalizado */}
+                                {/* Custom Deadline Toggle Switch */}
                                 <div className="flex items-center justify-between px-2">
                                     <span className="text-primary-500 text-sm font-bold">
                                         {t("stages.popup.add_deadline")}

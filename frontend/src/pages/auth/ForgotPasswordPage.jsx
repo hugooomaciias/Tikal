@@ -1,16 +1,16 @@
 /** React & Third-Party Libraries */
-import { Link } from "react-router-dom";
 import { useState, useEffect } from "react";
-
-/** Components */
-import { FormForgotPasswordComponent } from "../../components/auth/FormForgotPasswordComponent.jsx";
-import { LanguagePickerComponent } from "../../components/landing/languagePickerComponent.jsx";
-
-/** Assets & Icons */
-import { IconCircleXFilled } from "@tabler/icons-react";
+import { Link } from "react-router-dom";
 
 /** Language */
 import { useTranslation } from "react-i18next";
+
+/** Components */
+import { FormForgotPasswordComponent } from "../../components/auth/FormForgotPasswordComponent.jsx";
+import { LanguagePickerComponent } from "../../components/landing/LanguagePickerComponent.jsx";
+
+/** Assets & Icons */
+import { IconCircleXFilled } from "@tabler/icons-react";
 
 /**
  * Forgot Password Page Layout
@@ -24,6 +24,12 @@ import { useTranslation } from "react-i18next";
  * @returns {JSX.Element} The rendered forgot password page layout.
  */
 export const ForgotPasswordPage = () => {
+    /**
+     * Translation Hook
+     *
+     * Provides the 't' function to localize strings specifically for the
+     * auth namespace.
+     */
     const { t } = useTranslation("auth");
 
     /**
@@ -44,22 +50,6 @@ export const ForgotPasswordPage = () => {
     const [isVisible, setIsVisible] = useState(false);
 
     /**
-     * Closes the Error Popup
-     *
-     * Triggers the exit animation by setting `isVisible` to false, and then
-     * clears the `apiError` message after the animation duration (300ms).
-     *
-     * @function
-     */
-    const closePopup = () => {
-        setIsVisible(false);
-
-        setTimeout(() => {
-            setApiError("");
-        }, 300);
-    };
-
-    /**
      * Popup Auto-Hide Effect
      *
      * Monitors the `apiError` state. When an error is present, it displays
@@ -77,6 +67,22 @@ export const ForgotPasswordPage = () => {
             return () => clearTimeout(timer);
         }
     }, [apiError]);
+
+    /**
+     * Closes the Error Popup
+     *
+     * Triggers the exit animation by setting `isVisible` to false, and then
+     * clears the `apiError` message after the animation duration (300ms).
+     *
+     * @function
+     */
+    const closePopup = () => {
+        setIsVisible(false);
+
+        setTimeout(() => {
+            setApiError("");
+        }, 300);
+    };
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-primary p-0 md:p-4">

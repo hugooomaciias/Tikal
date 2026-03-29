@@ -12,18 +12,30 @@ import { TasksCardComponent } from "../../components/app/tasks/TasksCardComponen
 import { useTranslation } from "react-i18next";
 
 /**
- * Main Application Dashboard Component
+ * Tasks Layout Page Component
  *
- * This component acts as the primary layout wrapper for the authenticated area.
- * It manages the responsive grid layout where widgets are dynamically rendered,
- * moved, and removed.
+ * This component acts as the primary layout wrapper for the task management interface.
+ * It coordinates the three-column layout consisting of Projects, Stages, and Tasks
+ * cards, enabling users to organize their workspace hierarchically.
  *
  * @component
- * @returns {JSX.Element} The rendered dashboard layout.
+ * @returns {JSX.Element} The rendered tasks management layout.
  */
 export const TasksPage = () => {
+    /**
+     * Translation Hook
+     *
+     * Provides the 't' function to localize strings specifically for the
+     * tasks namespace.
+     */
     const { t } = useTranslation("app_tasks");
 
+    /**
+     * Completed Filter State
+     *
+     * Toggles whether the interface displays completed tasks or hides them
+     * to focus on active work.
+     */
     const [isCompleted, setIsCompleted] = useState(false);
 
     return (
@@ -34,7 +46,7 @@ export const TasksPage = () => {
             {/* Main Content Area */}
             <section className="flex-1 flex flex-col gap-6 w-full h-full overflow-hidden">
                 {/* Header */}
-                <HeaderComponent page={t("tasks_title")} get={isCompleted} set={setIsCompleted} t={t} />
+                <HeaderComponent page={t("tasks_title")} get1={isCompleted} set1={setIsCompleted} t={t} />
 
                 {/* Dashboard Area */}
                 <div className="flex-1 flex gap-4">

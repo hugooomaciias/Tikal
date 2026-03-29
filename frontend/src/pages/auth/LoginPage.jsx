@@ -1,7 +1,10 @@
 /** React & Third-Party Libraries */
-import { Link, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { GoogleLogin } from "@react-oauth/google";
+
+/** Language */
+import { useTranslation } from "react-i18next";
 
 /** Components */
 import { useAuth } from "../../hooks/useAuth";
@@ -9,9 +12,6 @@ import { FormLoginComponent } from "../../components/auth/FormLoginComponent.jsx
 
 /** Assets & Icons */
 import { IconBrandGoogleFilled, IconCircleXFilled } from "@tabler/icons-react";
-
-/** Language */
-import { useTranslation } from "react-i18next";
 
 /**
  * Login Page Layout
@@ -26,6 +26,12 @@ import { useTranslation } from "react-i18next";
  * @returns {JSX.Element} The rendered login page layout.
  */
 export const LoginPage = () => {
+    /**
+     * Translation Hook
+     *
+     * Provides the 't' function to localize strings specifically for the
+     * auth namespace.
+     */
     const { t } = useTranslation("auth");
 
     /**
@@ -58,22 +64,6 @@ export const LoginPage = () => {
     const [isVisible, setIsVisible] = useState(false);
 
     /**
-     * Closes the Error Popup
-     *
-     * Triggers the exit animation by setting `isVisible` to false, and then
-     * clears the `apiError` message after the animation duration (300ms).
-     *
-     * @function
-     */
-    const closePopup = () => {
-        setIsVisible(false);
-
-        setTimeout(() => {
-            setApiError("");
-        }, 300);
-    };
-
-    /**
      * Popup Auto-Hide Effect
      *
      * Monitors the `apiError` state. When an error is present, it displays
@@ -91,6 +81,22 @@ export const LoginPage = () => {
             return () => clearTimeout(timer);
         }
     }, [apiError]);
+
+    /**
+     * Closes the Error Popup
+     *
+     * Triggers the exit animation by setting `isVisible` to false, and then
+     * clears the `apiError` message after the animation duration (300ms).
+     *
+     * @function
+     */
+    const closePopup = () => {
+        setIsVisible(false);
+
+        setTimeout(() => {
+            setApiError("");
+        }, 300);
+    };
 
     /**
      * Google Login Handler

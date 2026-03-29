@@ -15,6 +15,12 @@ import { useTranslation, Trans } from "react-i18next";
  * @returns {JSX.Element} The visual layout of the contact section.
  */
 export const ContactComponent = () => {
+    /**
+     * Translation Hook
+     *
+     * Provides the 't' function to localize strings specifically for the
+     * landing page namespace.
+     */
     const { t } = useTranslation("landing");
 
     return (

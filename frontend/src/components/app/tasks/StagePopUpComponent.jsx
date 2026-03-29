@@ -23,6 +23,7 @@ import { PHASE_COLOURS } from "../../../constants/phase_colours.js";
  * @param {Object} props - The component props.
  * @param {Function} props.onClose - Function to close the modal.
  * @param {Object|null} props.initialData - Initial data for editing an existing stage/sublist.
+ * @param {Function} props.t - Translation function from i18next.
  * @returns {JSX.Element} The rendered modal component.
  */
 export const StagePopUpComponent = ({ onClose, initialData, t }) => {
@@ -35,10 +36,10 @@ export const StagePopUpComponent = ({ onClose, initialData, t }) => {
     const isEditing = Boolean(initialData);
 
     /**
-     * Selected Icon State
+     * Selected Colour State
      *
-     * Stores the currently selected icon for the project or list.
-     * Initializes with the project's icon if editing, or a default icon.
+     * Stores the currently selected colour for the stage or sublist.
+     * Initializes with the stage's colour if editing, or a default colour.
      */
     const [selectedColour, setSelectedColour] = useState(() => {
         if (isEditing) {
@@ -47,6 +48,11 @@ export const StagePopUpComponent = ({ onClose, initialData, t }) => {
         return PHASE_COLOURS[0];
     });
 
+    /**
+     * Deadline Toggle State
+     *
+     * Manages whether the user wants to insert the deadline date to the calendar.
+     */
     const [insertDeadline, setInsertDeadline] = useState(() => {
         return Boolean(isEditing && initialData.date);
     });
@@ -54,7 +60,7 @@ export const StagePopUpComponent = ({ onClose, initialData, t }) => {
     /**
      * Form Input State
      *
-     * Manages the controlled inputs for the contact form.
+     * Manages the controlled inputs for the stage/sublist form.
      */
     const [formData, setFormData] = useState({
         type: "stage",
@@ -73,8 +79,9 @@ export const StagePopUpComponent = ({ onClose, initialData, t }) => {
     /**
      * Form Validation Logic
      *
-     * Performs client-side checks for required fields and validates the email
-     * format using a strict Regex pattern.
+     * Performs client-side checks to ensure all required fields,
+     * such as the stage or sublist name, are properly filled out.
+     *
      * @returns {boolean} True if the form is valid, false otherwise.
      */
     const validateForm = () => {
@@ -83,7 +90,7 @@ export const StagePopUpComponent = ({ onClose, initialData, t }) => {
 
         // Validate Name
         if (!formData.stage.trim()) {
-            tempErrors.stage = "Por favor, introduce un nombre de fase";
+            tempErrors.stage = t("stages.popup.error");
             isValid = false;
         }
 
@@ -98,6 +105,7 @@ export const StagePopUpComponent = ({ onClose, initialData, t }) => {
      * Updates the specific field in the state object while preserving
      * other values. Also, if a field has an error, typing in it
      * immediately clears the visual error state to improve UX.
+     *
      * @param {React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>} e - The change event.
      */
     const handleChange = (e) => {
@@ -119,8 +127,9 @@ export const StagePopUpComponent = ({ onClose, initialData, t }) => {
     /**
      * Form Submission Handler
      *
-     * Orchestrates the submission process: validates data, triggers the loading
-     * state, sends the data via EmailJS, and handles the response.
+     * Orchestrates the submission process: validates the user's input,
+     * processes the stage/sublist creation logic, and safely closes the modal.
+     *
      * @param {React.FormEvent} e - The form submission event.
      */
     const handleSubmit = (e) => {
@@ -137,6 +146,7 @@ export const StagePopUpComponent = ({ onClose, initialData, t }) => {
      *
      * Computes the Tailwind classes for input fields based on their current
      * validation state.
+     *
      * @param {string} fieldName - The name of the field to check.
      * @returns {string} The computed CSS class string.
      */
@@ -231,19 +241,19 @@ export const StagePopUpComponent = ({ onClose, initialData, t }) => {
                     </div>
 
                     <div className="flex flex-col gap-3">
-                        {/* El Input del Calendario */}
+                        {/* Calendar Date Input */}
                         <div className="transition-all duration-300">
                             <DatePickerComponent
                                 value={formData.date}
                                 onChange={(date) => {
-                                    setFormData((prev) => ({ ...prev, date: date ? date.toISOString() : "" }));
+                                    setFormData((prev) => ({ ...prev, date: date }));
                                 }}
                                 className={getInputClass("date")}
                                 label={t("stages.popup.deadline")}
                             />
                         </div>
 
-                        {/* Toggle Switch personalizado */}
+                        {/* Custom Deadline Toggle Switch */}
                         <div className="flex items-center justify-between px-2">
                             <span className="text-primary-500 text-sm font-bold">{t("stages.popup.add_deadline")}</span>
 
