@@ -18,7 +18,7 @@ import {
     IconPencilFilled,
 } from "@tabler/icons-react";
 
-export const TasksCardComponent = () => {
+export const TasksCardComponent = ({ t }) => {
     /**
      * Active Tab State
      *
@@ -85,7 +85,7 @@ export const TasksCardComponent = () => {
         <div className="h-full flex-1 flex flex-col items-end justify-between p-6 bg-primary rounded-[2.5rem]">
             <div className="h-full w-full flex flex-col items-center gap-4">
                 <div className="h-10 w-full flex items-center justify-between text-quaternary-700">
-                    {!isTaskSearchOpen && <span className="text-2xl font-bold">Tareas</span>}
+                    {!isTaskSearchOpen && <span className="text-2xl font-bold">{t("tasks.title")}</span>}
 
                     <div
                         className={`flex items-center justify-end transition-all duration-500 ease-in-out rounded-full ${isTaskSearchOpen ? "w-full bg-primary-50 px-3 py-1.5 shadow-inner" : "w-fit bg-transparent p-0"}`}
@@ -93,7 +93,7 @@ export const TasksCardComponent = () => {
                         {/* El input oculto que se expande */}
                         <input
                             type="text"
-                            placeholder="Buscar tarea..."
+                            placeholder={t("tasks.search")}
                             value={taskSearchQuery}
                             onChange={(e) => setTaskSearchQuery(e.target.value)}
                             autoFocus={isTaskSearchOpen}
@@ -247,6 +247,7 @@ export const TasksCardComponent = () => {
                 <TaskPopUpComponent
                     onClose={() => setTaskToEdit(null)}
                     initialData={taskToEdit === "new" ? null : taskToEdit}
+                    t={t}
                 />
             )}
         </div>

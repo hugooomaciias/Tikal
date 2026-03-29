@@ -1,0 +1,38 @@
+{
+    "calendar_title": "Calendar",
+    "next_events": "Next events",
+    "today": "Today",
+    "tomorrow": "Tomorrow",
+    "popup": {
+        "title": {
+            "new": "New event",
+            "edit": "Edit event"
+        },
+        "tabs": {
+            "linked": "Linked",
+            "unlinked": "Unlinked"
+        },
+        "linked": {
+            "name": "Select link",
+            "projects": "Projects",
+            "stages": "Stages",
+            "tasks": "Tasks",
+            "button_message": {
+                "confirm": "Confirm",
+                "cancel": "Close"
+            },
+            "start_time_tracker": "Start time tracker automatically"
+        },
+        "name": "Event title",
+        "start_date": "Start date",
+        "end_date": "End date",
+        "start_time": "Start time",
+        "end_time": "End time",
+        "all_day_event": "All day event",
+        "description": "Write a description",
+        "button": {
+            "new": "Create event",
+            "edit": "Save changes"
+        }
+    }
+}

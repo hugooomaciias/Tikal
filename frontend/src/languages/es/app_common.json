@@ -1,0 +1,11 @@
+{
+    "navbar": {
+        "home": "Inicio",
+        "tasks": "Tareas",
+        "calendar": "Calendario",
+        "statistics": "Estadísticas",
+        "temple_mode": "Modo templo",
+        "groups": "Grupos",
+        "logout": "Cerrar sesión"
+    }
+}

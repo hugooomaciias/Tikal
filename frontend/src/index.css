@@ -1,218 +1,24 @@
-/* ============================================
-   IMPORTACIÓN DE FUENTES
-   ============================================ */
-@import url("https://fonts.googleapis.com/css2?family=Onest:wght@100;200;300;400;500;600;700;800;900&display=swap");
+/**
+ * Main Application Stylesheet
+ *
+ * Imports external fonts, modularized custom layers, and core Tailwind CSS
+ * directives needed for the application.
+ */
 
+@import url("https://fonts.googleapis.com/css2?family=Onest:wght@100;200;300;400;500;600;700;800;900&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Passero+One&display=swap");
 
-/* ============================================
-   DIRECTIVAS PRINCIPALES DE TAILWIND CSS
-   ============================================ */
+@import "./styles/base.css";
+@import "./styles/calendar.css";
+@import "./styles/datepicker.css";
+@import "./styles/utilities.css";
+@import "./styles/components.css";
+
+/**
+ * Tailwind Directives
+ *
+ * Core Tailwind layers required for utility classes to function properly.
+ */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-/* ============================================
-   ESTILOS BASE - VARIABLES GLOBALES
-   ============================================ */
-@layer base {
-  html {
-    @apply scroll-smooth;
-  }
-
-  body {
-    @apply font-onest antialiased;
-  }
-
-  input:-webkit-autofill,
-  input:-webkit-autofill:hover,
-  input:-webkit-autofill:focus,
-  textarea:-webkit-autofill,
-  textarea:-webkit-autofill:hover,
-  textarea:-webkit-autofill:focus,
-  select:-webkit-autofill,
-  select:-webkit-autofill:hover,
-  select:-webkit-autofill:focus {
-    -webkit-text-fill-color: theme("colors.quaternary.700") !important;
-    -webkit-box-shadow: 0 0 0px 1000px theme("colors.primary.DEFAULT") inset !important;
-    font-family: inherit !important;
-  }
-}
-
-@layer utilities {
-  /* Clase general para aplicar el scrollbar personalizado */
-  .custom-scrollbar {
-    scrollbar-width: thin; /* Para Firefox */
-    scrollbar-color: #cbd5e1 transparent; /* Para Firefox (Color del thumb y del track) */
-  }
-
-  /* Para Chrome, Edge, Safari */
-  .custom-scrollbar::-webkit-scrollbar {
-    width: 6px; /* Barra vertical delgada */
-    height: 6px; /* Barra horizontal delgada (si aplica) */
-  }
-
-  /* El "track" o fondo de la barra */
-  .custom-scrollbar::-webkit-scrollbar-track {
-    background: transparent;
-    border-radius: 10px;
-  }
-
-  /* El "thumb" o la parte que se mueve */
-  .custom-scrollbar::-webkit-scrollbar-thumb {
-    background: #94a3b8; /* Un gris azulado elegante (Tailwind slate-400) */
-    border-radius: 10px;
-  }
-
-  /* El "thumb" cuando pasas el ratón por encima */
-  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-    background: #64748b; /* Tailwind slate-500 */
-  }
-}
-
-/* Personalización de react-datepicker para que encaje con Tailwind */
-.react-datepicker {
-  @apply font-onest bg-primary-500 rounded-2xl overflow-hidden !important;
-}
-
-.react-datepicker__header {
-  @apply bg-primary-500 border-b-2 border-primary-50 !important;
-}
-
-.react-datepicker__current-month {
-  display: none !important;
-}
-
-.react-datepicker__header__dropdown {
-  @apply my-2 !important;
-}
-
-.react-datepicker__header select {
-  @apply bg-primary text-primary-500 font-bold rounded-lg py-1 m-0 cursor-pointer transition-colors !important;
-  scrollbar-width: thin;
-  scrollbar-color: theme("colors.primary.300") theme("colors.primary.700");
-}
-
-.react-datepicker__header select option {
-  @apply bg-primary text-quaternary-700 !important;
-}
-
-.react-datepicker__day-name {
-  /* Añadimos: uppercase, text-xs, tracking-wide y bajamos un poco la opacidad con /80 */
-  @apply !text-primary text-xs uppercase font-bold w-8 py-2 !important;
-}
-
-.react-datepicker__day {
-  @apply h-8 w-8 inline-flex items-center justify-center text-primary rounded-full font-bold hover:bg-primary-100/70 transition-colors !important;
-}
-
-.react-datepicker__day--outside-month {
-  @apply text-primary/70 !important;
-}
-
-.react-datepicker__day--selected,
-.react-datepicker__day--keyboard-selected {
-  @apply bg-primary text-primary-500 font-bold hover:bg-primary !important;
-}
-
-.react-datepicker__navigation-icon::before {
-  @apply border-primary !important;
-}
-
-.react-datepicker__navigation {
-  @apply top-[18px] !important;
-}
-
-.react-datepicker__triangle {
-  fill: theme("colors.primary.500") !important;
-  color: theme("colors.primary.500") !important;
-  stroke: theme("colors.primary.500") !important;
-}
-
-/* COMPONENTES REUTILIZABLES */
-@layer components {
-  /* ############### BOTONES ################ */
-  /* Botón base */
-  .btn {
-    @apply px-8 py-3 rounded-lg font-semibold cursor-pointer transition-all duration-500 text-center inline-block text-base hover:shadow-lg hover:-translate-y-0.5;
-  }
-  /* ------------------------------------ */
-
-  /* Botón primario */
-  .btn-primary {
-    @apply bg-gradient-to-r from-primary-600 to-secondary-600 text-primary;
-  }
-  /* ------------------------------------ */
-
-  /* Botón secundario */
-  .btn-secondary {
-    @apply bg-gradient-to-r from-primary-600 to-secondary-600 bg-clip-text text-transparent border-2 border-primary-600;
-  }
-  /* ------------------------------------ */
-  /* ######################################## */
-
-  /* ################ INPUTS ################ */
-  /* Input */
-  .input {
-    @apply h-[52px] w-full pl-4 pr-10 rounded-lg outline-none focus:ring-2 focus:pt-8 focus:pb-4 transition-all;
-
-    &:not(:placeholder-shown) {
-      @apply pt-8 pb-4;
-    }
-  }
-  /* ------------------------------------ */
-
-  /* Textarea */
-  .textarea {
-    @apply h-28 w-full pl-4 pr-10 rounded-lg outline-none focus:ring-2 focus:pt-6 transition-all;
-
-    &:not(:placeholder-shown) {
-      @apply pt-6;
-    }
-  }
-  /* ------------------------------------ */
-
-  /* Input & Textarea Specific */
-  .input-textarea-primary {
-    @apply bg-primary text-quaternary-700 focus:ring-primary-500;
-  }
-  /* ------------------------------------ */
-
-  /* Input Label */
-  .input-label {
-    @apply absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none opacity-50 transition-all duration-[400ms];
-  }
-
-  .peer:focus ~ .input-label,
-  .peer:not(:placeholder-shown) ~ .input-label {
-    @apply -translate-y-3 text-xs opacity-100 font-medium;
-  }
-  /* ------------------------------------ */
-
-  /* Textarea Label */
-  .textarea-label {
-    @apply absolute inset-y-0 left-0 max-w-36 text-left md:max-w-full flex items-start pt-3 pl-4 pointer-events-none opacity-50 transition-all duration-[400ms];
-  }
-
-  .peer:focus ~ .textarea-label,
-  .peer:not(:placeholder-shown) ~ .textarea-label {
-    @apply -translate-y-1 text-xs max-w-full opacity-100 font-medium;
-  }
-  /* ------------------------------------ */
-
-  .input-textarea-label-primary {
-    @apply text-quaternary-700 peer-focus:text-primary-500 peer-[:not(:placeholder-shown)]:text-primary-500;
-  }
-
-  /* Icon */
-  .input-icon {
-    @apply absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none text-quaternary-700 opacity-50;
-  }
-
-  .peer:focus ~ .input-icon,
-  .peer:not(:placeholder-shown) ~ .input-icon {
-    @apply opacity-100;
-  }
-  /* ------------------------------------ */
-  /* ######################################## */
-}

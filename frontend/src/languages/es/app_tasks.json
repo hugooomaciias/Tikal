@@ -1,0 +1,106 @@
+{
+    "tasks_title": "Tareas",
+    "projects": {
+        "title": "Proyectos",
+        "search": "Buscar proyecto",
+        "popup": {
+            "title": {
+                "new": {
+                    "project": "Nuevo proyecto",
+                    "list": "Nueva lista"
+                },
+                "edit": {
+                    "project": "Editar proyecto",
+                    "list": "Editar lista"
+                }
+            },
+            "tabs": {
+                "project": "Proyecto",
+                "list": "Lista"
+            },
+            "name": {
+                "project": "Nombre del proyecto",
+                "list": "Nombre de la lista"
+            },
+            "deadline": "Fecha límite",
+            "add_deadline": "¿Añadir fecha límite al calendario?",
+            "description": "Escribe una nota aclarativa",
+            "button": {
+                "new": {
+                    "project": "Crear proyecto",
+                    "list": "Crear lista"
+                },
+                "edit": "Guardar cambios"
+            }
+        }
+    },
+    "stages": {
+        "title": "Fases",
+        "search": "Buscar fase",
+        "popup": {
+            "title": {
+                "new": {
+                    "stage": "Nueva fase",
+                    "sublist": "Nueva sublista"
+                },
+                "edit": {
+                    "stage": "Editar fase",
+                    "sublist": "Editar sublista"
+                }
+            },
+            "tabs": {
+                "stage": "Fase",
+                "sublist": "Sublista"
+            },
+            "name": {
+                "stage": "Nombre de la fase",
+                "sublist": "Nombre de la sublista"
+            },
+            "deadline": "Fecha límite",
+            "add_deadline": "¿Añadir fecha límite al calendario?",
+            "description": "Escribe una nota aclarativa",
+            "button": {
+                "new": {
+                    "stage": "Crear fase",
+                    "sublist": "Crear sublista"
+                },
+                "edit": "Guardar cambios"
+            }
+        }
+    },
+    "tasks": {
+        "title": "Tareas",
+        "search": "Buscar tarea",
+        "popup": {
+            "title": {
+                "new": "Nueva tarea",
+                "edit": "Editar tarea"
+            },
+            "name": "Nombre de la tarea",
+            "time_unit_info": "Unidad de tiempo deseada con la que contabilizar esta tarea",
+            "tabs": {
+                "details": "Detalles",
+                "subtasks": "Subtareas"
+            },
+            "details": {
+                "time": "Tiempo",
+                "time_info": "Tiempo estimado para completar la tarea",
+                "profit": "Ganancias",
+                "profit_info": "Ganancias estimadas tras realizar esta tarea en €",
+                "deadline": "Fecha límite",
+                "add_deadline": "¿Añadir fecha límite al calendario?",
+                "description": "Escribe una nota aclarativa"
+            },
+            "subtasks": {
+                "name": "Subtarea",
+                "time": "Tiempo",
+                "profit": "Ganancias",
+                "add_subtask": "Añadir subtarea"
+            },
+            "button": {
+                "new": "Crear tarea",
+                "edit": "Guardar cambios"
+            }
+        }
+    }
+}

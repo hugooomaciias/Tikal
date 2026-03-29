@@ -1,8 +1,11 @@
 /** React & Third-Party Libraries */
-import { Link } from "react-router-dom"
+import { Link } from "react-router-dom";
 
 /** Assets & Icons */
-import { IconUser, IconUsersGroup, IconCheck, IconX } from '@tabler/icons-react';
+import { IconUser, IconUsersGroup, IconCheck, IconX } from "@tabler/icons-react";
+
+/** Language */
+import { useTranslation } from "react-i18next";
 
 /**
  * Plans & Pricing Section Component
@@ -16,10 +19,11 @@ import { IconUser, IconUsersGroup, IconCheck, IconX } from '@tabler/icons-react'
  * layout.
  */
 export const PlansComponent = () => {
+    const { t } = useTranslation("landing");
 
     /**
      * Color Theme Configuration
-     * 
+     *
      * This object maps abstract theme keys to concrete Tailwind utility classes.
      */
     const coloursVariants = {
@@ -40,8 +44,8 @@ export const PlansComponent = () => {
      * actual React functional components.
      */
     const iconMap = {
-        "UserIcon": IconUser,
-        "GroupIcon": IconUsersGroup
+        UserIcon: IconUser,
+        GroupIcon: IconUsersGroup,
     };
 
     /**
@@ -53,56 +57,50 @@ export const PlansComponent = () => {
         {
             colour: "secondary",
             icon: "UserIcon",
-            tagText: "Guerrero Solitario",
-            title: "Plan individual",
+            tagText: t("landing.plans.free_plan.tag"),
+            title: t("landing.plans.free_plan.title"),
             price: "",
-            desc: "Todo lo esencial para gestionar tus tareas, trackear tu tiempo y entrar en zona de concentración sin coste.",
+            desc: t("landing.plans.free_plan.description"),
             featuresList: [
-                { text: "Proyectos personales ilimitados", included: true },
-                { text: "Time tracker personal", included: true },
-                { text: "Modo templo", included: true },
-                { text: "Dashboard de equipo", included: false },
-                { text: "Chat", included: false },
-                { text: "Reportes PDF & Excel", included: false }
+                { text: t("landing.plans.free_plan.features.personal_projects"), included: true },
+                { text: t("landing.plans.free_plan.features.time_tracker"), included: true },
+                { text: t("landing.plans.free_plan.features.temple_mode"), included: true },
+                { text: t("landing.plans.free_plan.features.team_dashboard"), included: false },
+                { text: t("landing.plans.free_plan.features.chat"), included: false },
+                { text: t("landing.plans.free_plan.features.reports"), included: false },
             ],
-            textButton: "Comenzar Gratis",
+            textButton: t("landing.plans.free_plan.button"),
             action: "/register",
-            state: { plan: 'GRATUITO' }
+            state: { plan: "GRATUITO" },
         },
         {
             colour: "tertiary",
             icon: "GroupIcon",
-            tagText: "Constructor de Ciudades",
-            title: "Plan cooperativo",
-            price: "10 €/mes",
-            desc: "Desbloquea el trabajo colaborativo, reportes avanzados y gestión de roles para llevar tu negocio al siguiente nivel.",
+            tagText: t("landing.plans.premium_plan.tag"),
+            title: t("landing.plans.premium_plan.title"),
+            price: t("landing.plans.premium_plan.price"),
+            desc: t("landing.plans.premium_plan.description"),
             featuresList: [
-                { text: "Proyectos personales ilimitados", included: true },
-                { text: "Time tracker personal", included: true },
-                { text: "Modo templo", included: true },
-                { text: "Dashboard de equipo", included: true },
-                { text: "Chat", included: true },
-                { text: "Reportes PDF & Excel", included: true }
+                { text: t("landing.plans.premium_plan.features.personal_projects"), included: true },
+                { text: t("landing.plans.premium_plan.features.time_tracker"), included: true },
+                { text: t("landing.plans.premium_plan.features.temple_mode"), included: true },
+                { text: t("landing.plans.premium_plan.features.team_dashboard"), included: true },
+                { text: t("landing.plans.premium_plan.features.chat"), included: true },
+                { text: t("landing.plans.premium_plan.features.reports"), included: true },
             ],
-            textButton: "Prueba Premium",
-            action: "/payment"
-        }
+            textButton: t("landing.plans.premium_plan.button"),
+            action: "/payment",
+        },
     ];
 
     return (
         <div className="w-full max-w-6xl mx-auto flex items-center justify-items-center p-12 md:p-8 mt-28 md:m-28">
             <div className="text-primary text-center">
                 {/* Hero Section */}
-                <h1 className="text-4xl md:text-5xl font-bold mb-4 leading-tight">
-                    Escala tu Productividad
-                </h1>
+                <h1 className="text-4xl md:text-5xl font-bold mb-4 leading-tight">{t("landing.plans.title")}</h1>
 
                 {/* Description Section */}
-                <p className="text-xl mb-10">
-                    Al igual que Tikal no se construyó en un día, tu productividad necesita cimientos sólidos.
-                    <br />
-                    Elige la estructura que tu proyecto demanda hoy.
-                </p>
+                <p className="md:w-3/4 mx-auto text-xl mb-10">{t("landing.plans.description")}</p>
 
                 {/* Pricing Cards Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
@@ -116,7 +114,9 @@ export const PlansComponent = () => {
                                 <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-6">
                                     <IconComponent className={`w-10 h-10 ${styles.text}`} />
 
-                                    <div className={`${styles.bg} text-xl font-passero font-semibold px-4 py-2 rounded-full`}>
+                                    <div
+                                        className={`${styles.bg} text-xl font-passero font-semibold px-4 py-2 rounded-full`}
+                                    >
                                         {plan.tagText}
                                     </div>
                                 </div>
@@ -124,27 +124,26 @@ export const PlansComponent = () => {
                                 {/* Plan Details */}
                                 <div className="flex flex-col lg:text-left gap-4 text-quaternary-700 mb-6">
                                     <div className="flex flex-col md:flex-row items-center justify-center md:justify-between">
-                                        <span className="text-3xl font-light">
-                                            {plan.title}
-                                        </span>
+                                        <span className="text-3xl font-light">{plan.title}</span>
 
-                                        <span className="text-2xl font-light">
-                                            {plan.price}
-                                        </span>
+                                        <span className="text-2xl font-light">{plan.price}</span>
                                     </div>
 
-                                    <p className="font-extralight">
-                                        {plan.desc}
-                                    </p>
+                                    <p className="font-extralight">{plan.desc}</p>
                                 </div>
 
                                 {/* Features List */}
                                 <div className="flex flex-col text-left gap-4 text-quaternary-700 mb-8">
                                     {plan.featuresList.map((feature, index) => (
                                         <div key={index} className="flex items-center gap-4">
-                                            {feature.included ? (<IconCheck className="w-5 h-5" />) : (<IconX className="w-5 h-5" />)}
-                                            
-                                            <p className={`font-thin
+                                            {feature.included ? (
+                                                <IconCheck className="w-5 h-5" />
+                                            ) : (
+                                                <IconX className="w-5 h-5" />
+                                            )}
+
+                                            <p
+                                                className={`font-thin
                                                            ${feature.included ? "text-gray-700" : "text-gray-400 line-through decoration-gray-300"}
                                                          `}
                                             >
@@ -155,7 +154,11 @@ export const PlansComponent = () => {
                                 </div>
 
                                 {/* Call-to-Action Button */}
-                                <Link to={plan.action} state={plan.state} className={`btn md:w-1/2 ${styles.bg} text-primary`}>
+                                <Link
+                                    to={plan.action}
+                                    state={plan.state}
+                                    className={`btn md:w-1/2 ${styles.bg} text-primary`}
+                                >
                                     {plan.textButton}
                                 </Link>
                             </div>
@@ -164,9 +167,7 @@ export const PlansComponent = () => {
                 </div>
 
                 {/* Footer Note */}
-                <p className="font-thin">
-                    ¿Necesitas ambas? No hay problema. El plan Constructor incluye tu espacio personal privado sin coste adicional.
-                </p>
+                <p className="font-thin">{t("landing.plans.footer_note")}</p>
             </div>
         </div>
     );

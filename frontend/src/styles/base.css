@@ -1,0 +1,40 @@
+/**
+ * Base Layer & Root Variables
+ *
+ * Defines the foundational HTML and body properties, autofocus resets,
+ * and CSS variables used across the application.
+ */
+
+@layer base {
+    html {
+        @apply scroll-smooth;
+    }
+
+    body {
+        @apply font-onest antialiased;
+    }
+
+    input:-webkit-autofill,
+    input:-webkit-autofill:hover,
+    input:-webkit-autofill:focus,
+    textarea:-webkit-autofill,
+    textarea:-webkit-autofill:hover,
+    textarea:-webkit-autofill:focus,
+    select:-webkit-autofill,
+    select:-webkit-autofill:hover,
+    select:-webkit-autofill:focus {
+        -webkit-text-fill-color: theme("colors.quaternary.700") !important;
+        -webkit-box-shadow: 0 0 0px 1000px theme("colors.primary.DEFAULT") inset !important;
+        font-family: inherit !important;
+    }
+}
+
+:root {
+    --fc-border-color: theme("colors.quaternary.100");
+    --fc-today-bg-color: theme("colors.primary.50");
+    --fc-button-bg-color: theme("colors.primary.500");
+    --fc-button-border-color: theme("colors.primary.500");
+    --fc-button-text-color: theme("colors.primary.DEFAULT");
+    --fc-button-active-bg-color: theme("colors.primary.50");
+    --fc-button-active-border-color: theme("colors.primary.500");
+}

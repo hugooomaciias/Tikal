@@ -1,0 +1,18 @@
+/**
+ * Custom Utilities Layer (Standard Raw CSS)
+ *
+ * General purpose structural modifications designed to be consumed globally.
+ *
+ * ============================================================================
+ * WHY THIS USES PURE CSS:
+ * This file avoids Tailwind's @apply because styling browser-specific
+ * scrollbars (like ::-webkit-scrollbar) natively in Tailwind requires
+ * verbose arbitrary variants. Standard CSS is used here for legibility.
+ * ============================================================================
+ */
+@layer utilities {
+    .custom-scrollbar {
+        scrollbar-width: thin;
+        scrollbar-color: theme("colors.quinary.100") transparent;
+    }
+}

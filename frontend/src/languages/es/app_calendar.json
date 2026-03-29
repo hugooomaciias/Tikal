@@ -1,0 +1,38 @@
+{
+    "calendar_title": "Calendario",
+    "next_events": "Próximas eventos",
+    "today": "Hoy",
+    "tomorrow": "Mañana",
+    "popup": {
+        "title": {
+            "new": "Nuevo evento",
+            "edit": "Editar evento"
+        },
+        "tabs": {
+            "linked": "Vinculado",
+            "unlinked": "Independiente"
+        },
+        "linked": {
+            "name": "Seleccionar vinculación",
+            "projects": "Proyectos",
+            "stages": "Fases",
+            "tasks": "Tareas",
+            "button_message": {
+                "confirm": "Confirmar",
+                "cancel": "Cerrar"
+            },
+            "start_time_tracker": "Iniciar registro de tiempo automáticamente"
+        },
+        "name": "Título del evento",
+        "start_date": "Fecha de inicio",
+        "end_date": "Fecha de fin",
+        "start_time": "Hora de inicio",
+        "end_time": "Hora de fin",
+        "all_day_event": "Evento de todo el día",
+        "description": "Escribe una descripción",
+        "button": {
+            "new": "Crear evento",
+            "edit": "Guardar cambios"
+        }
+    }
+}

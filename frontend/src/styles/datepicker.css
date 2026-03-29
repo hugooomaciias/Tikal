@@ -1,0 +1,126 @@
+/**
+ * React DatePicker Custom Styles
+ *
+ * Theming for the date picker component, handling both the main theme
+ * and the alternative theme behaviors.
+ */
+
+.main-datepicker-theme .react-datepicker {
+    @apply font-onest bg-primary-500 rounded-2xl overflow-hidden !important;
+}
+
+.main-datepicker-theme .react-datepicker__header {
+    @apply bg-primary-500 border-b-2 border-primary-50 !important;
+}
+
+.main-datepicker-theme .react-datepicker__current-month {
+    @apply hidden !important;
+}
+
+.main-datepicker-theme .react-datepicker__header__dropdown {
+    @apply my-2 !important;
+}
+
+.main-datepicker-theme .react-datepicker__header select {
+    @apply bg-primary text-primary-500 font-bold rounded-lg py-1 m-0 cursor-pointer transition-colors !important;
+}
+
+.main-datepicker-theme .react-datepicker__header select option {
+    @apply bg-primary text-quaternary-700 !important;
+}
+
+.main-datepicker-theme .react-datepicker__day-name {
+    @apply !text-primary text-xs uppercase font-bold w-8 py-2 !important;
+}
+
+.main-datepicker-theme .react-datepicker__day {
+    @apply h-8 w-8 inline-flex items-center justify-center text-primary rounded-full font-bold hover:bg-primary-100/70 transition-colors !important;
+}
+
+.main-datepicker-theme .react-datepicker__day--outside-month {
+    @apply text-primary/70 !important;
+}
+
+.main-datepicker-theme .react-datepicker__day--selected,
+.main-datepicker-theme .react-datepicker__day--keyboard-selected {
+    @apply bg-primary text-primary-500 font-bold hover:bg-primary !important;
+}
+
+.main-datepicker-theme .react-datepicker__navigation-icon::before {
+    @apply border-primary !important;
+}
+
+.main-datepicker-theme .react-datepicker__navigation {
+    @apply top-[18px] !important;
+}
+
+.main-datepicker-theme .react-datepicker__triangle {
+    @apply fill-primary-500 text-primary-500 stroke-primary-500 !important;
+}
+
+/**
+ * Alternative Calendar Theme (React DatePicker)
+ *
+ * Implements a simplified, borderless design layout for secondary usages of
+ * the React Datepicker tool.
+ */
+
+.alt-datepicker-theme .react-datepicker {
+    @apply font-onest bg-transparent border-none overflow-hidden !important;
+}
+
+.alt-datepicker-theme .react-datepicker__header {
+    @apply border-none bg-transparent text-quaternary-700 uppercase !important;
+}
+
+.alt-datepicker-theme .react-datepicker__current-month {
+    @apply text-quaternary-700 !important;
+}
+
+.alt-datepicker-theme .react-datepicker__day-name {
+    @apply !text-quaternary-700 text-xs uppercase font-bold w-8 py-2 !important;
+}
+
+.alt-datepicker-theme .react-datepicker__day {
+    @apply h-8 w-8 inline-flex items-center justify-center rounded-full text-primary-200 font-bold cursor-pointer transition-colors hover:bg-primary-100 hover:text-primary-500 !important;
+}
+
+.alt-datepicker-theme .react-datepicker__day--outside-month {
+    @apply text-primary-500/70 !important;
+}
+
+.alt-datepicker-theme .react-datepicker__day--selected {
+    @apply bg-primary-500 text-primary font-bold hover:bg-primary-500 hover:text-primary !important;
+}
+
+.alt-datepicker-theme .react-datepicker__day--keyboard-selected:not(.react-datepicker__day--selected) {
+    @apply bg-transparent text-quaternary-700 !important;
+}
+
+.alt-datepicker-theme .react-datepicker__navigation-icon::before {
+    @apply border-quaternary-500 hover:border-quaternary-700 transition-colors !important;
+}
+
+.alt-datepicker-theme .react-datepicker__navigation {
+    @apply top-[0.3rem] !important;
+}
+
+.alt-datepicker-theme .react-datepicker__day--highlighted {
+    @apply bg-primary-100 text-primary-600 font-bold rounded-none m-0 px-[1.17rem] !important;
+}
+
+.alt-datepicker-theme .react-datepicker__day--highlighted:first-of-type {
+    @apply rounded-l-full !important;
+}
+
+.alt-datepicker-theme .react-datepicker__day--highlighted:last-of-type {
+    @apply rounded-r-full !important;
+}
+
+.alt-datepicker-theme .react-datepicker__day--selected .custom-event-dot {
+    @apply bg-primary-50 !important;
+}
+
+.alt-datepicker-theme .react-datepicker__day--selected .custom-event-dot-more {
+    @apply border-primary-50 !important;
+}

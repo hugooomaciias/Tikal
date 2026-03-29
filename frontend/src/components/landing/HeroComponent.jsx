@@ -1,9 +1,12 @@
 /** React & Third-Party Libraries */
-import { Link } from "react-router-dom"
+import { Link } from "react-router-dom";
 
 /** Components */
-import { TimeTracker } from "../app/widgets/TimeTracker.jsx"
-import { Statistics } from "../app/widgets/Statistics.jsx"
+import { TimeTracker } from "../app/widgets/TimeTracker.jsx";
+import { Statistics } from "../app/widgets/Statistics.jsx";
+
+/** Language */
+import { useTranslation } from "react-i18next";
 
 /**
  * Hero Section Component (Home)
@@ -19,6 +22,8 @@ import { Statistics } from "../app/widgets/Statistics.jsx"
  * @returns {JSX.Element} The rendered Hero section with a responsive grid layout.
  */
 export const HeroComponent = () => {
+    const { t } = useTranslation("landing");
+
     return (
         <div className="w-full max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 items-center justify-items-center gap-16 p-12 md:p-8 mt-28 md:mt-0">
             {/* Left Column - Brand Messaging & Actions */}
@@ -30,24 +35,20 @@ export const HeroComponent = () => {
                     </span>
 
                     <br />
-                    
-                    <span className="text-quaternary-700 text-4xl opacity-90">
-                        Domina el tiempo. Conquista tus proyectos
-                    </span>
+
+                    <span className="text-quaternary-700 text-4xl opacity-90">{t("landing.hero.subtitle")}</span>
                 </h1>
 
                 {/* Hero Description */}
-                <p className="md:max-w-md text-quaternary-700 text-xl mb-8">
-                    Gestión inteligente para freelancers y equipos. Visualiza tu progreso, optimiza tus recursos y eleva tu productividad al siguiente nivel.
-                </p>
+                <p className="md:max-w-lg text-quaternary-700 text-xl mb-8">{t("landing.hero.description")}</p>
 
                 {/* Call-to-Action Buttons */}
                 <div className="flex flex-col md:flex-row gap-4">
                     <Link to="/login" className="btn btn-primary">
-                        Iniciar Sesión
+                        {t("landing.hero.button_login")}
                     </Link>
-                    <Link to="/register" state={{ plan: 'GRATUITO' }} className="btn btn-secondary">
-                        Comenzar gratis
+                    <Link to="/register" state={{ plan: "GRATUITO" }} className="btn btn-secondary">
+                        {t("landing.hero.button_register")}
                     </Link>
                 </div>
             </div>

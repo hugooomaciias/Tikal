@@ -1,12 +1,15 @@
 /** React & Third-Party Libraries */
-import { Link, useLocation } from "react-router-dom"
-import { useState, useEffect } from "react"
+import { Link, useLocation } from "react-router-dom";
+import { useState, useEffect } from "react";
 
 /** Components */
-import { FormRegisterComponent } from "../../components/auth/FormRegisterComponent.jsx"
+import { FormRegisterComponent } from "../../components/auth/FormRegisterComponent.jsx";
 
 /** Assets & Icons */
-import { IconCircleXFilled } from '@tabler/icons-react';
+import { IconCircleXFilled } from "@tabler/icons-react";
+
+/** Language */
+import { useTranslation } from "react-i18next";
 
 /**
  * Registration Page Layout
@@ -21,6 +24,8 @@ import { IconCircleXFilled } from '@tabler/icons-react';
  * @returns {JSX.Element} The rendered registration page layout.
  */
 export const RegisterPage = () => {
+    const { t } = useTranslation("auth");
+
     const location = useLocation();
     const plan = location.state?.plan || "GRATUITO";
 
@@ -51,7 +56,7 @@ export const RegisterPage = () => {
      */
     const closePopup = () => {
         setIsVisible(false);
-        
+
         setTimeout(() => {
             setApiError("");
         }, 300);
@@ -67,7 +72,7 @@ export const RegisterPage = () => {
     useEffect(() => {
         if (apiError) {
             setIsVisible(true);
-            
+
             const timer = setTimeout(() => {
                 closePopup();
             }, 5000);
@@ -78,47 +83,50 @@ export const RegisterPage = () => {
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-primary p-0 md:p-4">
-
             {/* API Error Alert */}
             {apiError && (
-                    <div
-                        className={`absolute top-10 md:top-16 h-16 w-[89%] md:w-1/4 bg-primary border-2 border-tertiary-200 text-tertiary-200 px-4 py-3 rounded-lg flex items-center justify-center gap-3 shadow-xl transition-all duration-300 animate-fade-in-up z-50
-                        ${isVisible
-                            ? 'opacity-100 scale-100'
-                            : 'opacity-0 scale-95 pointer-events-none'
-                        }`}
-                        role="alert"
-                    >
-                        <IconCircleXFilled className="h-6 w-6" />
-                        <span className="block sm:inline font-medium text-center">{apiError}</span>
-                    </div>
-                )
-            }
+                <div
+                    className={`absolute top-10 md:top-16 h-16 w-[89%] md:w-1/4 bg-primary border-2 border-tertiary-200 text-tertiary-200 px-4 py-3 rounded-lg flex items-center justify-center gap-3 shadow-xl transition-all duration-300 animate-fade-in-up z-50
+                        ${isVisible ? "opacity-100 scale-100" : "opacity-0 scale-95 pointer-events-none"}`}
+                    role="alert"
+                >
+                    <IconCircleXFilled className="h-6 w-6" />
+                    <span className="block sm:inline font-medium text-center">{apiError}</span>
+                </div>
+            )}
 
             {/* Registration Card Container */}
             <div className="min-h-screen md:min-h-fit w-full max-w-md flex flex-col bg-primary-50 p-6 md:p-10 md:rounded-xl md:shadow-2xl">
-
                 {/* Header Section: Branding & Title */}
                 <div className="flex items-center justify-between mb-8">
-                    <Link to="/" className="text-primary-300 font-semibold cursor-pointer transition-colors duration-300">
+                    <Link
+                        to="/"
+                        className="text-primary-300 font-semibold cursor-pointer transition-colors duration-300"
+                    >
                         <img className="h-10 w-auto" src="/public/logoHeader_1.svg" alt="Logo Tikal" />
                     </Link>
 
-                    <h1 className="text-primary-300 text-3xl text-center font-bold">Crear Cuenta</h1>
+                    <h1 className="text-primary-300 text-3xl text-center font-bold">{t("auth.register.title")}</h1>
                 </div>
 
                 <div className="flex flex-1 flex-col justify-center">
                     {/* Registration Form */}
-                    <FormRegisterComponent apiError={apiError} setApiError={setApiError} plan={plan} />
+                    <FormRegisterComponent apiError={apiError} setApiError={setApiError} plan={plan} t={t} />
 
                     {/* Footer Section: Link to Login */}
                     <div className="text-center mt-8 space-y-2">
                         <p className="text-quaternary-700 text-sm">
-                            ¿Ya eres miembro de Tikal? <Link to="/login" className="text-primary-600 font-semibold transition-colors hover:text-primary-700">Inicia Sesión</Link>
+                            {t("auth.register.footer.text")}
+                            <Link
+                                to="/login"
+                                className="text-primary-600 font-semibold transition-colors hover:text-primary-700"
+                            >
+                                {t("auth.register.footer.link")}
+                            </Link>
                         </p>
                     </div>
                 </div>
             </div>
         </div>
-    )
-}
+    );
+};

@@ -1,0 +1,103 @@
+{
+    "landing": {
+        "nav": {
+            "home": "Inicio",
+            "plans": "Planes",
+            "contact": "Contacto"
+        },
+        "hero": {
+            "subtitle": "Domina el tiempo. Conquista tus proyectos",
+            "description": "Gestión inteligente para freelancers y equipos. Visualiza tu progreso, optimiza tus recursos y eleva tu productividad al siguiente nivel.",
+            "button_login": "Iniciar Sesión",
+            "button_register": "Comenzar gratis"
+        },
+        "plans": {
+            "title": "Escala tu Productividad",
+            "description": "Al igual que Tikal no se construyó en un día, tu productividad necesita cimientos sólidos. Elige la estructura que tu proyecto demanda hoy.",
+            "free_plan": {
+                "tag": "Guerrero Solitario",
+                "title": "Plan individual",
+                "price": "",
+                "description": "Todo lo esencial para gestionar tus tareas, trackear tu tiempo y entrar en zona de concentración sin coste.",
+                "features": {
+                    "personal_projects": "Proyectos personales ilimitados",
+                    "time_tracker": "Time tracker personal",
+                    "temple_mode": "Modo templo",
+                    "team_dashboard": "Dashboard de equipo",
+                    "chat": "Chat",
+                    "reports": "Reportes PDF & Excel"
+                },
+                "button": "Comenzar Gratis"
+            },
+            "premium_plan": {
+                "tag": "Constructor de Ciudades",
+                "title": "Plan cooperativo",
+                "price": "10 €/mes",
+                "description": "Desbloquea el trabajo colaborativo, reportes avanzados y gestión de roles para llevar tu negocio al siguiente nivel.",
+                "features": {
+                    "personal_projects": "Proyectos personales ilimitados",
+                    "time_tracker": "Time tracker personal",
+                    "temple_mode": "Modo templo",
+                    "team_dashboard": "Dashboard de equipo",
+                    "chat": "Chat",
+                    "reports": "Reportes PDF & Excel"
+                },
+                "button": "Prueba Premium"
+            },
+            "footer_note": "¿Necesitas ambas? No hay problema. El plan Constructor incluye tu espacio personal privado sin coste adicional."
+        },
+        "payment": {
+            "title": "Elige tu forma de pago",
+            "description": "Selecciona la frecuencia de facturación que mejor se adapte a tu flujo de trabajo y presupuesto.",
+            "monthly": {
+                "title": "Pago mensual",
+                "price": "10 €/mes",
+                "discount": "",
+                "description": "Mantén el control absoluto de tus gastos con nuestra opción más libre. Ideal si estás empezando, gestionas proyectos temporales o simplemente prefieres evaluar el impacto de la herramienta mes a mes. Sin contratos de permanencia: tienes la libertad de cancelar o cambiar tu plan cuando lo necesites.",
+                "buttonText": "Seleccionar mensual"
+            },
+            "quarterly": {
+                "title": "Pago trimestral",
+                "price": "25 €/trimestre",
+                "discount": "- 17%",
+                "description": "El punto medio perfecto entre agilidad y compromiso. Alinea tus pagos con tus objetivos trimestrales y reduce la carga administrativa de las facturas mensuales, todo mientras disfrutas de un descuento exclusivo por tu confianza a medio plazo.",
+                "buttonText": "Seleccionar trimestral"
+            },
+            "annual": {
+                "title": "Pago anual",
+                "price": "80 €/año",
+                "discount": "- 33%",
+                "description": "La decisión financiera más inteligente para equipos consolidados. Realiza un único pago, olvídate de renovaciones administrativas durante 12 meses completos y maximiza tu retorno de inversión aprovechando nuestro mayor descuento disponible.",
+                "buttonText": "Seleccionar anual"
+            }
+        },
+        "contact": {
+            "title": "Estamos aqui para escucharte",
+            "description1": "En Tikal, creemos que la mejor herramienta es la que <b> evoluciona junto a sus usuarios</b>. Nuestro compromiso es doble: ofrecerte un<b> soporte técnico ágil y eficiente</b> para que ningún obstáculo frene tu flujo de trabajo, y mantener un <b> canal abierto de colaboración.</b>",
+            "description2": "Ya sea para<b> resolver una incidencia urgente</b>, guiarte en el uso de funciones avanzadas o<b> proponer esa mejora</b> que cambiaría tu día a día, estamos al otro lado preparados para escucharte. Tu feedback no solo es bienvenido, es el plano sobre el que construimos el <b> futuro de esta plataforma.</b>",
+            "form": {
+                "name": "Nombre",
+                "email": "Email",
+                "subject": "Asunto",
+                "message": "Escribe tu consulta aquí...",
+                "buttonMessage": {
+                    "sending": "Enviando...",
+                    "success": "Consulta enviada",
+                    "error": "Error al enviar",
+                    "send": "Enviar consulta"
+                },
+                "errors": {
+                    "name": "Por favor, introduce un nombre",
+                    "email": "Por favor, introduce un email",
+                    "incorrect_email": "Por favor, introduce un email válido",
+                    "message": "Por favor, escribe tu consulta"
+                }
+            }
+        },
+        "footer": {
+            "copyright": "Todos los derechos reservados.",
+            "privacy": "Política de Privacidad",
+            "terms": "Términos de Servicio"
+        }
+    }
+}

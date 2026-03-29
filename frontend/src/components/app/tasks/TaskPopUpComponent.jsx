@@ -14,6 +14,8 @@ import {
 
 /** Components */
 import { CircularDropdownComponent } from "./CircularDropdownComponent.jsx";
+import { TabsComponent } from "../common/popups/TabsComponent.jsx";
+import { DatePickerComponent } from "../common/popups/DatepickerComponent.jsx";
 
 /**
  * New Stage/Sublist PopUp Component
@@ -28,7 +30,7 @@ import { CircularDropdownComponent } from "./CircularDropdownComponent.jsx";
  * @param {Object|null} props.initialData - Initial data for editing an existing stage/sublist.
  * @returns {JSX.Element} The rendered modal component.
  */
-export const TaskPopUpComponent = ({ onClose, initialData }) => {
+export const TaskPopUpComponent = ({ onClose, initialData, t }) => {
     /**
      * Edit Mode Flag
      *
@@ -64,6 +66,10 @@ export const TaskPopUpComponent = ({ onClose, initialData }) => {
 
     const [profitUnit, setProfitUnit] = useState(() => {
         return isEditing && initialData.profit ? initialData.profit.replace(/[\d.\s,]/g, "") || "€" : "€";
+    });
+
+    const [insertDeadline, setInsertDeadline] = useState(() => {
+        return Boolean(isEditing && initialData.date);
     });
 
     const [focusedInput, setFocusedInput] = useState(null);
@@ -155,17 +161,6 @@ export const TaskPopUpComponent = ({ onClose, initialData }) => {
     const removeArrayField = (field, index) => {
         const newArray = formData[field].filter((_, i) => i !== index);
         setFormData((prev) => ({ ...prev, [field]: newArray }));
-    };
-
-    /**
-     * Type Change Handler
-     *
-     * Updates the form data type (project or list) and sets a default
-     * icon corresponding to the selected type.
-     * @param {string} newType - The newly selected type ("project" or "list").
-     */
-    const handleViewChange = (newView) => {
-        setFormData((prev) => ({ ...prev, view: newView }));
     };
 
     /**
@@ -262,7 +257,7 @@ export const TaskPopUpComponent = ({ onClose, initialData }) => {
                 {/* Header: Title and Close Button */}
                 <div className="flex items-center justify-between">
                     <span className="text-2xl font-bold text-quaternary-700">
-                        {isEditing ? "Editar tarea" : "Nueva tarea"}
+                        {isEditing ? t("tasks.popup.title.edit") : t("tasks.popup.title.new")}
                     </span>
 
                     <button
@@ -289,7 +284,7 @@ export const TaskPopUpComponent = ({ onClose, initialData }) => {
                             />
 
                             <label htmlFor="task" className="input-label input-textarea-label-primary">
-                                Nombre de la tarea
+                                {t("tasks.popup.name")}
                             </label>
 
                             {errors.task && (
@@ -302,7 +297,7 @@ export const TaskPopUpComponent = ({ onClose, initialData }) => {
                         <CircularDropdownComponent
                             value={timeUnit}
                             defaultIcon={<IconStopwatch className="w-7 h-7" />}
-                            tooltip="Unidad de tiempo deseada con la que contabilizar esta tarea"
+                            tooltip={t("tasks.popup.time_unit_info")}
                             onChange={(newUnit) => handleSelectChange("time", newUnit)}
                             options={[
                                 { value: "h", label: "horas" },
@@ -313,27 +308,14 @@ export const TaskPopUpComponent = ({ onClose, initialData }) => {
                     </div>
 
                     {/* Type Selection Toggle (Project / List) */}
-                    <div className="h-12 w-full flex items-center justify-center bg-primary-100 p-1.5 rounded-2xl relative overflow-hidden">
-                        <div
-                            className={`absolute top-1.5 bottom-1.5 w-[calc(50%-6px)] bg-primary rounded-xl shadow-sm transition-all duration-300 ease-out z-0 ${formData.view === "details" ? "left-1.5" : "left-[calc(50%+1.5px)]"}`}
-                        ></div>
-
-                        <button
-                            type="button"
-                            onClick={() => handleViewChange("details")}
-                            className="relative z-10 flex-1 py-2 text-sm text-primary-500 font-semibold transition-colors duration-300"
-                        >
-                            Detalles
-                        </button>
-
-                        <button
-                            type="button"
-                            onClick={() => handleViewChange("subtasks")}
-                            className="relative z-10 flex-1 py-2 text-sm text-primary-500 font-semibold transition-colors duration-300"
-                        >
-                            Subtareas
-                        </button>
-                    </div>
+                    <TabsComponent
+                        page={"Tasks"}
+                        formData={formData}
+                        setFormData={setFormData}
+                        setSelected={null}
+                        fieldToUpdate={"view"}
+                        t={t}
+                    />
 
                     {formData.view === "details" && (
                         <>
@@ -354,7 +336,7 @@ export const TaskPopUpComponent = ({ onClose, initialData }) => {
                                     />
 
                                     <label htmlFor="time" className="input-label input-textarea-label-primary">
-                                        Tiempo
+                                        {t("tasks.popup.details.time")}
                                     </label>
                                 </div>
 
@@ -362,7 +344,7 @@ export const TaskPopUpComponent = ({ onClose, initialData }) => {
                                     <IconInfoCircleFilled className="group w-5 h-5 text-primary-500/70 hover:text-primary-500 transition-colors duration-200" />
 
                                     <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 hidden min-w-44 w-fit p-2 bg-primary-500 text-primary text-center text-sm font-medium rounded-lg shadow-lg group-hover:block z-50 pointer-events-none">
-                                        Tiempo estimado para completar la tarea
+                                        {t("tasks.popup.details.time_info")}
                                         <div className="absolute left-1/2 -translate-x-1/2 top-full w-0 h-0 border-x-8 border-x-transparent border-t-8 border-t-primary-500"></div>
                                     </div>
                                 </div>
@@ -385,7 +367,7 @@ export const TaskPopUpComponent = ({ onClose, initialData }) => {
                                     />
 
                                     <label htmlFor="profit" className="input-label input-textarea-label-primary">
-                                        Ganancias
+                                        {t("tasks.popup.details.profit")}
                                     </label>
                                 </div>
 
@@ -394,9 +376,46 @@ export const TaskPopUpComponent = ({ onClose, initialData }) => {
                                     <IconInfoCircleFilled className="group w-5 h-5 text-primary-500/70 hover:text-primary-500 transition-colors duration-200" />
 
                                     <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 hidden min-w-44 w-fit p-2 bg-primary-500 text-primary text-center text-sm font-medium rounded-lg shadow-lg group-hover:block z-50 pointer-events-none">
-                                        Ganancias estimadas tras realizar esta tarea en €
+                                        {t("tasks.popup.details.profit_info")}
                                         <div className="absolute left-1/2 -translate-x-1/2 top-full w-0 h-0 border-x-8 border-x-transparent border-t-8 border-t-primary-500"></div>
                                     </div>
+                                </div>
+                            </div>
+
+                            <div className="flex flex-col gap-3">
+                                {/* El Input del Calendario */}
+                                <div className="transition-all duration-300">
+                                    <DatePickerComponent
+                                        value={formData.date}
+                                        onChange={(date) => {
+                                            setFormData((prev) => ({ ...prev, date: date ? date.toISOString() : "" }));
+                                        }}
+                                        className={getInputClass("date")}
+                                        label={t("stages.popup.deadline")}
+                                    />
+                                </div>
+
+                                {/* Toggle Switch personalizado */}
+                                <div className="flex items-center justify-between px-2">
+                                    <span className="text-primary-500 text-sm font-bold">
+                                        {t("stages.popup.add_deadline")}
+                                    </span>
+
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            setInsertDeadline(!insertDeadline);
+                                        }}
+                                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-300 focus:outline-none ${
+                                            insertDeadline ? "bg-primary-400" : "bg-primary-100"
+                                        }`}
+                                    >
+                                        <span
+                                            className={`inline-block h-4 w-4 rounded-full bg-primary transform transition-transform duration-300 ${
+                                                insertDeadline ? "translate-x-6" : "translate-x-1"
+                                            }`}
+                                        />
+                                    </button>
                                 </div>
                             </div>
 
@@ -414,7 +433,7 @@ export const TaskPopUpComponent = ({ onClose, initialData }) => {
                                 ></textarea>
 
                                 <label htmlFor="note" className="textarea-label input-textarea-label-primary">
-                                    Escribe una nota aclarativa
+                                    {t("tasks.popup.details.description")}
                                 </label>
 
                                 <div className="input-icon peer-focus:text-primary-500 peer-[:not(:placeholder-shown)]:text-primary-500 items-start pt-3">
@@ -441,7 +460,7 @@ export const TaskPopUpComponent = ({ onClose, initialData }) => {
                                                 className={getInputClass("subtask-item")}
                                             />
                                             <label className="input-label input-textarea-label-primary">
-                                                Subtarea {index + 1}
+                                                {t("tasks.popup.subtasks.name")} {index + 1}
                                             </label>
                                         </div>
 
@@ -473,7 +492,7 @@ export const TaskPopUpComponent = ({ onClose, initialData }) => {
                                             />
 
                                             <label htmlFor="time" className="input-label input-textarea-label-primary">
-                                                Tiempo
+                                                {t("tasks.popup.subtasks.time")}
                                             </label>
                                         </div>
 
@@ -496,7 +515,7 @@ export const TaskPopUpComponent = ({ onClose, initialData }) => {
                                                 htmlFor="profit"
                                                 className="input-label input-textarea-label-primary"
                                             >
-                                                Ganancias
+                                                {t("tasks.popup.subtasks.profit")}
                                             </label>
                                         </div>
                                     </div>
@@ -509,14 +528,14 @@ export const TaskPopUpComponent = ({ onClose, initialData }) => {
                                 className="w-full h-10 flex items-center justify-center gap-2 text-sm font-semibold text-primary-500 hover:text-primary-600 hover:bg-primary-50 border-2 border-dashed border-primary-200 hover:border-primary-400 rounded-xl transition-all"
                             >
                                 <IconCirclePlusFilled className="w-5 h-5" />
-                                <span>Añadir subtarea</span>
+                                <span>{t("tasks.popup.subtasks.add_subtask")}</span>
                             </button>
                         </div>
                     )}
 
                     {/* Submit Button */}
                     <button type="submit" className="btn btn-primary md:min-w-1/2 mx-auto">
-                        <span>{isEditing ? "Guardar cambios" : "Crear tarea"}</span>
+                        <span>{isEditing ? t("tasks.popup.button.edit") : t("tasks.popup.button.new")}</span>
                     </button>
                 </form>
             </div>

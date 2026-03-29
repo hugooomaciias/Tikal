@@ -1,9 +1,17 @@
 /** React & Third-Party Libraries */
-import { useState, useEffect } from "react"
-import emailjs from "@emailjs/browser"
+import { useState, useEffect } from "react";
+import emailjs from "@emailjs/browser";
 
 /** Assets & Icons */
-import { IconUser, IconMail, IconTag, IconMessage, IconCircleCheck, IconCircleX, IconLoader } from '@tabler/icons-react';
+import {
+    IconUser,
+    IconMail,
+    IconTag,
+    IconMessage,
+    IconCircleCheck,
+    IconCircleX,
+    IconLoader,
+} from "@tabler/icons-react";
 
 /**
  * Contact Form Component
@@ -15,7 +23,7 @@ import { IconUser, IconMail, IconTag, IconMessage, IconCircleCheck, IconCircleX,
  * @component
  * @returns {JSX.Element} The interactive form element with dynamic styling.
  */
-export const FormContactComponent = () => {
+export const FormContactComponent = ({ t }) => {
     /**
      * Form Input State
      *
@@ -25,7 +33,7 @@ export const FormContactComponent = () => {
         name: "",
         email: "",
         subject: "",
-        message: ""
+        message: "",
     });
 
     /**
@@ -71,25 +79,25 @@ export const FormContactComponent = () => {
         let isValid = true;
 
         // Validate Name
-        if (! formData.name.trim()) {
-            tempErrors.name = "Por favor, introduce un nombre";
+        if (!formData.name.trim()) {
+            tempErrors.name = t("landing.contact.form.errors.name");
             isValid = false;
         }
 
         // Validate Email
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-        if (! formData.email.trim()) {
-            tempErrors.email = "Por favor, introduce un email";
+        if (!formData.email.trim()) {
+            tempErrors.email = t("landing.contact.form.errors.email");
             isValid = false;
-        } else if (! emailRegex.test(formData.email)) {
-            tempErrors.email = "Por favor, introduce un email válido";
+        } else if (!emailRegex.test(formData.email)) {
+            tempErrors.email = t("landing.contact.form.errors.incorrect_email");
             isValid = false;
         }
 
         // Validate Message
         if (!formData.message.trim()) {
-            tempErrors.message = "Por favor, escribe tu consulta.";
+            tempErrors.message = t("landing.contact.form.errors.message");
             isValid = false;
         }
 
@@ -109,15 +117,15 @@ export const FormContactComponent = () => {
     const handleChange = (e) => {
         const { name, value } = e.target;
 
-        setFormData(prev => ({
+        setFormData((prev) => ({
             ...prev,
-            [name]: value
+            [name]: value,
         }));
 
         if (errors[name]) {
-             setErrors(prev => ({
+            setErrors((prev) => ({
                 ...prev,
-                [name]: ""
+                [name]: "",
             }));
         }
     };
@@ -136,9 +144,9 @@ export const FormContactComponent = () => {
             setIsSending(true);
 
             // EmailJS Data
-            const serviceID = 'service_q6z04p2';
-            const templateID = 'template_1xr3c9o';
-            const publicKey = 'NppbbtryFKjlUhLz0';
+            const serviceID = "service_q6z04p2";
+            const templateID = "template_1xr3c9o";
+            const publicKey = "NppbbtryFKjlUhLz0";
 
             // Email params
             const templateParams = {
@@ -149,7 +157,8 @@ export const FormContactComponent = () => {
             };
 
             // Send email
-            emailjs.send(serviceID, templateID, templateParams, publicKey)
+            emailjs
+                .send(serviceID, templateID, templateParams, publicKey)
                 .then(() => {
                     setShowSuccess(true);
                     setFormData({ name: "", email: "", subject: "", message: "" });
@@ -175,9 +184,9 @@ export const FormContactComponent = () => {
         const baseInputClass = "input input-textarea-primary peer";
         const baseTextareaClass = "textarea input-textarea-primary peer";
         const errorNoEmailClass = "ring-[3px] ring-tertiary-200";
-        
+
         const baseClass = fieldName === "message" ? baseTextareaClass : baseInputClass;
-        const errorClass = `${errors[fieldName] === "Por favor, introduce un email válido" ? "" : errorNoEmailClass}`;
+        const errorClass = `${errors[fieldName] === t("landing.contact.form.errors.incorrect_email") ? "" : errorNoEmailClass}`;
 
         return `${baseClass} ${errors[fieldName] ? errorClass : ""}`;
     };
@@ -195,7 +204,7 @@ export const FormContactComponent = () => {
         const errorClass = "peer-focus:text-tertiary-200 peer-[:not(:placeholder-shown)]:text-tertiary-200";
         const normalClass = "peer-focus:text-primary-500 peer-[:not(:placeholder-shown)]:text-primary-500";
 
-        return `${baseClass}  ${errors[fieldName] === "Por favor, introduce un email válido" ? errorClass : normalClass}`;
+        return `${baseClass}  ${errors[fieldName] === t("landing.contact.form.errors.incorrect_email") ? errorClass : normalClass}`;
     };
 
     /**
@@ -207,7 +216,7 @@ export const FormContactComponent = () => {
      */
     const getButtonClass = () => {
         const base = "btn md:w-1/2 bg-primary-700 text-primary";
-        
+
         if (showSuccess || showEmailError) return `${base} cursor-not-allowed`;
 
         if (isSending) return `${base} cursor-wait`;
@@ -217,53 +226,77 @@ export const FormContactComponent = () => {
 
     return (
         <form onSubmit={handleSubmit} className="flex flex-col items-center justify-center gap-6" noValidate>
-
             {/* Inputs Row: Name & Email */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="relative w-full">
-                    <input type="text" id="name" name="name" placeholder=" "
-                        value={formData.name} onChange={handleChange} required
+                    <input
+                        type="text"
+                        id="name"
+                        name="name"
+                        placeholder=" "
+                        value={formData.name}
+                        onChange={handleChange}
+                        required
                         className={getInputClass("name")}
                     />
 
                     <label htmlFor="name" className="input-label input-textarea-label-primary">
-                        Nombre
+                        {t("landing.contact.form.name")}
                     </label>
 
                     <div className="input-icon peer-focus:text-primary-500 peer-[:not(:placeholder-shown)]:text-primary-500">
                         <IconUser className="w-5 h-5" />
                     </div>
 
-                    {errors.name && <span className="absolute -bottom-5 left-0 text-tertiary-200 text-xs font-semibold">{errors.name}</span>}
+                    {errors.name && (
+                        <span className="absolute -bottom-5 left-0 text-tertiary-200 text-xs font-semibold">
+                            {errors.name}
+                        </span>
+                    )}
                 </div>
 
                 <div className="relative w-full">
-                    <input type="email" id="email" name="email" placeholder=" "
-                        value={formData.email} onChange={handleChange} required
+                    <input
+                        type="email"
+                        id="email"
+                        name="email"
+                        placeholder=" "
+                        value={formData.email}
+                        onChange={handleChange}
+                        required
                         className={getInputClass("email")}
                     />
 
                     <label htmlFor="email" className="input-label input-textarea-label-primary">
-                        Email
+                        {t("landing.contact.form.email")}
                     </label>
 
                     <div className={getIconClass("email")}>
                         <IconMail className="w-5 h-5" />
                     </div>
 
-                    {errors.email && <span className="absolute -bottom-5 left-0 text-tertiary-200 text-xs font-semibold">{errors.email}</span>}
+                    {errors.email && (
+                        <span className="absolute -bottom-5 left-0 text-tertiary-200 text-xs font-semibold">
+                            {errors.email}
+                        </span>
+                    )}
                 </div>
             </div>
 
             {/* Single Row: Subject */}
             <div className="relative w-full">
-                <input type="text" id="subject" name="subject" placeholder=" "
-                    value={formData.subject} onChange={handleChange}
+                <input
+                    type="text"
+                    id="subject"
+                    name="subject"
+                    placeholder=" "
+                    value={formData.subject}
+                    onChange={handleChange}
                     className={getInputClass("subject")}
                 />
 
                 <label htmlFor="subject" className="input-label input-textarea-label-primary">
-                    Asunto
+                    {t("landing.contact.form.subject")}
                 </label>
 
                 <div className="input-icon peer-focus:text-primary-500 peer-[:not(:placeholder-shown)]:text-primary-500">
@@ -273,41 +306,51 @@ export const FormContactComponent = () => {
 
             {/* Textarea: Message */}
             <div className="relative w-full">
-                <textarea id="message" name="message" rows="4" placeholder=" "
-                    value={formData.message} onChange={handleChange} required
+                <textarea
+                    id="message"
+                    name="message"
+                    rows="4"
+                    placeholder=" "
+                    value={formData.message}
+                    onChange={handleChange}
+                    required
                     className={getInputClass("message")}
                 ></textarea>
 
                 <label htmlFor="message" className="textarea-label input-textarea-label-primary">
-                    Escribe tu consulta aquí...
+                    {t("landing.contact.form.message")}
                 </label>
 
                 <div className="input-icon peer-focus:text-primary-500 peer-[:not(:placeholder-shown)]:text-primary-500 items-start pt-3">
                     <IconMessage className="w-5 h-5" />
                 </div>
 
-                {errors.message && <span className="absolute -bottom-[13px] left-0 text-tertiary-200 text-xs font-semibold">{errors.message}</span>}
+                {errors.message && (
+                    <span className="absolute -bottom-[13px] left-0 text-tertiary-200 text-xs font-semibold">
+                        {errors.message}
+                    </span>
+                )}
             </div>
 
             {/* Submit Button with Dynamic Feedback */}
             <button type="submit" disabled={isSending || showSuccess} className={getButtonClass()}>
                 {isSending ? (
                     <div className="flex items-center justify-center gap-2">
-                        <span className="text-nowrap">Enviando...</span>
+                        <span className="text-nowrap">{t("landing.contact.form.buttonMessage.sending")}</span>
                         <IconLoader className="h-6 w-6 text-primary-300 animate-spin" />
                     </div>
                 ) : showSuccess ? (
                     <div className="flex items-center justify-center gap-2">
-                        <span className="text-nowrap">Consulta enviada</span>
+                        <span className="text-nowrap">{t("landing.contact.form.buttonMessage.success")}</span>
                         <IconCircleCheck className="h-6 w-6 text-primary-300" />
                     </div>
                 ) : showEmailError ? (
                     <div className="flex items-center justify-center gap-2">
-                        <span className="text-nowrap">Error al enviar</span>
+                        <span className="text-nowrap">{t("landing.contact.form.buttonMessage.error")}</span>
                         <IconCircleX className="h-6 w-6 text-primary-300" />
                     </div>
                 ) : (
-                    <span>Enviar consulta</span>
+                    <span>{t("landing.contact.form.buttonMessage.send")}</span>
                 )}
             </button>
         </form>

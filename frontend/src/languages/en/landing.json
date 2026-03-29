@@ -1,0 +1,103 @@
+{
+    "landing": {
+        "nav": {
+            "home": "Home",
+            "plans": "Plans",
+            "contact": "Contact"
+        },
+        "hero": {
+            "subtitle": "Master time. Conquer your projects",
+            "description": "Smart management for freelancers and teams. Visualize your progress, optimize your resources, and elevate your productivity to the next level.",
+            "button_login": "Log in",
+            "button_register": "Start for free"
+        },
+        "plans": {
+            "title": "Boost your Productivity",
+            "description": "Just as Tikal wasn't built in a day, your productivity needs solid foundations. Choose the structure your project demands today.",
+            "free_plan": {
+                "tag": "Lone Warrior",
+                "title": "Individual Plan",
+                "price": "",
+                "description": "Everything you need to manage your tasks, track your time, and get into the zone without any cost.",
+                "features": {
+                    "personal_projects": "Unlimited personal projects",
+                    "time_tracker": "Personal time tracker",
+                    "temple_mode": "Temple mode",
+                    "team_dashboard": "Team dashboard",
+                    "chat": "Chat",
+                    "reports": "PDF & Excel Reports"
+                },
+                "button": "Start for free"
+            },
+            "premium_plan": {
+                "tag": "City Builder",
+                "title": "Cooperative Plan",
+                "price": "10 €/month",
+                "description": "Unlock collaborative work, advanced reports, and role management to take your business to the next level.",
+                "features": {
+                    "personal_projects": "Unlimited personal projects",
+                    "time_tracker": "Personal time tracker",
+                    "temple_mode": "Temple mode",
+                    "team_dashboard": "Team dashboard",
+                    "chat": "Chat",
+                    "reports": "PDF & Excel Reports"
+                },
+                "button": "Try Premium"
+            },
+            "footer_note": "Need both? No problem. The Builder plan includes your private personal space at no additional cost."
+        },
+        "payment": {
+            "title": "Choose your payment method",
+            "description": "Select the billing frequency that best suits your workflow and budget.",
+            "monthly": {
+                "title": "Monthly payment",
+                "price": "10 €/month",
+                "discount": "",
+                "description": "Keep full control of your expenses with our most flexible option. Ideal if you are just starting out, managing temporary projects, or simply prefer to evaluate the impact of the tool month by month. No long-term contracts: you have the freedom to cancel or change your plan whenever you need to.",
+                "buttonText": "Select monthly"
+            },
+            "quarterly": {
+                "title": "Quarterly payment",
+                "price": "25 €/quarter",
+                "discount": "- 17%",
+                "description": "The perfect balance between agility and commitment. Align your payments with your quarterly goals and reduce the administrative burden of monthly invoices, all while enjoying an exclusive discount for your medium-term trust.",
+                "buttonText": "Select quarterly"
+            },
+            "annual": {
+                "title": "Annual payment",
+                "price": "80 €/year",
+                "discount": "- 33%",
+                "description": "The smartest financial decision for established teams. Make a single payment, forget about administrative renewals for 12 full months, and maximize your return on investment by taking advantage of our biggest available discount.",
+                "buttonText": "Select yearly"
+            }
+        },
+        "contact": {
+            "title": "We are here to listen to you",
+            "description1": "At Tikal, we believe that the best tool is the one that <b>evolves with its users</b>. Our commitment is twofold: to offer you <b>agile and efficient technical support</b> so that no obstacle slows down your workflow, and to maintain an <b>open channel for collaboration.</b>",
+            "description2": "Whether to <b>resolve an urgent incident</b>, guide you in using advanced features, or <b>propose that improvement</b> that would change your day-to-day, we are on the other side ready to listen to you. Your feedback is not only welcome, it is the blueprint on which we build the <b>future of this platform.</b>",
+            "form": {
+                "name": "Name",
+                "email": "Email",
+                "subject": "Subject",
+                "message": "Write your query here...",
+                "buttonMessage": {
+                    "sending": "Sending...",
+                    "success": "Query sent",
+                    "error": "Error sending",
+                    "send": "Send query"
+                },
+                "errors": {
+                    "name": "Please enter a name",
+                    "email": "Please enter an email",
+                    "incorrect_email": "Please enter a valid email",
+                    "message": "Please write your query"
+                }
+            }
+        },
+        "footer": {
+            "copyright": "All rights reserved.",
+            "privacy": "Privacy Policy",
+            "terms": "Terms of Service"
+        }
+    }
+}

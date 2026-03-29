@@ -1,18 +1,25 @@
 /** React & Third-Party Libraries */
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+
+/** Contexts */
+import { AuthProvider } from "./context/AuthContext";
+import { MainProvider } from "./context/MainContext";
 
 /** Components */
-import { AuthProvider } from './context/AuthContext'
-import { ProtectedRoute } from './components/security/ProtectedRoute.jsx'
-import { PublicRoute } from './components/security/PublicRoute.jsx'
-import { LandingPage } from './pages/landing/LandingPage'
-import { PaymentPage } from './pages/landing/PaymentPage'
-import { LoginPage } from './pages/auth/LoginPage'
-import { RegisterPage } from './pages/auth/RegisterPage'
-import { ForgotPasswordPage } from './pages/auth/ForgotPasswordPage'
-import { LoadingPage } from './pages/LoadingPage'
-import { HomePage } from './pages/app/HomePage'
-import { TasksPage } from './pages/app/TasksPage'
+import { ProtectedRoute } from "./components/security/ProtectedRoute.jsx";
+import { PublicRoute } from "./components/security/PublicRoute.jsx";
+import { LandingPage } from "./pages/landing/LandingPage";
+import { PaymentPage } from "./pages/landing/PaymentPage";
+import { LoginPage } from "./pages/auth/LoginPage";
+import { RegisterPage } from "./pages/auth/RegisterPage";
+import { ForgotPasswordPage } from "./pages/auth/ForgotPasswordPage";
+import { LoadingPage } from "./pages/LoadingPage";
+import { HomePage } from "./pages/app/HomePage";
+import { TasksPage } from "./pages/app/TasksPage";
+import { CalendarPage } from "./pages/app/CalendarPage";
+
+/** Languages */
+import "./i18n";
 
 /**
  * Application Root Component
@@ -29,51 +36,62 @@ import { TasksPage } from './pages/app/TasksPage'
  * @returns {JSX.Element} The rendered React Router application.
  */
 function App() {
-	return (
-		<Router>
-			<AuthProvider>
-				<Routes>
-					{/* Landing Pages */}
-					<Route path="/" element={<LandingPage />} />
-					<Route path="/payment" element={<PaymentPage />} />
+    return (
+        <Router>
+            <AuthProvider>
+                <Routes>
+                    {/* Landing Pages */}
+                    <Route path="/" element={<LandingPage />} />
+                    <Route path="/payment" element={<PaymentPage />} />
 
-					{/* Public Authentication Routes */}
-					<Route element={<PublicRoute />}>
-						<Route path="/login" element={<LoginPage />} />
-						<Route path="/register" element={<RegisterPage />} />
-					</Route>
+                    {/* Public Authentication Routes */}
+                    <Route element={<PublicRoute />}>
+                        <Route path="/login" element={<LoginPage />} />
+                        <Route path="/register" element={<RegisterPage />} />
+                    </Route>
 
-					{/* Password Recovery Routes */}
-					<Route path="/forgot-password" element={<ForgotPasswordPage />} />
+                    {/* Password Recovery Routes */}
+                    <Route path="/forgot-password" element={<ForgotPasswordPage />} />
 
-					{/* Loading Screen Route */}
-					<Route path="/loading" element={<LoadingPage />} />
+                    {/* Loading Screen Route */}
+                    <Route path="/loading" element={<LoadingPage />} />
 
-					{/* Protected App Routes */}
-					<Route
-						path="/home"
-						element={
-							<ProtectedRoute>
-								<HomePage />
-							</ProtectedRoute>
-						}
-					/>
+                    {/* Protected App Routes */}
+                    <Route element={<MainProvider />}>
+                        <Route
+                            path="/home"
+                            element={
+                                <ProtectedRoute>
+                                    <HomePage />
+                                </ProtectedRoute>
+                            }
+                        />
 
-					<Route
-						path="/tasks"
-						element={
-							<ProtectedRoute>
-								<TasksPage />
-							</ProtectedRoute>
-						}
-					/>
+                        <Route
+                            path="/tasks"
+                            element={
+                                <ProtectedRoute>
+                                    <TasksPage />
+                                </ProtectedRoute>
+                            }
+                        />
 
-					{/* Fallback Redirection */}
-					<Route path="*" element={<Navigate to="/" replace />} />
-				</Routes>
-			</AuthProvider>
-		</Router>
-	)
+                        <Route
+                            path="/calendar"
+                            element={
+                                <ProtectedRoute>
+                                    <CalendarPage />
+                                </ProtectedRoute>
+                            }
+                        />
+                    </Route>
+
+                    {/* Fallback Redirection */}
+                    <Route path="*" element={<Navigate to="/" replace />} />
+                </Routes>
+            </AuthProvider>
+        </Router>
+    );
 }
 
-export default App
+export default App;

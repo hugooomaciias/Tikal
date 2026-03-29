@@ -1,0 +1,120 @@
+/**
+ * FullCalendar Custom Styles
+ *
+ * Defines the theming for the main calendar component, including grid layouts,
+ * header buttons, events, and monthly view specific scrollbars.
+ */
+
+.main-calendar-theme .fc-theme-standard .fc-scrollgrid {
+    @apply rounded-[1rem] overflow-hidden border-2 border-solid border-[var(--fc-border-color)] !important;
+}
+
+.main-calendar-theme .fc-scrollgrid-section > * {
+    @apply border-x-0 !important;
+}
+
+.main-calendar-theme .fc-scrollgrid-section:first-child > * {
+    @apply border-t-0 !important;
+}
+
+.main-calendar-theme .fc-scrollgrid-section:last-child > * {
+    @apply border-b-0 !important;
+}
+
+.main-calendar-theme .fc .fc-button {
+    @apply rounded-xl font-semibold capitalize outline-none shadow-none bg-primary-500 text-primary-50 border-2 border-primary-500 px-2 !important;
+}
+
+.main-calendar-theme .fc .fc-button-active,
+.main-calendar-theme .fc .fc-button:active {
+    @apply bg-primary-50 text-primary-500 border-primary-500 !important;
+}
+
+.main-calendar-theme .fc .fc-button:focus,
+.main-calendar-theme .fc .fc-button:focus-visible {
+    @apply shadow-none outline-none !important;
+}
+
+.main-calendar-theme .fc .fc-today-button {
+    @apply bg-primary-50 text-primary-500 border-2 border-primary-500 px-4 !important;
+}
+
+.main-calendar-theme .fc .fc-today-button:disabled {
+    @apply bg-primary-500 text-primary-50 border-2 border-primary-500 opacity-50 cursor-not-allowed !important;
+}
+
+.main-calendar-theme .fc .fc-toolbar-chunk > div {
+    @apply gap-[0.3rem];
+}
+
+.main-calendar-theme .fc .fc-toolbar-title {
+    @apply text-2xl font-bold text-quaternary-700 !important;
+}
+
+.main-calendar-theme .fc-event {
+    @apply rounded-md border-none px-1 py-0.5 !important;
+}
+
+.main-calendar-theme .fc .fc-timegrid-slot-label-frame {
+    @apply flex justify-start items-start text-left !important;
+}
+
+.main-calendar-theme .fc .fc-timegrid-slot-label-cushion {
+    @apply text-xs font-bold text-quaternary-400 pt-1 pl-2 lowercase !important;
+}
+
+.main-calendar-theme .fc .fc-timegrid-slot-minor {
+    @apply border-t-[dashed] border-t-quaternary-50 !important;
+}
+
+.main-calendar-theme .fc .fc-timegrid-slot-label {
+    @apply border-b-0 !important;
+}
+
+.main-calendar-theme .fc .fc-col-header-cell-cushion {
+    @apply no-underline text-sm font-bold text-quaternary-700 py-2 uppercase tracking-wide !important;
+}
+
+.main-calendar-theme .fc .fc-daygrid-day-number {
+    @apply no-underline text-sm font-semibold text-quaternary-700 p-2 !important;
+}
+
+.main-calendar-theme .fc .fc-day-other .fc-daygrid-day-number {
+    @apply text-quaternary-400 !important;
+}
+
+.main-calendar-theme .fc .fc-day-today .fc-daygrid-day-number {
+    @apply bg-primary-500 text-white rounded-full w-7 h-7 flex items-center justify-center mt-1 mr-1 !important;
+}
+
+.main-calendar-theme .fc-daygrid-day {
+    @apply min-h-0 relative !important;
+}
+
+.main-calendar-theme .fc-daygrid-day-frame {
+    @apply flex flex-col absolute inset-0 overflow-hidden !important;
+}
+
+.main-calendar-theme .fc-daygrid-day-top {
+    @apply flex flex-row justify-end items-start shrink-0 p-0 !important;
+}
+
+.main-calendar-theme .fc-daygrid-day-events {
+    @apply flex-1 overflow-y-auto min-h-0 mb-0.5 pb-1 !important;
+}
+
+.main-calendar-theme .fc-daygrid-day-events::-webkit-scrollbar {
+    @apply w-1;
+}
+
+.main-calendar-theme .fc-daygrid-day-events::-webkit-scrollbar-track {
+    @apply bg-transparent;
+}
+
+.main-calendar-theme .fc-daygrid-day-events::-webkit-scrollbar-thumb {
+    @apply bg-quaternary-200 rounded-md;
+}
+
+.main-calendar-theme .fc-daygrid-day-events::-webkit-scrollbar-thumb:hover {
+    @apply bg-quaternary-300;
+}

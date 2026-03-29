@@ -1,0 +1,106 @@
+{
+    "tasks_title": "Tasks",
+    "projects": {
+        "title": "Projects",
+        "search": "Search project",
+        "popup": {
+            "title": {
+                "new": {
+                    "project": "New project",
+                    "list": "New list"
+                },
+                "edit": {
+                    "project": "Edit project",
+                    "list": "Edit list"
+                }
+            },
+            "tabs": {
+                "project": "Project",
+                "list": "List"
+            },
+            "name": {
+                "project": "Project name",
+                "list": "List name"
+            },
+            "deadline": "Deadline",
+            "add_deadline": "Add deadline to calendar?",
+            "description": "Write a clarifying note",
+            "button": {
+                "new": {
+                    "project": "Create project",
+                    "list": "Create list"
+                },
+                "edit": "Save changes"
+            }
+        }
+    },
+    "stages": {
+        "title": "Stages",
+        "search": "Search stage",
+        "popup": {
+            "title": {
+                "new": {
+                    "stage": "New stage",
+                    "sublist": "New sublist"
+                },
+                "edit": {
+                    "stage": "Edit stage",
+                    "sublist": "Edit sublist"
+                }
+            },
+            "tabs": {
+                "stage": "Stage",
+                "sublist": "Sublist"
+            },
+            "name": {
+                "stage": "Stage name",
+                "sublist": "Sublist name"
+            },
+            "deadline": "Deadline",
+            "add_deadline": "Add deadline to calendar?",
+            "description": "Write a clarifying note",
+            "button": {
+                "new": {
+                    "stage": "Create stage",
+                    "sublist": "Create sublist"
+                },
+                "edit": "Save changes"
+            }
+        }
+    },
+    "tasks": {
+        "title": "Tasks",
+        "search": "Search task",
+        "popup": {
+            "title": {
+                "new": "New task",
+                "edit": "Edit task"
+            },
+            "name": "Task name",
+            "time_unit_info": "Desired time unit to count this task",
+            "tabs": {
+                "details": "Details",
+                "subtasks": "Subtasks"
+            },
+            "details": {
+                "time": "Time",
+                "time_info": "Estimated time to complete the task",
+                "profit": "Profit",
+                "profit_info": "Estimated profit after completing this task in €",
+                "deadline": "Deadline",
+                "add_deadline": "Add deadline to calendar?",
+                "description": "Write a clarifying note"
+            },
+            "subtasks": {
+                "name": "Subtask",
+                "time": "Time",
+                "profit": "Profit",
+                "add_subtask": "Add subtask"
+            },
+            "button": {
+                "new": "Create task",
+                "edit": "Save changes"
+            }
+        }
+    }
+}

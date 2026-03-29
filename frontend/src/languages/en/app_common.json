@@ -1,0 +1,11 @@
+{
+    "navbar": {
+        "home": "Home",
+        "tasks": "Tasks",
+        "calendar": "Calendar",
+        "statistics": "Statistics",
+        "temple_mode": "Temple mode",
+        "groups": "Groups",
+        "logout": "Log out"
+    }
+}

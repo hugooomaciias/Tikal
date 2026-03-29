@@ -1,12 +1,12 @@
 /** React & Third-Party Libraries */
-import { useState, useEffect } from "react"
-import { useNavigate, useSearchParams } from "react-router-dom"
+import { useState, useEffect } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
 /** Components */
-import { useAuth } from "../../hooks/useAuth"
+import { useAuth } from "../../hooks/useAuth";
 
 /** Assets & Icons */
-import { IconMail, IconEyeClosed, IconEye, IconInfoCircleFilled } from '@tabler/icons-react';
+import { IconMail, IconEyeClosed, IconEye, IconInfoCircleFilled } from "@tabler/icons-react";
 
 /**
  * Forgot Password Form Component
@@ -21,7 +21,7 @@ import { IconMail, IconEyeClosed, IconEye, IconInfoCircleFilled } from '@tabler/
  * @param {Function} props.setApiError - Function to set or clear API errors.
  * @returns {JSX.Element} The interactive password recovery form.
  */
-export const FormForgotPasswordComponent = ({ apiError, setApiError }) => {
+export const FormForgotPasswordComponent = ({ apiError, setApiError, t }) => {
     /**
      * Hook for programmatic navigation.
      */
@@ -48,7 +48,7 @@ export const FormForgotPasswordComponent = ({ apiError, setApiError }) => {
         email: "",
         otpCode: "",
         password: "",
-        confirmPassword: ""
+        confirmPassword: "",
     });
 
     /**
@@ -88,11 +88,11 @@ export const FormForgotPasswordComponent = ({ apiError, setApiError }) => {
         const emailFromUrl = searchParams.get("email");
 
         if (emailFromUrl) {
-            setFormData(prev => ({
+            setFormData((prev) => ({
                 ...prev,
-                email: emailFromUrl
+                email: emailFromUrl,
             }));
-            
+
             setStep(2);
         }
     }, [searchParams]);
@@ -110,46 +110,43 @@ export const FormForgotPasswordComponent = ({ apiError, setApiError }) => {
         if (step === 1) {
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-            if (! formData.email.trim()) {
-                tempErrors.email = "Por favor, introduce un email";
+            if (!formData.email.trim()) {
+                tempErrors.email = t("auth.forgot_password.form.errors.email");
                 isValid = false;
-            } else if (! emailRegex.test(formData.email)) {
-                tempErrors.email = "Por favor, introduce un email válido";
+            } else if (!emailRegex.test(formData.email)) {
+                tempErrors.email = t("auth.forgot_password.form.errors.incorrect_email");
                 isValid = false;
             }
-
         } else if (step === 2) {
             const otpClean = (formData.otpCode || "").replace(/\s/g, "");
 
-            if (! otpClean) {
-                tempErrors.otpCode = "Por favor, introduce el código";
+            if (!otpClean) {
+                tempErrors.otpCode = t("auth.forgot_password.form.errors.code");
                 isValid = false;
             } else if (otpClean.length < 6) {
-                tempErrors.otpCode = "El código debe tener 6 carácteres";
+                tempErrors.otpCode = t("auth.forgot_password.form.errors.incorrect_code");
                 isValid = false;
             }
-
         } else if (step === 3) {
             const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
 
-            if (! formData.password) {
-                tempErrors.password = "Por favor, introduce una contraseña";
+            if (!formData.password) {
+                tempErrors.password = t("auth.forgot_password.form.errors.password");
                 isValid = false;
-            } else if (! passwordRegex.test(formData.password)) {
-                tempErrors.password = "Por favor, introduce una contraseña válida";
+            } else if (!passwordRegex.test(formData.password)) {
+                tempErrors.password = t("auth.forgot_password.form.errors.incorrect_password");
                 isValid = false;
             }
 
             // Validate Confirm Password
-            if (! formData.passwordConf) {
-                tempErrors.passwordConf = "Por favor, introduce una contraseña";
+            if (!formData.passwordConf) {
+                tempErrors.passwordConf = t("auth.forgot_password.form.errors.password");
                 isValid = false;
-            } else if (! passwordRegex.test(formData.passwordConf)) {
-                tempErrors.passwordConf = "Por favor, introduce una contraseña válida";
+            } else if (!passwordRegex.test(formData.passwordConf)) {
+                tempErrors.passwordConf = t("auth.forgot_password.form.errors.incorrect_password");
                 isValid = false;
-
             } else if (formData.password !== formData.passwordConf) {
-                tempErrors.passwordConf = "Las contraseñas no coinciden";
+                tempErrors.passwordConf = t("auth.forgot_password.form.errors.passwords_do_not_match");
                 isValid = false;
             }
         }
@@ -171,14 +168,14 @@ export const FormForgotPasswordComponent = ({ apiError, setApiError }) => {
         const char = value.slice(-1);
         const currentOtpStr = (formData.otpCode || "").padEnd(6, " ");
         let newOtpArray = currentOtpStr.split("");
-        
+
         newOtpArray[index] = char === "" ? " " : char;
         const newOtp = newOtpArray.join("");
-        
-        setFormData(prev => ({ ...prev, otpCode: newOtp }));
+
+        setFormData((prev) => ({ ...prev, otpCode: newOtp }));
 
         if (errors.otpCode) {
-            setErrors(prev => ({ ...prev, otpCode: "" }));
+            setErrors((prev) => ({ ...prev, otpCode: "" }));
         }
 
         if (char !== "" && char !== " " && index < 5) {
@@ -203,11 +200,9 @@ export const FormForgotPasswordComponent = ({ apiError, setApiError }) => {
                 const prevInput = document.getElementById(`otp-${index - 1}`);
                 if (prevInput) prevInput.focus();
             }
-
         } else if (e.key === "ArrowLeft" && index > 0) {
             const prevInput = document.getElementById(`otp-${index - 1}`);
             if (prevInput) prevInput.focus();
-
         } else if (e.key === "ArrowRight" && index < 5) {
             const nextInput = document.getElementById(`otp-${index + 1}`);
             if (nextInput) nextInput.focus();
@@ -223,14 +218,14 @@ export const FormForgotPasswordComponent = ({ apiError, setApiError }) => {
     const handleOtpPaste = (e) => {
         e.preventDefault();
 
-        const pastedData = e.clipboardData.getData("Text").replace(/\s/g, '').slice(0, 6);
-        if (! pastedData) return;
-        
+        const pastedData = e.clipboardData.getData("Text").replace(/\s/g, "").slice(0, 6);
+        if (!pastedData) return;
+
         const newOtp = pastedData.padEnd(6, " ");
-        setFormData(prev => ({ ...prev, otpCode: newOtp }));
-        
+        setFormData((prev) => ({ ...prev, otpCode: newOtp }));
+
         if (errors.otpCode) {
-            setErrors(prev => ({ ...prev, otpCode: "" }));
+            setErrors((prev) => ({ ...prev, otpCode: "" }));
         }
 
         const focusIndex = Math.min(pastedData.length, 5);
@@ -239,8 +234,8 @@ export const FormForgotPasswordComponent = ({ apiError, setApiError }) => {
             const input = document.getElementById(`otp-${focusIndex}`);
             if (input) input.focus();
         } else {
-             const input = document.getElementById(`otp-5`);
-             if (input) input.focus();
+            const input = document.getElementById(`otp-5`);
+            if (input) input.focus();
         }
     };
 
@@ -256,7 +251,7 @@ export const FormForgotPasswordComponent = ({ apiError, setApiError }) => {
         try {
             await forgotPassword(formData.email);
         } catch (error) {
-            console.error('Error al reenviar el código OTP:', error);
+            console.error("Error al reenviar el código OTP:", error);
         }
     };
 
@@ -266,21 +261,21 @@ export const FormForgotPasswordComponent = ({ apiError, setApiError }) => {
      * Updates the specific field in the state object while preserving other
      * values. Also, if a field has an error, typing in it immediately clears
      * the visual error state to improve UX.
-     * 
+     *
      * @param {React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>} e - The change event.
      */
     const handleChange = (e) => {
         const { name, value } = e.target;
 
-        setFormData(prev => ({
+        setFormData((prev) => ({
             ...prev,
-            [name]: value
+            [name]: value,
         }));
 
         if (errors[name]) {
-            setErrors(prev => ({
+            setErrors((prev) => ({
                 ...prev,
-                [name]: ""
+                [name]: "",
             }));
         }
 
@@ -305,19 +300,17 @@ export const FormForgotPasswordComponent = ({ apiError, setApiError }) => {
                     await forgotPassword(formData.email);
                     setStep(2);
                 } catch (error) {
-                    console.error('Error al enviar el correo de recuperación:', error);
+                    console.error("Error al enviar el correo de recuperación:", error);
                     setApiError("Error al enviar el correo de recuperación. Por favor, inténtalo de nuevo.");
                 }
-
             } else if (step === 2) {
                 try {
                     await verifyOTP(formData);
                     setStep(3);
                 } catch (error) {
-                    console.error('Error al verificar el código OTP:', error);
+                    console.error("Error al verificar el código OTP:", error);
                     setApiError(error.message || "Error al verificar el código OTP. Por favor, inténtalo de nuevo.");
                 }
-
             } else if (step === 3) {
                 try {
                     await resetPassword(formData);
@@ -325,7 +318,7 @@ export const FormForgotPasswordComponent = ({ apiError, setApiError }) => {
                     navigate("/login");
                     setFormData({ email: "", otpCode: "", password: "", confirmPassword: "" });
                 } catch (error) {
-                    console.error('Error al verificar el código OTP:', error);
+                    console.error("Error al verificar el código OTP:", error);
                     setApiError(error.message || "Error al verificar el código OTP. Por favor, inténtalo de nuevo.");
                 }
             }
@@ -343,7 +336,7 @@ export const FormForgotPasswordComponent = ({ apiError, setApiError }) => {
         const baseInputClass = "input input-textarea-primary peer disabled:opacity-50 disabled:cursor-not-allowed";
         const errorNoEmailClass = "ring-[3px] ring-tertiary-200";
 
-        const errorClass = `${errors[fieldName] === "Por favor, introduce un email válido" ? "" : errorNoEmailClass}`;
+        const errorClass = `${errors[fieldName] === t("auth.forgot_password.form.errors.incorrect_email") ? "" : errorNoEmailClass}`;
 
         return `${baseInputClass} ${errors[fieldName] ? errorClass : ""}`;
     };
@@ -367,9 +360,9 @@ export const FormForgotPasswordComponent = ({ apiError, setApiError }) => {
 
         if (fieldName === "password" || fieldName === "passwordConf") {
             isPass = true;
-            errorText = "Por favor, introduce una contraseña";
+            errorText = t("auth.forgot_password.form.errors.password");
         } else {
-            errorText =  "Por favor, introduce un email";
+            errorText = t("auth.forgot_password.form.errors.email");
         }
 
         const baseClass = isPass ? basePassClass : baseNoPassClass;
@@ -381,20 +374,31 @@ export const FormForgotPasswordComponent = ({ apiError, setApiError }) => {
         <form onSubmit={handleSubmit} className="flex flex-col items-center justify-center gap-6" noValidate>
             {/* Email Input */}
             <div className="relative w-full">
-                <input type="text" id="email" name="email" placeholder=" "
-                    value={formData.email} onChange={handleChange} required
-                    className={getInputClass("email")} disabled={step > 1}
+                <input
+                    type="text"
+                    id="email"
+                    name="email"
+                    placeholder=" "
+                    value={formData.email}
+                    onChange={handleChange}
+                    required
+                    className={getInputClass("email")}
+                    disabled={step > 1}
                 />
 
                 <label htmlFor="email" className="input-label input-textarea-label-primary">
-                    Email
+                    {t("auth.forgot_password.form.email")}
                 </label>
 
                 <div className={getIconClass("email")}>
                     <IconMail className="h-5 w-5" />
                 </div>
 
-                {errors.email && <span className="absolute -bottom-5 left-0 text-tertiary-200 text-xs font-semibold">{errors.email}</span>}
+                {errors.email && (
+                    <span className="absolute -bottom-5 left-0 text-tertiary-200 text-xs font-semibold">
+                        {errors.email}
+                    </span>
+                )}
             </div>
 
             {/* OTP Input */}
@@ -402,17 +406,23 @@ export const FormForgotPasswordComponent = ({ apiError, setApiError }) => {
                 <div className="relative w-full">
                     <div className="flex justify-between items-center w-full">
                         <label className="text-primary-500 font-semibold text-sm">
-                            Código de verificación
+                            {t("auth.forgot_password.form.otp_code")}
                         </label>
-                        <button type="button" onClick={handleResendOTP} disabled={step > 2}
-                                className="text-primary-500/70 font-semibold text-xs cursor-pointer hover:text-primary-500 hover:underline disabled:opacity-50 disabled:cursor-not-allowed"
+                        <button
+                            type="button"
+                            onClick={handleResendOTP}
+                            disabled={step > 2}
+                            className="text-primary-500/70 font-semibold text-xs cursor-pointer hover:text-primary-500 hover:underline disabled:opacity-50 disabled:cursor-not-allowed"
                         >
-                            Reenviar código
+                            {t("auth.forgot_password.form.resend_code")}
                         </button>
                     </div>
 
-                    <div className="flex items-center justify-between gap-2 md:gap-4 w-full mt-1" onPaste={handleOtpPaste}>
-                        {[0, 1, 2].map(index => {
+                    <div
+                        className="flex items-center justify-between gap-2 md:gap-4 w-full mt-1"
+                        onPaste={handleOtpPaste}
+                    >
+                        {[0, 1, 2].map((index) => {
                             const val = (formData.otpCode || "").padEnd(6, " ")[index];
                             return (
                                 <input
@@ -427,10 +437,10 @@ export const FormForgotPasswordComponent = ({ apiError, setApiError }) => {
                                 />
                             );
                         })}
-                        
+
                         <span className="text-2xl font-bold text-primary-300">-</span>
-                        
-                        {[3, 4, 5].map(index => {
+
+                        {[3, 4, 5].map((index) => {
                             const val = (formData.otpCode || "").padEnd(6, " ")[index];
                             return (
                                 <input
@@ -446,7 +456,11 @@ export const FormForgotPasswordComponent = ({ apiError, setApiError }) => {
                             );
                         })}
                     </div>
-                    {errors.otpCode && <span className="absolute -bottom-5 left-0 text-tertiary-200 text-xs font-semibold">{errors.otpCode}</span>}
+                    {errors.otpCode && (
+                        <span className="absolute -bottom-5 left-0 text-tertiary-200 text-xs font-semibold">
+                            {errors.otpCode}
+                        </span>
+                    )}
                 </div>
             )}
 
@@ -455,41 +469,44 @@ export const FormForgotPasswordComponent = ({ apiError, setApiError }) => {
                 <>
                     {/* Password Input */}
                     <div className="relative w-full">
-                        <input type={showPassword ? "text" : "password"} id="password" name="password" placeholder=" "
-                            value={formData.password} onChange={handleChange}
+                        <input
+                            type={showPassword ? "text" : "password"}
+                            id="password"
+                            name="password"
+                            placeholder=" "
+                            value={formData.password}
+                            onChange={handleChange}
                             className={getInputClass("password")}
                         />
 
                         <label htmlFor="password" className="input-label input-textarea-label-primary">
-                            Contraseña
+                            {t("auth.forgot_password.form.password")}
                         </label>
 
-                        <div className={getIconClass("password")} onClick={() => setShowPassword(! showPassword)}>
-                            {showPassword ? (
-                                <IconEye className="h-5 w-5" />
-                            ) : (
-                                <IconEyeClosed className="h-5 w-5" />
-                            )}
+                        <div className={getIconClass("password")} onClick={() => setShowPassword(!showPassword)}>
+                            {showPassword ? <IconEye className="h-5 w-5" /> : <IconEyeClosed className="h-5 w-5" />}
                         </div>
 
                         {errors.password && (
                             <div className="absolute -bottom-5 left-0 flex items-center gap-1 text-tertiary-200 text-xs font-semibold">
                                 <span>{errors.password}</span>
-                                
-                                {errors.password === "Por favor, introduce una contraseña válida" && (
+
+                                {errors.password === t("auth.forgot_password.form.errors.incorrect_password") && (
                                     <div className="relative group flex items-center">
                                         <IconInfoCircleFilled className="h-4 w-4 cursor-pointer" />
-                                        
-                                        <div className="absolute left-6 z-40 w-48 bg-tertiary-200 text-primary p-3 rounded-lg shadow-xl opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none group-hover:pointer-events-auto">
-                                            <p className="text-primary font-bold mb-1">Requisitos:</p>
+
+                                        <div className="absolute left-6 z-40 w-52 bg-tertiary-200 text-primary p-3 rounded-lg shadow-xl opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none group-hover:pointer-events-auto">
+                                            <p className="font-bold text-primary mb-1">
+                                                {t("auth.password_options.title")}
+                                            </p>
                                             <ul className="list-disc list-inside space-y-1 text-[10px]">
-                                                <li>Mínimo 8 caracteres</li>
-                                                <li>Una mayúscula (A-Z)</li>
-                                                <li>Una minúscula (a-z)</li>
-                                                <li>Un número (0-9)</li>
-                                                <li>Un carácter especial (!@#$...)</li>
+                                                <li>{t("auth.password_options.min_characters")}</li>
+                                                <li>{t("auth.password_options.one_uppercase")}</li>
+                                                <li>{t("auth.password_options.one_lowercase")}</li>
+                                                <li>{t("auth.password_options.one_number")}</li>
+                                                <li>{t("auth.password_options.one_special_character")}</li>
                                             </ul>
-                                            <div className="absolute top-1/2 -left-1 h-2 w-2 bg-tertiary-200 transform -translate-y-1/2 rotate-45"></div>
+                                            <div className="absolute top-1/2 -translate-y-1/2 -left-1 w-2 h-2 bg-tertiary-200 transform rotate-45"></div>
                                         </div>
                                     </div>
                                 )}
@@ -499,16 +516,24 @@ export const FormForgotPasswordComponent = ({ apiError, setApiError }) => {
 
                     {/* Confirm Password Input */}
                     <div className="relative w-full">
-                        <input type={showConfirmPassword ? "text" : "password"} id="passwordConf" name="passwordConf" placeholder=" "
-                            value={formData.passwordConf} onChange={handleChange}
+                        <input
+                            type={showConfirmPassword ? "text" : "password"}
+                            id="passwordConf"
+                            name="passwordConf"
+                            placeholder=" "
+                            value={formData.passwordConf}
+                            onChange={handleChange}
                             className={getInputClass("passwordConf")}
                         />
 
                         <label htmlFor="passwordConf" className="input-label input-textarea-label-primary">
-                            Confirmar contraseña
+                            {t("auth.forgot_password.form.password_confirm")}
                         </label>
 
-                        <div className={getIconClass("passwordConf")} onClick={() => setShowConfirmPassword(! showConfirmPassword)}>
+                        <div
+                            className={getIconClass("passwordConf")}
+                            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                        >
                             {showConfirmPassword ? (
                                 <IconEye className="h-5 w-5" />
                             ) : (
@@ -519,21 +544,23 @@ export const FormForgotPasswordComponent = ({ apiError, setApiError }) => {
                         {errors.passwordConf && (
                             <div className="absolute -bottom-5 left-0 flex items-center gap-1 text-tertiary-200 text-xs font-semibold">
                                 <span>{errors.passwordConf}</span>
-                                
-                                {errors.passwordConf === "Por favor, introduce una contraseña válida" && (
+
+                                {errors.passwordConf === t("auth.forgot_password.form.errors.incorrect_password") && (
                                     <div className="relative group flex items-center">
-                                        <IconInfoCircle className="h-4 w-4" />
-                                        
-                                        <div className="absolute left-6 z-40 w-48 bg-tertiary-200 text-primary p-3 rounded-lg shadow-xl opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none group-hover:pointer-events-auto">
-                                            <p className="text-primary font-bold mb-1">Requisitos:</p>
+                                        <IconInfoCircleFilled className="h-4 w-4" />
+
+                                        <div className="absolute left-6 z-40 w-52 bg-tertiary-200 text-primary p-3 rounded-lg shadow-xl opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none group-hover:pointer-events-auto">
+                                            <p className="font-bold text-primary mb-1">
+                                                {t("auth.password_options.title")}
+                                            </p>
                                             <ul className="list-disc list-inside space-y-1 text-[10px]">
-                                                <li>Mínimo 8 caracteres</li>
-                                                <li>Una mayúscula (A-Z)</li>
-                                                <li>Una minúscula (a-z)</li>
-                                                <li>Un número (0-9)</li>
-                                                <li>Un carácter especial (!@#$...)</li>
+                                                <li>{t("auth.password_options.min_characters")}</li>
+                                                <li>{t("auth.password_options.one_uppercase")}</li>
+                                                <li>{t("auth.password_options.one_lowercase")}</li>
+                                                <li>{t("auth.password_options.one_number")}</li>
+                                                <li>{t("auth.password_options.one_special_character")}</li>
                                             </ul>
-                                            <div className="absolute top-1/2 -left-1 h-2 w-2 bg-tertiary-200 transform -translate-y-1/2 rotate-45"></div>
+                                            <div className="absolute top-1/2 -translate-y-1/2 -left-1 w-2 h-2 bg-tertiary-200 transform rotate-45"></div>
                                         </div>
                                     </div>
                                 )}
@@ -545,8 +572,14 @@ export const FormForgotPasswordComponent = ({ apiError, setApiError }) => {
 
             {/* Submit Button */}
             <button type="submit" className="btn md:w-1/2 btn-primary mt-6">
-                <span>{step === 1 ? 'Enviar código' : step === 2 ? 'Verificar código' : 'Restablecer'}</span>
+                <span>
+                    {step === 1
+                        ? t("auth.forgot_password.form.buttonMessage.step1")
+                        : step === 2
+                          ? t("auth.forgot_password.form.buttonMessage.step2")
+                          : t("auth.forgot_password.form.buttonMessage.step3")}
+                </span>
             </button>
         </form>
-    )
-}
+    );
+};

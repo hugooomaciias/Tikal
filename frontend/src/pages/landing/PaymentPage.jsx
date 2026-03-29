@@ -1,8 +1,14 @@
 /** React & Third-Party Libraries */
-import { Link } from "react-router-dom"
+import { Link } from "react-router-dom";
+
+/** Components */
+import { LanguagePickerComponent } from "../../components/landing/languagePickerComponent.jsx";
 
 /** Assets & Icons */
-import { IconChevronLeft } from '@tabler/icons-react';
+import { IconChevronLeft } from "@tabler/icons-react";
+
+/** Language */
+import { useTranslation } from "react-i18next";
 
 /**
  * Payment Selection Page
@@ -15,11 +21,13 @@ import { IconChevronLeft } from '@tabler/icons-react';
  * @returns {JSX.Element} The full-screen payment selection interface.
  */
 export const PaymentPage = () => {
+    const { t } = useTranslation();
+
     /**
      * Color Theme Configuration
-     * 
+     *
      * This object maps abstract theme keys to concrete Tailwind utility classes.
-     * 
+     *
      * @constant {Object}
      */
     const coloursVariants = {
@@ -39,36 +47,36 @@ export const PaymentPage = () => {
 
     /**
      * Pricing Options Data
-     * 
+     *
      * Defines the content and visual style for each billing cycle card.
-     * 
+     *
      * @type {Array<Object>}
      */
     const pricingOptions = [
         {
             colour: "tertiaryDark",
-            title: "Pago mensual",
-            price: "10 €/mes",
-            discount: "",
-            desc: "Mantén el control absoluto de tus gastos con nuestra opción más libre. Ideal si estás empezando, gestionas proyectos temporales o simplemente prefieres evaluar el impacto de la herramienta mes a mes. Sin contratos de permanencia: tienes la libertad de cancelar o cambiar tu plan cuando lo necesites.",
-            textButton: "Seleccionar mensual"
+            title: t("landing.payment.monthly.title"),
+            price: t("landing.payment.monthly.price"),
+            discount: t("landing.payment.monthly.discount"),
+            desc: t("landing.payment.monthly.description"),
+            textButton: t("landing.payment.monthly.buttonText"),
         },
         {
             colour: "tertiaryMedium",
-            title: "Pago trimestral",
-            price: "25 €/trimestre",
-            discount: "- 17%",
-            desc: "El punto medio perfecto entre agilidad y compromiso. Alinea tus pagos con tus objetivos trimestrales y reduce la carga administrativa de las facturas mensuales, todo mientras disfrutas de un descuento exclusivo por tu confianza a medio plazo.",
-            textButton: "Seleccionar trimestral"
+            title: t("landing.payment.quarterly.title"),
+            price: t("landing.payment.quarterly.price"),
+            discount: t("landing.payment.quarterly.discount"),
+            desc: t("landing.payment.quarterly.description"),
+            textButton: t("landing.payment.quarterly.buttonText"),
         },
         {
             colour: "tertiaryLight",
-            title: "Pago anual",
-            price: "80 €/año",
-            discount: "- 33%",
-            desc: "La decisión financiera más inteligente para equipos consolidados. Realiza un único pago, olvídate de renovaciones administrativas durante 12 meses completos y maximiza tu retorno de inversión aprovechando nuestro mayor descuento disponible.",
-            textButton: "Seleccionar anual"
-        }
+            title: t("landing.payment.annual.title"),
+            price: t("landing.payment.annual.price"),
+            discount: t("landing.payment.annual.discount"),
+            desc: t("landing.payment.annual.description"),
+            textButton: t("landing.payment.annual.buttonText"),
+        },
     ];
 
     return (
@@ -79,9 +87,13 @@ export const PaymentPage = () => {
                     <div className="w-full mx-auto flex items-center justify-between p-8">
                         {/* Brand Logo */}
                         <Link to="/">
-                            <img className="h-10 w-auto cursor-pointer" src="/public/logoHeader_2.svg" alt="Logo Tikal"/>
+                            <img
+                                className="h-10 w-auto cursor-pointer"
+                                src="/public/logoHeader_2.svg"
+                                alt="Logo Tikal"
+                            />
                         </Link>
-            
+
                         {/* Navigation */}
                         <Link to="/#plans">
                             <nav className="h-10 flex items-center gap-2 bg-primary-50 font-semibold p-2 rounded-full shadow-md">
@@ -94,14 +106,10 @@ export const PaymentPage = () => {
 
                 <div className="text-primary text-center">
                     {/* Hero Section */}
-                    <h1 className="text-4xl md:text-5xl font-bold mb-4 leading-tight">
-                        Elige tu forma de pago
-                    </h1>
+                    <h1 className="text-4xl md:text-5xl font-bold mb-4 leading-tight">{t("landing.payment.title")}</h1>
 
                     {/* Description Section */}
-                    <p className="text-xl mb-10">
-                        Selecciona la frecuencia de facturación que mejor se adapte a tu flujo de trabajo y presupuesto.
-                    </p>
+                    <p className="text-xl mb-10">{t("landing.payment.description")}</p>
 
                     {/* Pricing Options */}
                     <div className="w-full grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
@@ -109,14 +117,15 @@ export const PaymentPage = () => {
                             const styles = coloursVariants[option.colour];
 
                             return (
-                                <div key={index} className="h-full flex flex-col justify-between bg-primary p-6 rounded-xl shadow-lg">
+                                <div
+                                    key={index}
+                                    className="h-full flex flex-col justify-between bg-primary p-6 rounded-xl shadow-lg"
+                                >
                                     {/* Card Content Top (Title, Price, Desc) */}
                                     <div className="flex flex-col md:text-left gap-4 text-quaternary-700 mb-6">
-                                        <span className="text-3xl font-light">
-                                            {option.title}
-                                        </span>
+                                        <span className="text-3xl font-light">{option.title}</span>
 
-                                        {option.discount == ""? (
+                                        {option.discount == "" ? (
                                             <div className="flex items-center justify-center md:justify-start">
                                                 <span className={`${styles.text} text-2xl font-light`}>
                                                     {option.price}
@@ -134,19 +143,27 @@ export const PaymentPage = () => {
                                             </div>
                                         )}
 
-                                        <p className="font-extralight">
-                                            {option.desc}
-                                        </p>
+                                        <p className="font-extralight">{option.desc}</p>
                                     </div>
 
                                     {/* Call-to-Action Button */}
-                                    <Link to="/register" state={{ plan: 'COMUNITARIO' }} className={`btn ${styles.bg} text-primary`}>
+                                    <Link
+                                        to="/register"
+                                        state={{ plan: "COMUNITARIO" }}
+                                        className={`btn ${styles.bg} text-primary`}
+                                    >
                                         {option.textButton}
                                     </Link>
                                 </div>
                             );
                         })}
                     </div>
+
+                    <LanguagePickerComponent
+                        btnBgColour="bg-primary-50"
+                        btnTextColour="text-primary-500"
+                        langSection="plans"
+                    />
                 </div>
             </div>
         </div>
