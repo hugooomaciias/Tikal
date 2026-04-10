@@ -9,12 +9,17 @@ import com.tikal.api.model.dto.sync.domain.SubtaskSyncDTO;
 import com.tikal.api.model.dto.sync.domain.TaskSyncDTO;
 import com.tikal.api.model.dto.sync.widgets.*;
 import com.tikal.api.model.entity.*;
+import com.tikal.api.model.entity.enumerated.TimeRangeSetting;
 import com.tikal.api.model.entity.metadata.LayoutsDashboardMetadata;
 import com.tikal.api.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.temporal.TemporalAdjusters;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -28,7 +33,11 @@ public class DashboardService {
     private final ProjectService projectService;
     private final StageRepository stageRepository;
     private final TaskRepository taskRepository;
+    private final WidgetBuilderService widgetBuilderService;
+    private final CalendarEventRepository calendarEventRepository;
+    private final StatisticsService statisticsService;
     private final TimeLogRepository timeLogRepository;
+    private final ProjectRepository projectRepository;
 
     /**
      * Build the giant JSON for starting the application.
@@ -54,11 +63,11 @@ public class DashboardService {
                 .userProfile(userProfile)
                 .settings(userSettings)
                 .templeMode(templeMode)
-                .calendarEvents(buildCalendarEvents(userId)) // Lista global de eventos
+                .calendarEvents(buildCalendarEvents(userId))
                 .projects(buildProjectsList(userId))
-                .homeGeneralInformation(buildHomeHeaders(userId)) // Tus nuevos headers
+                .homeGeneralInformation(buildHomeHeaders(userId))
                 .homeWidgetsData(homeWidgets)
-                .statisticsGeneralInformation(buildStatsHeaders(userId)) // Tus nuevos headers
+                .statisticsGeneralInformation(buildStatsHeaders(user))
                 .statisticsWidgetsData(statsWidgets)
                 .build();
     }
@@ -79,7 +88,7 @@ public class DashboardService {
 
         for (LayoutsDashboardMetadata.WidgetPosition pos : layoutPositions) {
             String widgetId = pos.getI();
-            WidgetData data = WidgetBuilderService.buildSingleWidget(widgetId, userId, settings);
+            WidgetData data = widgetBuilderService.buildSingleWidget(widgetId, userId, settings);
 
             if (data != null) {
                 widgetsMap.put(widgetId, data);
@@ -187,6 +196,114 @@ public class DashboardService {
         return projects.stream()
                 .map(project -> mapProjectToProjectSyncDTO(project, stagesByProject, mainTaskByStage, subtaskByParent))
                 .collect(Collectors.toList());
+    }
+
+    private List<CalendarEventSyncDTO> buildCalendarEvents(Integer userId) {
+        LocalDateTime now = LocalDateTime.now();
+
+        // First day of the previous month
+        LocalDateTime windowStart = now.minusMonths(1).withDayOfMonth(1).with(LocalTime.MIN);
+
+        // Last day in 3 months
+        LocalDateTime windowEnd = now.plusMonths(3).with(TemporalAdjusters.lastDayOfMonth()).with(LocalTime.MAX);
+
+        List<CalendarEvent> eventsInWindow = calendarEventRepository.findEventsInWindow(userId, windowStart, windowEnd);
+
+        // Map entity to DTO
+        return eventsInWindow.stream().map(event -> {
+            // Color logic
+            String eventColor = event.getCustomColour();
+            if (eventColor == null && event.getStage() != null) {
+                eventColor = event.getStage().getColour();
+            }
+            if (eventColor == null) {
+                eventColor = "#6A98F0";
+            }
+
+            return WorkspaceSyncDTO.CalendarEventSyncDTO.builder()
+                    .id(event.getId())
+                    .title(event.getName())
+                    .description(event.getDescription())
+                    .startDate(event.getInitDateTime())
+                    .endDate(event.getEndDateTime())
+                    .color(eventColor)
+                    .build();
+
+        }).collect(Collectors.toList());
+    }
+
+    private List<HeaderInformation> buildHomeHeaders(Integer userId) {
+        // 1. Tareas Pendientes
+        Integer pendingTasks = taskRepository.countByAssignedUser_IdAndIsCompletedFalse(userId);
+
+        // 2. Minutos trabajados HOY
+        LocalDateTime startOfToday = LocalDate.now().atStartOfDay();
+        LocalDateTime endOfToday = LocalDate.now().atTime(LocalTime.MAX);
+        Integer todayMinutesWrapper = timeLogRepository.getTotalMinutesBetweenDates(userId, startOfToday, endOfToday);
+        Integer todayMinutes = todayMinutesWrapper != null ? todayMinutesWrapper : 0;
+
+        // 3. Proyectos (Ajusta la llamada a tu repositorio de proyectos)
+        Integer totalProjects = projectRepository.countByUserOwnerId(userId);
+
+        return List.of(
+                WorkspaceSyncDTO.HeaderInformation.builder()
+                        .title("Tareas pendientes")
+                        .value(pendingTasks != null ? pendingTasks : 0)
+                        .logo("IconTrendingUp")
+                        .build(),
+                WorkspaceSyncDTO.HeaderInformation.builder()
+                        .title("Minutos hoy")
+                        .value(todayMinutes)
+                        .logo("IconClockHour3Filled")
+                        .build(),
+                WorkspaceSyncDTO.HeaderInformation.builder()
+                        .title("Proyectos totales")
+                        .value(totalProjects != null ? totalProjects : 0)
+                        .logo("IconClipboardTextFilled")
+                        .build(),
+                WorkspaceSyncDTO.HeaderInformation.builder()
+                        .title("Proyectos totales")
+                        .value(totalProjects != null ? totalProjects : 0)
+                        .logo("IconClipboardTextFilled")
+                        .build()
+        );
+    }
+
+    private List<HeaderInformation> buildStatsHeaders(User user) {
+        Integer userId = user.getId();
+
+        // 1. Total Hours Register
+        Integer totalHistoricalMinutes = timeLogRepository.getHistoricalTotalMinutes(userId);
+        Integer totalHours = (totalHistoricalMinutes != null ? totalHistoricalMinutes : 0) / 60;
+
+        // 2. Global effectiveness
+        Integer effectiveness = statisticsService.globalEffectiveness(userId, TimeRangeSetting.GLOBAL);
+
+        // 3. Planification
+        Integer planification = statisticsService.planningAccuracy(userId, TimeRangeSetting.GLOBAL);
+
+        return List.of(
+                WorkspaceSyncDTO.HeaderInformation.builder()
+                        .title("Horas registradas")
+                        .value(totalHours)
+                        .logo("IconClockHour3Filled")
+                        .build(),
+                WorkspaceSyncDTO.HeaderInformation.builder()
+                        .title("Eficiencia global")
+                        .value(effectiveness != null ? effectiveness : 0)
+                        .logo("IconBoltFilled")
+                        .build(),
+                WorkspaceSyncDTO.HeaderInformation.builder()
+                        .title("Planificación")
+                        .value(planification != null ? planification : 0)
+                        .logo("IconTimelineEventFilled")
+                        .build(),
+                WorkspaceSyncDTO.HeaderInformation.builder()
+                        .title("Rango actual")
+                        .value(user.getCurrentRank().getId())
+                        .logo("IconBadgesFilled")
+                        .build()
+        );
     }
 
     // ==========================================

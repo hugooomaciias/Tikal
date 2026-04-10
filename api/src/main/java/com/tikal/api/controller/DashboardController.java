@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.*;
 public class DashboardController {
 
     private final DashboardService dashboardService;
-    private final UserService userService;
 
     /**
      * GET /dashboard/sync
@@ -32,6 +31,7 @@ public class DashboardController {
      * GET /dashboard/widgets/solar-chart
      * It is called when the user changes the time filter in the drop-down menu.
      */
+    /**
     @GetMapping("/widgets/solar-chart")
     public ResponseEntity<SolarChartWidgetData> getSolarChartData(
             @RequestParam(defaultValue = "GLOBAL") SolarChartWidgetData.TimeRangeFilter timeRange) {
@@ -41,12 +41,14 @@ public class DashboardController {
 
         return ResponseEntity.ok(data);
     }
+    */
 
     /**
      * GET /dashboard/widgets/effectiveness-chart
      * It is called when the user changes the metric (Concentration/Profitability)
      * or the range (Week/Month).
      */
+    /**
     @GetMapping("/widgets/effectiveness-chart")
     public ResponseEntity<EffectivenessChartWidgetData> getEffectivenessChartData(
             @RequestParam(defaultValue = "WEEKLY") EffectivenessChartWidgetData.TimeRange timeRange,
@@ -57,4 +59,5 @@ public class DashboardController {
 
         return ResponseEntity.ok(data);
     }
+     */
 }

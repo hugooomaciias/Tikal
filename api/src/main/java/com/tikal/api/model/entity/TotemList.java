@@ -21,7 +21,7 @@ public class TotemList {
     private Integer id;
 
     /* --- Name of the totem --- */
-    @Column(nullable = false, length = 100)
+    @Column(nullable = false, length = 100, unique = true)
     private String name;
 
     /* --- Description of the goal to achieve the Totem --- */
@@ -33,11 +33,15 @@ public class TotemList {
     private Integer targetProgress;
 
     /* --- Type of goal that the user has to achieve to get the totem --- */
-    @Column(name = "type_of_goal", nullable = false)
+    @Enumerated(EnumType.STRING)
+    @Column(name = "type_of_goal", nullable = false,
+            columnDefinition = "ENUM('CONCENTRATION', 'PLANNING_ACCURACY', 'GLOBAL_EFFECTIVENESS'," +
+                    "'PLANNING_ACCURACY_WITH_TASKS', 'EFFECTIVENESS_WITH_TASKS', 'EFFECTIVENESS_WITH_STREAK'," +
+                    "'PLANNING_AND_EFFECTIVENESS', 'ALL_PREVIOUS_TOTEMS')")
     private TypeOfGoal typeOfGoal;
 
     /* --- Required Rank to achieve the Totem --- */
-    @Column(name = "required_rank", nullable = false) 
+    @Column(name = "required_rank", nullable = false)
     private Integer requiredRank;
 
     /* --- URL of the Totem image --- */

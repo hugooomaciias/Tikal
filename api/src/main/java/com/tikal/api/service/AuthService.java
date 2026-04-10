@@ -40,6 +40,7 @@ public class AuthService {
     private final JwtService jwtService;
     private final EmailService emailService;
     private final AuthenticationManager authenticationManager;
+    private final UserOnboardingService userOnboardingService;
 
     @Value("${google.client.id}")
     private String googleClientId;
@@ -67,12 +68,14 @@ public class AuthService {
                 .name(request.getName())
                 .email(request.getEmail())
                 .subscriptionPlan(plan)
+                .avatarUrl("/images/avatar/default.png")
                 .password(passwordEncoder.encode(request.getPassword()))
                 .build();
         userRepository.save(user);
         var jwtToken = jwtService.generateToken(user);
         var refreshToken = jwtService.generateRefreshToken(user);
         saveUserToken(user, refreshToken);
+        userOnboardingService.readyNewAccount(user);
         return new TokenResponse(jwtToken, refreshToken);
     }
 

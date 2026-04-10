@@ -108,6 +108,7 @@ public class WorkspaceSyncDTO {
     @Builder
     public static class HeaderInformation {
         private String title;
+        private String logo;
         private Integer value;
     }
 }

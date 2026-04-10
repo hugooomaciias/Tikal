@@ -1,9 +1,12 @@
 package com.tikal.api.service;
 
 import com.tikal.api.model.entity.*;
+import com.tikal.api.model.entity.enumerated.SupportedLanguages;
 import com.tikal.api.model.entity.enumerated.ThemeSetting;
 import com.tikal.api.model.entity.enumerated.TimeRangeSetting;
 import com.tikal.api.model.entity.metadata.LayoutsDashboardMetadata;
+import com.tikal.api.model.entity.metadata.NotificationSettingsMetadata;
+import com.tikal.api.model.entity.metadata.WidgetPreferencesMetadata;
 import com.tikal.api.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -19,60 +22,76 @@ public class UserOnboardingService {
     /**
      * Este método se llama justo después de guardar al nuevo usuario en BD.
      */
-    public void prepararCuentaNueva(User nuevoUsuario) {
-        crearConfiguracionPorDefecto(nuevoUsuario);
-        crearDatosDeEjemplo(nuevoUsuario);
+    public void readyNewAccount(User newUser) {
+        createDefaultSettings(newUser);
+        generateSampleData(newUser);
     }
 
-    private void crearConfiguracionPorDefecto(User usuario) {
+    private void createDefaultSettings(User user) {
         UserSettings settings = new UserSettings();
-        settings.setUser(usuario);
+        settings.setUser(user);
         settings.setTheme(ThemeSetting.MAYA);
         settings.setTimeRange(TimeRangeSetting.SEMANAL);
+        settings.setUserLanguage(SupportedLanguages.ES);
+        settings.setHoursGoal(40);
+        settings.setFocusSessionMinutes(25);
+        settings.setNotificationSettings(new NotificationSettingsMetadata());
+        settings.setWidgetPreferences(new WidgetPreferencesMetadata());
 
         LayoutsDashboardMetadata layouts = new LayoutsDashboardMetadata();
 
-        // Cajas para el Home
-        layouts.getHome().add(new LayoutsDashboardMetadata.WidgetPosition("headerStats", 0, 0, 12, 2));
-        layouts.getHome().add(new LayoutsDashboardMetadata.WidgetPosition("timeTracker", 0, 2, 4, 4));
-        layouts.getHome().add(new LayoutsDashboardMetadata.WidgetPosition("taskList", 4, 2, 8, 8));
+        // Home widgets
+        layouts.getHome().add(new LayoutsDashboardMetadata.WidgetPosition("weeklyProgressWidget", 0, 0, 1, 1));
+        layouts.getHome().add(new LayoutsDashboardMetadata.WidgetPosition("timeTrackerWidget", 0, 1, 1, 1));
+        layouts.getHome().add(new LayoutsDashboardMetadata.WidgetPosition("templeModeWidget", 0, 2, 1, 1));
+        layouts.getHome().add(new LayoutsDashboardMetadata.WidgetPosition("taskWidget", 0, 3, 1, 2));
+        layouts.getHome().add(new LayoutsDashboardMetadata.WidgetPosition("AIMainWidget", 1, 0, 1, 1));
+        layouts.getHome().add(new LayoutsDashboardMetadata.WidgetPosition("calendarWidget", 1, 1, 2, 1));
 
         // Cajas para las Estadísticas
-        layouts.getStatistics().add(new LayoutsDashboardMetadata.WidgetPosition("solarChart", 0, 0, 6, 6));
-        layouts.getStatistics().add(new LayoutsDashboardMetadata.WidgetPosition("heatmap", 6, 0, 6, 6));
+        layouts.getStatistics().add(new LayoutsDashboardMetadata.WidgetPosition("solarChartWidget", 0, 0, 1, 2));
+        layouts.getStatistics().add(new LayoutsDashboardMetadata.WidgetPosition("effectivenessChartWidget", 0, 1, 2, 1));
+        layouts.getStatistics().add(new LayoutsDashboardMetadata.WidgetPosition("timeGoalWidget", 0, 3, 1, 1));
+        layouts.getStatistics().add(new LayoutsDashboardMetadata.WidgetPosition("concentrationHeatmapWidget", 1, 1, 1, 1));
+        layouts.getStatistics().add(new LayoutsDashboardMetadata.WidgetPosition("comparisonWidget", 1, 2, 1, 1));
+        layouts.getStatistics().add(new LayoutsDashboardMetadata.WidgetPosition("iaAdviceWidget", 1, 3, 1, 1));
 
         settings.setLayoutsDashboards(layouts);
 
         settingsRepository.save(settings);
     }
 
-    private void crearDatosDeEjemplo(User usuario) {
-        Project proyectoBienvenida = new Project();
-        proyectoBienvenida.setName("👋 Bienvenido a Tikal");
-        proyectoBienvenida.setDescription("Proyecto de ejemplo para que aprendas a usar la plataforma.");
-        proyectoBienvenida.setUserOwner(usuario);
-        proyectoBienvenida = projectRepository.save(proyectoBienvenida);
+    private void generateSampleData(User user) {
+        Project welcomeProject = new Project();
+        welcomeProject.setName("Proyecto de prueba");
+        welcomeProject.setDescription("Proyecto de ejemplo para aprender a usar la plataforma");
+        welcomeProject.setUserOwner(user);
+        welcomeProject.setLogoUrl("IconBook");
+        welcomeProject.setIsGroupBased(false);
+        welcomeProject = projectRepository.save(welcomeProject);
 
-        Stage fasePorHacer = new Stage();
-        fasePorHacer.setName("Stage 1 de ejemplo");
-        fasePorHacer.setProject(proyectoBienvenida);
-        fasePorHacer = stageRepository.save(fasePorHacer);
+        Stage stage1 = new Stage();
+        stage1.setName("Fase 1 de ejemplo");
+        stage1.setProject(welcomeProject);
+        stage1.setColour("#E1BA63");
+        stage1 = stageRepository.save(stage1);
 
-        Stage faseCompletado = new Stage();
-        faseCompletado.setName("Stage 2 de ejemplo");
-        faseCompletado.setProject(proyectoBienvenida);
-        faseCompletado = stageRepository.save(faseCompletado);
+        Stage stage2 = new Stage();
+        stage2.setName("Fase 2 de ejemplo");
+        stage2.setProject(welcomeProject);
+        stage2.setColour("#224A57");
+        stage2 = stageRepository.save(stage2);
 
-        Task tarea1 = new Task();
-        tarea1.setName("Explorar el Dashboard Solar");
-        tarea1.setStage(fasePorHacer);
-        tarea1.setAssignedUser(usuario);
-        taskRepository.save(tarea1);
+        Task task1 = new Task();
+        task1.setName("Explorar el Dashboard Solar");
+        task1.setStage(stage1);
+        task1.setAssignedUser(user);
+        taskRepository.save(task1);
 
-        Task tarea2 = new Task();
-        tarea2.setName("Configurar mi perfil y avatar");
-        tarea2.setStage(faseCompletado);
-        tarea2.setAssignedUser(usuario);
-        taskRepository.save(tarea2);
+        Task task2 = new Task();
+        task2.setName("Configurar mi perfil y avatar");
+        task2.setStage(stage2);
+        task2.setAssignedUser(user);
+        taskRepository.save(task2);
     }
 }

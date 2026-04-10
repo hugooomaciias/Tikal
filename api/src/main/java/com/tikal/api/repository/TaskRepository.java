@@ -27,6 +27,17 @@ public interface TaskRepository extends JpaRepository<Task, Integer>{
     /* --- Fallback: Get any task from the user (for onboarding) --- */
     Task findFirstByAssignedUser_Id(Integer userId);
 
+    /* --- Count the number of main tasks completed within a date range --- */
+    @Query("SELECT COUNT(t) FROM Task t " +
+            "WHERE t.assignedUser.id = :userId " +
+            "AND t.isCompleted = true " +
+            "AND t.parentTask IS NULL " +
+            "AND t.completionDate >= :startDate AND t.completionDate <= :endDate")
+    Integer countCompletedTasksBetweenDates(
+            @Param("userId") Integer userId,
+            @Param("startDate") LocalDateTime startDate,
+            @Param("endDate") LocalDateTime endDate);
+
     /* --- Show main tasks (without a parent) that are pending or have been recently completed --- */
     @Query("SELECT t FROM Task t " +
             "WHERE t.assignedUser.id = :userId " +
@@ -96,4 +107,9 @@ public interface TaskRepository extends JpaRepository<Task, Integer>{
             "ORDER BY DATE(t.completionDate) DESC")
     List<Object[]> findDailyAverageEffectiveness(@Param("userId") Integer userId);
 
+    /* --- Count the user's pending tasks --- */
+    Integer countByAssignedUser_IdAndIsCompletedFalse(Integer userId);
+
+    /* --- Count the total number of tasks completed by the user --- */
+    Integer countByAssignedUser_IdAndIsCompletedTrue(Integer userId);
 }

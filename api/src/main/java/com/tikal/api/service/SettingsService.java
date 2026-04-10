@@ -80,6 +80,7 @@ public class SettingsService {
         dto.setTimezone(entity.getTimezone());
         dto.setFirstDayOfWeek(entity.getFirstDayOfWeek());
         dto.setShowRankInTeam(entity.getShowRankInTeam());
+        dto.setUserLanguage(entity.getUserLanguage());
 
         dto.setLayoutsDashboards(entity.getLayoutsDashboards());
         dto.setWidgetPreferences(entity.getWidgetPreferences());

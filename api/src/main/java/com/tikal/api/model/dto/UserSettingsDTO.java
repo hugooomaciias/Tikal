@@ -1,6 +1,7 @@
 package com.tikal.api.model.dto;
 
 import com.tikal.api.model.entity.enumerated.DayOfWeekSetting;
+import com.tikal.api.model.entity.enumerated.SupportedLanguages;
 import com.tikal.api.model.entity.enumerated.ThemeSetting;
 import com.tikal.api.model.entity.enumerated.TimeRangeSetting;
 import com.tikal.api.model.entity.metadata.LayoutsDashboardMetadata;
@@ -25,6 +26,7 @@ public class UserSettingsDTO {
     private String timezone;
     private DayOfWeekSetting firstDayOfWeek;
     private Boolean showRankInTeam;
+    private SupportedLanguages userLanguage;
 
     // --- JSON metadata ---
     private LayoutsDashboardMetadata layoutsDashboards;

@@ -22,7 +22,7 @@ public class Project {
 
     /* --- Project name --- */
     @Column(nullable = false, length = 100)
-    private String name; 
+    private String name;
 
     /* --- Project description --- */
     @Column(columnDefinition = "TEXT")

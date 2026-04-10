@@ -19,10 +19,10 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class GamificationService {
-    private TotemInventoryRepository totemInventoryRepository;
-    private TotemListRepository totemListRepository;
-    private TimeLogRepository timeLogRepository;
-    private TaskRepository taskRepository;
+    private final TotemInventoryRepository totemInventoryRepository;
+    private final TotemListRepository totemListRepository;
+    private final TimeLogRepository timeLogRepository;
+    private final TaskRepository taskRepository;
     private final StatisticsService statisticsService;
 
     public List<TotemInventory> obtainUserTotemInventory(Integer userId) {

@@ -23,4 +23,7 @@ public interface ProjectRepository extends JpaRepository<Project, Integer> {
     /* --- Search for projects whose team has a member who is my user --- */
     @Query("SELECT p FROM Project p JOIN TeamMember tm ON p.team.id = tm.team.id WHERE tm.user.id = :userId")
     List<Project> findProjectsByUserId(@Param("userId") Integer userId);
+
+    /* --- Count the user's total projects --- */
+    Integer countByUserOwnerId(Integer userId);
 }

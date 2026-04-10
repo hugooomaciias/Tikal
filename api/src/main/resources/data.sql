@@ -1,10 +1,7 @@
 
-
 ------------------------------------------------------
 -----  Estas son las vistas que se usa 
 ------------------------------------------------------
-
-
 
 -- Funcionalidad de la vista: mirar cada tarea que tenga un estimated profit y 
 -- ver cuántos euros equivale un minuto de trabajo en esta tarea.

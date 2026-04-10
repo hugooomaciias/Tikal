@@ -1,12 +1,13 @@
 package com.tikal.api.service;
 
+import com.tikal.api.exception.NotFoundRankException;
+import com.tikal.api.exception.NotFoundUserException;
 import com.tikal.api.model.dto.sync.widgets.*;
-import com.tikal.api.model.entity.Project;
-import com.tikal.api.model.entity.Task;
-import com.tikal.api.model.entity.TimeLog;
-import com.tikal.api.model.entity.UserSettings;
+import com.tikal.api.model.entity.*;
+import com.tikal.api.repository.RankListRepository;
 import com.tikal.api.repository.TaskRepository;
 import com.tikal.api.repository.TimeLogRepository;
+import com.tikal.api.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -22,6 +23,8 @@ public class WidgetBuilderService {
 
     private final TaskRepository taskRepository;
     private final TimeLogRepository timeLogRepository;
+    private final UserRepository userRepository;
+    private final RankListRepository rankListRepository;
 
     public WidgetData buildSingleWidget(String widgetId, Integer userId, UserSettings settings) {
         return switch (widgetId) {
@@ -130,15 +133,26 @@ public class WidgetBuilderService {
     }
 
     private WidgetData buildTempleModeWidget(Integer userId, UserSettings settings) {
-        LocalDate today = LocalDate.now();
-        LocalDateTime startOfDay = today.atStartOfDay();
-        LocalDateTime endOfDay = today.atTime(23, 59, 59);
-
-        Integer todayMinutes = timeLogRepository.sumTempleMinutesToday(userId, startOfDay, endOfDay);
+        User user = userRepository.findById(userId).orElseThrow(NotFoundUserException::new);
+        RankList userRank = user.getCurrentRank();
         Integer defaultSession = settings.getFocusSessionMinutes() != null ? settings.getFocusSessionMinutes() : 25;
 
+        int globalTempleMinutes = timeLogRepository.getHistoricalTempleMinutes(userId);
+        double percentage = 0;
+        if (userRank.getId() == 0) {
+            percentage = 100;
+        } else if (globalTempleMinutes > 0) {
+            double templeHours = (double) globalTempleMinutes / 60;
+            percentage = (templeHours - userRank.getRequiredHours()) /
+                    (userRank.getNextHours() - userRank.getRequiredHours()) * 100;
+            percentage = Math.clamp(percentage, 0.0, 100.0);
+        }
+
+        percentage = Math.round(percentage * 10.0) / 10.0;
         return TempleModeWidgetData.builder()
-                .todayFocusedMinutes(todayMinutes != null ? todayMinutes : 0)
+                .rankPercentage(percentage)
+                .colour(userRank.getColour())
+                .logo(userRank.getBadgeImageUrl())
                 .defaultFocusSessionMinutes(defaultSession)
                 .build();
     }
@@ -322,7 +336,7 @@ public class WidgetBuilderService {
 
         LocalDate endDate = startDate.plusDays(6);
 
-        LocalTime startHour = LocalTime.of(8, 0);
+        LocalTime startHour = LocalTime.of(8, 0);  // Changes required because it depends of the widget configuration
 
         Boolean showWeekends = true;
 
@@ -544,7 +558,6 @@ public class WidgetBuilderService {
             EffectivenessChartWidgetData.MetricType metric,
             EffectivenessChartWidgetData.TimeRange range) {
 
-
         LocalDate startDate;
         LocalDate endDate;
 
@@ -638,6 +651,200 @@ public class WidgetBuilderService {
             // Para el mes, devuelve el número del día (1, 2, 3... 31)
             return String.valueOf(date.getDayOfMonth());
         }
+    }
+    // ==========================================
+
+    // ==========================================
+    // TIME GOAL WIDGET
+    // ==========================================
+    public WidgetData buildTimeGoalWidget(Integer userId, UserSettings settings) {
+
+        LocalDate startDate;
+        if (settings.getFirstDayOfWeek() != null && settings.getFirstDayOfWeek().name().equalsIgnoreCase("DOMINGO")) {
+            startDate = LocalDate.now().with(TemporalAdjusters.previousOrSame(DayOfWeek.SUNDAY));
+        } else {
+            startDate = LocalDate.now().with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+        }
+
+        LocalDate endDate = startDate.plusDays(6);
+
+        LocalDateTime startDateTime = startDate.atStartOfDay();
+        LocalDateTime endDateTime = endDate.atTime(LocalTime.MAX);
+
+        Integer currentMinutesWrapper = timeLogRepository.getTotalMinutesBetweenDates(userId, startDateTime, endDateTime);
+        int currentMinutes = currentMinutesWrapper != null ? currentMinutesWrapper : 0;
+        int goalHours = settings.getHoursGoal() != null ? settings.getHoursGoal() : 40;
+        int goalMinutes = goalHours * 60;
+        double completionPercentage = 0.0;
+        if (goalMinutes > 0) {
+            completionPercentage = ((double) currentMinutes / goalMinutes) * 100.0;
+        }
+
+        if (completionPercentage > 100) {
+            completionPercentage = 100;
+        }
+        completionPercentage = Math.round(completionPercentage * 10.0) / 10.0;
+
+        Locale locale = new Locale("es", "ES");
+        DateTimeFormatter dayFormatter = DateTimeFormatter.ofPattern("d");
+        DateTimeFormatter monthFormatter = DateTimeFormatter.ofPattern("MMM", locale);
+        DateTimeFormatter yearFormatter = DateTimeFormatter.ofPattern("yyyy");
+
+        // 2. Construcción del subtítulo dinámico
+        String subtitle;
+        String startMonth = startDate.format(monthFormatter).replace(".", "").toLowerCase();
+        String endMonth = endDate.format(monthFormatter).replace(".", "").toLowerCase();
+        String year = endDate.format(yearFormatter);
+
+        if (startDate.getMonth() == endDate.getMonth()) {
+            // Caso: 21 - 27 sept, 2026
+            subtitle = String.format("%d - %d %s, %s",
+                    startDate.getDayOfMonth(),
+                    endDate.getDayOfMonth(),
+                    endMonth,
+                    year);
+        } else {
+            // Caso: 28 sep - 4 oct, 2026
+            subtitle = String.format("%d %s - %d %s, %s",
+                    startDate.getDayOfMonth(),
+                    startMonth,
+                    endDate.getDayOfMonth(),
+                    endMonth,
+                    year);
+        }
+
+        return TimeGoalWidgetData.builder()
+                .currentMinutes(currentMinutes)
+                .goalMinutes(goalMinutes)
+                .completionPercentage(completionPercentage)
+                .startDate(startDate)
+                .endDate(endDate)
+                .subtitle(subtitle)
+                .build();
+    }
+    // ==========================================
+
+    // ==========================================
+    // COMPARISON WIDGET
+    // ==========================================
+    private ComparisonWidgetData buildComparisonWidget(Integer userId, UserSettings settings) {
+        return buildComparisonWidgetDynamic(userId, ComparisonWidgetData.TimeRangeFilter.THIS_WEEK, settings);
+    }
+
+    // Dynamic method for the controller
+    public ComparisonWidgetData buildComparisonWidgetDynamic(
+            Integer userId,
+            ComparisonWidgetData.TimeRangeFilter filter,
+            UserSettings settings) {
+
+        // 1. Calculation of the time limits (Actual vs Previous)
+        LocalDateTime[] periods = calculateComparisonPeriods(filter, settings);
+        LocalDateTime currentStart = periods[0];
+        LocalDateTime currentEnd = periods[1];
+        LocalDateTime previousStart = periods[2];
+        LocalDateTime previousEnd = periods[3];
+
+        // 2. Extract the ACTUAL data
+        int currTotalMins = getSafeInt(timeLogRepository.getTotalMinutesBetweenDates(userId, currentStart, currentEnd));
+        int currTempleMins = getSafeInt(timeLogRepository.getTempleMinutesBetweenDates(userId, currentStart, currentEnd));
+        int currTasks = getSafeInt(taskRepository.countCompletedTasksBetweenDates(userId, currentStart, currentEnd));
+
+        // 3. Extract the PREVIOUS data
+        int prevTotalMins = getSafeInt(timeLogRepository.getTotalMinutesBetweenDates(userId, previousStart, previousEnd));
+        int prevTempleMins = getSafeInt(timeLogRepository.getTempleMinutesBetweenDates(userId, previousStart, previousEnd));
+        int prevTasks = getSafeInt(taskRepository.countCompletedTasksBetweenDates(userId, previousStart, previousEnd));
+
+        // 4. Metrics constructor
+        List<ComparisonWidgetData.ComparisonMetric> metrics = new ArrayList<>();
+        metrics.add(buildTimeMetric("TOTAL_HOURS", "Horas registradas", currTotalMins, prevTotalMins));
+        metrics.add(buildTimeMetric("TEMPLE_HOURS", "Modo Templo", currTempleMins, prevTempleMins));
+        metrics.add(buildNumericMetric("COMPLETED_TASKS", "Tareas completadas", currTasks, prevTasks));
+
+        return ComparisonWidgetData.builder()
+                .selectedFilter(filter)
+                .metrics(metrics)
+                .build();
+    }
+
+    // --- Helpers de Fechas ---
+    private LocalDateTime[] calculateComparisonPeriods(ComparisonWidgetData.TimeRangeFilter filter, UserSettings settings) {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime currentStart, currentEnd, previousStart, previousEnd;
+
+        if (filter == ComparisonWidgetData.TimeRangeFilter.THIS_WEEK) {
+            // Actual Week
+            DayOfWeek firstDay = (settings != null && settings.getFirstDayOfWeek() != null && settings.getFirstDayOfWeek().name().equalsIgnoreCase("DOMINGO"))
+                    ? DayOfWeek.SUNDAY : DayOfWeek.MONDAY;
+
+            currentStart = now.with(TemporalAdjusters.previousOrSame(firstDay)).with(LocalTime.MIN);
+            currentEnd = currentStart.plusDays(6).with(LocalTime.MAX);
+
+            // Previous week
+            previousStart = currentStart.minusWeeks(1);
+            previousEnd = currentEnd.minusWeeks(1);
+        } else {
+            // Actual month
+            currentStart = now.withDayOfMonth(1).with(LocalTime.MIN);
+            currentEnd = now.with(TemporalAdjusters.lastDayOfMonth()).with(LocalTime.MAX);
+
+            // Previous month
+            previousStart = currentStart.minusMonths(1);
+            previousEnd = previousStart.with(TemporalAdjusters.lastDayOfMonth()).with(LocalTime.MAX);
+        }
+        return new LocalDateTime[]{currentStart, currentEnd, previousStart, previousEnd};
+    }
+
+    // --- Metrics constructor ---
+    private ComparisonWidgetData.ComparisonMetric buildTimeMetric(String id, String label, int currMins, int prevMins) {
+        int diffMins = currMins - prevMins;
+        ComparisonWidgetData.Trend trend = determineTrend(diffMins);
+
+        String displayValue = formatTimeDiff(diffMins);
+
+        return ComparisonWidgetData.ComparisonMetric.builder()
+                .id(id)
+                .label(label)
+                .displayValue(displayValue)
+                .direction(trend)
+                .build();
+    }
+
+    private ComparisonWidgetData.ComparisonMetric buildNumericMetric(String id, String label, int currNum, int prevNum) {
+        int diff = currNum - prevNum;
+        ComparisonWidgetData.Trend trend = determineTrend(diff);
+
+        String displayValue = (diff > 0 ? "+" : "") + diff;
+
+        return ComparisonWidgetData.ComparisonMetric.builder()
+                .id(id)
+                .label(label)
+                .displayValue(displayValue)
+                .direction(trend)
+                .build();
+    }
+
+    private ComparisonWidgetData.Trend determineTrend(int difference) {
+        if (difference > 0) return ComparisonWidgetData.Trend.POSITIVE;
+        if (difference < 0) return ComparisonWidgetData.Trend.NEGATIVE;
+        return ComparisonWidgetData.Trend.NEUTRAL;
+    }
+
+    private String formatTimeDiff(int totalMinutesDiff) {
+        int absMins = Math.abs(totalMinutesDiff);
+        int hours = absMins / 60;
+        int mins = absMins % 60;
+
+        StringBuilder sb = new StringBuilder();
+        sb.append(totalMinutesDiff >= 0 ? "+" : "-");
+
+        if (hours > 0) sb.append(hours).append("h ");
+        if (mins > 0 || hours == 0) sb.append(mins).append("m");
+
+        return sb.toString().trim();
+    }
+
+    private int getSafeInt(Integer value) {
+        return value != null ? value : 0;
     }
     // ==========================================
 

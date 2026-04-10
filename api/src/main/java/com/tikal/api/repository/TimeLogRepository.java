@@ -35,6 +35,31 @@ public interface TimeLogRepository extends JpaRepository<TimeLog, Integer> {
     /* --- Retrieve the latest time log for the user associated with a task --- */
     TimeLog findFirstByUser_IdAndTaskIsNotNullOrderByInitDateTimeDesc(Integer userId);
 
+    /* --- Obtain total minutes worked between two dates --- */
+    @Query(value = "SELECT SUM(TIMESTAMPDIFF(MINUTE, init_date_time, end_date_time)) " +
+            "FROM time_logs " +
+            "WHERE user_id = :userId " +
+            "AND end_date_time IS NOT NULL " +
+            "AND init_date_time >= :startDate AND init_date_time <= :endDate",
+            nativeQuery = true)
+    Integer getTotalMinutesBetweenDates(
+            @Param("userId") Integer userId,
+            @Param("startDate") LocalDateTime startDate,
+            @Param("endDate") LocalDateTime endDate);
+
+    /* --- Get the total minutes in Temple Mode within a date range --- */
+    @Query(value = "SELECT COALESCE(SUM(TIMESTAMPDIFF(MINUTE, init_date_time, end_date_time)), 0) " +
+            "FROM time_logs " +
+            "WHERE user_id = :userId " +
+            "AND is_temple_mode = 1 " +
+            "AND end_date_time IS NOT NULL " +
+            "AND init_date_time >= :startDate AND init_date_time <= :endDate",
+            nativeQuery = true)
+    Integer getTempleMinutesBetweenDates(
+            @Param("userId") Integer userId,
+            @Param("startDate") LocalDateTime startDate,
+            @Param("endDate") LocalDateTime endDate);
+
     // ==========================================
     // SOLAR CHART (The 3 layers of drill-down)
     // ==========================================
@@ -169,4 +194,22 @@ public interface TimeLogRepository extends JpaRepository<TimeLog, Integer> {
             @Param("userId") Integer userId,
             @Param("startOfDay") LocalDateTime startOfDay,
             @Param("endOfDay") LocalDateTime endOfDay);
+
+    // ==========================================
+    // HEADERS METHODS
+    // ==========================================
+
+    /* --- Add up all the minutes in temple mode (total history) --- */
+    @Query(value = "SELECT COALESCE(SUM(TIMESTAMPDIFF(MINUTE, init_date_time, end_date_time)), 0) " +
+            "FROM time_logs " +
+            "WHERE user_id = :userId AND is_temple_mode = 1 AND end_date_time IS NOT NULL",
+            nativeQuery = true)
+    Integer getHistoricalTempleMinutes(@Param("userId") Integer userId);
+
+    /* --- Add up total minutes played --- */
+    @Query(value = "SELECT COALESCE(SUM(TIMESTAMPDIFF(MINUTE, init_date_time, end_date_time)), 0) " +
+            "FROM time_logs " +
+            "WHERE user_id = :userId AND end_date_time IS NOT NULL",
+            nativeQuery = true)
+    Integer getHistoricalTotalMinutes(@Param("userId") Integer userId);
 }
