@@ -9,9 +9,6 @@ import {
     IconSquareRoundedCheckFilled,
 } from "@tabler/icons-react";
 
-/** Language */
-import { useTranslation } from "react-i18next";
-
 /**
  * Icon Component Map
  *
@@ -39,15 +36,7 @@ const ICON_MAP = {
  * @param {Function} props.setCheckChanges - Function to update the check changes state.
  * @returns {JSX.Element} The rendered header component.
  */
-export const Header = ({ isEditing, setIsEditing, checkChanges, setCheckChanges }) => {
-    /**
-     * Translation Hook
-     *
-     * Provides access to the i18n instance specifically scoped to the "app_home"
-     * namespace to localize header text content dynamically.
-     */
-    const { t } = useTranslation("app_home");
-
+export const Header = ({ isEditing, setIsEditing, checkChanges, setCheckChanges, t }) => {
     /**
      * Project Information Options
      *
@@ -111,7 +100,7 @@ export const Header = ({ isEditing, setIsEditing, checkChanges, setCheckChanges 
                 {/* AI / Assistant Icon and Edit Controls */}
                 <div className="w-fit h-fit flex flex-col items-center justify-between gap-2">
                     <img
-                        className="w-14 h-14 cursor-pointer hover:scale-105 transition-transform"
+                        className="w-14 h-14 cursor-pointer hover:scale-105 transition-transform duration-200"
                         src="/public/sabidurIAIcon.svg"
                         alt="God of Wisdom Icon"
                     />
@@ -138,12 +127,12 @@ export const Header = ({ isEditing, setIsEditing, checkChanges, setCheckChanges 
                         {/* Action Bar (Visible when Editing) */}
                         <div
                             className={`absolute flex flex-col items-center justify-between h-full w-full transition-all duration-300
-                                ${isEditing ? "opacity-100 scale-100" : "opacity-0 scale-150 pointer-events-none"}
+                                ${isEditing ? "opacity-100 scale-100" : "opacity-0 pointer-events-none"}
                             `}
                         >
                             {/* Top Toggle: Cancel / Commit */}
                             <div
-                                className="w-full h-1/2 cursor-pointer hover:text-primary-600 hover:scale-110 transition-all"
+                                className="w-full h-1/2 cursor-pointer hover:text-primary-600 transition-all"
                                 onClick={() => setIsEditing(false)}
                             >
                                 {!checkChanges ? (
@@ -154,7 +143,7 @@ export const Header = ({ isEditing, setIsEditing, checkChanges, setCheckChanges 
                             </div>
 
                             {/* Bottom Toggle: Addition Tool */}
-                            <div className="w-full h-1/2 cursor-pointer hover:text-primary-600 hover:scale-110 transition-all mt-1">
+                            <div className="w-full h-1/2 cursor-pointer hover:text-primary-600 transition-all mt-1">
                                 <IconSquareRoundedPlus className="w-full h-full" />
                             </div>
                         </div>

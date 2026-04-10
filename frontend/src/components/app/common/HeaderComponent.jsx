@@ -1,3 +1,9 @@
+/** React & Third-Party Libraries */
+import { useState } from "react";
+
+/** Contexts */
+import { useTimeTracker } from "../../../context/TimeTrackerContext";
+
 /** Assets & Icons */
 import {
     IconLayoutKanban,
@@ -7,7 +13,13 @@ import {
     IconSquareRoundedXFilled,
     IconSquareRoundedCheckFilled,
     IconSquareRoundedPlus,
+    IconPlayerPlayFilled,
+    IconPlayerPauseFilled,
+    IconPlayerStopFilled,
 } from "@tabler/icons-react";
+
+/** Constants */
+import { PHASE_COLOURS } from "../../../constants/phase_colours.js";
 
 /**
  * Application Header Component
@@ -26,11 +38,102 @@ import {
  * @returns {JSX.Element} The rendered header component.
  */
 export const HeaderComponent = ({ page, get1, get2, set1, set2, t }) => {
+    const {
+        isActive,
+        secs,
+        activeColorId,
+        projectIcon: ProjectIcon,
+        taskName,
+        toggleTimer,
+        stopTimer,
+        getParsedTime,
+    } = useTimeTracker();
+    const [isTrackerExpanded, setIsTrackerExpanded] = useState(false);
+
+    const foundColor = activeColorId ? PHASE_COLOURS.find((color) => color.id === activeColorId) : PHASE_COLOURS[0];
+
+    const darkColor = foundColor.hex;
+    const lightColor = foundColor.light;
+
+    const { hours, minutes, seconds, hasHours } = getParsedTime(secs);
+    const headerTimeString = hasHours ? `${hours}:${minutes}:${seconds}` : `${minutes}:${seconds}`;
+
     return (
         <div className="flex items-center justify-between">
             {/* Page Title Wrapper */}
-            <div className="h-full w-fit bg-primary flex items-center px-5 py-3 rounded-full shadow-md">
-                <h2 className="text-2xl text-primary-600 font-bold">{page}</h2>
+            <div className="h-full w-fit flex items-center gap-4 rounded-full">
+                <div className="h-full w-fit bg-primary flex items-center px-5 py-3 rounded-full shadow-md">
+                    <h2 className="text-2xl text-primary-600 font-bold">{page}</h2>
+                </div>
+
+                {/* Time Tracker Island */}
+                {(isActive || seconds > 0) && (
+                    <div
+                        className={`w-fit flex items-center rounded-full shadow-sm transition-all duration-300 ease-out overflow-hidden p-2 ${
+                            isTrackerExpanded ? "max-w-[400px] px-4" : "max-w-[120px] px-4 cursor-pointer"
+                        }`}
+                        style={{ backgroundColor: darkColor, color: lightColor }}
+                        onMouseEnter={() => setIsTrackerExpanded(true)}
+                        onMouseLeave={() => setIsTrackerExpanded(false)}
+                        onClick={() => setIsTrackerExpanded(true)} // Para móviles
+                    >
+                        {/* Indicador y Tiempo (Siempre visible) */}
+                        <div className="flex items-center justify-center gap-3 min-w-max">
+                            {/* Renderizamos el componente del icono si existe, sino un fallback */}
+                            {ProjectIcon ? (
+                                <ProjectIcon className="w-5 h-5" style={{ color: lightColor }} />
+                            ) : (
+                                <IconPlayerPlayFilled className="w-5 h-5 animate-pulse" style={{ color: lightColor }} />
+                            )}
+                            <span className="font-semibold mt-[1px] tabular-nums leading-none">{headerTimeString}</span>
+                        </div>
+
+                        {/* Contenido Expandido (Nombre + Controles) */}
+                        <div
+                            className={`flex items-center gap-3 transition-opacity duration-300 ${
+                                isTrackerExpanded ? "opacity-100 ml-4 delay-100" : "opacity-0 ml-0 pointer-events-none"
+                            }`}
+                        >
+                            {/* Separador */}
+                            <div className="w-px h-6 bg-secondary opacity-50"></div>
+
+                            {/* Nombre de la tarea real */}
+                            <span className="text-sm font-medium truncate max-w-[120px]">
+                                {taskName || "Sin nombre..."}
+                            </span>
+
+                            {/* Controles Reales */}
+                            <button
+                                type="button"
+                                onClick={(e) => {
+                                    e.stopPropagation(); // Evita que se dispare el onClick del contenedor padre
+                                    toggleTimer();
+                                }}
+                                className="p-1.5 rounded-full transition-transform duration-100 hover:scale-105"
+                                style={{ backgroundColor: lightColor, color: darkColor }}
+                            >
+                                {/* Alternamos icono según estado */}
+                                {isActive ? (
+                                    <IconPlayerPauseFilled className="w-5 h-5" />
+                                ) : (
+                                    <IconPlayerPlayFilled className="w-5 h-5" />
+                                )}
+                            </button>
+                            <button
+                                type="button"
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    stopTimer();
+                                    setIsTrackerExpanded(false); // Colapsamos al detener
+                                }}
+                                className="p-1.5 rounded-full transition-transform duration-100 hover:scale-105 hover:text-red-600"
+                                style={{ backgroundColor: lightColor, color: darkColor }}
+                            >
+                                <IconPlayerStopFilled className="w-5 h-5" />
+                            </button>
+                        </div>
+                    </div>
+                )}
             </div>
 
             {/* Contextual Action Bar */}

@@ -13,42 +13,42 @@
  */
 export const PHASE_COLOURS = [
     // Greens & Mints
-    { id: "pri-100", hex: "#BDDDC7", name: "Menta Claro" }, // primary-100
-    { id: "pri-200", hex: "#91C4A5", name: "Verde Salvia" }, // primary-200
-    { id: "green-tea", hex: "#C1E1C1", name: "Té Verde" },
-    { id: "green-frost", hex: "#D0E8D7", name: "Escarcha" },
-    { id: "green-pastel", hex: "#A2C9A0", name: "Verde Pastel" },
-    { id: "olive-light", hex: "#C2C1AF", name: "Oliva Suave" }, // quinary-200
+    { id: "pri-100", name: "Menta Claro", hex: "#BDDDC7", light: "#f1f8f3" },
+    { id: "pri-200", name: "Verde Salvia", hex: "#91C4A5", light: "#f1f8f3" },
+    { id: "green-tea", name: "Té Verde", hex: "#C1E1C1", light: "#f4f9f4" },
+    { id: "green-frost", name: "Escarcha", hex: "#D0E8D7", light: "#f4f9f5" },
+    { id: "green-pastel", name: "Verde Pastel", hex: "#A2C9A0", light: "#f5f9f4" },
+    { id: "olive-light", name: "Oliva Suave", hex: "#C2C1AF", light: "#f9fbf8" },
 
     // Blues & Cyans
-    { id: "sec-100", hex: "#B2EAEF", name: "Cían Claro" }, // secondary-100
-    { id: "sec-200", hex: "#7DDAE3", name: "Agua" }, // secondary-200
-    { id: "blue-powder", hex: "#AEC6CF", name: "Azul Polvo" },
-    { id: "blue-baby", hex: "#C6E2E9", name: "Azul Bebé" },
-    { id: "blue-sky", hex: "#B4D8E7", name: "Azul Cielo" },
-    { id: "blue-serenity", hex: "#99C1DE", name: "Serenidad" },
+    { id: "sec-100", name: "Cían Claro", hex: "#B2EAEF", light: "#effcfc" },
+    { id: "sec-200", name: "Agua", hex: "#7DDAE3", light: "#effcfc" },
+    { id: "blue-powder", name: "Azul Polvo", hex: "#354d57", light: "#f5f8fa" },
+    { id: "blue-baby", name: "Azul Bebé", hex: "#C6E2E9", light: "#f4f9fb" },
+    { id: "blue-sky", name: "Azul Cielo", hex: "#B4D8E7", light: "#f3f9fc" },
+    { id: "blue-serenity", name: "Serenidad", hex: "#99C1DE", light: "#f3f7fb" },
 
     // Yellows & Sands
-    { id: "ter-100", hex: "#ECD79C", name: "Oro Pálido" }, // tertiary-100
-    { id: "ter-200", hex: "#E1BA63", name: "Mostaza Suave" }, // tertiary-200
-    { id: "yellow-pastel", hex: "#FDFD96", name: "Amarillo Pastel" },
-    { id: "yellow-butter", hex: "#F6E3B4", name: "Mantequilla" },
-    { id: "sand", hex: "#DAD9CE", name: "Arena" }, // quinary-100
-    { id: "orange-pastel", hex: "#FADCA5", name: "Naranja Pastel" },
+    { id: "ter-100", name: "Oro Pálido", hex: "#ECD79C", light: "#fcf8ee" },
+    { id: "ter-200", name: "Mostaza Suave", hex: "#E1BA63", light: "#fbf7eb" },
+    { id: "yellow-pastel", name: "Amarillo Pastel", hex: "#FDFD96", light: "#fefee8" },
+    { id: "yellow-butter", name: "Mantequilla", hex: "#F6E3B4", light: "#fdf8ed" },
+    { id: "sand", name: "Arena", hex: "#DAD9CE", light: "#f9fbf8" },
+    { id: "orange-pastel", name: "Naranja Pastel", hex: "#FADCA5", light: "#fef9ee" },
 
     // Peaches & Corals
-    { id: "peach", hex: "#F8CD9C", name: "Melocotón" },
-    { id: "apricot", hex: "#F4B886", name: "Albaricoque" },
-    { id: "melon", hex: "#F6C8A6", name: "Melón" },
-    { id: "coral-light", hex: "#F5B7B1", name: "Coral Suave" },
-    { id: "salmon-pale", hex: "#FFDAB9", name: "Salmón Pálido" },
-    { id: "terracotta", hex: "#E2A788", name: "Terracota Pastel" },
+    { id: "peach", name: "Melocotón", hex: "#F8CD9C", light: "#fef7ee" },
+    { id: "apricot", name: "Albaricoque", hex: "#F4B886", light: "#fef6ee" },
+    { id: "melon", name: "Melón", hex: "#F6C8A6", light: "#fef5ee" },
+    { id: "coral-light", name: "Coral Suave", hex: "#F5B7B1", light: "#fdf4f3" },
+    { id: "salmon-pale", name: "Salmón Pálido", hex: "#FFDAB9", light: "#fff6ed" },
+    { id: "terracotta", name: "Terracota Pastel", hex: "#E2A788", light: "#fcf5f0" },
 
     // Pinks & Lilacs
-    { id: "pink-pastel", hex: "#FADADD", name: "Rosa Pálido" },
-    { id: "pink-blush", hex: "#E8B2C1", name: "Rubor" },
-    { id: "pink-rose", hex: "#F2C6DE", name: "Rosa Empolvado" },
-    { id: "purple-thistle", hex: "#D7BDE2", name: "Cardo" },
-    { id: "purple-lilac", hex: "#C3B1E1", name: "Lila" },
-    { id: "purple-lavender", hex: "#E2D6F5", name: "Lavanda" },
+    { id: "pink-pastel", name: "Rosa Pálido", hex: "#FADADD", light: "#fdf3f4" },
+    { id: "pink-blush", name: "Rubor", hex: "#E8B2C1", light: "#fcf4f6" },
+    { id: "pink-rose", name: "Rosa Empolvado", hex: "#F2C6DE", light: "#fcf3f8" },
+    { id: "purple-thistle", name: "Cardo", hex: "#D7BDE2", light: "#fbf8fc" },
+    { id: "purple-lilac", name: "Lila", hex: "#C3B1E1", light: "#f8f6fc" },
+    { id: "purple-lavender", name: "Lavanda", hex: "#E2D6F5", light: "#f8f5fd" },
 ];

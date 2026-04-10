@@ -4,6 +4,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-d
 /** Contexts */
 import { AuthProvider } from "./context/AuthContext";
 import { MainProvider } from "./context/MainContext";
+import { TimeTrackerProvider } from "./context/TimeTrackerContext";
 
 /** Components */
 import { ProtectedRoute } from "./components/security/ProtectedRoute.jsx";
@@ -59,41 +60,43 @@ function App() {
 
                     {/* Protected App Routes */}
                     <Route element={<MainProvider />}>
-                        <Route
-                            path="/home"
-                            element={
-                                <ProtectedRoute>
-                                    <HomePage />
-                                </ProtectedRoute>
-                            }
-                        />
+                        <Route element={<TimeTrackerProvider />}>
+                            <Route
+                                path="/home"
+                                element={
+                                    <ProtectedRoute>
+                                        <HomePage />
+                                    </ProtectedRoute>
+                                }
+                            />
 
-                        <Route
-                            path="/tasks"
-                            element={
-                                <ProtectedRoute>
-                                    <TasksPage />
-                                </ProtectedRoute>
-                            }
-                        />
+                            <Route
+                                path="/tasks"
+                                element={
+                                    <ProtectedRoute>
+                                        <TasksPage />
+                                    </ProtectedRoute>
+                                }
+                            />
 
-                        <Route
-                            path="/calendar"
-                            element={
-                                <ProtectedRoute>
-                                    <CalendarPage />
-                                </ProtectedRoute>
-                            }
-                        />
+                            <Route
+                                path="/calendar"
+                                element={
+                                    <ProtectedRoute>
+                                        <CalendarPage />
+                                    </ProtectedRoute>
+                                }
+                            />
 
-                        <Route
-                            path="/statistics"
-                            element={
-                                <ProtectedRoute>
-                                    <StatisticsPage />
-                                </ProtectedRoute>
-                            }
-                        />
+                            <Route
+                                path="/statistics"
+                                element={
+                                    <ProtectedRoute>
+                                        <StatisticsPage />
+                                    </ProtectedRoute>
+                                }
+                            />
+                        </Route>
                     </Route>
 
                     {/* Fallback Redirection */}

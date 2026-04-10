@@ -5,8 +5,13 @@ import { Responsive, WidthProvider } from "react-grid-layout/legacy";
 /** Components */
 import { NavbarComponent } from "../../components/app/common/NavbarComponent.jsx";
 import { Header } from "../../components/app/home/Header.jsx";
-import { TimeTracker } from "../../components/app/widgets/TimeTracker.jsx";
-import { Statistics } from "../../components/app/widgets/Statistics.jsx";
+import { BaseWidget } from "../../components/app/widgets/common/BaseWidget.jsx";
+import { WeeklyProgressWidget } from "../../components/app/widgets/home/WeeklyProgressWidget.jsx";
+import { TimeTrackerWidget } from "../../components/app/widgets/home/TimeTrackerWidget.jsx";
+import { TempleModeWidget } from "../../components/app/widgets/home/TempleModeWidget.jsx";
+import { TaskWidget } from "../../components/app/widgets/home/TaskWidget.jsx";
+import { AIWidget } from "../../components/app/widgets/home/AIWidget.jsx";
+import { CalendarWidget } from "../../components/app/widgets/home/CalendarWidget.jsx";
 
 /** Assets & Icons */
 import { IconCircleXFilled } from "@tabler/icons-react";
@@ -14,6 +19,9 @@ import { IconCircleXFilled } from "@tabler/icons-react";
 /** Styles */
 import "react-grid-layout/css/styles.css";
 import "react-resizable/css/styles.css";
+
+/** Language */
+import { useTranslation } from "react-i18next";
 
 /** Setup & Configurations */
 const ResponsiveGridLayout = WidthProvider(Responsive);
@@ -29,6 +37,14 @@ const ResponsiveGridLayout = WidthProvider(Responsive);
  * @returns {JSX.Element} The rendered dashboard layout.
  */
 export const HomePage = () => {
+    /**
+     * Translation Hook
+     *
+     * Provides access to the i18n instance specifically scoped to the "app_home"
+     * namespace to localize header text content dynamically.
+     */
+    const { t } = useTranslation("app_home");
+
     /**
      * Edit Mode State
      *
@@ -52,22 +68,86 @@ export const HomePage = () => {
      * their identifier, component type, and spatial grid coordinates.
      */
     const [widgets, setWidgets] = useState([
-        { id: "tracker-1", type: "TimeTracker", grid: { x: 0, y: 0, w: 1, h: 1 } },
-        { id: "tracker-2", type: "TimeTracker", grid: { x: 1, y: 0, w: 1, h: 1 } },
-        { id: "tracker-3", type: "TimeTracker", grid: { x: 2, y: 0, w: 1, h: 1 } },
-        { id: "tracker-4", type: "TimeTracker", grid: { x: 3, y: 0, w: 1, h: 1 } },
-        { id: "stat-1", type: "Statistics", grid: { x: 0, y: 1, w: 1, h: 1 } },
-        { id: "stat-2", type: "Statistics", grid: { x: 1, y: 1, w: 1, h: 1 } },
-        { id: "stat-3", type: "Statistics", grid: { x: 2, y: 1, w: 1, h: 1 } },
-        { id: "stat-4", type: "Statistics", grid: { x: 3, y: 1, w: 1, h: 1 } },
-        { id: "tracker-5", type: "TimeTracker", grid: { x: 0, y: 0, w: 1, h: 1 } },
-        { id: "tracker-6", type: "TimeTracker", grid: { x: 1, y: 0, w: 1, h: 1 } },
-        { id: "tracker-7", type: "TimeTracker", grid: { x: 2, y: 0, w: 1, h: 1 } },
-        { id: "tracker-8", type: "TimeTracker", grid: { x: 3, y: 0, w: 1, h: 1 } },
-        { id: "stat-5", type: "Statistics", grid: { x: 0, y: 1, w: 1, h: 1 } },
-        { id: "stat-6", type: "Statistics", grid: { x: 1, y: 1, w: 1, h: 1 } },
-        { id: "stat-7", type: "Statistics", grid: { x: 2, y: 1, w: 1, h: 1 } },
-        { id: "stat-8", type: "Statistics", grid: { x: 3, y: 1, w: 1, h: 1 } },
+        {
+            id: "widget-1",
+            grid: { x: 0, y: 0, w: 1, h: 1 },
+            config: {
+                title: t("widgets.weekly_progress"),
+                subtitle: "22 - 28 sept",
+                pageLink: "/statistics",
+                content: {
+                    component: WeeklyProgressWidget,
+                },
+            },
+        },
+        {
+            id: "widget-2",
+            grid: { x: 1, y: 0, w: 1, h: 1 },
+            config: {
+                title: "Time tracker",
+                bgColor: "blue-powder",
+                textColor: "text-quaternary",
+                pageLink: "/tasks",
+                content: {
+                    component: TimeTrackerWidget,
+                    config: {
+                        colorId: "blue-powder",
+                    },
+                },
+            },
+        },
+        {
+            id: "widget-3",
+            grid: { x: 2, y: 0, w: 1, h: 1 },
+            config: {
+                title: t("widgets.temple_mode"),
+                textColor: "text-quaternary-50",
+                pageLink: "/home",
+                content: {
+                    component: TempleModeWidget,
+                    config: {
+                        rango: 4,
+                    },
+                },
+            },
+        },
+        {
+            id: "widget-4",
+            grid: { x: 3, y: 0, w: 1, h: 2 },
+            config: {
+                title: t("widgets.tasks"),
+                subtitle: "18%",
+                pageLink: "/tasks",
+                content: {
+                    component: TaskWidget,
+                },
+            },
+        },
+        {
+            id: "widget-5",
+            grid: { x: 0, y: 1, w: 1, h: 1 },
+            config: {
+                title: "Dios de la SabidurIA",
+                bgColor: "bg-primary-700",
+                textColor: "text-quaternary-50/80",
+                actions: false,
+                pageLink: "/home",
+                content: {
+                    component: AIWidget,
+                },
+            },
+        },
+        {
+            id: "widget-6",
+            grid: { x: 1, y: 1, w: 2, h: 1 },
+            config: {
+                title: t("widgets.calendar"),
+                pageLink: "/calendar",
+                content: {
+                    component: CalendarWidget,
+                },
+            },
+        },
     ]);
 
     /**
@@ -130,6 +210,7 @@ export const HomePage = () => {
                     setIsEditing={setIsEditing}
                     checkChanges={checkChanges}
                     setCheckChanges={setCheckChanges}
+                    t={t}
                 />
 
                 {/* Dashboard Area */}
@@ -158,17 +239,20 @@ export const HomePage = () => {
                                 )}
 
                                 {/* Render the correct widget component based on the 'type' property */}
-                                {widget.type === "TimeTracker" && (
-                                    <TimeTracker
-                                        className={`w-full h-full transition-all duration-300 ${isEditing ? "opacity-60 border-dashed border-[3px] border-primary-50 cursor-move" : "opacity-100 shadow-md"}`}
-                                    />
-                                )}
-
-                                {widget.type === "Statistics" && (
-                                    <Statistics
-                                        className={`w-full h-full transition-all duration-300 ${isEditing ? "opacity-60 border-dashed border-[3px] border-primary-50 cursor-move" : "opacity-100 shadow-md"}`}
-                                    />
-                                )}
+                                <BaseWidget
+                                    t={t}
+                                    title={widget.config.title}
+                                    subtitle={widget.config.subtitle}
+                                    bgColor={widget.config.bgColor}
+                                    textColor={widget.config.textColor}
+                                    actions={widget.config.actions}
+                                    pageLink={widget.config.pageLink}
+                                    className={`transition-all duration-300 ${isEditing ? "opacity-60 border-dashed border-[3px] border-primary-50 cursor-move" : "opacity-100"}`}
+                                >
+                                    {widget.config.content && (
+                                        <widget.config.content.component {...widget.config.content.config} />
+                                    )}
+                                </BaseWidget>
                             </div>
                         ))}
                     </ResponsiveGridLayout>

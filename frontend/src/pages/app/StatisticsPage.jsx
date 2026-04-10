@@ -6,7 +6,10 @@ import { Responsive, WidthProvider } from "react-grid-layout/legacy";
 import { NavbarComponent } from "../../components/app/common/NavbarComponent.jsx";
 import { HeaderComponent } from "../../components/app/common/HeaderComponent.jsx";
 import { MainDataHeaderComponent } from "../../components/app/common/MainDataHeaderComponent.jsx";
-import { Statistics } from "../../components/app/widgets/Statistics.jsx";
+import { BaseWidget } from "../../components/app/widgets/common/BaseWidget.jsx";
+import { TimeGoalWidget } from "../../components/app/widgets/statistics/TimeGoalWidget.jsx";
+import { ConcentrationHeatmapWidget } from "../../components/app/widgets/statistics/ConcentrationHeatmapWidget.jsx";
+import { EffectivenessChartWidget } from "../../components/app/widgets/statistics/EffectivenessChartWidget.jsx";
 
 /** Assets & Icons */
 import { IconCircleXFilled } from "@tabler/icons-react";
@@ -63,22 +66,76 @@ export const StatisticsPage = () => {
      * their identifier, component type, and spatial grid coordinates.
      */
     const [widgets, setWidgets] = useState([
-        { id: "stat-1", type: "Statistics", grid: { x: 0, y: 0, w: 1, h: 1 } },
-        { id: "stat-2", type: "Statistics", grid: { x: 1, y: 0, w: 1, h: 1 } },
-        { id: "stat-3", type: "Statistics", grid: { x: 2, y: 0, w: 1, h: 1 } },
-        { id: "stat-4", type: "Statistics", grid: { x: 3, y: 0, w: 1, h: 1 } },
-        { id: "stat-5", type: "Statistics", grid: { x: 0, y: 1, w: 1, h: 1 } },
-        { id: "stat-6", type: "Statistics", grid: { x: 1, y: 1, w: 1, h: 1 } },
-        { id: "stat-7", type: "Statistics", grid: { x: 2, y: 1, w: 1, h: 1 } },
-        { id: "stat-8", type: "Statistics", grid: { x: 3, y: 1, w: 1, h: 1 } },
-        { id: "stat-9", type: "Statistics", grid: { x: 0, y: 0, w: 1, h: 1 } },
-        { id: "stat-10", type: "Statistics", grid: { x: 1, y: 0, w: 1, h: 1 } },
-        { id: "stat-11", type: "Statistics", grid: { x: 2, y: 0, w: 1, h: 1 } },
-        { id: "stat-12", type: "Statistics", grid: { x: 3, y: 0, w: 1, h: 1 } },
-        { id: "stat-13", type: "Statistics", grid: { x: 0, y: 1, w: 1, h: 1 } },
-        { id: "stat-14", type: "Statistics", grid: { x: 1, y: 1, w: 1, h: 1 } },
-        { id: "stat-15", type: "Statistics", grid: { x: 2, y: 1, w: 1, h: 1 } },
-        { id: "stat-16", type: "Statistics", grid: { x: 3, y: 1, w: 1, h: 1 } },
+        {
+            id: "widget-1",
+            grid: { x: 0, y: 0, w: 1, h: 2 },
+            config: {
+                title: t("widgets.solar_chart"),
+                pageLink: "/statistics",
+                content: {
+                    component: TimeGoalWidget,
+                },
+            },
+        },
+        {
+            id: "widget-2",
+            grid: { x: 1, y: 0, w: 2, h: 1 },
+            config: {
+                title: t("widgets.effectiveness_chart"),
+                actions: false,
+                pageLink: "/tasks",
+                content: {
+                    component: EffectivenessChartWidget,
+                },
+            },
+        },
+        {
+            id: "widget-3",
+            grid: { x: 3, y: 0, w: 1, h: 1 },
+            config: {
+                title: t("widgets.time_goal"),
+                subtitle: "22-28 Sept, 2025",
+                actions: false,
+                pageLink: "/home",
+                content: {
+                    component: TimeGoalWidget,
+                },
+            },
+        },
+        {
+            id: "widget-4",
+            grid: { x: 1, y: 1, w: 1, h: 1 },
+            config: {
+                title: t("widgets.concentration_heatmap"),
+                actions: false,
+                pageLink: "/tasks",
+                content: {
+                    component: ConcentrationHeatmapWidget,
+                },
+            },
+        },
+        {
+            id: "widget-5",
+            grid: { x: 2, y: 1, w: 1, h: 1 },
+            config: {
+                title: t("widgets.comparison"),
+                pageLink: "/home",
+                content: {
+                    component: TimeGoalWidget,
+                },
+            },
+        },
+        {
+            id: "widget-6",
+            grid: { x: 3, y: 1, w: 1, h: 1 },
+            config: {
+                title: t("widgets.tips"),
+                pageLink: "/calendar",
+                content: {
+                    component: TimeGoalWidget,
+                },
+            },
+        },
     ]);
 
     /**
@@ -167,7 +224,7 @@ export const StatisticsPage = () => {
                                     <button
                                         onMouseDown={(e) => e.stopPropagation()}
                                         onClick={() => removeWidget(widget.id)}
-                                        title="deleteWidget"
+                                        title="Eliminar widget"
                                         className="absolute z-50 -top-2 -right-2 w-8 h-8 bg-primary rounded-full flex items-center justify-center transition-all duration-300"
                                     >
                                         <IconCircleXFilled className="w-full h-full text-tertiary-200/70 hover:text-tertiary-200" />
@@ -175,17 +232,20 @@ export const StatisticsPage = () => {
                                 )}
 
                                 {/* Render the correct widget component based on the 'type' property */}
-                                {widget.type === "TimeTracker" && (
-                                    <TimeTracker
-                                        className={`w-full h-full transition-all duration-300 ${isEditing ? "opacity-60 border-dashed border-[3px] border-primary-50 cursor-move" : "opacity-100 shadow-md"}`}
-                                    />
-                                )}
-
-                                {widget.type === "Statistics" && (
-                                    <Statistics
-                                        className={`w-full h-full transition-all duration-300 ${isEditing ? "opacity-60 border-dashed border-[3px] border-primary-50 cursor-move" : "opacity-100 shadow-md"}`}
-                                    />
-                                )}
+                                <BaseWidget
+                                    t={t}
+                                    title={widget.config.title}
+                                    subtitle={widget.config.subtitle}
+                                    bgColor={widget.config.bgColor}
+                                    textColor={widget.config.textColor}
+                                    actions={widget.config.actions}
+                                    pageLink={widget.config.pageLink}
+                                    className={`transition-all duration-300 ${isEditing ? "opacity-60 border-dashed border-[3px] border-primary-50 cursor-move" : "opacity-100"}`}
+                                >
+                                    {widget.config.content && (
+                                        <widget.config.content.component {...widget.config.content.config} />
+                                    )}
+                                </BaseWidget>
                             </div>
                         ))}
                     </ResponsiveGridLayout>

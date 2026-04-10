@@ -3,5 +3,12 @@
         "first_stat": "Proyectos terminados",
         "second_stat": "Proyectos en proceso",
         "third_stat": "Proyectos pendientes"
+    },
+    "widgets": {
+        "weekly_progress": "Progreso",
+        "temple_mode": "Modo templo",
+        "tasks": "Tareas",
+        "ai": "¿Qué que saber desea conocer?",
+        "calendar": "Calendario"
     }
 }

@@ -1,5 +1,5 @@
 /** Assets & Icons */
-import { IconWorldWww, IconBoltFilled, IconPresentationFilled, IconFlameFilled } from "@tabler/icons-react";
+import { IconClockHour3Filled, IconBoltFilled, IconTimelineEventFilled, IconBadgesFilled } from "@tabler/icons-react";
 
 /**
  * Icon Mapping
@@ -9,10 +9,10 @@ import { IconWorldWww, IconBoltFilled, IconPresentationFilled, IconFlameFilled }
  * object recreation during standard component re-renders.
  */
 const ICON_MAP = {
-    WorldWww: IconWorldWww,
+    ClockHour3Filled: IconClockHour3Filled,
     BoltFilled: IconBoltFilled,
-    PresentationFilled: IconPresentationFilled,
-    FlameFilled: IconFlameFilled,
+    TimelineEventFilled: IconTimelineEventFilled,
+    BadgesFilled: IconBadgesFilled,
 };
 
 /**
@@ -35,10 +35,10 @@ export const MainDataHeaderComponent = ({ t }) => {
      * including completed, in process, and pending projects.
      */
     const infoOptions = [
-        { icon: "WorldWww", value: "Landing para agencia", title: t("header.first_stat") },
-        { icon: "BoltFilled", value: "65%", title: t("header.second_stat") },
-        { icon: "PresentationFilled", value: "59%", title: t("header.third_stat") },
-        { icon: "FlameFilled", value: "2", title: t("header.fourth_stat") },
+        { icon: "ClockHour3Filled", value: "140h 32m", title: t("header.first_stat") },
+        { icon: "BoltFilled", value: "87%", title: t("header.second_stat") },
+        { icon: "TimelineEventFilled", value: "72%", title: t("header.third_stat") },
+        { icon: "BadgesFilled", value: "2", title: t("header.fourth_stat"), iconClass: "rotate-180" },
     ];
 
     return (
@@ -53,7 +53,9 @@ export const MainDataHeaderComponent = ({ t }) => {
                             <div key={index} className="flex items-center gap-4 text-quaternary-700">
                                 {/* Left-Aligned Icon Compartment */}
                                 <div className="bg-primary-300 p-3 rounded-2xl shadow-sm flex-shrink-0">
-                                    <IconComponent className="h-6 w-6 md:h-8 md:w-8 text-primary" />
+                                    <IconComponent
+                                        className={`h-6 w-6 md:h-8 md:w-8 text-primary ${option.iconClass}`}
+                                    />
                                 </div>
 
                                 {/* Right-Aligned Text Information */}

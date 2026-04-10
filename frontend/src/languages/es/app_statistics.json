@@ -1,9 +1,17 @@
 {
     "statistics_title": "Estadísticas",
     "header": {
-        "first_stat": "Proyecto actual",
+        "first_stat": "Tiempo dedicado este mes",
         "second_stat": "Eficiencia global",
-        "third_stat": "Progreso global",
-        "fourth_stat": "Racha"
+        "third_stat": "Planificación",
+        "fourth_stat": "Rango actual"
+    },
+    "widgets": {
+        "solar_chart": "Gráfico solar",
+        "effectiveness_chart": "Gráfico de efectividad",
+        "time_goal": "Objetivo temporal",
+        "concentration_heatmap": "Concentración",
+        "comparison": "Comparación",
+        "tips": "Consejos"
     }
 }

@@ -1,10 +1,6 @@
 /** React & Third-Party Libraries */
 import { Link } from "react-router-dom";
 
-/** Components */
-import { TimeTracker } from "../app/widgets/TimeTracker.jsx";
-import { Statistics } from "../app/widgets/Statistics.jsx";
-
 /** Language */
 import { useTranslation } from "react-i18next";
 

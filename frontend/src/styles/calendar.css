@@ -118,3 +118,34 @@
 .main-calendar-theme .fc-daygrid-day-events::-webkit-scrollbar-thumb:hover {
     @apply bg-quaternary-300;
 }
+
+/* Quitar todos los bordes para el efecto "flotante" */
+.calendar-widget-container .fc,
+.calendar-widget-container .fc-scrollgrid,
+.calendar-widget-container .fc-scrollgrid th,
+.calendar-widget-container .fc-scrollgrid td:last-child,
+.calendar-widget-container .fc-timegrid-slot {
+    @apply border-none !important;
+}
+
+.calendar-widget-container .fc .fc-timegrid-slot-label-cushion {
+    @apply w-full text-left text-sm font-bold text-quaternary-700 py-2 uppercase tracking-wide !important;
+}
+
+.calendar-widget-container .fc-theme-standard .fc-scrollgrid-section-header th,
+.calendar-widget-container .fc-col-header-cell {
+    @apply bg-transparent no-underline text-sm font-bold text-quaternary-700 py-2 uppercase tracking-wide !important;
+}
+
+.calendar-widget-container .fc-v-event,
+.calendar-widget-container .fc-timegrid-event {
+    @apply bg-transparent border-none shadow-none !important;
+}
+
+.calendar-widget-container .fc-timegrid-event-harness {
+    @apply p-[1px] !important;
+}
+
+.calendar-widget-container .fc-scroller {
+    @apply custom-scrollbar;
+}
