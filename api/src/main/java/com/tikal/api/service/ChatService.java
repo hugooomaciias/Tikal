@@ -137,7 +137,7 @@ public class ChatService {
             totalUnread += getUnreadMessageCountFromUser(myId, partnerId);
         }
 
-        List<TeamMember> myTeams = teamMemberRepo.findTeamMembersByUserId(myId);
+        List<TeamMember> myTeams = teamMemberRepo.findByUserId(myId);
         for (TeamMember t : myTeams) {
             totalUnread += getUnreadTeamMessageCount(t.getId(), t.getLastReadDate());
         }

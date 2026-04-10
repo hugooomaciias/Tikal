@@ -49,12 +49,19 @@ For each object inside the array:
 ```json
 {
   "home": [
-    {"i": "headerStats", "x": 0, "y": 0, "w": 12, "h": 2},
-    {"i": "timeTracker", "x": 4, "y": 2, "w": 4, "h": 4}
+    {"i": "weekBarProgress", "x": 0, "y": 0, "w": 1, "h": 1},
+    {"i": "timeTracker", "x": 1, "y": 0, "w": 1, "h": 1},
+    {"i": "calendarEvents", "x": 1, "y": 1, "w": 2, "h": 1},
+    {"i": "templeModeWidget", "x": 2, "y": 0, "w": 1, "h": 1},
+    {"i": "taskWidget", "x": 3, "y": 0, "w": 1, "h": 2}
   ],
   "statistics": [
-    {"i": "solarChart", "x": 0, "y": 0, "w": 8, "h": 6},
-    {"i": "heatmap", "x": 0, "y": 6, "w": 12, "h": 4}
+    {"i": "solarChart", "x": 0, "y": 0, "w": 1, "h": 2},
+    {"i": "heatmap", "x": 1, "y": 1, "w": 1, "h": 1},
+    {"i": "effectivenessChart", "x": 1, "y": 0, "w": 2, "h": 1},
+    {"i": "comparisonWidget", "x": 2, "y": 1, "w": 1, "h": 1},
+    {"i": "timeGoalWidget", "x": 3, "y": 0, "w": 1, "h": 1},
+    {"i": "iaAdviceWidget", "x": 3, "y": 1, "w": 1, "h": 1},
   ],
   "team": [
     {"i": "teamRanking", "x": 0, "y": 0, "w": 4, "h": 8},
@@ -120,7 +127,6 @@ Handles user opt-ins for different types of alerts, reducing notification fatigu
 }
 
 ```
-
 ---
 
 ## 4. Frontend & Backend Interaction Guide

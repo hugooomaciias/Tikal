@@ -10,4 +10,7 @@ import com.tikal.api.model.entity.Stage;
 public interface StageRepository extends JpaRepository<Stage, Integer> {
     /* --- Obtain the stages of a specific project --- */
     List<Stage> findByProject_Id(Integer projectId);
+
+    /* --- Obtain the stages which their projectId are on the list --- */
+    List<Stage> findByProject_IdIn(List<Integer> projectIds);
 }

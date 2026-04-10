@@ -11,11 +11,11 @@ import com.tikal.api.model.entity.Team;
 @Repository
 public interface TeamRepository extends JpaRepository<Team, Integer> {
     /* --- Obtain the team with a determinated invitation code --- */
-    Optional<TeamDTO> findByInvitationCode(String invitationCode);
+    Optional<Team> findByInvitationCode(String invitationCode);
 
     /* --- Obtain the teams with a determinated parent --- */
-    List<TeamDTO> findByParentTeam_Id(Integer parentId);
+    List<Team> findByParentTeam_Id(Integer parentId);
 
     /* --- Obtain the teams with a name similar to 'name' --- */
-    List<TeamDTO> findByNameContainingIgnoreCase(String name);
+    List<Team> findByNameContainingIgnoreCase(String name);
 }

@@ -25,6 +25,10 @@ public class RankList {
     @Column(name = "awarded_title", length = 100)
     private String awardedTitle;
 
+    /* --- Hours to reach the next rank --- */
+    @Column(name = "next_hours")
+    private Integer nextHours;
+
     /* --- Hours required to reach Rank --- */
     @Column(name = "required_hours")
     private Integer requiredHours;

@@ -1,0 +1,658 @@
+{
+    "userProfile": {
+        "name": "fernando",
+        "email": "fernandoosunagranados@gmail.com",
+        "avatarUrl": "/images/avatar/default.png",
+        "subscriptionPlan": "COMUNITARIO",
+        "totems": []
+    },
+    "settings": {
+        "theme": "MAYA",
+        "timeRange": "SEMANAL",
+        "hoursGoal": 40,
+        "focusSessionMinutes": 25,
+        "timezone": "UTC",
+        "firstDayOfWeek": "LUNES",
+        "showRankInTeam": true,
+        "userLanguage": "ES",
+        "layoutsDashboards": {
+            "home": [
+                {
+                    "i": "weeklyProgressWidget",
+                    "x": 0,
+                    "y": 0,
+                    "w": 1,
+                    "h": 1
+                },
+                {
+                    "i": "timeTrackerWidget",
+                    "x": 0,
+                    "y": 1,
+                    "w": 1,
+                    "h": 1
+                },
+                {
+                    "i": "templeModeWidget",
+                    "x": 0,
+                    "y": 2,
+                    "w": 1,
+                    "h": 1
+                },
+                {
+                    "i": "taskWidget",
+                    "x": 0,
+                    "y": 3,
+                    "w": 1,
+                    "h": 2
+                },
+                {
+                    "i": "AIMainWidget",
+                    "x": 1,
+                    "y": 0,
+                    "w": 1,
+                    "h": 1
+                },
+                {
+                    "i": "calendarWidget",
+                    "x": 1,
+                    "y": 1,
+                    "w": 2,
+                    "h": 1
+                }
+            ],
+            "statistics": [
+                {
+                    "i": "solarChartWidget",
+                    "x": 0,
+                    "y": 0,
+                    "w": 1,
+                    "h": 2
+                },
+                {
+                    "i": "effectivenessChartWidget",
+                    "x": 0,
+                    "y": 1,
+                    "w": 2,
+                    "h": 1
+                },
+                {
+                    "i": "timeGoalWidget",
+                    "x": 0,
+                    "y": 3,
+                    "w": 1,
+                    "h": 1
+                },
+                {
+                    "i": "concentrationHeatmapWidget",
+                    "x": 1,
+                    "y": 1,
+                    "w": 1,
+                    "h": 1
+                },
+                {
+                    "i": "comparisonWidget",
+                    "x": 1,
+                    "y": 2,
+                    "w": 1,
+                    "h": 1
+                },
+                {
+                    "i": "iaAdviceWidget",
+                    "x": 1,
+                    "y": 3,
+                    "w": 1,
+                    "h": 1
+                }
+            ],
+            "team": []
+        },
+        "widgetPreferences": {
+            "preferences": {}
+        },
+        "notificationSettings": {
+            "email": {
+                "weeklySummary": true,
+                "teamInvites": true,
+                "marketing": false
+            },
+            "inApp": {
+                "chatMentions": true,
+                "taskAssignments": true,
+                "soundEnabled": true
+            },
+            "push": {
+                "templeModeEnd": true
+            }
+        }
+    },
+    "templeMode": {
+        "rank": 1,
+        "templeName": "Templo de los Orígenes",
+        "awardedTitle": "Aprendiz maya",
+        "requiredHours": 0,
+        "currentHours": 0,
+        "badgeImageUrl": "/images/temple/badge1.png",
+        "clockImageUrl": "/images/temple/clock1.png",
+        "templeImageUrl": "/images/temple/templeLogo1.png",
+        "primaryColor": "#63A47D",
+        "totems": [
+            {
+                "id": 1,
+                "name": "IMIX",
+                "goalDescription": "Alcanza 10 horas totales de concentración",
+                "currentProgress": {
+                    "progress": 0,
+                    "description": "Horas de concentración acumuladas"
+                },
+                "targetProgress": 10,
+                "totemImageUrl": "/images/totems/imix.svg",
+                "isActive": false,
+                "totemType": "CONCENTRATION"
+            },
+            {
+                "id": 2,
+                "name": "IK",
+                "goalDescription": "Alcanza 25 horas totales de concentración",
+                "currentProgress": {
+                    "progress": 0,
+                    "description": "Horas de concentración acumuladas"
+                },
+                "targetProgress": 25,
+                "totemImageUrl": "/images/totems/ik.svg",
+                "isActive": false,
+                "totemType": "CONCENTRATION"
+            },
+            {
+                "id": 3,
+                "name": "AKBAL",
+                "goalDescription": "Alcanza 50 horas totales de concentración",
+                "currentProgress": {
+                    "progress": 0,
+                    "description": "Horas de concentración acumuladas"
+                },
+                "targetProgress": 50,
+                "totemImageUrl": "/images/totems/akbal.svg",
+                "isActive": false,
+                "totemType": "CONCENTRATION"
+            },
+            {
+                "id": 4,
+                "name": "KAN",
+                "goalDescription": "Alcanza una precisión de planificación superior al 60%",
+                "currentProgress": {
+                    "progress": 0,
+                    "description": "Porcentaje de precisión en planificación"
+                },
+                "targetProgress": 60,
+                "totemImageUrl": "/images/totems/kan.svg",
+                "isActive": false,
+                "totemType": "PLANNING_ACCURACY"
+            },
+            {
+                "id": 5,
+                "name": "CHIKCHAN",
+                "goalDescription": "Alcanza una efectividad global superior al 65%",
+                "currentProgress": {
+                    "progress": 0,
+                    "description": "Porcentaje de efectividad global"
+                },
+                "targetProgress": 65,
+                "totemImageUrl": "/images/totems/chikchan.svg",
+                "isActive": false,
+                "totemType": "GLOBAL_EFFECTIVENESS"
+            }
+        ]
+    },
+    "calendarEvents": [],
+    "homeGeneralInformation": [
+        {
+            "title": "Tareas pendientes",
+            "logo": "IconTrendingUp",
+            "value": 0
+        },
+        {
+            "title": "Minutos hoy",
+            "logo": "IconClockHour3Filled",
+            "value": 0
+        },
+        {
+            "title": "Proyectos totales",
+            "logo": "IconClipboardTextFilled",
+            "value": 1
+        },
+        {
+            "title": "Proyectos totales",
+            "logo": "IconClipboardTextFilled",
+            "value": 1
+        }
+    ],
+    "homeWidgetsData": {
+        "weeklyProgressWidget": {
+            "startDate": "2026-04-04",
+            "endDate": "2026-04-10",
+            "maxMinutesRegistered": 0,
+            "days": [
+                {
+                    "date": "2026-04-04",
+                    "dayLabel": "S",
+                    "minutesDedicated": 0
+                },
+                {
+                    "date": "2026-04-05",
+                    "dayLabel": "D",
+                    "minutesDedicated": 0
+                },
+                {
+                    "date": "2026-04-06",
+                    "dayLabel": "L",
+                    "minutesDedicated": 0
+                },
+                {
+                    "date": "2026-04-07",
+                    "dayLabel": "M",
+                    "minutesDedicated": 0
+                },
+                {
+                    "date": "2026-04-08",
+                    "dayLabel": "X",
+                    "minutesDedicated": 0
+                },
+                {
+                    "date": "2026-04-09",
+                    "dayLabel": "J",
+                    "minutesDedicated": 0
+                },
+                {
+                    "date": "2026-04-10",
+                    "dayLabel": "V",
+                    "minutesDedicated": 0
+                }
+            ]
+        },
+        "templeModeWidget": {
+            "rankPercentage": 0.0,
+            "colour": "#63A47D",
+            "logo": "/images/temple/badge1.png",
+            "defaultFocusSessionMinutes": 25
+        },
+        "calendarWidget": {
+            "startDate": "2026-04-06",
+            "endDate": "2026-04-12",
+            "startHour": "08:00:00",
+            "showWeekends": true
+        },
+        "timeTrackerWidget": {
+            "taskId": 1,
+            "projectOrPhaseName": "Fase 1 de ejemplo",
+            "taskName": "Explorar el Dashboard Solar",
+            "parentColor": "#E1BA63",
+            "projectLogoIcon": "IconBook",
+            "accumulatedSeconds": 0
+        },
+        "taskWidget": {
+            "selectedGroupingMode": "BY_DEADLINE",
+            "globalProgressPercentage": 0.0,
+            "hasMoreCards": false,
+            "cards": [
+                {
+                    "title": "Para hoy y atrasadas",
+                    "subtitle": "10 abr",
+                    "completedTasksCount": 0,
+                    "totalTasksCount": 0,
+                    "tasks": []
+                },
+                {
+                    "title": "Próximos 3 días",
+                    "subtitle": "11 abr - 13 abr",
+                    "completedTasksCount": 0,
+                    "totalTasksCount": 0,
+                    "tasks": []
+                },
+                {
+                    "title": "Próxima semana",
+                    "subtitle": "14 abr - 20 abr",
+                    "completedTasksCount": 0,
+                    "totalTasksCount": 0,
+                    "tasks": []
+                }
+            ]
+        }
+    },
+    "statisticsGeneralInformation": [
+        {
+            "title": "Horas registradas",
+            "logo": "IconClockHour3Filled",
+            "value": 0
+        },
+        {
+            "title": "Eficiencia global",
+            "logo": "IconBoltFilled",
+            "value": 0
+        },
+        {
+            "title": "Planificación",
+            "logo": "IconTimelineEventFilled",
+            "value": 0
+        },
+        {
+            "title": "Rango actual",
+            "logo": "IconBadgesFilled",
+            "value": 1
+        }
+    ],
+    "statisticsWidgetsData": {
+        "timeGoalWidget": {
+            "currentMinutes": 0,
+            "goalMinutes": 2400,
+            "completionPercentage": 0.0,
+            "startDate": "2026-04-06",
+            "endDate": "2026-04-12",
+            "subtitle": "6 - 12 abr, 2026"
+        },
+        "comparisonWidget": {
+            "selectedFilter": "THIS_WEEK",
+            "metrics": [
+                {
+                    "id": "TOTAL_HOURS",
+                    "label": "Horas registradas",
+                    "displayValue": "+0m",
+                    "direction": "NEUTRAL"
+                },
+                {
+                    "id": "TEMPLE_HOURS",
+                    "label": "Modo Templo",
+                    "displayValue": "+0m",
+                    "direction": "NEUTRAL"
+                },
+                {
+                    "id": "COMPLETED_TASKS",
+                    "label": "Tareas completadas",
+                    "displayValue": "0",
+                    "direction": "NEUTRAL"
+                }
+            ]
+        },
+        "concentrationHeatmapWidget": {
+            "year": 2026,
+            "month": 4,
+            "days": [
+                {
+                    "date": "2026-04-01",
+                    "dayOfMonth": 1,
+                    "minutesDedicated": 0,
+                    "intensity": "NONE"
+                },
+                {
+                    "date": "2026-04-02",
+                    "dayOfMonth": 2,
+                    "minutesDedicated": 0,
+                    "intensity": "NONE"
+                },
+                {
+                    "date": "2026-04-03",
+                    "dayOfMonth": 3,
+                    "minutesDedicated": 0,
+                    "intensity": "NONE"
+                },
+                {
+                    "date": "2026-04-04",
+                    "dayOfMonth": 4,
+                    "minutesDedicated": 0,
+                    "intensity": "NONE"
+                },
+                {
+                    "date": "2026-04-05",
+                    "dayOfMonth": 5,
+                    "minutesDedicated": 0,
+                    "intensity": "NONE"
+                },
+                {
+                    "date": "2026-04-06",
+                    "dayOfMonth": 6,
+                    "minutesDedicated": 0,
+                    "intensity": "NONE"
+                },
+                {
+                    "date": "2026-04-07",
+                    "dayOfMonth": 7,
+                    "minutesDedicated": 0,
+                    "intensity": "NONE"
+                },
+                {
+                    "date": "2026-04-08",
+                    "dayOfMonth": 8,
+                    "minutesDedicated": 0,
+                    "intensity": "NONE"
+                },
+                {
+                    "date": "2026-04-09",
+                    "dayOfMonth": 9,
+                    "minutesDedicated": 0,
+                    "intensity": "NONE"
+                },
+                {
+                    "date": "2026-04-10",
+                    "dayOfMonth": 10,
+                    "minutesDedicated": 0,
+                    "intensity": "NONE"
+                },
+                {
+                    "date": "2026-04-11",
+                    "dayOfMonth": 11,
+                    "minutesDedicated": 0,
+                    "intensity": "NONE"
+                },
+                {
+                    "date": "2026-04-12",
+                    "dayOfMonth": 12,
+                    "minutesDedicated": 0,
+                    "intensity": "NONE"
+                },
+                {
+                    "date": "2026-04-13",
+                    "dayOfMonth": 13,
+                    "minutesDedicated": 0,
+                    "intensity": "NONE"
+                },
+                {
+                    "date": "2026-04-14",
+                    "dayOfMonth": 14,
+                    "minutesDedicated": 0,
+                    "intensity": "NONE"
+                },
+                {
+                    "date": "2026-04-15",
+                    "dayOfMonth": 15,
+                    "minutesDedicated": 0,
+                    "intensity": "NONE"
+                },
+                {
+                    "date": "2026-04-16",
+                    "dayOfMonth": 16,
+                    "minutesDedicated": 0,
+                    "intensity": "NONE"
+                },
+                {
+                    "date": "2026-04-17",
+                    "dayOfMonth": 17,
+                    "minutesDedicated": 0,
+                    "intensity": "NONE"
+                },
+                {
+                    "date": "2026-04-18",
+                    "dayOfMonth": 18,
+                    "minutesDedicated": 0,
+                    "intensity": "NONE"
+                },
+                {
+                    "date": "2026-04-19",
+                    "dayOfMonth": 19,
+                    "minutesDedicated": 0,
+                    "intensity": "NONE"
+                },
+                {
+                    "date": "2026-04-20",
+                    "dayOfMonth": 20,
+                    "minutesDedicated": 0,
+                    "intensity": "NONE"
+                },
+                {
+                    "date": "2026-04-21",
+                    "dayOfMonth": 21,
+                    "minutesDedicated": 0,
+                    "intensity": "NONE"
+                },
+                {
+                    "date": "2026-04-22",
+                    "dayOfMonth": 22,
+                    "minutesDedicated": 0,
+                    "intensity": "NONE"
+                },
+                {
+                    "date": "2026-04-23",
+                    "dayOfMonth": 23,
+                    "minutesDedicated": 0,
+                    "intensity": "NONE"
+                },
+                {
+                    "date": "2026-04-24",
+                    "dayOfMonth": 24,
+                    "minutesDedicated": 0,
+                    "intensity": "NONE"
+                },
+                {
+                    "date": "2026-04-25",
+                    "dayOfMonth": 25,
+                    "minutesDedicated": 0,
+                    "intensity": "NONE"
+                },
+                {
+                    "date": "2026-04-26",
+                    "dayOfMonth": 26,
+                    "minutesDedicated": 0,
+                    "intensity": "NONE"
+                },
+                {
+                    "date": "2026-04-27",
+                    "dayOfMonth": 27,
+                    "minutesDedicated": 0,
+                    "intensity": "NONE"
+                },
+                {
+                    "date": "2026-04-28",
+                    "dayOfMonth": 28,
+                    "minutesDedicated": 0,
+                    "intensity": "NONE"
+                },
+                {
+                    "date": "2026-04-29",
+                    "dayOfMonth": 29,
+                    "minutesDedicated": 0,
+                    "intensity": "NONE"
+                },
+                {
+                    "date": "2026-04-30",
+                    "dayOfMonth": 30,
+                    "minutesDedicated": 0,
+                    "intensity": "NONE"
+                }
+            ]
+        },
+        "effectivenessChartWidget": {
+            "selectedMetric": "CONCENTRATION",
+            "selectedTimeRange": "WEEKLY",
+            "dataPoints": [
+                {
+                    "label": "L",
+                    "percentage": 0.0
+                },
+                {
+                    "label": "M",
+                    "percentage": 0.0
+                },
+                {
+                    "label": "X",
+                    "percentage": 0.0
+                },
+                {
+                    "label": "J",
+                    "percentage": 0.0
+                },
+                {
+                    "label": "V",
+                    "percentage": 0.0
+                },
+                {
+                    "label": "S",
+                    "percentage": 0.0
+                },
+                {
+                    "label": "D",
+                    "percentage": 0.0
+                }
+            ]
+        },
+        "iaAdviceWidget": {
+            "advices": null
+        },
+        "solarChartWidget": {
+            "selectedFilter": "GLOBAL",
+            "customDateRange": null,
+            "slices": [],
+            "mostRecurringListName": "Sin datos",
+            "parentId": null,
+            "currentLayer": "PROJECT"
+        }
+    },
+    "projects": [
+        {
+            "id": 1,
+            "name": "Proyecto de prueba",
+            "logoUrl": "IconBook",
+            "description": "Proyecto de ejemplo para aprender a usar la plataforma",
+            "deadline": null,
+            "stages": [
+                {
+                    "id": 1,
+                    "name": "Fase 1 de ejemplo",
+                    "description": null,
+                    "colour": "#E1BA63",
+                    "deadline": null,
+                    "tasks": [
+                        {
+                            "id": 1,
+                            "name": "Explorar el Dashboard Solar",
+                            "description": null,
+                            "estimatedTime": null,
+                            "estimatedProfit": null,
+                            "deadline": null,
+                            "isCompleted": null,
+                            "numberOfSubTask": 0,
+                            "subtasks": []
+                        }
+                    ]
+                },
+                {
+                    "id": 2,
+                    "name": "Fase 2 de ejemplo",
+                    "description": null,
+                    "colour": "#224A57",
+                    "deadline": null,
+                    "tasks": [
+                        {
+                            "id": 2,
+                            "name": "Configurar mi perfil y avatar",
+                            "description": null,
+                            "estimatedTime": null,
+                            "estimatedProfit": null,
+                            "deadline": null,
+                            "isCompleted": null,
+                            "numberOfSubTask": 0,
+                            "subtasks": []
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

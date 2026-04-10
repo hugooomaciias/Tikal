@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 /**
  * This class represents the Stage entity within the application's work
  * breakdown
@@ -32,6 +34,18 @@ public class Stage {
     /* --- Definition of colour in hexadecimal format --- */
     @Column(name = "colour", length = 7)
     private String colour;
+
+    /* --- Deadline for completing the stage --- */
+    @Column(name = "deadline", columnDefinition = "DATETIME")
+    private LocalDateTime deadline;
+
+    /* --- Total time spent in minutes --- */
+    @Column(name = "total_logged_minutes", columnDefinition = "INT DEFAULT 0")
+    private Integer totalLoggedMinutes = 0;
+
+    /* --- Time spent specifically in Temple Mode (in minutes) --- */
+    @Column(name = "temple_logged_minutes", columnDefinition = "INT DEFAULT 0")
+    private Integer templeLoggedMinutes = 0;
 
     /* --- Project relation ==> Many stages can belong to the same Project --- */
     @ManyToOne(optional = false)

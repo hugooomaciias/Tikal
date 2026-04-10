@@ -53,6 +53,11 @@ public class UserSettings {
     @Column(name = "time_range", columnDefinition = "ENUM('SEMANAL', 'MENSUAL', 'TRIMESTRAL', 'ANUAL') DEFAULT 'SEMANAL'")
     private TimeRangeSetting timeRange = TimeRangeSetting.SEMANAL;
 
+    /* --- User language preference --- */
+    @Enumerated(EnumType.STRING)
+    @Column(name = "user_language", columnDefinition = "ENUM('ES', 'EN') DEFAULT 'ES'")
+    private SupportedLanguages userLanguage = SupportedLanguages.ES;
+
     /* --- Goal of hours to work --- */
     @Column(name = "hours_goal", columnDefinition = "INT DEFAULT 40")
     private Integer hoursGoal = 40;

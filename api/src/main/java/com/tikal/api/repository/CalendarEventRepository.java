@@ -25,4 +25,15 @@ public interface CalendarEventRepository extends JpaRepository<CalendarEvent, In
 
     /* --- Obtain the user calendar events and name ordered depends on the initial event datetime --- */
     List<CalendarEvent> findByUserIdAndNameContainingIgnoreCaseOrderByInitDateTimeAsc(Integer userId, String name);
+
+    /* --- Obtain calendar events within a specific time window --- */
+    @Query("SELECT c FROM CalendarEvent c " +
+            "WHERE c.user.id = :userId " +
+            "AND c.initDateTime >= :startDate " +
+            "AND c.initDateTime <= :endDate " +
+            "ORDER BY c.initDateTime ASC")
+    List<CalendarEvent> findEventsInWindow(
+            @Param("userId") Integer userId,
+            @Param("startDate") LocalDateTime startDate,
+            @Param("endDate") LocalDateTime endDate);
 }

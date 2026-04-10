@@ -1,16 +1,21 @@
 package com.tikal.api.model.dto;
 
 import com.tikal.api.model.entity.enumerated.DayOfWeekSetting;
+import com.tikal.api.model.entity.enumerated.SupportedLanguages;
 import com.tikal.api.model.entity.enumerated.ThemeSetting;
 import com.tikal.api.model.entity.enumerated.TimeRangeSetting;
 import com.tikal.api.model.entity.metadata.LayoutsDashboardMetadata;
 import com.tikal.api.model.entity.metadata.NotificationSettingsMetadata;
 import com.tikal.api.model.entity.metadata.WidgetPreferencesMetadata;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
+@Builder
 @NoArgsConstructor
+@AllArgsConstructor
 public class UserSettingsDTO {
 
     // --- General Settings ---
@@ -21,6 +26,7 @@ public class UserSettingsDTO {
     private String timezone;
     private DayOfWeekSetting firstDayOfWeek;
     private Boolean showRankInTeam;
+    private SupportedLanguages userLanguage;
 
     // --- JSON metadata ---
     private LayoutsDashboardMetadata layoutsDashboards;

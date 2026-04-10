@@ -26,7 +26,8 @@ public class GlobalExceptionHandler {
     }
 
     // Bad request 400: the client is not sending the information correctly
-    @ExceptionHandler({InvalidUserPlanException.class, IllegalArgumentException.class, IllegalOtpException.class, MethodArgumentNotValidException.class})
+    @ExceptionHandler({InvalidUserPlanException.class, IllegalArgumentException.class, IllegalOtpException.class,
+            MethodArgumentNotValidException.class, TeamBadRequestException.class})
     public ResponseEntity<Map<String, String>> handleInvalidArgumentFromClient(RuntimeException ex) {
         Map<String, String> error = new HashMap<>();
         error.put("error", "Invalid data");
@@ -36,7 +37,8 @@ public class GlobalExceptionHandler {
     }
 
     // Not found 404: what the client is looking for doesn't exist on the database
-    @ExceptionHandler({NotFoundUserException.class, UsernameNotFoundException.class})
+    @ExceptionHandler({NotFoundUserException.class, UsernameNotFoundException.class, NotFoundProjectException.class,
+            NotFoundTeamMemberException.class, NotFoundRankException.class})
     public ResponseEntity<Map<String, String>> handleNotFound(RuntimeException ex) {
         Map<String, String> errorResponse = new HashMap<>();
         errorResponse.put("error", "Not found");
@@ -79,6 +81,15 @@ public class GlobalExceptionHandler {
         Map<String, String> error = new HashMap<>();
         error.put("error", "Access denied");
         error.put("message", "Tu plan actual no te permite acceder a esta función. Actualiza a COMUNITARIO.");
+
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(error);
+    }
+
+    @ExceptionHandler(ProjectAccessDeniedException.class)
+    public ResponseEntity<Map<String, String>> handleAccessDenied(ProjectAccessDeniedException ex) {
+        Map<String, String> error = new HashMap<>();
+        error.put("error", "Access denied");
+        error.put("message", ex.getMessage());
 
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(error);
     }

@@ -30,17 +30,33 @@ public class Task {
     @Column(columnDefinition = "TEXT")
     private String description;
 
-    /* --- Estimated time to complete the Task --- */
+    /* --- Estimated time to complete the Task in minutes --- */
     @Column(name = "estimated_time")
-    private Integer estimatedTime; 
+    private Integer estimatedTime;
+
+    /* --- Task completion status (true = completed, false = pending) --- */
+    @Column(name = "is_completed")
+    private Boolean isCompleted;
+
+    /* --- Timestamp when the task was marked as completed --- */
+    @Column(name = "completion_date", columnDefinition = "DATETIME")
+    private LocalDateTime completionDate;
 
     /* --- Estimated profit obtained upon completion of the Task --- */
     @Column(name = "estimated_profit", precision = 10, scale = 2)
     private BigDecimal estimatedProfit; 
 
     /* --- Deadline for completing the Task --- */
-    @Column(name = "deadline", updatable = false, columnDefinition = "DATETIME")
+    @Column(name = "deadline", columnDefinition = "DATETIME")
     private LocalDateTime deadline;
+
+    /* --- Total time spent in minutes --- */
+    @Column(name = "total_logged_minutes", columnDefinition = "INT DEFAULT 0")
+    private Integer totalLoggedMinutes = 0;
+
+    /* --- Time spent specifically in Temple Mode (in minutes) --- */
+    @Column(name = "temple_logged_minutes", columnDefinition = "INT DEFAULT 0")
+    private Integer templeLoggedMinutes = 0;
 
     /* --- Stage relation ==> Many tasks can belong to the same Stage --- */
     @ManyToOne(optional = false)

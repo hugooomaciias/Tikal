@@ -28,28 +28,28 @@ public class SettingsService {
     /**
      * Update ALL settings at once.
      */
-    public UserSettings updateSettings(Integer userId, UserSettings newSettings) {
-        UserSettings current = getSettingsByUserId(userId);
+    public UserSettings updateSettings(Integer userId, UserSettingsDTO newSettings) {
+        UserSettings currentSettings = getSettingsByUserId(userId);
 
-        current.setTheme(newSettings.getTheme());
-        current.setTimeRange(newSettings.getTimeRange());
-        current.setHoursGoal(newSettings.getHoursGoal());
-        current.setFocusSessionMinutes(newSettings.getFocusSessionMinutes());
-        current.setTimezone(newSettings.getTimezone());
-        current.setFirstDayOfWeek(newSettings.getFirstDayOfWeek());
-        current.setShowRankInTeam(newSettings.getShowRankInTeam());
+        currentSettings.setTheme(newSettings.getTheme());
+        currentSettings.setTimeRange(newSettings.getTimeRange());
+        currentSettings.setHoursGoal(newSettings.getHoursGoal());
+        currentSettings.setFocusSessionMinutes(newSettings.getFocusSessionMinutes());
+        currentSettings.setTimezone(newSettings.getTimezone());
+        currentSettings.setFirstDayOfWeek(newSettings.getFirstDayOfWeek());
+        currentSettings.setShowRankInTeam(newSettings.getShowRankInTeam());
 
         if (newSettings.getLayoutsDashboards() != null) {
-            current.setLayoutsDashboards(newSettings.getLayoutsDashboards());
+            currentSettings.setLayoutsDashboards(newSettings.getLayoutsDashboards());
         }
         if (newSettings.getWidgetPreferences() != null) {
-            current.setWidgetPreferences(newSettings.getWidgetPreferences());
+            currentSettings.setWidgetPreferences(newSettings.getWidgetPreferences());
         }
         if (newSettings.getNotificationSettings() != null) {
-            current.setNotificationSettings(newSettings.getNotificationSettings());
+            currentSettings.setNotificationSettings(newSettings.getNotificationSettings());
         }
 
-        return settingsRepository.save(current);
+        return settingsRepository.save(currentSettings);
     }
 
     // --- Auxiliary method ---
@@ -80,6 +80,7 @@ public class SettingsService {
         dto.setTimezone(entity.getTimezone());
         dto.setFirstDayOfWeek(entity.getFirstDayOfWeek());
         dto.setShowRankInTeam(entity.getShowRankInTeam());
+        dto.setUserLanguage(entity.getUserLanguage());
 
         dto.setLayoutsDashboards(entity.getLayoutsDashboards());
         dto.setWidgetPreferences(entity.getWidgetPreferences());
@@ -103,6 +104,15 @@ public class SettingsService {
     public UserSettings updateWidgetPreferences(Integer userId, WidgetPreferencesMetadata newPreferences) {
         UserSettings current = getSettingsByUserId(userId);
         current.setWidgetPreferences(newPreferences);
+        return settingsRepository.save(current);
+    }
+
+    /**
+     * Update ONLY the notifications preferences
+     */
+    public UserSettings updateNotificationPreferences(Integer userId, NotificationSettingsMetadata notificationPreferences) {
+        UserSettings current = getSettingsByUserId(userId);
+        current.setNotificationSettings(notificationPreferences);
         return settingsRepository.save(current);
     }
 }

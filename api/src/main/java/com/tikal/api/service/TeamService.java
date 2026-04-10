@@ -121,7 +121,7 @@ public class TeamService {
      * @param invitationCode The invitation code
      * @return The team if found, empty Optional otherwise
      */
-    public Optional<TeamDTO> getTeamByInvitationCode(String invitationCode) {
+    public Optional<Team> getTeamByInvitationCode(String invitationCode) {
         return teamRepo.findByInvitationCode(invitationCode);
     }
     
@@ -130,7 +130,7 @@ public class TeamService {
      * @param parentTeamId The ID of the parent team
      * @return List of subteams
      */
-    public List<TeamDTO> getSubteams(Integer parentTeamId) {
+    public List<Team> getSubteams(Integer parentTeamId) {
         return teamRepo.findByParentTeam_Id(parentTeamId);
     }
     
@@ -139,7 +139,7 @@ public class TeamService {
      * @param name The name to search for
      * @return List of teams matching the search
      */
-    public List<TeamDTO> searchTeamsByName(String name) {
+    public List<Team> searchTeamsByName(String name) {
         return teamRepo.findByNameContainingIgnoreCase(name);
     }
     
@@ -189,10 +189,10 @@ public class TeamService {
      * @return The created Team_Member, or null if team or user not found
      */
     public TeamMember addUserToTeamByCode(Integer userId, String invitationCode, Boolean isAdmin) {
-        Optional<TeamDTO> teamDTO = teamRepo.findByInvitationCode(invitationCode);
+        Optional<Team> team = teamRepo.findByInvitationCode(invitationCode);
         Optional<User> user = userRepo.findById(userId);
         
-        if (teamDTO.isEmpty() || user.isEmpty()) {
+        if (team.isEmpty() || user.isEmpty()) {
             return null; // Team or user not found
         }
         
@@ -260,7 +260,7 @@ public class TeamService {
      * @param teamId The ID of the team
      * @return List of team members with their information
      */
-    public List<TeamMemberDTO> getTeamMembers(Integer teamId) {
+    public List<TeamMember> getTeamMembers(Integer teamId) {
         return teamMemberRepo.findTeamMembers(teamId);
     }
     
@@ -269,7 +269,7 @@ public class TeamService {
      * @param teamId The ID of the team
      * @return List of team administrators
      */
-    public List<TeamMemberDTO> getTeamAdmins(Integer teamId) {
+    public List<TeamMember> getTeamAdmins(Integer teamId) {
         return teamMemberRepo.findTeamAdmins(teamId);
     }
     
