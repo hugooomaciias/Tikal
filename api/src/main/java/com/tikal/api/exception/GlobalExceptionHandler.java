@@ -38,7 +38,7 @@ public class GlobalExceptionHandler {
 
     // Not found 404: what the client is looking for doesn't exist on the database
     @ExceptionHandler({NotFoundUserException.class, UsernameNotFoundException.class, NotFoundProjectException.class,
-            NotFoundTeamMemberException.class, NotFoundRankException.class})
+            NotFoundTeamMemberException.class, NotFoundRankException.class, NotFoundStageException.class})
     public ResponseEntity<Map<String, String>> handleNotFound(RuntimeException ex) {
         Map<String, String> errorResponse = new HashMap<>();
         errorResponse.put("error", "Not found");

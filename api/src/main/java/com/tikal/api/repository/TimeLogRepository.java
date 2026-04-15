@@ -66,7 +66,7 @@ public interface TimeLogRepository extends JpaRepository<TimeLog, Integer> {
 
     /* --- Solar Chart Capa 1: Total time grouped by Project --- */
     @Query(value =
-            "SELECT p.id as projectId, p.name as projectName, p.logo_url as logoOrColor, " +
+            "SELECT p.id as projectId, p.name as projectName, p.logo_url as logoOrColour, " +
                     "SUM(TIMESTAMPDIFF(MINUTE, tl.init_date_time, tl.end_date_time)) as totalMinutes " +
                     "FROM time_logs tl " +
                     "JOIN projects p ON tl.project_id = p.id " +
@@ -82,7 +82,7 @@ public interface TimeLogRepository extends JpaRepository<TimeLog, Integer> {
 
     /* --- Solar Chart Capa 2: Total time grouped by Stage (Phase) --- */
     @Query(value =
-            "SELECT s.id as stageId, s.name as stageName, s.colour as logoOrColor, " +
+            "SELECT s.id as stageId, s.name as stageName, s.colour as logoOrColour, " +
                     "SUM(TIMESTAMPDIFF(MINUTE, tl.init_date_time, tl.end_date_time)) as totalMinutes " +
                     "FROM time_logs tl " +
                     "JOIN stages s ON tl.stage_id = s.id " +
@@ -98,7 +98,7 @@ public interface TimeLogRepository extends JpaRepository<TimeLog, Integer> {
 
     /* --- Solar Chart Capa 3: Total time grouped by Task --- */
     @Query(value =
-            "SELECT t.id as taskId, t.name as taskName, NULL as logoOrColor, " +
+            "SELECT t.id as taskId, t.name as taskName, NULL as color, " +
                     "SUM(TIMESTAMPDIFF(MINUTE, tl.init_date_time, tl.end_date_time)) as totalMinutes " +
                     "FROM time_logs tl " +
                     "JOIN tasks t ON tl.task_id = t.id " +

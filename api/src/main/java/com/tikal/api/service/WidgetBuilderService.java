@@ -1,18 +1,17 @@
 package com.tikal.api.service;
 
-import com.tikal.api.exception.NotFoundRankException;
+import com.tikal.api.exception.NotFoundProjectException;
+import com.tikal.api.exception.NotFoundStageException;
 import com.tikal.api.exception.NotFoundUserException;
 import com.tikal.api.model.dto.sync.widgets.*;
 import com.tikal.api.model.entity.*;
-import com.tikal.api.repository.RankListRepository;
-import com.tikal.api.repository.TaskRepository;
-import com.tikal.api.repository.TimeLogRepository;
-import com.tikal.api.repository.UserRepository;
+import com.tikal.api.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.*;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.time.temporal.TemporalAdjusters;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -24,11 +23,12 @@ public class WidgetBuilderService {
     private final TaskRepository taskRepository;
     private final TimeLogRepository timeLogRepository;
     private final UserRepository userRepository;
-    private final RankListRepository rankListRepository;
+    private final ProjectRepository projectRepository;
+    private final StageRepository stageRepository;
 
     public WidgetData buildSingleWidget(String widgetId, Integer userId, UserSettings settings) {
         return switch (widgetId) {
-            case "weeklyProgressWidget" -> buildWeeklyProgress(userId, settings);
+            case "weeklyProgressWidget" -> buildWeeklyProgress(userId);
             case "timeTrackerWidget" -> buildTimeTracker(userId);
             case "templeModeWidget" -> buildTempleModeWidget(userId, settings);
             case "taskWidget" -> buildTaskWidget(userId, settings);
@@ -44,7 +44,7 @@ public class WidgetBuilderService {
         };
     }
 
-    private WidgetData buildWeeklyProgress(Integer userId, UserSettings settings) {
+    private WidgetData buildWeeklyProgress(Integer userId) {
         LocalDate endDate = LocalDate.now();
         LocalDate startDate = endDate.minusDays(6);
 
@@ -166,7 +166,7 @@ public class WidgetBuilderService {
         // mode = settings.getWidgetPreferences().getTaskGroupingMode(); // Ajusta según tu DTO
         //}
 
-        // NOTA: Para no sobrecargar, idealmente creamos un método que traiga las pendientes y las completadas en los últimos 30 días.
+        // NOTA: Para no sobrecargar, idealmente creamos un metodo que traiga las pendientes y las completadas en los últimos 30 días.
         // Aquí usaré findByAssignedUser_Id como ejemplo, pero deberías filtrarlo en el Repository.
         LocalDateTime twoDaysAgo = LocalDateTime.now().minusDays(2);
         List<Task> sampleTasks = taskRepository.findMainTasksPendingOrCompletedSince(userId, twoDaysAgo);
@@ -283,8 +283,8 @@ public class WidgetBuilderService {
                     .collect(Collectors.toList());
 
             projectCards.add(buildCard(
-                    project.getName(),
-                    "Proyecto",
+                    "Tareas de " + project.getName(),
+                    null,
                     items,
                     (int) completedProjectTasks,
                     (int) totalProjectTasks
@@ -336,7 +336,7 @@ public class WidgetBuilderService {
 
         LocalDate endDate = startDate.plusDays(6);
 
-        LocalTime startHour = LocalTime.of(8, 0);  // Changes required because it depends of the widget configuration
+        LocalTime startHour = LocalTime.of(8, 0);  // Changes required because it depends on the widget configuration
 
         Boolean showWeekends = true;
 
@@ -370,21 +370,102 @@ public class WidgetBuilderService {
 
     // Sublayer (Stages)
     public SolarChartWidgetData buildSolarChartStages(Integer projectId, String filterParam, String customStart, String customEnd) {
-        SolarChartWidgetData.TimeRangeFilter filter = SolarChartWidgetData.TimeRangeFilter.valueOf(filterParam);
-        // Aquí deberías parsear customStart y customEnd si el filtro es CUSTOM
-        LocalDateTime[] dateRange = resolveDateRange(filter, null);
+        SolarChartWidgetData.TimeRangeFilter filter;
+        try {
+            filter = SolarChartWidgetData.TimeRangeFilter.valueOf(filterParam);
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Invalid filterParam: " + filterParam + ". Allowed values: DAILY, WEEKLY, MONTHLY, GLOBAL, CUSTOM");
+        }
+
+        LocalDate startDate = null;
+        LocalDate endDate = null;
+        LocalDateTime[] dateRange;
+
+        if (filter == SolarChartWidgetData.TimeRangeFilter.CUSTOM) {
+            // Validate that custom dates are provided
+            if (customStart == null || customStart.isEmpty() || customEnd == null || customEnd.isEmpty()) {
+                throw new IllegalArgumentException("Custom date range requires both customStart and customEnd parameters");
+            }
+
+            // Parse and validate custom dates
+            try {
+                startDate = LocalDate.parse(customStart);
+                endDate = LocalDate.parse(customEnd);
+            } catch (DateTimeParseException e) {
+                throw new IllegalArgumentException("Invalid date format. Expected format: YYYY-MM-DD. Provided: start=" + customStart + ", end=" + customEnd, e);
+            }
+
+            // Validate that start date is not after end date
+            if (startDate.isAfter(endDate)) {
+                throw new IllegalArgumentException("Start date cannot be after end date: start=" + startDate + ", end=" + endDate);
+            }
+
+            dateRange = new LocalDateTime[]{
+                    startDate.atStartOfDay(),
+                    endDate.atTime(23, 59, 59)
+            };
+        } else {
+            // For non-CUSTOM filters, ignore customStart/customEnd if provided (or you could log a warning)
+            dateRange = resolveDateRange(filter, null);
+        }
+
+        // Create customDateRange only for CUSTOM filter
+        SolarChartWidgetData.CustomDateRange customDateRange = (filter == SolarChartWidgetData.TimeRangeFilter.CUSTOM && startDate != null && endDate != null)
+                ? new SolarChartWidgetData.CustomDateRange(startDate, endDate)
+                : null;
 
         List<Object[]> dbResults = timeLogRepository.getSolarChartStageData(projectId, dateRange[0], dateRange[1]);
-        return assembleSolarChartWidget("STAGE", projectId, filter, null, dbResults);
+        return assembleSolarChartWidget("STAGE", projectId, filter, customDateRange, dbResults);
     }
 
     // Sublayer (tasks)
     public SolarChartWidgetData buildSolarChartTasks(Integer stageId, String filterParam, String customStart, String customEnd) {
-        SolarChartWidgetData.TimeRangeFilter filter = SolarChartWidgetData.TimeRangeFilter.valueOf(filterParam);
-        LocalDateTime[] dateRange = resolveDateRange(filter, null);
+        SolarChartWidgetData.TimeRangeFilter filter;
+        try {
+            filter = SolarChartWidgetData.TimeRangeFilter.valueOf(filterParam);
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Invalid filterParam: " + filterParam + ". Allowed values: DAILY, WEEKLY, MONTHLY, GLOBAL, CUSTOM");
+        }
+
+        LocalDate startDate = null;
+        LocalDate endDate = null;
+        LocalDateTime[] dateRange;
+
+        if (filter == SolarChartWidgetData.TimeRangeFilter.CUSTOM) {
+            // Validate that custom dates are provided
+            if (customStart == null || customStart.isEmpty() || customEnd == null || customEnd.isEmpty()) {
+                throw new IllegalArgumentException("Custom date range requires both customStart and customEnd parameters");
+            }
+
+            // Parse and validate custom dates
+            try {
+                startDate = LocalDate.parse(customStart);
+                endDate = LocalDate.parse(customEnd);
+            } catch (DateTimeParseException e) {
+                throw new IllegalArgumentException("Invalid date format. Expected format: YYYY-MM-DD. Provided: start=" + customStart + ", end=" + customEnd, e);
+            }
+
+            // Validate that start date is not after end date
+            if (startDate.isAfter(endDate)) {
+                throw new IllegalArgumentException("Start date cannot be after end date: start=" + startDate + ", end=" + endDate);
+            }
+
+            dateRange = new LocalDateTime[]{
+                    startDate.atStartOfDay(),
+                    endDate.atTime(23, 59, 59)
+            };
+        } else {
+            // For non-CUSTOM filters, ignore customStart/customEnd if provided (or you could log a warning)
+            dateRange = resolveDateRange(filter, null);
+        }
+
+        // Create customDateRange only for CUSTOM filter
+        SolarChartWidgetData.CustomDateRange customDateRange = (filter == SolarChartWidgetData.TimeRangeFilter.CUSTOM && startDate != null && endDate != null)
+                ? new SolarChartWidgetData.CustomDateRange(startDate, endDate)
+                : null;
 
         List<Object[]> dbResults = timeLogRepository.getSolarChartTaskData(stageId, dateRange[0], dateRange[1]);
-        return assembleSolarChartWidget("TASK", stageId, filter, null, dbResults);
+        return assembleSolarChartWidget("TASK", stageId, filter, customDateRange, dbResults);
     }
 
     private SolarChartWidgetData assembleSolarChartWidget(
@@ -413,7 +494,7 @@ public class WidgetBuilderService {
             Integer id = ((Number) row[0]).intValue();
             String name = (String) row[1];
             String logoOrColor = (String) row[2];
-            Integer minutes = row[3] != null ? ((Number) row[3]).intValue() : 0;
+            int minutes = row[3] != null ? ((Number) row[3]).intValue() : 0;
 
             // El ganador indiscutible es el primero de la lista (i == 0)
             if (i == 0 && minutes > 0) {
@@ -430,10 +511,24 @@ public class WidgetBuilderService {
             slices.add(SolarChartWidgetData.SolarChartSlice.builder()
                     .sliceId(id)
                     .sliceName(name)
-                    .logoOrColor(logoOrColor)
+                    .logoOrColour(logoOrColor)
                     .minutesDedicated(minutes)
                     .percentage(percentage)
                     .build());
+        }
+
+        String logo = null;
+        String colour = null;
+
+        if (layer.trim().equalsIgnoreCase("STAGE")) {
+            Project project = projectRepository.findById(parentId)
+                    .orElseThrow(() -> new NotFoundProjectException("El proyecto no existe"));
+            logo = project.getLogoUrl();
+        } else if (layer.trim().equalsIgnoreCase("TASK")) {
+            Stage stage = stageRepository.findById(parentId)
+                    .orElseThrow(() -> new NotFoundStageException("La fase solicitada no existe"));
+            colour = stage.getColour();
+            logo = stage.getProject().getLogoUrl();
         }
 
         return SolarChartWidgetData.builder()
@@ -443,6 +538,8 @@ public class WidgetBuilderService {
                 .customDateRange(customRange)
                 .mostRecurringListName(mostRecurringName)
                 .slices(slices)
+                .logo(logo)
+                .colour(colour)
                 .build();
     }
 
