@@ -6,6 +6,7 @@ import com.tikal.api.exception.NotFoundUserException;
 import com.tikal.api.model.dto.sync.widgets.*;
 import com.tikal.api.model.entity.*;
 import com.tikal.api.repository.*;
+import com.tikal.api.utils.DateUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -51,6 +52,9 @@ public class WidgetBuilderService {
         LocalDateTime startDateTime = startDate.atStartOfDay();
         LocalDateTime endDateTime = endDate.atTime(23, 59, 59);
 
+        // Subtitle generation
+        String subtitle = DateUtils.formatDateRange(startDate, endDate, false);
+
         List<Object[]> dbResults = timeLogRepository.getDailyTotalMinutesBetweenDates(userId, startDateTime, endDateTime);
 
         Map<LocalDate, Integer> minutesByDate = new HashMap<>();
@@ -61,16 +65,11 @@ public class WidgetBuilderService {
         }
 
         List<WeeklyProgressWidgetData.DailyProgress> daysList = new ArrayList<>();
-        int maxMinutes = 0;
 
         for (int i = 0; i <= 6; i++) {
             LocalDate currentDate = startDate.plusDays(i);
 
             Integer minutes = minutesByDate.getOrDefault(currentDate, 0);
-
-            if (minutes > maxMinutes) {
-                maxMinutes = minutes;
-            }
 
             daysList.add(WeeklyProgressWidgetData.DailyProgress.builder()
                     .date(currentDate)
@@ -80,9 +79,7 @@ public class WidgetBuilderService {
         }
 
         return WeeklyProgressWidgetData.builder()
-                .startDate(startDate)
-                .endDate(endDate)
-                .maxMinutesRegistered(maxMinutes)
+                .subtitle(subtitle)
                 .days(daysList)
                 .build();
     }
@@ -100,18 +97,24 @@ public class WidgetBuilderService {
         if (targetTask == null) {
             return TimeTrackerWidgetData.builder()
                     .taskId(0)
-                    .taskName("Registra tu primera tarea")
-                    .projectOrPhaseName("Bienvenido a Tikal")
+                    .taskName("Bienvenido a Tikal")
+                    .subtaskName("Registra tu primera tarea")
                     .accumulatedSeconds(0)
                     .build();
         }
 
-        String parentName = "";
+        String parentName = null;
         String parentColor = "#FFFFFF";
         String projectLogo = null;
+        String subtaskName = null;
 
         if (targetTask.getStage() != null) {
-            parentName = targetTask.getStage().getName();
+            if (targetTask.getParentTask() != null) {
+                parentName = targetTask.getParentTask().getName();
+                subtaskName = targetTask.getName();
+            } else {
+                parentName = targetTask.getName();
+            }
             parentColor = targetTask.getStage().getColour();
 
             if (targetTask.getStage().getProject() != null) {
@@ -124,8 +127,8 @@ public class WidgetBuilderService {
 
         return TimeTrackerWidgetData.builder()
                 .taskId(targetTask.getId())
-                .taskName(targetTask.getName())
-                .projectOrPhaseName(parentName)
+                .taskName(parentName)
+                .subtaskName(subtaskName)
                 .parentColor(parentColor)
                 .projectLogoIcon(projectLogo)
                 .accumulatedSeconds(accumulatedSeconds)
@@ -150,6 +153,7 @@ public class WidgetBuilderService {
 
         percentage = Math.round(percentage * 10.0) / 10.0;
         return TempleModeWidgetData.builder()
+                .rank(user.getCurrentRank().getId())
                 .rankPercentage(percentage)
                 .colour(userRank.getColour())
                 .logo(userRank.getBadgeImageUrl())
@@ -166,10 +170,10 @@ public class WidgetBuilderService {
         // mode = settings.getWidgetPreferences().getTaskGroupingMode(); // Ajusta según tu DTO
         //}
 
-        // NOTA: Para no sobrecargar, idealmente creamos un metodo que traiga las pendientes y las completadas en los últimos 30 días.
-        // Aquí usaré findByAssignedUser_Id como ejemplo, pero deberías filtrarlo en el Repository.
-        LocalDateTime twoDaysAgo = LocalDateTime.now().minusDays(2);
-        List<Task> sampleTasks = taskRepository.findMainTasksPendingOrCompletedSince(userId, twoDaysAgo);
+        // NOTE: To avoid overloading the system, we should ideally create a method that retrieves the
+        // pending and completed tasks from the last 10 days.
+        LocalDateTime daysAgo = LocalDateTime.now().minusDays(10);
+        List<Task> sampleTasks = taskRepository.findMainTasksPendingOrCompletedSince(userId, daysAgo);
 
         List<Task> pendingTasks = sampleTasks.stream().filter(t -> !t.getIsCompleted()).collect(Collectors.toList());
         List<Task> completedTasks = sampleTasks.stream().filter(Task::getIsCompleted).toList();
@@ -194,6 +198,9 @@ public class WidgetBuilderService {
 
         if (mode == TaskWidgetData.GroupingMode.BY_DEADLINE) {
             cards = buildCardsByDeadline(pendingTasks, subtasksCountMap);
+            if (cards.size() > 3) {
+                hasMoreCards = true;
+            }
         } else {
             cards = buildCardsByProject(pendingTasks, sampleTasks, subtasksCountMap);
             if (cards.size() > 3) {
@@ -204,7 +211,7 @@ public class WidgetBuilderService {
 
         return TaskWidgetData.builder()
                 .selectedGroupingMode(mode)
-                .globalProgressPercentage(Math.round(globalProgress * 10.0) / 10.0)
+                .subtitle(Math.round(globalProgress * 10.0) / 10.0 + "%")
                 .hasMoreCards(hasMoreCards)
                 .cards(cards)
                 .build();
@@ -219,36 +226,54 @@ public class WidgetBuilderService {
         LocalDateTime inThreeDays = endOfToday.plusDays(3);
         LocalDateTime inOneWeek = endOfToday.plusDays(10);
 
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d MMM", new Locale("es", "ES"));
+        // Subtitle formatter
+        String subtitleToday = DateUtils.formatSingleDate(today);
+        String subtitleThreeDays = DateUtils.formatDateRange(today.plusDays(1), today.plusDays(3), false);
+        String subtitleOneWeek = DateUtils.formatDateRange(today.plusDays(4), today.plusDays(10), false);
 
-        String subtitleToday = formatCleanDate(today, formatter);
-        String subtitleThreeDays = formatCleanDate(today.plusDays(1), formatter) + " - " +
-                formatCleanDate(today.plusDays(3), formatter);;
-        String subtitleOneWeek = formatCleanDate(today.plusDays(4), formatter) + " - " +
-                formatCleanDate(today.plusDays(10), formatter);;
-
+        List<TaskWidgetData.TaskItem> previousTasks = new ArrayList<>();
         List<TaskWidgetData.TaskItem> todayTasks = new ArrayList<>();
         List<TaskWidgetData.TaskItem> threeDaysTasks = new ArrayList<>();
         List<TaskWidgetData.TaskItem> nextWeekTasks = new ArrayList<>();
+
+        int previousTasksCompleted = 0;
+        int todayTasksCompleted = 0;
+        int threeDaysTasksCompleted = 0;
+        int nextWeekTasksCompleted = 0;
 
         for (Task task : pendingTasks) {
             if (task.getDeadline() == null) continue;
 
             TaskWidgetData.TaskItem item = mapToTaskItem(task, subtasksCountMap);
 
-            if (task.getDeadline().isBefore(endOfToday) || task.getDeadline().isEqual(endOfToday)) {
+            if (task.getDeadline().isBefore(endOfToday)){
+                previousTasks.add(item);
+                if (task.getIsCompleted()) {
+                    previousTasksCompleted++;
+                }
+            } else if (task.getDeadline().isEqual(endOfToday)) {
                 todayTasks.add(item);
+                if (task.getIsCompleted()) {
+                    todayTasksCompleted++;
+                }
             } else if (task.getDeadline().isBefore(inThreeDays)) {
                 threeDaysTasks.add(item);
+                if (task.getIsCompleted()) {
+                    threeDaysTasksCompleted++;
+                }
             } else if (task.getDeadline().isBefore(inOneWeek)) {
                 nextWeekTasks.add(item);
+                if (task.getIsCompleted()) {
+                    nextWeekTasksCompleted++;
+                }
             }
         }
 
         return List.of(
-                buildCard("Para hoy y atrasadas", subtitleToday, todayTasks, todayTasks.size(), todayTasks.size()),
-                buildCard("Próximos 3 días", subtitleThreeDays, threeDaysTasks, threeDaysTasks.size(), threeDaysTasks.size()),
-                buildCard("Próxima semana", subtitleOneWeek, nextWeekTasks, nextWeekTasks.size(), nextWeekTasks.size())
+                buildCard("Atrasadas", subtitleToday, previousTasks, previousTasksCompleted, previousTasks.size()),
+                buildCard("Para hoy", subtitleToday, todayTasks, todayTasksCompleted, todayTasks.size()),
+                buildCard("Próximos 3 días", subtitleThreeDays, threeDaysTasks, threeDaysTasksCompleted, threeDaysTasks.size()),
+                buildCard("Próxima semana", subtitleOneWeek, nextWeekTasks, nextWeekTasksCompleted, nextWeekTasks.size())
         );
     }
 
@@ -316,8 +341,8 @@ public class WidgetBuilderService {
         return TaskWidgetData.TaskItem.builder()
                 .taskId(task.getId())
                 .name(task.getName())
-                .iconIdentifier(icon)
-                .colorHex(color)
+                .logo(icon)
+                .color(color)
                 .subtasksCount(subtasks != null && subtasks > 0 ? subtasks : null)
                 .isCompleted(task.getIsCompleted())
                 .build();
@@ -788,27 +813,7 @@ public class WidgetBuilderService {
         DateTimeFormatter yearFormatter = DateTimeFormatter.ofPattern("yyyy");
 
         // 2. Construcción del subtítulo dinámico
-        String subtitle;
-        String startMonth = startDate.format(monthFormatter).replace(".", "").toLowerCase();
-        String endMonth = endDate.format(monthFormatter).replace(".", "").toLowerCase();
-        String year = endDate.format(yearFormatter);
-
-        if (startDate.getMonth() == endDate.getMonth()) {
-            // Caso: 21 - 27 sept, 2026
-            subtitle = String.format("%d - %d %s, %s",
-                    startDate.getDayOfMonth(),
-                    endDate.getDayOfMonth(),
-                    endMonth,
-                    year);
-        } else {
-            // Caso: 28 sep - 4 oct, 2026
-            subtitle = String.format("%d %s - %d %s, %s",
-                    startDate.getDayOfMonth(),
-                    startMonth,
-                    endDate.getDayOfMonth(),
-                    endMonth,
-                    year);
-        }
+        String subtitle = DateUtils.formatDateRange(startDate, endDate, true);
 
         return TimeGoalWidgetData.builder()
                 .currentMinutes(currentMinutes)
@@ -910,7 +915,7 @@ public class WidgetBuilderService {
         int diff = currNum - prevNum;
         ComparisonWidgetData.Trend trend = determineTrend(diff);
 
-        String displayValue = (diff > 0 ? "+" : "") + diff;
+        String displayValue = String.valueOf(diff);
 
         return ComparisonWidgetData.ComparisonMetric.builder()
                 .id(id)
@@ -932,10 +937,9 @@ public class WidgetBuilderService {
         int mins = absMins % 60;
 
         StringBuilder sb = new StringBuilder();
-        sb.append(totalMinutesDiff >= 0 ? "+" : "-");
 
-        if (hours > 0) sb.append(hours).append("h ");
-        if (mins > 0 || hours == 0) sb.append(mins).append("m");
+        if (hours > 0 || mins == 0) sb.append(hours).append(" hrs");
+        if (mins > 0 && hours == 0) sb.append(mins).append(" min");
 
         return sb.toString().trim();
     }

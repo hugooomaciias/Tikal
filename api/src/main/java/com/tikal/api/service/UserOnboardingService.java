@@ -42,19 +42,19 @@ public class UserOnboardingService {
 
         // Home widgets
         layouts.getHome().add(new LayoutsDashboardMetadata.WidgetPosition("weeklyProgressWidget", 0, 0, 1, 1));
-        layouts.getHome().add(new LayoutsDashboardMetadata.WidgetPosition("timeTrackerWidget", 0, 1, 1, 1));
-        layouts.getHome().add(new LayoutsDashboardMetadata.WidgetPosition("templeModeWidget", 0, 2, 1, 1));
-        layouts.getHome().add(new LayoutsDashboardMetadata.WidgetPosition("taskWidget", 0, 3, 1, 2));
-        layouts.getHome().add(new LayoutsDashboardMetadata.WidgetPosition("AIMainWidget", 1, 0, 1, 1));
+        layouts.getHome().add(new LayoutsDashboardMetadata.WidgetPosition("timeTrackerWidget", 1, 0, 1, 1));
+        layouts.getHome().add(new LayoutsDashboardMetadata.WidgetPosition("templeModeWidget", 2, 0, 1, 1));
+        layouts.getHome().add(new LayoutsDashboardMetadata.WidgetPosition("taskWidget", 3, 0, 1, 2));
+        layouts.getHome().add(new LayoutsDashboardMetadata.WidgetPosition("AIMainWidget", 0, 1, 1, 1));
         layouts.getHome().add(new LayoutsDashboardMetadata.WidgetPosition("calendarWidget", 1, 1, 2, 1));
 
         // Cajas para las Estadísticas
         layouts.getStatistics().add(new LayoutsDashboardMetadata.WidgetPosition("solarChartWidget", 0, 0, 1, 2));
-        layouts.getStatistics().add(new LayoutsDashboardMetadata.WidgetPosition("effectivenessChartWidget", 0, 1, 2, 1));
-        layouts.getStatistics().add(new LayoutsDashboardMetadata.WidgetPosition("timeGoalWidget", 0, 3, 1, 1));
+        layouts.getStatistics().add(new LayoutsDashboardMetadata.WidgetPosition("effectivenessChartWidget", 1, 0, 2, 1));
+        layouts.getStatistics().add(new LayoutsDashboardMetadata.WidgetPosition("timeGoalWidget", 3, 0, 1, 1));
         layouts.getStatistics().add(new LayoutsDashboardMetadata.WidgetPosition("concentrationHeatmapWidget", 1, 1, 1, 1));
-        layouts.getStatistics().add(new LayoutsDashboardMetadata.WidgetPosition("comparisonWidget", 1, 2, 1, 1));
-        layouts.getStatistics().add(new LayoutsDashboardMetadata.WidgetPosition("iaAdviceWidget", 1, 3, 1, 1));
+        layouts.getStatistics().add(new LayoutsDashboardMetadata.WidgetPosition("comparisonWidget", 2, 1, 1, 1));
+        layouts.getStatistics().add(new LayoutsDashboardMetadata.WidgetPosition("iaAdviceWidget", 3, 1, 1, 1));
 
         settings.setLayoutsDashboards(layouts);
 
@@ -73,13 +73,13 @@ public class UserOnboardingService {
         Stage stage1 = new Stage();
         stage1.setName("Fase 1 de ejemplo");
         stage1.setProject(welcomeProject);
-        stage1.setColour("#E1BA63");
+        stage1.setColour("g4");
         stage1 = stageRepository.save(stage1);
 
         Stage stage2 = new Stage();
         stage2.setName("Fase 2 de ejemplo");
         stage2.setProject(welcomeProject);
-        stage2.setColour("#224A57");
+        stage2.setColour("y5");
         stage2 = stageRepository.save(stage2);
 
         Task task1 = new Task();

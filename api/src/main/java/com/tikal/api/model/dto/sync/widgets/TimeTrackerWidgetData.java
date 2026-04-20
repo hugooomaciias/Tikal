@@ -8,8 +8,8 @@ import lombok.Data;
 public class TimeTrackerWidgetData implements WidgetData {
     private Integer taskId;
 
-    private String projectOrPhaseName;
     private String taskName;
+    private String subtaskName;
     private String parentColor;
     private String projectLogoIcon;
 

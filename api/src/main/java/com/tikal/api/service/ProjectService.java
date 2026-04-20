@@ -4,9 +4,9 @@ import com.tikal.api.exception.NotFoundProjectException;
 import com.tikal.api.exception.NotFoundTeamMemberException;
 import com.tikal.api.exception.ProjectAccessDeniedException;
 import com.tikal.api.exception.TeamBadRequestException;
-import com.tikal.api.model.dto.project.CreateProjectRequest;
-import com.tikal.api.model.dto.project.ProjectDTO;
-import com.tikal.api.model.dto.project.UpdateProjectRequest;
+import com.tikal.api.model.dto.task.CreateProjectRequest;
+import com.tikal.api.model.dto.task.ProjectDTO;
+import com.tikal.api.model.dto.task.UpdateProjectRequest;
 import com.tikal.api.model.entity.Project;
 import com.tikal.api.model.entity.TeamMember;
 import com.tikal.api.model.entity.User;
@@ -17,7 +17,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -36,13 +35,14 @@ public class ProjectService {
         Project project = new Project();
         project.setName(request.getName());
         project.setDescription(request.getDescription());
+        project.setDeadline(request.getDeadline());
         project.setLogoUrl(request.getLogoUrl());
         project.setUserOwner(currentUser);
         project.setIsGroupBased(request.getIsGroupBased() != null ? request.getIsGroupBased() : false);
 
         if (project.getIsGroupBased()) {
             var team = teamRepository.findById(request.getTeamId())
-                    .orElseThrow(() -> new TeamBadRequestException(project.getName()));
+                    .orElseThrow(() -> new TeamBadRequestException(request.getTeamId().toString()));
 
             var teamMember = teamMemberRepository.findByUserIdAndTeamId(currentUser.getId(), team.getId())
                     .orElseThrow(() -> new NotFoundTeamMemberException(currentUser.getName(), team.getName()));
@@ -120,13 +120,12 @@ public class ProjectService {
         if (request.getName() != null && !request.getName().isBlank()) {
             project.setName(request.getName());
         }
-        if (request.getDescription() != null) {
-            project.setDescription(request.getDescription());
-        }
         if (request.getLogoUrl() != null) {
             project.setLogoUrl(request.getLogoUrl());
         }
 
+        project.setDeadline(request.getDeadline());
+        project.setDescription(request.getDescription());
         Project updatedProject = projectRepository.save(project);
         return mapToDTO(updatedProject);
     }
