@@ -846,6 +846,10 @@ public class WidgetBuilderService {
         LocalDateTime previousStart = periods[2];
         LocalDateTime previousEnd = periods[3];
 
+        String format = DateUtils.formatDateRangeMinimal(currentStart, currentEnd);
+        String week = format.split(" ")[0];
+        String month = format.split(" ")[1];
+
         // 2. Extract the ACTUAL data
         int currTotalMins = getSafeInt(timeLogRepository.getTotalMinutesBetweenDates(userId, currentStart, currentEnd));
         int currTempleMins = getSafeInt(timeLogRepository.getTempleMinutesBetweenDates(userId, currentStart, currentEnd));
@@ -863,6 +867,8 @@ public class WidgetBuilderService {
         metrics.add(buildNumericMetric("COMPLETED_TASKS", "Tareas completadas", currTasks, prevTasks));
 
         return ComparisonWidgetData.builder()
+                .week(week)
+                .month(month)
                 .selectedFilter(filter)
                 .metrics(metrics)
                 .build();

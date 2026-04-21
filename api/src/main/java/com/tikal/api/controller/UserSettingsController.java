@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/settings")
+@CrossOrigin(origins = "*")
 @RequiredArgsConstructor
 public class UserSettingsController {
     private final SettingsService settingsService;

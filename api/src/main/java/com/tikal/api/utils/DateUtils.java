@@ -1,6 +1,7 @@
 package com.tikal.api.utils;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 
@@ -50,5 +51,21 @@ public class DateUtils {
     public static String formatSingleDate(LocalDate date) {
         String month = date.format(MONTH_FORMATTER).replace(".", "").toLowerCase();
         return String.format("%d %s", date.getDayOfMonth(), month);
+    }
+
+    /**
+     * Format a range of dates.
+     * Examples: "27-29 SEP"
+     */
+    public static String formatDateRangeMinimal(LocalDateTime startDate, LocalDateTime endDate) {
+        String endMonth = endDate.format(MONTH_FORMATTER).replace(".", "").toUpperCase();
+
+        String baseSubtitle;
+        baseSubtitle = String.format("%d-%d %s",
+                startDate.getDayOfMonth(),
+                endDate.getDayOfMonth(),
+                endMonth);
+
+        return baseSubtitle;
     }
 }

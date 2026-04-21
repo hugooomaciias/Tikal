@@ -11,7 +11,7 @@ import java.util.List;
 public class ProjectSyncDTO {
     private Integer id;
     private String name;
-    private String logoUrl;
+    private String logo;
     private String description;
     private LocalDateTime deadline;
     private List<StageSyncDTO> stages;
