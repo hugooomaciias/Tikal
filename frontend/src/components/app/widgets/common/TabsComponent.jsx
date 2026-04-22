@@ -4,6 +4,8 @@ import { useState } from "react";
 import { PROJECTS_ICONS } from "../../../../constants/projects_icons.js";
 import { PHASE_COLOURS } from "../../../../constants/phase_colours.js";
 
+import { IconTarget, IconCoin } from "@tabler/icons-react";
+
 /**
  * Reusable Tabs Component
  *
@@ -20,15 +22,33 @@ import { PHASE_COLOURS } from "../../../../constants/phase_colours.js";
  * @param {Function} props.t - The i18n translation function.
  * @returns {JSX.Element} The rendered tabs component.
  */
-export const TabsComponent = ({ widget }) => {
+export const TabsComponent = ({ widget, t }) => {
     /**
      * Tab Type Identifiers
      *
      * Computes the underlying data string representation for the left (first)
      * and right (second) tabs based on the contextual `page` prop.
      */
-    const firstTabType = widget === "Calendar" ? "event" : "day";
-    const secondTabType = widget === "Calendar" ? "project" : "project";
+    const firstTabType =
+        widget === "Calendar"
+            ? "event"
+            : widget === "Task"
+              ? "day"
+              : widget === "EffectivenessX"
+                ? "weekly"
+                : widget === "EffectivenessY"
+                  ? "concentration"
+                  : "this_week";
+    const secondTabType =
+        widget === "Calendar"
+            ? "project"
+            : widget === "Task"
+              ? "project"
+              : widget === "EffectivenessX"
+                ? "monthly"
+                : widget === "EffectivenessY"
+                  ? "profitability"
+                  : "this_month";
 
     /**
      * Current Selection State
@@ -38,29 +58,55 @@ export const TabsComponent = ({ widget }) => {
      */
     const [currentValue, setCurrentValue] = useState(firstTabType);
 
+    const renderFirstTabContent = () => {
+        if (widget === "Calendar") return t("widgets.calendar.tabs.event");
+        if (widget === "Task") return t("widgets.tasks.tabs.day");
+        if (widget === "EffectivenessX") return t("widgets.effectiveness_chart.tabs.axisX.weekly");
+        if (widget === "Comparison") return "20-26";
+        return (
+            <div className="flex items-center gap-1.5 justify-center">
+                <IconTarget className="h-4 w-4" stroke={2.5} />
+                <span>{t("widgets.effectiveness_chart.tabs.axisY.concentration")}</span>
+            </div>
+        );
+    };
+
+    const renderSecondTabContent = () => {
+        if (widget === "Calendar") return t("widgets.calendar.tabs.project");
+        if (widget === "Task") return t("widgets.tasks.tabs.project");
+        if (widget === "EffectivenessX") return t("widgets.effectiveness_chart.tabs.axisX.monthly");
+        if (widget === "Comparison") return "ABR";
+        return (
+            <div className="flex items-center gap-1.5 justify-center">
+                <IconCoin className="h-4 w-4" stroke={2.5} />
+                <span>{t("widgets.effectiveness_chart.tabs.axisY.profitability")}</span>
+            </div>
+        );
+    };
+
     return (
-        <div className="flex items-center justify-center bg-primary-100 p-1.5 rounded-full relative overflow-hidden">
+        <div className="inline-grid grid-cols-2 items-center justify-center bg-primary-100 rounded-full relative overflow-hidden px-1">
             {/* Animated Background Indicator */}
             <div
-                className={`absolute top-1.5 bottom-1.5 w-[calc(50%-6px)] bg-primary rounded-full shadow-sm transition-all duration-300 ease-out z-0 ${currentValue === firstTabType ? "left-1.5" : "left-[calc(50%+1.5px)]"}`}
+                className={`absolute top-1 bottom-1 w-[calc(50%-6px)] bg-primary rounded-full shadow-sm transition-all duration-300 ease-out z-0 ${currentValue === firstTabType ? "left-1.5" : "left-[calc(50%+1.5px)]"}`}
             ></div>
 
             {/* Left / First Tab Button */}
             <button
                 type="button"
                 onClick={() => setCurrentValue(firstTabType)}
-                className="relative z-10 flex-1 p-2 text-sm text-primary-500 font-semibold transition-colors duration-300"
+                className="relative z-10 flex-1 py-1.5 px-2 text-sm text-primary-500 font-semibold transition-colors duration-300"
             >
-                {widget === "Calendar" ? "Evento" : "Día"}
+                {renderFirstTabContent()}
             </button>
 
             {/* Right / Second Tab Button */}
             <button
                 type="button"
                 onClick={() => setCurrentValue(secondTabType)}
-                className="relative z-10 flex-1 p-2 text-sm text-primary-500 font-semibold transition-colors duration-300"
+                className="relative z-10 flex-1 py-1.5 px-2 text-sm text-primary-500 font-semibold transition-colors duration-300"
             >
-                {widget === "Calendar" ? "Proyecto" : "Proyecto"}
+                {renderSecondTabContent()}
             </button>
         </div>
     );

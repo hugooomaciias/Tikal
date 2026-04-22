@@ -5,10 +5,28 @@
         "third_stat": "Proyectos pendientes"
     },
     "widgets": {
-        "weekly_progress": "Progreso",
-        "temple_mode": "Modo templo",
-        "tasks": "Tareas",
-        "ai": "¿Qué que saber desea conocer?",
-        "calendar": "Calendario"
+        "weekly_progress": {
+            "title": "Progreso"
+        },
+        "temple_mode": {
+            "title": "Modo templo"
+        },
+        "tasks": {
+            "title": "Tareas",
+            "tabs": {
+                "day": "Día",
+                "project": "Proyecto"
+            }
+        },
+        "ai": {
+            "title": "¿Qué que saber desea conocer?"
+        },
+        "calendar": {
+            "title": "Calendario",
+            "tabs": {
+                "event": "Evento",
+                "project": "Proyecto"
+            }
+        }
     }
 }

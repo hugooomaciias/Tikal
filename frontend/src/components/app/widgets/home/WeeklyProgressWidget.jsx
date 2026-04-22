@@ -2,16 +2,6 @@
 import { useState } from "react";
 import { ResponsiveBar } from "@nivo/bar";
 
-const data = [
-    { day: "L", minutes: 100 },
-    { day: "M", minutes: 160 },
-    { day: "X", minutes: 90 },
-    { day: "J", minutes: 143 },
-    { day: "V", minutes: 110 },
-    { day: "S", minutes: 60 },
-    { day: "D", minutes: 40 },
-];
-
 /**
  * Time Tracker Widget
  *
@@ -24,10 +14,15 @@ const data = [
  * @param {string} [props.className] - Additional CSS classes applied to the rootc  element for custom styling.
  * @returns {JSX.Element} The rendered time tracker widget.
  */
-export const WeeklyProgressWidget = () => {
-    const currentDayIndex = new Date().getDay();
-    const daysMap = ["D", "L", "M", "X", "J", "V", "S"];
-    const todayStr = daysMap[currentDayIndex];
+export const WeeklyProgressWidget = ({ props }) => {
+    const days = props?.days || [];
+
+    const chartData = days.map((d) => ({
+        day: d.dayLabel,
+        minutes: d.minutesDedicated,
+    }));
+
+    const lastDayLabel = days.length > 0 ? days[days.length - 1].dayLabel : "";
 
     const [hoveredBar, setHoveredBar] = useState(null);
     const [lastHoveredBar, setLastHoveredBar] = useState(null);
@@ -53,16 +48,18 @@ export const WeeklyProgressWidget = () => {
 
     const activeBar = hoveredBar || lastHoveredBar;
 
+    if (!days || !Array.isArray(days)) return null;
+
     return (
         <div className="h-full w-full flex flex-col items-start gap-2">
             <div className="relative h-full w-full min-h-0">
                 <ResponsiveBar
-                    data={data}
+                    data={chartData}
                     keys={["minutes"]}
                     indexBy="day"
                     margin={{ top: 16, right: 0, bottom: 30, left: 0 }}
                     padding={0.7}
-                    colors={({ data }) => (data.day === todayStr ? "#2F6C4B" : "#BDDDC7")}
+                    colors={({ data }) => (data.day === lastDayLabel ? "#2F6C4B" : "#BDDDC7")}
                     barComponent={CustomBar}
                     tooltip={() => <></>}
                     enableGridY={false}
@@ -98,7 +95,7 @@ export const WeeklyProgressWidget = () => {
                     {activeBar && (
                         <div
                             className={`text-xs font-medium px-2 py-1.5 rounded-full shadow-md text-nowrap ${
-                                activeBar.data.indexValue === todayStr
+                                activeBar.data.indexValue === lastDayLabel
                                     ? "bg-primary-500 text-primary"
                                     : "bg-primary-100 text-primary-600"
                             }`}

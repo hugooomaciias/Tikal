@@ -16,20 +16,26 @@ import { IconBook, IconChevronLeft, IconChevronRight } from "@tabler/icons-react
 /** Constants */
 import { PHASE_COLOURS } from "../../../../constants/phase_colours.js";
 
-export const CalendarWidget = ({ setCustomActions }) => {
+/** Hooks */
+import { useTranslation } from "react-i18next";
+
+export const CalendarWidget = ({ props, setCustomActions }) => {
+    const { t } = useTranslation("app_home");
+
     const calendarRef = useRef(null);
+
+    const startDate = props?.startDate || new Date().toISOString().split("T");
+    const showWeekends = props?.showWeekends ?? true;
+    const startHour = props?.startHour || "00:00:00";
 
     const [events] = useState(() => {
         /**
-         * Get Offset Date Helper
-         *
          * Generates a "YYYY-MM-DD" local date string offset by a specified number of days
-         * relative to the current local date.
-         * @param {number} offsetDays - Number of days to add/subtract to today's date.
-         * @returns {string} Formatted date string (YYYY-MM-DD).
+         * relative to the START DATE coming from the backend.
          */
         const getOffsetDate = (offsetDays) => {
-            const d = new Date();
+            // Usamos la fecha del backend como base en lugar de new Date()
+            const d = new Date(startDate);
             d.setDate(d.getDate() + offsetDays);
 
             const year = d.getFullYear();
@@ -40,7 +46,7 @@ export const CalendarWidget = ({ setCustomActions }) => {
         };
 
         return [
-            /* ================= TODAY ================= */
+            /* ================= BASE DAY (0) ================= */
             {
                 id: "1",
                 title: "Reunión de equipo",
@@ -58,7 +64,7 @@ export const CalendarWidget = ({ setCustomActions }) => {
                 borderColor: "#10b981",
             },
 
-            /* =============== TOMORROW =============== */
+            /* =============== TOMORROW (1) =============== */
             {
                 id: "3",
                 title: "Revisión de diseño UI",
@@ -109,26 +115,6 @@ export const CalendarWidget = ({ setCustomActions }) => {
                 backgroundColor: "#f43f5e33",
                 borderColor: "#f43f5e",
             },
-
-            /* =============== NEXT WEEK =============== */
-            {
-                id: "9",
-                title: "Presentación final",
-                start: `${getOffsetDate(8)}T10:00:00`,
-                end: `${getOffsetDate(8)}T12:00:00`,
-                backgroundColor: "#0ea5e933",
-                borderColor: "#0ea5e9",
-            },
-
-            /* =============== NEXT MONTH =============== */
-            {
-                id: "10",
-                title: "Kickoff Trimestral",
-                start: `${getOffsetDate(35)}T09:00:00`,
-                end: `${getOffsetDate(35)}T14:00:00`,
-                backgroundColor: "#10b98133",
-                borderColor: "#10b981",
-            },
         ];
     });
 
@@ -144,7 +130,7 @@ export const CalendarWidget = ({ setCustomActions }) => {
                         <IconChevronRight className="h-6 w-6 cursor-pointer" />
                     </button>
                 </div>
-                <TabsComponent widget="Calendar" />
+                <TabsComponent widget="Calendar" t={t} />
             </div>
         );
 
@@ -157,6 +143,8 @@ export const CalendarWidget = ({ setCustomActions }) => {
         return () => setCustomActions?.(null);
     }, [setCustomActions]);
 
+    if (!props) return null;
+
     return (
         <div className="h-full w-full calendar-widget-container">
             <FullCalendar
@@ -165,12 +153,14 @@ export const CalendarWidget = ({ setCustomActions }) => {
                 initialView="timeGridWeek"
                 locale={i18n.language === "es" ? esLocale : enLocale}
                 headerToolbar={false}
-                slotMinTime="00:00:00"
+                initialDate={startDate}
+                weekends={showWeekends}
+                slotMinTime={startHour}
                 slotMaxTime="24:00:00"
                 allDaySlot={false}
                 height="100%"
                 dayHeaderFormat={{ weekday: "short", day: "numeric" }}
-                stickyHeaderDates={true}
+                stickyHeaderDates={false}
                 events={events}
                 slotLabelFormat={{
                     hour: "numeric",

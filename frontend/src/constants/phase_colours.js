@@ -1,3 +1,9 @@
+import tailwindConfig from "../../tailwind.config";
+import resolveConfig from "tailwindcss/resolveConfig";
+
+const fullConfig = resolveConfig(tailwindConfig);
+const colors = fullConfig.theme.colors;
+
 /**
  * Predefined Phase Colors Structure
  *
@@ -12,43 +18,43 @@
  * @type {Array<{id: string, hex: string, name: string}>}
  */
 export const PHASE_COLOURS = [
-    // Greens & Mints
-    { id: "pri-100", name: "Menta Claro", hex: "#BDDDC7", light: "#f1f8f3" },
-    { id: "pri-200", name: "Verde Salvia", hex: "#91C4A5", light: "#f1f8f3" },
-    { id: "green-tea", name: "Té Verde", hex: "#C1E1C1", light: "#f4f9f4" },
-    { id: "green-frost", name: "Escarcha", hex: "#D0E8D7", light: "#f4f9f5" },
-    { id: "green-pastel", name: "Verde Pastel", hex: "#A2C9A0", light: "#f5f9f4" },
-    { id: "olive-light", name: "Oliva Suave", hex: "#C2C1AF", light: "#f9fbf8" },
+    // Greens
+    { id: "g1", hex: "#BDDDC7", light: "#f1f8f3", text: colors.quaternary[700] },
+    { id: "g2", hex: "#91C4A5", light: "#f1f8f3", text: colors.quaternary[50] },
+    { id: "g3", hex: "#C1E1C1", light: "#f4f9f4", text: colors.quaternary[700] },
+    { id: "g4", hex: "#D0E8D7", light: "#f4f9f5", text: colors.quaternary[700] },
+    { id: "g5", hex: "#A2C9A0", light: "#f5f9f4", text: colors.quaternary[50] },
+    { id: "g6", hex: "#C2C1AF", light: "#f9fbf8", text: colors.quaternary[700] },
 
-    // Blues & Cyans
-    { id: "sec-100", name: "Cían Claro", hex: "#B2EAEF", light: "#effcfc" },
-    { id: "sec-200", name: "Agua", hex: "#7DDAE3", light: "#effcfc" },
-    { id: "blue-powder", name: "Azul Polvo", hex: "#354d57", light: "#f5f8fa" },
-    { id: "blue-baby", name: "Azul Bebé", hex: "#C6E2E9", light: "#f4f9fb" },
-    { id: "blue-sky", name: "Azul Cielo", hex: "#B4D8E7", light: "#f3f9fc" },
-    { id: "blue-serenity", name: "Serenidad", hex: "#99C1DE", light: "#f3f7fb" },
+    // Blues
+    { id: "b1", hex: "#B2EAEF", light: "#effcfc", text: colors.quaternary[700] },
+    { id: "b2", hex: "#7DDAE3", light: "#effcfc", text: colors.quaternary[50] },
+    { id: "b3", hex: "#3f6c7b", light: "#deedef", text: colors.quaternary[50] },
+    { id: "b4", hex: "#C6E2E9", light: "#f4f9fb", text: colors.quaternary[700] },
+    { id: "b5", hex: "#B4D8E7", light: "#f3f9fc", text: colors.quaternary[700] },
+    { id: "b6", hex: "#99C1DE", light: "#f3f7fb", text: colors.quaternary[50] },
 
-    // Yellows & Sands
-    { id: "ter-100", name: "Oro Pálido", hex: "#ECD79C", light: "#fcf8ee" },
-    { id: "ter-200", name: "Mostaza Suave", hex: "#E1BA63", light: "#fbf7eb" },
-    { id: "yellow-pastel", name: "Amarillo Pastel", hex: "#FDFD96", light: "#fefee8" },
-    { id: "yellow-butter", name: "Mantequilla", hex: "#F6E3B4", light: "#fdf8ed" },
-    { id: "sand", name: "Arena", hex: "#DAD9CE", light: "#f9fbf8" },
-    { id: "orange-pastel", name: "Naranja Pastel", hex: "#FADCA5", light: "#fef9ee" },
+    // Yellows
+    { id: "y1", hex: "#ECD79C", light: "#fcf8ee", text: colors.quaternary[700] },
+    { id: "y2", hex: "#E1BA63", light: "#fbf7eb", text: colors.quaternary[700] },
+    { id: "y3", hex: "#FDFD96", light: "#fefee8", text: colors.quaternary[700] },
+    { id: "y4", hex: "#F6E3B4", light: "#fdf8ed", text: colors.quaternary[700] },
+    { id: "y5", hex: "#DAD9CE", light: "#f9fbf8", text: colors.quaternary[700] },
+    { id: "y6", hex: "#FADCA5", light: "#fef9ee", text: colors.quaternary[700] },
 
-    // Peaches & Corals
-    { id: "peach", name: "Melocotón", hex: "#F8CD9C", light: "#fef7ee" },
-    { id: "apricot", name: "Albaricoque", hex: "#F4B886", light: "#fef6ee" },
-    { id: "melon", name: "Melón", hex: "#F6C8A6", light: "#fef5ee" },
-    { id: "coral-light", name: "Coral Suave", hex: "#F5B7B1", light: "#fdf4f3" },
-    { id: "salmon-pale", name: "Salmón Pálido", hex: "#FFDAB9", light: "#fff6ed" },
-    { id: "terracotta", name: "Terracota Pastel", hex: "#E2A788", light: "#fcf5f0" },
+    // Oranges
+    { id: "o1", hex: "#F8CD9C", light: "#fef7ee", text: colors.quaternary[700] },
+    { id: "o2", hex: "#F4B886", light: "#fef6ee", text: colors.quaternary[700] },
+    { id: "o3", hex: "#F6C8A6", light: "#fef5ee", text: colors.quaternary[700] },
+    { id: "o4", hex: "#F5B7B1", light: "#fdf4f3", text: colors.quaternary[700] },
+    { id: "o5", hex: "#FFDAB9", light: "#fff6ed", text: colors.quaternary[700] },
+    { id: "o6", hex: "#E2A788", light: "#fcf5f0", text: colors.quaternary[50] },
 
-    // Pinks & Lilacs
-    { id: "pink-pastel", name: "Rosa Pálido", hex: "#FADADD", light: "#fdf3f4" },
-    { id: "pink-blush", name: "Rubor", hex: "#E8B2C1", light: "#fcf4f6" },
-    { id: "pink-rose", name: "Rosa Empolvado", hex: "#F2C6DE", light: "#fcf3f8" },
-    { id: "purple-thistle", name: "Cardo", hex: "#D7BDE2", light: "#fbf8fc" },
-    { id: "purple-lilac", name: "Lila", hex: "#C3B1E1", light: "#f8f6fc" },
-    { id: "purple-lavender", name: "Lavanda", hex: "#E2D6F5", light: "#f8f5fd" },
+    // Pinks
+    { id: "p1", hex: "#FADADD", light: "#fdf3f4", text: colors.quaternary[700] },
+    { id: "p2", hex: "#E8B2C1", light: "#fcf4f6", text: colors.quaternary[700] },
+    { id: "p3", hex: "#F2C6DE", light: "#fcf3f8", text: colors.quaternary[700] },
+    { id: "p4", hex: "#D7BDE2", light: "#fbf8fc", text: colors.quaternary[700] },
+    { id: "p5", hex: "#C3B1E1", light: "#f8f6fc", text: colors.quaternary[50] },
+    { id: "p6", hex: "#E2D6F5", light: "#f8f5fd", text: colors.quaternary[700] },
 ];

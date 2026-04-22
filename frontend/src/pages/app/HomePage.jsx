@@ -1,5 +1,5 @@
 /** React & Third-Party Libraries */
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Responsive, WidthProvider } from "react-grid-layout/legacy";
 
 /** Components */
@@ -12,6 +12,7 @@ import { TempleModeWidget } from "../../components/app/widgets/home/TempleModeWi
 import { TaskWidget } from "../../components/app/widgets/home/TaskWidget.jsx";
 import { AIWidget } from "../../components/app/widgets/home/AIWidget.jsx";
 import { CalendarWidget } from "../../components/app/widgets/home/CalendarWidget.jsx";
+import { useMain } from "../../hooks/useMain.js";
 
 /** Assets & Icons */
 import { IconCircleXFilled } from "@tabler/icons-react";
@@ -26,6 +27,48 @@ import { useTranslation } from "react-i18next";
 /** Setup & Configurations */
 const ResponsiveGridLayout = WidthProvider(Responsive);
 
+const WIDGET_CONFIG = {
+    weeklyProgressWidget: {
+        component: WeeklyProgressWidget,
+        titleKey: "widgets.weekly_progress.title",
+        pageLink: "/statistics",
+        textColor: "text-quaternary-700",
+    },
+    timeTrackerWidget: {
+        component: TimeTrackerWidget,
+        titleKey: "Time tracker",
+        actions: false,
+        bgColor: "blue-powder",
+        textColor: "text-quaternary",
+    },
+    templeModeWidget: {
+        component: TempleModeWidget,
+        titleKey: "widgets.temple_mode.title",
+        pageLink: "/home",
+        textColor: "text-quaternary-50",
+    },
+    taskWidget: {
+        component: TaskWidget,
+        titleKey: "widgets.tasks.title",
+        pageLink: "/tasks",
+        textColor: "text-quaternary-700",
+    },
+    AIMainWidget: {
+        component: AIWidget,
+        titleKey: "Dios de la SabidurIA",
+        pageLink: "/home",
+        bgColor: "bg-primary-700",
+        textColor: "text-quaternary-50/80",
+        actions: false,
+    },
+    calendarWidget: {
+        component: CalendarWidget,
+        titleKey: "widgets.calendar.title",
+        pageLink: "/calendar",
+        textColor: "text-quaternary-700",
+    },
+};
+
 /**
  * Main Application Dashboard Component
  *
@@ -37,6 +80,8 @@ const ResponsiveGridLayout = WidthProvider(Responsive);
  * @returns {JSX.Element} The rendered dashboard layout.
  */
 export const HomePage = () => {
+    const { getUserProfile, getHomeGeneralInformation, getHomeLayout, getHomeWidgetsData, isDataLoaded } = useMain();
+
     /**
      * Translation Hook
      *
@@ -61,94 +106,60 @@ export const HomePage = () => {
      */
     const [checkChanges, setCheckChanges] = useState(false);
 
-    /**
-     * Widget Layout State
-     *
-     * Maintains the active list of widgets rendered on the dashboard, including
-     * their identifier, component type, and spatial grid coordinates.
-     */
-    const [widgets, setWidgets] = useState([
-        {
-            id: "widget-1",
-            grid: { x: 0, y: 0, w: 1, h: 1 },
-            config: {
-                title: t("widgets.weekly_progress"),
-                subtitle: "22 - 28 sept",
-                pageLink: "/statistics",
-                content: {
-                    component: WeeklyProgressWidget,
-                },
-            },
-        },
-        {
-            id: "widget-2",
-            grid: { x: 1, y: 0, w: 1, h: 1 },
-            config: {
-                title: "Time tracker",
-                bgColor: "blue-powder",
-                textColor: "text-quaternary",
-                pageLink: "/tasks",
-                content: {
-                    component: TimeTrackerWidget,
-                    config: {
-                        colorId: "blue-powder",
-                    },
-                },
-            },
-        },
-        {
-            id: "widget-3",
-            grid: { x: 2, y: 0, w: 1, h: 1 },
-            config: {
-                title: t("widgets.temple_mode"),
-                textColor: "text-quaternary-50",
-                pageLink: "/home",
-                content: {
-                    component: TempleModeWidget,
-                    config: {
-                        rango: 4,
-                    },
-                },
-            },
-        },
-        {
-            id: "widget-4",
-            grid: { x: 3, y: 0, w: 1, h: 2 },
-            config: {
-                title: t("widgets.tasks"),
-                subtitle: "18%",
-                pageLink: "/tasks",
-                content: {
-                    component: TaskWidget,
-                },
-            },
-        },
-        {
-            id: "widget-5",
-            grid: { x: 0, y: 1, w: 1, h: 1 },
-            config: {
-                title: "Dios de la SabidurIA",
-                bgColor: "bg-primary-700",
-                textColor: "text-quaternary-50/80",
-                actions: false,
-                pageLink: "/home",
-                content: {
-                    component: AIWidget,
-                },
-            },
-        },
-        {
-            id: "widget-6",
-            grid: { x: 1, y: 1, w: 2, h: 1 },
-            config: {
-                title: t("widgets.calendar"),
-                pageLink: "/calendar",
-                content: {
-                    component: CalendarWidget,
-                },
-            },
-        },
-    ]);
+    const [widgets, setWidgets] = useState([]);
+
+    const userProfile = getUserProfile();
+    const homeGeneralInformation = getHomeGeneralInformation();
+
+    useEffect(() => {
+        if (isDataLoaded) {
+            const layout = getHomeLayout(); // El array de {i, x, y, w, h}
+            const allWidgetsData = getHomeWidgetsData(); // El objeto homeWidgetsData
+
+            const mappedWidgets = layout
+                .map((item) => {
+                    const configBase = WIDGET_CONFIG[item.i];
+
+                    if (!configBase) return null;
+
+                    const widgetData = allWidgetsData[item.i];
+
+                    // --- LÓGICA DE SUBTÍTULOS DINÁMICOS ---
+                    let dynamicSubtitle = "";
+                    if (item.i === "taskWidget") {
+                        dynamicSubtitle = `${widgetData?.globalProgressPercentage || 0}%`;
+                    } else if (item.i === "weeklyProgressWidget") {
+                        dynamicSubtitle = widgetData?.startDate + " - " + widgetData?.endDate;
+                    }
+
+                    return {
+                        id: item.i,
+                        // Nota: He corregido el orden x/y para que coincida con el estándar de RGL
+                        grid: { x: item.y, y: item.x, w: item.w, h: item.h },
+                        config: {
+                            title: configBase.titleKey.includes(".") ? t(configBase.titleKey) : configBase.titleKey,
+                            subtitle: dynamicSubtitle,
+                            bgColor: configBase.bgColor,
+                            textColor: configBase.textColor,
+                            actions: configBase.actions ?? true,
+                            pageLink: configBase.pageLink,
+                            content: {
+                                component: configBase.component,
+                                // Inyectamos TODOS los datos del backend como props para el componente hijo
+                                props: widgetData,
+                            },
+                        },
+                    };
+                })
+                .filter(Boolean);
+
+            setWidgets(mappedWidgets);
+        }
+    }, [isDataLoaded, t, getHomeWidgetsData()]);
+
+    if (!isDataLoaded || widgets.length === 0) {
+        return null;
+    }
 
     /**
      * Layout Change Handler
@@ -200,12 +211,13 @@ export const HomePage = () => {
     return (
         <div className="flex flex-col md:flex-row h-[100dvh] bg-gradient-to-t from-primary-30 to-primary-300 md:bg-gradient-to-r md:from-primary-50 md:to-primary-300 p-2 md:p-4 gap-4 md:gap-8 overflow-hidden">
             {/* Vertical Navbar */}
-            <NavbarComponent />
+            <NavbarComponent data={userProfile} />
 
             {/* Main Content Area */}
             <section className="flex-1 flex flex-col gap-6 w-full h-full overflow-hidden">
                 {/* Header */}
                 <Header
+                    data={homeGeneralInformation}
                     isEditing={isEditing}
                     setIsEditing={setIsEditing}
                     checkChanges={checkChanges}
@@ -217,7 +229,7 @@ export const HomePage = () => {
                 <div className="flex-1 overflow-y-auto custom-scrollbar">
                     <ResponsiveGridLayout
                         className="layout"
-                        rowHeight={240}
+                        rowHeight={256}
                         compactType="vertical"
                         breakpoints={{ lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0 }}
                         cols={{ lg: 4, md: 3, sm: 2, xs: 1, xxs: 1 }}
@@ -250,7 +262,7 @@ export const HomePage = () => {
                                     className={`transition-all duration-300 ${isEditing ? "opacity-60 border-dashed border-[3px] border-primary-50 cursor-move" : "opacity-100"}`}
                                 >
                                     {widget.config.content && (
-                                        <widget.config.content.component {...widget.config.content.config} />
+                                        <widget.config.content.component props={widget.config.content.props} />
                                     )}
                                 </BaseWidget>
                             </div>

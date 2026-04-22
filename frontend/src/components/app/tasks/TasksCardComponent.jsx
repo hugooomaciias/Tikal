@@ -1,5 +1,7 @@
 /** React & Third-Party Libraries */
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import tailwindConfig from "../../../../tailwind.config.js";
+import resolveConfig from "tailwindcss/resolveConfig";
 
 /** Components */
 import { TaskPopUpComponent } from "./TaskPopUpComponent.jsx";
@@ -15,6 +17,9 @@ import {
     IconPencilFilled,
 } from "@tabler/icons-react";
 
+const fullConfig = resolveConfig(tailwindConfig);
+const colors = fullConfig.theme.colors;
+
 /**
  * Tasks Card Component
  *
@@ -27,14 +32,16 @@ import {
  * @param {Function} props.t - Translation function from i18next.
  * @returns {JSX.Element} The rendered tasks card.
  */
-export const TasksCardComponent = ({ t }) => {
+export const TasksCardComponent = ({ data, stageColor, isCompletedFilter, t }) => {
+    const [localTasks, setLocalTasks] = useState(data);
+
     /**
      * Active Task State
      *
      * Stores the title of the currently highlighted task row, driving
      * the expanded subtask view UI.
      */
-    const [activeTask, setActiveTask] = useState("Base de datos");
+    const [activeTaskId, setActiveTaskId] = useState(null);
 
     /**
      * Search Modal State
@@ -58,35 +65,15 @@ export const TasksCardComponent = ({ t }) => {
      */
     const [taskToEdit, setTaskToEdit] = useState(null);
 
-    /**
-     * Tasks List State
-     *
-     * Configuration array representing the mock data for tasks and subtasks
-     * including completion status and optional notes.
-     */
-    const [tasksOptions, setTasksOptions] = useState([
-        {
-            id: 1,
-            title: "Hacer práctica 1",
-            subtasks: ["Buscar informacion", "Desarrollar codigo (1a Parte)"],
-            note: "Esta es una nota aclarativa sobre el  proyecto ‘Universidad’, en la que se  explican diversos aspectos de dicho proyecto",
-            completed: false,
-        },
-        {
-            id: 2,
-            title: "Estudiar parcial 1",
-            subtasks: [],
-            note: "Esta es una nota aclarativa sobre el  proyecto ‘Universidad’, en la que se  explican diversos aspectos de dicho proyecto",
-            completed: false,
-        },
-        {
-            id: 3,
-            title: "Hacer entrega 1 (Grupo)",
-            subtasks: ["Reunion con equipo", "Buscar informacion", "Desarrollar codigo (1a Parte)"],
-            note: "Esta es una nota aclarativa sobre el  proyecto ‘Universidad’, en la que se  explican diversos aspectos de dicho proyecto",
-            completed: false,
-        },
-    ]);
+    const filteredTasks = localTasks.filter((task) => {
+        const matchesSearch = task.name.toLowerCase().includes(taskSearchQuery.toLowerCase());
+        const matchesStatus = isCompletedFilter ? task : !task.isCompleted;
+        return matchesSearch && matchesStatus;
+    });
+
+    useEffect(() => {
+        setLocalTasks(data);
+    }, [data]);
 
     /**
      * Task Completion Toggle Handler
@@ -97,15 +84,12 @@ export const TasksCardComponent = ({ t }) => {
      * @param {number} taskId - The ID of the task to toggle.
      */
     const toggleTaskCompletion = (taskId) => {
-        setTasksOptions((prevTasks) =>
-            prevTasks.map((task) => {
-                if (task.id === taskId) {
-                    return { ...task, completed: !task.completed };
-                }
-                return task;
-            }),
+        setLocalTasks((prev) =>
+            prev.map((task) => (task.id === taskId ? { ...task, isCompleted: !task.isCompleted } : task)),
         );
     };
+
+    if (!data || !Array.isArray(data)) return null;
 
     return (
         <div className="h-full flex-1 flex flex-col items-end justify-between p-6 bg-primary rounded-[2.5rem]">
@@ -143,123 +127,126 @@ export const TasksCardComponent = ({ t }) => {
                 </div>
 
                 <div className="h-fit w-full flex flex-col gap-3">
-                    {tasksOptions.map((option) => {
-                        const isActive = activeTask === option.title;
-                        const hasNote = option.note !== "";
-                        const hasSubtasks = option.subtasks.length > 0;
+                    {filteredTasks.length > 0 ? (
+                        filteredTasks.map((option) => {
+                            const isActive = activeTaskId === option.id;
+                            const hasNote = option.description && option.description !== "";
+                            const hasSubtasks = option.numberOfSubTask > 0;
 
-                        return (
-                            <div
-                                key={option.id}
-                                className={`h-fit w-full flex items-start justify-between ${hasSubtasks && isActive ? "bg-primary-200 py-3" : "bg-transparent"} px-3 rounded-3xl`}
-                            >
-                                <div className="w-full flex-1 flex gap-4">
-                                    <button
-                                        className={`h-7 w-7 flex items-center justify-center ${isActive ? "bg-primary-50" : "bg-primary-200 mt-1"} rounded-full`}
-                                        onClick={() => toggleTaskCompletion(option.id)}
-                                    >
-                                        <IconCircleCheckFilled
-                                            className={`w-full h-full text-secondary-500 ${option.completed ? "" : "opacity-0"} z-50`}
-                                        />
-                                        <div
-                                            className={`absolute h-5 w-5 bg-white ${option.completed && isActive ? "" : "opacity-0"} rounded-full`}
-                                        ></div>
-                                    </button>
-
-                                    {hasSubtasks ? (
-                                        <div
-                                            className="w-full flex-1 flex flex-col text-primary cursor-pointer"
-                                            onClick={() => setActiveTask(option.title)}
+                            return (
+                                <div
+                                    key={option.id}
+                                    className={`h-fit w-full flex items-start justify-between ${hasSubtasks && isActive ? "bg-primary-200 py-3" : "bg-transparent"} ${option.isCompleted ? "opacity-40" : "opacity-100"} px-3 rounded-3xl`}
+                                >
+                                    <div className="w-full flex-1 flex gap-4">
+                                        <button
+                                            onClick={() => toggleTaskCompletion(option.id)}
+                                            className={`h-7 w-7 flex items-center justify-center p-[0.20rem] ${hasSubtasks && isActive ? "" : "mt-1"} rounded-full`}
+                                            style={{
+                                                backgroundColor: stageColor,
+                                            }}
                                         >
-                                            <span className={`text-xl ${isActive ? "mb-3" : "text-quaternary-700"}`}>
-                                                {option.title}
+                                            <IconCircleCheckFilled
+                                                className={`w-full h-full text-primary ${option.isCompleted ? "" : "opacity-0"} z-50`}
+                                            />
+                                        </button>
+
+                                        {/* Task Title & Interaction */}
+                                        <div
+                                            className="flex-1 flex flex-col cursor-pointer overflow-hidden"
+                                            onClick={() => setActiveTaskId(isActive ? null : option.id)}
+                                        >
+                                            <span
+                                                className={`text-xl truncate ${hasSubtasks && isActive ? "text-primary" : "text-quaternary-700"}`}
+                                            >
+                                                {option.name}
                                             </span>
 
-                                            <div className="flex items-center gap-2">
-                                                {isActive ? (
-                                                    <div className="w-full flex flex-col gap-2">
-                                                        {option.subtasks.map((subtask, index) => (
-                                                            <div
-                                                                key={index}
-                                                                className="flex items-center justify-between"
-                                                            >
-                                                                <div className="flex gap-3">
-                                                                    <button
-                                                                        className={`h-6 w-6 flex items-center justify-center ${isActive ? "bg-primary-50" : "bg-primary-200"} rounded-full`}
-                                                                        onClick={() => toggleTaskCompletion(option.id)}
-                                                                    >
-                                                                        <IconCircleCheckFilled
-                                                                            className={`w-full h-full text-secondary-500 ${option.completed ? "" : "opacity-0"} z-50`}
-                                                                        />
-                                                                    </button>
+                                            {(!isActive || (isActive && !hasSubtasks)) && (
+                                                <div className="flex items-center gap-2 text-xs text-quaternary-400">
+                                                    <span>
+                                                        {option.numberOfSubTask || t("tasks.no_subtasks")}{" "}
+                                                        {t("tasks.subtasks")}
+                                                    </span>
+                                                    {hasNote && <IconNote className="h-3 w-3" />}
+                                                </div>
+                                            )}
+                                        </div>
 
-                                                                    <span>{subtask}</span>
-                                                                </div>
-
-                                                                <div className="flex items-center gap-2">
-                                                                    <div className="flex items-center justify-center bg-secondary-500/80 rounded-full p-[6px] hover:bg-secondary-500 transition-colors cursor-pointer group">
-                                                                        <IconPlayerPlayFilled className="w-[22px] h-auto text-primary" />
-                                                                    </div>
-                                                                    <div className="flex items-center justify-center bg-secondary-500/80 rounded-full p-[6px] hover:bg-secondary-500 transition-colors cursor-pointer group">
-                                                                        <IconPencilFilled className="w-[22px] h-auto text-primary" />
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        ))}
-                                                    </div>
-                                                ) : (
-                                                    <div className="flex items-center gap-2 text-quaternary-700">
-                                                        <span>{option.subtasks.length} subtareas</span>
-
-                                                        {hasNote && (
-                                                            <div className="relative group flex items-center justify-center text-quaternary-700/80 cursor-pointer">
-                                                                <IconNote className="h-5 w-5 transition-colors duration-200 hover:text-quaternary-700" />
-
-                                                                <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 hidden w-48 p-2 text-sm font-medium text-primary bg-quaternary-700 rounded-lg shadow-lg group-hover:block z-50 pointer-events-none">
-                                                                    {option.note}
-
-                                                                    <div className="absolute left-1/2 -translate-x-1/2 top-full w-0 h-0 border-x-8 border-x-transparent border-t-8 border-t-quaternary-700"></div>
-                                                                </div>
-                                                            </div>
-                                                        )}
-                                                    </div>
-                                                )}
+                                        {/* Action Buttons */}
+                                        <div className="flex items-center gap-2">
+                                            <div
+                                                className="p-1.5 rounded-full transition-all cursor-pointer"
+                                                style={{
+                                                    backgroundColor: `${stageColor}10`,
+                                                    color: stageColor,
+                                                    border: `2px solid ${stageColor}`,
+                                                }}
+                                                onMouseEnter={(e) => {
+                                                    e.currentTarget.style.backgroundColor = stageColor;
+                                                    e.currentTarget.style.color = colors.primary["DEFAULT"];
+                                                }}
+                                                onMouseLeave={(e) => {
+                                                    e.currentTarget.style.backgroundColor = `${stageColor}10`;
+                                                    e.currentTarget.style.color = stageColor;
+                                                }}
+                                            >
+                                                <IconPlayerPlayFilled
+                                                    className="w-4 h-4"
+                                                    style={{ color: "inherit" }}
+                                                />
+                                            </div>
+                                            <div
+                                                onClick={() => setTaskToEdit(option)}
+                                                className="p-1.5 rounded-full transition-all cursor-pointer"
+                                                style={{
+                                                    backgroundColor: `${stageColor}10`,
+                                                    color: stageColor,
+                                                    border: `2px solid ${stageColor}`,
+                                                }}
+                                                onMouseEnter={(e) => {
+                                                    e.currentTarget.style.backgroundColor = stageColor;
+                                                    e.currentTarget.style.color = colors.primary["DEFAULT"];
+                                                }}
+                                                onMouseLeave={(e) => {
+                                                    e.currentTarget.style.backgroundColor = `${stageColor}10`;
+                                                    e.currentTarget.style.color = stageColor;
+                                                }}
+                                            >
+                                                <IconPencilFilled className="w-4 h-4" style={{ color: "inherit" }} />
                                             </div>
                                         </div>
-                                    ) : (
-                                        <div className="flex flex-col text-quaternary-700">
-                                            <span className="text-xl ">{option.title}</span>
+                                    </div>
 
-                                            <div className="flex items-center gap-2">
-                                                <span>No existen subtareas</span>
-
-                                                {hasNote && (
-                                                    <div className="relative group flex items-center justify-center text-quaternary-700/80 cursor-pointer">
-                                                        <IconNote className="h-5 w-5 transition-colors duration-200 hover:text-quaternary-700" />
-
-                                                        <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 hidden w-48 p-2 text-sm font-medium text-primary bg-quaternary-700 rounded-lg shadow-lg group-hover:block z-50 pointer-events-none">
-                                                            {option.note}
-
-                                                            <div className="absolute left-1/2 -translate-x-1/2 top-full w-0 h-0 border-x-8 border-x-transparent border-t-8 border-t-quaternary-700"></div>
-                                                        </div>
+                                    {/* Subtasks Expanded View */}
+                                    {isActive && hasSubtasks && (
+                                        <div className="w-full mt-4 pl-11 flex flex-col gap-2 border-l-2 border-primary-300 ml-3">
+                                            {option.subtasks.map((sub, idx) => (
+                                                <div
+                                                    key={idx}
+                                                    className="flex items-center justify-between text-sm text-primary/80"
+                                                >
+                                                    <div className="flex items-center gap-2">
+                                                        <div className="w-1.5 h-1.5 bg-secondary-500 rounded-full" />
+                                                        <span>{sub.name || sub}</span>
                                                     </div>
-                                                )}
-                                            </div>
+                                                </div>
+                                            ))}
+                                            {hasNote && (
+                                                <div className="mt-2 p-3 bg-white/50 rounded-xl text-xs text-quaternary-600 italic">
+                                                    {option.description}
+                                                </div>
+                                            )}
                                         </div>
                                     )}
                                 </div>
-
-                                <div className="flex items-center gap-2">
-                                    <div className="flex items-center justify-center bg-secondary-500/80 rounded-full p-[6px] hover:bg-secondary-500 transition-colors cursor-pointer group">
-                                        <IconPlayerPlayFilled className="w-[22px] h-auto text-primary" />
-                                    </div>
-                                    <div className="flex items-center justify-center bg-secondary-500/80 rounded-full p-[6px] hover:bg-secondary-500 transition-colors cursor-pointer group">
-                                        <IconPencilFilled className="w-[22px] h-auto text-primary" />
-                                    </div>
-                                </div>
-                            </div>
-                        );
-                    })}
+                            );
+                        })
+                    ) : (
+                        <div className="flex-1 flex items-center justify-center text-quaternary-400 italic">
+                            {t("tasks.no_tasks")}
+                        </div>
+                    )}
                 </div>
             </div>
 

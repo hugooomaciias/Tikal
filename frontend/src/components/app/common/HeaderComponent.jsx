@@ -48,12 +48,23 @@ export const HeaderComponent = ({ page, get1, get2, set1, set2, t }) => {
         stopTimer,
         getParsedTime,
     } = useTimeTracker();
+
     const [isTrackerExpanded, setIsTrackerExpanded] = useState(false);
 
-    const foundColor = activeColorId ? PHASE_COLOURS.find((color) => color.id === activeColorId) : PHASE_COLOURS[0];
+    const getIslandColors = () => {
+        if (!activeColorId) return { dark: "#2F6C4B", light: "#BDDDC7" }; // Fallback verde tikal
 
-    const darkColor = foundColor.hex;
-    const lightColor = foundColor.light;
+        const foundColor = PHASE_COLOURS.find((c) => c.id === activeColorId || c.hex === activeColorId);
+
+        if (foundColor) {
+            return { dark: foundColor.hex, light: foundColor.light };
+        }
+
+        // Si el backend envía un Hex que no está en la constante, lo aplicamos directamente
+        return { dark: activeColorId, light: "#F1F8F3" };
+    };
+
+    const { dark: darkColor, light: lightColor } = getIslandColors();
 
     const { hours, minutes, seconds, hasHours } = getParsedTime(secs);
     const headerTimeString = hasHours ? `${hours}:${minutes}:${seconds}` : `${minutes}:${seconds}`;
@@ -67,7 +78,7 @@ export const HeaderComponent = ({ page, get1, get2, set1, set2, t }) => {
                 </div>
 
                 {/* Time Tracker Island */}
-                {(isActive || seconds > 0) && (
+                {(isActive || secs > 0) && (
                     <div
                         className={`w-fit flex items-center rounded-full shadow-sm transition-all duration-300 ease-out overflow-hidden p-2 ${
                             isTrackerExpanded ? "max-w-[400px] px-4" : "max-w-[120px] px-4 cursor-pointer"

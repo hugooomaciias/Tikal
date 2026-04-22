@@ -43,7 +43,7 @@ const ICON_MAP = {
  * @component
  * @returns {JSX.Element} The rendered navigation bar component.
  */
-export const NavbarComponent = () => {
+export const NavbarComponent = ({ data }) => {
     /**
      * Translation Hook
      *
@@ -123,6 +123,8 @@ export const NavbarComponent = () => {
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [location.pathname]);
+
+    if (!data) return null;
 
     /**
      * Logout Handler
@@ -212,7 +214,7 @@ export const NavbarComponent = () => {
                 {/* User Information and Actions (Visible only on desktop when expanded) */}
                 {isExpanded && (
                     <div className="flex flex-col ml-4 overflow-hidden">
-                        <span className="text-primary-600 text-lg font-medium whitespace-nowrap">Hugo</span>
+                        <span className="text-primary-600 text-lg font-medium whitespace-nowrap">{data.name}</span>
                         <span
                             onClick={handleLogout}
                             className="text-primary-600 cursor-pointer whitespace-nowrap hover:underline"

@@ -22,9 +22,9 @@ import {
  * Declared outside the component to prevent unnecessary object recreation during re-renders.
  */
 const ICON_MAP = {
-    OpenBookIcon: IconBook,
-    Database: IconDatabase,
-    AppWindowIcon: IconAppWindow,
+    IconBook: IconBook,
+    IconDatabase: IconDatabase,
+    IconAppWindow: IconAppWindow,
 };
 
 /**
@@ -37,15 +37,7 @@ const ICON_MAP = {
  * @component
  * @returns {JSX.Element} The rendered projects card.
  */
-export const ProjectsCardComponent = ({ t }) => {
-    /**
-     * Active Project State
-     *
-     * Stores the title of the currently active project in the list to apply
-     * the highlighted visual styling.
-     */
-    const [activeProject, setActiveProject] = useState("Universidad");
-
+export const ProjectsCardComponent = ({ data, selectedId, onSelect, t }) => {
     /**
      * Search Modal State
      *
@@ -68,21 +60,11 @@ export const ProjectsCardComponent = ({ t }) => {
      */
     const [projectToEdit, setProjectToEdit] = useState(null);
 
-    /**
-     * Project List Options
-     *
-     * Configuration array for rendering the mock list of user projects,
-     * including their titles, icon bindings, and optional descriptive notes.
-     */
-    const projectsOptions = [
-        {
-            icon: "OpenBookIcon",
-            title: "Universidad",
-            note: "Esta es una nota aclarativa sobre el  proyecto ‘Universidad’, en la que se  explican diversos aspectos de dicho proyecto",
-        },
-        { icon: "Database", title: "Trabajo", note: "" },
-        { icon: "AppWindowIcon", title: "Web", note: "" },
-    ];
+    const filteredProjects = data.filter((project) =>
+        project.name.toLowerCase().includes(projectSearchQuery.toLowerCase()),
+    );
+
+    if (!data || !Array.isArray(data)) return null;
 
     return (
         <div className="h-full w-1/4 flex flex-col items-end justify-between p-6 bg-primary rounded-[2.5rem]">
@@ -124,48 +106,56 @@ export const ProjectsCardComponent = ({ t }) => {
 
                 {/* Projects List */}
                 <div className="h-fit w-full flex flex-col gap-3">
-                    {projectsOptions.map((option, index) => {
-                        const IconComponent = ICON_MAP[option.icon];
-                        const isActive = activeProject === option.title;
-                        const hasNote = option.note !== "";
+                    {filteredProjects.length > 0 ? (
+                        filteredProjects.map((option) => {
+                            const IconComponent = ICON_MAP[option.logo] || IconBook;
+                            const isActive = selectedId === option.id;
+                            const hasNote = option.description && option.description !== "";
 
-                        return (
-                            <div
-                                key={index}
-                                onClick={() => setActiveProject(option.title)}
-                                onDoubleClick={() => setProjectToEdit(option)}
-                                className={`flex items-center justify-between pr-3 text-primary rounded-full transition-all duration-200 cursor-pointer ${isActive ? "bg-primary-200" : "bg-transparent"}`}
-                            >
-                                {/* Project Icon & Title */}
+                            return (
                                 <div
-                                    className={`flex items-center  ${isActive ? "gap-2" : "gap-4"} transition-all duration-300`}
+                                    key={option.id}
+                                    onClick={() => onSelect(option.id)}
+                                    onDoubleClick={() => setProjectToEdit(option)}
+                                    className={`flex items-center justify-between pr-3 text-primary rounded-full transition-all duration-200 cursor-pointer ${isActive ? "bg-primary-200" : "bg-transparent"}`}
                                 >
-                                    <div className="h-fit w-fit bg-primary-200 p-3 rounded-full">
-                                        <IconComponent className="h-7 w-7" />
-                                    </div>
-
-                                    <span className={`text-xl ${isActive ? "" : "text-quaternary-700"}`}>
-                                        {option.title}
-                                    </span>
-                                </div>
-
-                                {/* Project Note Tooltip (if exists) */}
-                                {hasNote && (
-                                    <div className="relative group flex items-center justify-center">
-                                        <IconNote
-                                            className={`h-6 w-6 transition-colors duration-200 ${isActive ? "text-primary" : "text-quaternary-700 hover:text-quaternary-900"}`}
-                                        />
-
-                                        <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 hidden w-48 p-2 text-sm font-medium text-primary bg-quaternary-700 rounded-lg shadow-lg group-hover:block z-50 pointer-events-none">
-                                            {option.note}
-
-                                            <div className="absolute left-1/2 -translate-x-1/2 top-full w-0 h-0 border-x-8 border-x-transparent border-t-8 border-t-quaternary-700"></div>
+                                    {/* Project Icon & Title */}
+                                    <div
+                                        className={`flex items-center ${isActive ? "" : "gap-4"} transition-all duration-300`}
+                                    >
+                                        <div className={`h-fit w-fit bg-primary-200 p-3 rounded-full`}>
+                                            <IconComponent className="h-7 w-7" />
                                         </div>
+
+                                        <span
+                                            className={`text-xl ${isActive ? "" : "text-quaternary-700"} leading-none`}
+                                        >
+                                            {option.name}
+                                        </span>
                                     </div>
-                                )}
-                            </div>
-                        );
-                    })}
+
+                                    {/* Project Note Tooltip (if exists) */}
+                                    {hasNote && (
+                                        <div className="relative group flex items-center justify-center">
+                                            <IconNote
+                                                className={`h-5 w-5 transition-colors duration-200 ${isActive ? "text-primary" : "text-quaternary-700 hover:text-quaternary-900"}`}
+                                            />
+
+                                            <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 hidden w-48 p-2 text-sm font-medium text-primary bg-quaternary-700 rounded-lg shadow-lg group-hover:block z-50 pointer-events-none">
+                                                {option.description}
+
+                                                <div className="absolute left-1/2 -translate-x-1/2 top-full w-0 h-0 border-x-8 border-x-transparent border-t-8 border-t-quaternary-700"></div>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            );
+                        })
+                    ) : (
+                        <div className="flex-1 flex items-center justify-center text-quaternary-400 italic">
+                            {t("projects.no_projects")}
+                        </div>
+                    )}
                 </div>
             </div>
 

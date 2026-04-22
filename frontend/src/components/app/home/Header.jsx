@@ -1,6 +1,7 @@
 /** Assets & Icons */
 import {
     IconCircleCheckFilled,
+    IconClockHour3Filled,
     IconTrendingUp,
     IconClipboardTextFilled,
     IconEditFilled,
@@ -16,9 +17,9 @@ import {
  * Declared outside the component to prevent unnecessary object recreation during re-renders.
  */
 const ICON_MAP = {
-    CircleCheckIcon: IconCircleCheckFilled,
-    TrendingUpIcon: IconTrendingUp,
-    ClipboardIcon: IconClipboardTextFilled,
+    IconTrendingUp: IconTrendingUp,
+    IconClockHour3Filled: IconClockHour3Filled,
+    IconClipboardTextFilled: IconClipboardTextFilled,
 };
 
 /**
@@ -36,19 +37,8 @@ const ICON_MAP = {
  * @param {Function} props.setCheckChanges - Function to update the check changes state.
  * @returns {JSX.Element} The rendered header component.
  */
-export const Header = ({ isEditing, setIsEditing, checkChanges, setCheckChanges, t }) => {
-    /**
-     * Project Information Options
-     *
-     * Configuration array for rendering the user's project statistics,
-     * including completed, in process, and pending projects.
-     */
-    const infoOptions = [
-        { icon: "CircleCheckIcon", value: "28", title: t("header.first_stat") },
-        { icon: "TrendingUpIcon", value: "5", title: t("header.second_stat") },
-        { icon: "ClipboardIcon", value: "10", title: t("header.third_stat") },
-        { icon: "ClipboardIcon", value: "10", title: t("header.third_stat") },
-    ];
+export const Header = ({ data, isEditing, setIsEditing, checkChanges, setCheckChanges }) => {
+    if (!data || !Array.isArray(data)) return null;
 
     return (
         <header className="h-fit w-full bg-primary shadow-md rounded-[2.5rem] flex items-start justify-between py-6 px-8">
@@ -67,8 +57,8 @@ export const Header = ({ isEditing, setIsEditing, checkChanges, setCheckChanges,
 
                 {/* User Data Layout */}
                 <div className="grid grid-cols-2 gap-7 md:gap-x-10 md:gap-y-7">
-                    {infoOptions.map((option, index) => {
-                        const IconComponent = ICON_MAP[option.icon];
+                    {data.map((option, index) => {
+                        const IconComponent = ICON_MAP[option.logo] || IconClipboardTextFilled;
 
                         return (
                             <div key={index} className="flex items-center gap-4 text-quaternary-700">

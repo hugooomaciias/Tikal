@@ -44,44 +44,44 @@ import {
  */
 export const PROJECTS_ICONS = [
     // Education & Study
-    { id: "book", component: IconBook },
-    { id: "note", component: IconNote },
-    { id: "school", component: IconSchool },
-    { id: "certificate", component: IconCertificate },
+    { id: "IconBook", component: IconBook },
+    { id: "IconNote", component: IconNote },
+    { id: "IconSchool", component: IconSchool },
+    { id: "IconCertificate", component: IconCertificate },
 
     // Technology & Development
-    { id: "database", component: IconDatabase },
-    { id: "web", component: IconAppWindow },
-    { id: "code", component: IconCode },
-    { id: "cpu", component: IconCpu },
-    { id: "device-mobile", component: IconDeviceMobile },
-    { id: "cloud", component: IconCloud },
+    { id: "IconDatabase", component: IconDatabase },
+    { id: "IconAppWindow", component: IconAppWindow },
+    { id: "IconCode", component: IconCode },
+    { id: "IconCpu", component: IconCpu },
+    { id: "IconDeviceMobile", component: IconDeviceMobile },
+    { id: "IconCloud", component: IconCloud },
 
     // Work & Business
-    { id: "briefcase", component: IconBriefcase },
-    { id: "calculator", component: IconCalculator },
-    { id: "chart-bar", component: IconChartBar },
-    { id: "presentation", component: IconPresentation },
-    { id: "target", component: IconTarget },
+    { id: "IconBriefcase", component: IconBriefcase },
+    { id: "IconCalculator", component: IconCalculator },
+    { id: "IconChartBar", component: IconChartBar },
+    { id: "IconPresentation", component: IconPresentation },
+    { id: "IconTarget", component: IconTarget },
 
     // Design & Creativity
-    { id: "palette", component: IconPalette },
-    { id: "wand", component: IconWand },
-    { id: "camera", component: IconCamera },
-    { id: "brush", component: IconBrush },
-    { id: "music", component: IconMusic },
+    { id: "IconPalette", component: IconPalette },
+    { id: "IconWand", component: IconWand },
+    { id: "IconCamera", component: IconCamera },
+    { id: "IconBrush", component: IconBrush },
+    { id: "IconMusic", component: IconMusic },
 
     // Organisation & Tasks
-    { id: "folder", component: IconFolder },
-    { id: "checklist", component: IconListFilled },
-    { id: "calendar", component: IconCalendarWeekFilled },
-    { id: "paperclip", component: IconPaperclip },
-    { id: "flag", component: IconFlag },
+    { id: "IconFolder", component: IconFolder },
+    { id: "IconListFilled", component: IconListFilled },
+    { id: "IconCalendarWeekFilled", component: IconCalendarWeekFilled },
+    { id: "IconPaperclip", component: IconPaperclip },
+    { id: "IconFlag", component: IconFlag },
 
     // General & Lifestyle
-    { id: "rocket", component: IconRocket },
-    { id: "coffee", component: IconCoffee },
-    { id: "heart", component: IconHeart },
-    { id: "star", component: IconStar },
-    { id: "home", component: IconHome },
+    { id: "IconRocket", component: IconRocket },
+    { id: "IconCoffee", component: IconCoffee },
+    { id: "IconHeart", component: IconHeart },
+    { id: "IconStar", component: IconStar },
+    { id: "IconHome", component: IconHome },
 ];

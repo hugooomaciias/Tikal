@@ -1,9 +1,8 @@
 /** React & Third-Party Libraries */
-import { createContext, useState } from "react";
-import { Outlet } from "react-router-dom";
+import { createContext, useState, useCallback, useEffect } from "react";
+import { Outlet, useNavigate, useLocation } from "react-router-dom";
 
 /** Constants */
-// IMPORTANTE: Ajusta la ruta de importación según dónde guardes este archivo
 import { API_BASE_URL } from "../constants/api.js";
 
 // eslint-disable-next-line react-refresh/only-export-components
@@ -22,112 +21,100 @@ export const MainContext = createContext();
  * @returns {JSX.Element} The workspace context provider.
  */
 export const MainProvider = ({ children }) => {
-    /**
-     * Loading State
-     *
-     * Indicates if the application is currently fetching workspace data from the backend.
-     */
-    const [isLoadingWorkspace, setIsLoadingWorkspace] = useState(false);
+    const [rawDashboardData, setRawDashboardData] = useState(null);
+    const [isSyncing, setIsSyncing] = useState(false);
 
-    /**
-     * Projects State
-     */
-    const [projects, setProjects] = useState([
-        { id: "p1", type: "project", name: "Proyecto E-commerce", note: "Nota del proyecto" },
-        { id: "p2", type: "project", name: "App Móvil UX", note: "" },
-    ]);
+    const navigate = useNavigate();
+    const location = useLocation();
 
-    /**
-     * Phases State
-     */
-    const [phases, setPhases] = useState([
-        { id: "f1", type: "phase", name: "Fase de Diseño", color: "#10b981", note: "" },
-        { id: "f2", type: "phase", name: "Fase de Desarrollo", color: "#3b82f6", note: "" },
-    ]);
+    const initialSync = useCallback(async () => {
+        if (isSyncing) return;
 
-    /**
-     * Tasks State
-     */
-    const [tasks, setTasks] = useState([
-        { id: "t1", type: "task", name: "Programar Base de Datos", color: "#8b5cf6", completed: false, subtasks: [] },
-        { id: "t2", type: "task", name: "Configurar Servidor", color: "#f43f5e", completed: false, subtasks: [] },
-    ]);
+        const token = localStorage.getItem("accessToken");
+        if (!token) return;
 
-    /**
-     * Events State
-     * (Puedes añadir tus eventos de FullCalendar aquí también si quieres centralizarlos)
-     */
-    const [events, setEvents] = useState([]);
+        setIsSyncing(true);
 
-    /**
-     * Derived State: Global Link Options
-     *
-     * Combines projects, phases, and tasks into a single flat array.
-     * This is dynamically consumed by the EventPopUpComponent for dropdown selections.
-     */
-    const globalLinkOptions = [...projects, ...phases, ...tasks];
+        try {
+            const response = await fetch(`${API_BASE_URL}/dashboard/sync`, {
+                method: "GET",
+                headers: { Authorization: `Bearer ${localStorage.getItem("accessToken")}` },
+            });
 
-    /**
-     * Initial Workspace Data Fetch
-     *
-     * 🚀 INSTRUCCIONES PARA EL FUTURO (BACKEND):
-     * Cuando el backend esté listo, vacía los arrays de los useState de arriba: useState([])
-     * Y descomenta este bloque useEffect. Utiliza el token de localStorage
-     * para autorizar la petición de forma segura, igual que en tu AuthContext.
-     */
-    /*
-    useEffect(() => {
-        const fetchWorkspaceData = async () => {
-            setIsLoadingWorkspace(true);
-            try {
-                const token = localStorage.getItem('accessToken');
-                if (!token) return; // Si no hay token, no intentamos pedir datos privados
-
-                const response = await fetch(`${API_BASE_URL}/workspace/data`, {
-                    method: 'GET',
-                    headers: { 
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}` 
-                    }
-                });
-
-                const text = await response.text();
-                const data = text ? JSON.parse(text) : {};
-
-                if (response.ok) {
-                    setProjects(data.projects || []);
-                    setPhases(data.phases || []);
-                    setTasks(data.tasks || []);
-                    setEvents(data.events || []);
-                } else {
-                    throw new Error(data.message || 'Error fetching workspace data');
-                }
-
-            } catch (error) {
-                console.error('Workspace data fetch error', error);
-                // Aquí podrías disparar notificaciones de error si las tuvieras
-            } finally {
-                setIsLoadingWorkspace(false);
+            if (!response.ok) {
+                if (response.status === 401) navigate("/login");
+                throw new Error("Error en la sincronización");
             }
-        };
 
-        fetchWorkspaceData();
-    }, []);
-    */
+            const data = await response.json();
+            setRawDashboardData(data);
+            return data;
+        } catch (error) {
+            console.error("Login error", error);
+            throw error;
+        } finally {
+            setIsSyncing(false);
+        }
+    }, [navigate, isSyncing]);
+
+    useEffect(() => {
+        const token = localStorage.getItem("accessToken");
+        const isPublicPage = location.pathname === "/login" || location.pathname === "/loading";
+
+        if (token && !rawDashboardData && !isPublicPage && !isSyncing) {
+            initialSync();
+        }
+    }, [location.pathname, rawDashboardData, initialSync, isSyncing]);
+
+    // Obtener información general del navbar
+    const getUserProfile = useCallback(() => {
+        return rawDashboardData?.userProfile || null;
+    }, [rawDashboardData]);
+
+    // Obtener información general del home dashboard
+    const getHomeGeneralInformation = useCallback(() => {
+        return rawDashboardData?.homeGeneralInformation || null;
+    }, [rawDashboardData]);
+
+    // Obtener información general del navbar
+    const getTasksData = useCallback(() => {
+        return rawDashboardData?.tasks || null;
+    }, [rawDashboardData]);
+
+    // Obtener información general del navbar
+    const getStatisticsGeneralInformation = useCallback(() => {
+        return rawDashboardData?.statisticsGeneralInformation || null;
+    }, [rawDashboardData]);
+
+    const getHomeLayout = useCallback(() => {
+        return rawDashboardData?.settings?.layoutsDashboards?.home || null;
+    }, [rawDashboardData]);
+
+    const getHomeWidgetsData = useCallback(() => {
+        return rawDashboardData?.homeWidgetsData || null;
+    }, [rawDashboardData]);
+
+    const getStatisticsLayout = useCallback(() => {
+        return rawDashboardData?.settings?.layoutsDashboards?.statistics || null;
+    }, [rawDashboardData]);
+
+    const getStatisticsWidgetsData = useCallback(() => {
+        return rawDashboardData?.statisticsWidgetsData || null;
+    }, [rawDashboardData]);
 
     return (
         <MainContext.Provider
             value={{
-                isLoadingWorkspace,
-                projects,
-                setProjects,
-                phases,
-                setPhases,
-                tasks,
-                setTasks,
-                events,
-                setEvents,
-                globalLinkOptions, // Pasamos el array combinado listo para usar
+                initialSync,
+                getUserProfile,
+                getHomeGeneralInformation,
+                getTasksData,
+                getStatisticsGeneralInformation,
+                getHomeLayout,
+                getHomeWidgetsData,
+                getStatisticsLayout,
+                getStatisticsWidgetsData,
+                isDataLoaded: !!rawDashboardData,
             }}
         >
             {children}

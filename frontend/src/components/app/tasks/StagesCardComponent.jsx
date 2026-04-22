@@ -4,6 +4,9 @@ import { useState } from "react";
 /** Components */
 import { StagePopUpComponent } from "./StagePopUpComponent.jsx";
 
+/** Constants */
+import { PHASE_COLOURS } from "../../../constants/phase_colours.js";
+
 /** Assets & Icons */
 import { IconSearch, IconCircleXFilled, IconNote, IconCirclePlusFilled } from "@tabler/icons-react";
 
@@ -17,15 +20,7 @@ import { IconSearch, IconCircleXFilled, IconNote, IconCirclePlusFilled } from "@
  * @component
  * @returns {JSX.Element} The rendered stages card.
  */
-export const StagesCardComponent = ({ t }) => {
-    /**
-     * Active Stage State
-     *
-     * Stores the title of the currently active stage in the list to apply
-     * the highlighted visual styling.
-     */
-    const [activeStage, setActiveStage] = useState("SIpI");
-
+export const StagesCardComponent = ({ data, selectedId, onSelect, t }) => {
     /**
      * Search Modal State
      *
@@ -48,22 +43,18 @@ export const StagesCardComponent = ({ t }) => {
      */
     const [stageToEdit, setStageToEdit] = useState(null);
 
-    /**
-     * Stage List Options
-     *
-     * Configuration array for rendering the mock list of project stages,
-     * including their titles, phase colours, and optional descriptive notes.
-     */
-    const stagesOptions = [
-        {
-            colour: "bg-tertiary-200",
-            title: "Base de datos",
-            note: "Esta es una nota aclarativa sobre el  proyecto ‘Universidad’, en la que se  explican diversos aspectos de dicho proyecto",
-        },
-        { colour: "bg-secondary-800", title: "ADA", note: "" },
-        { colour: "bg-secondary-500", title: "SIpI", note: "" },
-        { colour: "bg-[#B032CD]", title: "PL", note: "" },
-    ];
+    const filteredStages = data.filter((stage) => stage.name.toLowerCase().includes(stageSearchQuery.toLowerCase()));
+
+    const getStageColorInfo = (hexValue) => {
+        return (
+            PHASE_COLOURS.find((c) => c.hex.toLowerCase() === hexValue?.toLowerCase()) || {
+                hex: hexValue,
+                light: "#f8f9fa",
+            }
+        );
+    };
+
+    if (!data || !Array.isArray(data)) return null;
 
     return (
         <div className="h-full w-1/3 flex flex-col items-end justify-between p-6 bg-primary rounded-[2.5rem]">
@@ -105,45 +96,58 @@ export const StagesCardComponent = ({ t }) => {
 
                 {/* Stages List */}
                 <div className="h-fit w-full flex flex-col gap-3">
-                    {stagesOptions.map((option, index) => {
-                        const isActive = activeStage === option.title;
-                        const hasNote = option.note !== "";
+                    {filteredStages.length > 0 ? (
+                        filteredStages.map((option) => {
+                            const isActive = selectedId === option.id;
+                            const hasNote = option.description && option.description !== "";
+                            const colorInfo = getStageColorInfo(option.colour);
 
-                        return (
-                            <div
-                                key={index}
-                                onClick={() => setActiveStage(option.title)}
-                                onDoubleClick={() => setStageToEdit(option)}
-                                className={`flex items-center justify-between p-3 text-primary rounded-full transition-all duration-200 cursor-pointer ${isActive ? option.colour : "bg-transparent"}`}
-                            >
-                                {/* Stage Color & Title */}
-                                <div className="flex items-center gap-4">
-                                    <div
-                                        className={`h-6 w-6 ${isActive ? "bg-primary" : option.colour} p-3 rounded-full`}
-                                    ></div>
+                            return (
+                                <div
+                                    key={option.id}
+                                    onClick={() => onSelect(option.id)}
+                                    onDoubleClick={() => setStageToEdit(option)}
+                                    className="flex items-center justify-between bg-transparent p-3 text-primary rounded-full transition-all duration-200 cursor-pointer"
+                                    style={{
+                                        backgroundColor: isActive ? colorInfo.hex : "",
+                                    }}
+                                >
+                                    {/* Stage Color & Title */}
+                                    <div className="flex items-center gap-4">
+                                        <div
+                                            className="h-6 w-6 bg-primary p-3 rounded-full"
+                                            style={{
+                                                backgroundColor: !isActive ? colorInfo.hex : "",
+                                            }}
+                                        ></div>
 
-                                    <span className={`text-xl ${isActive ? "" : "text-quaternary-700"}`}>
-                                        {option.title}
-                                    </span>
-                                </div>
-
-                                {/* Stage Note Tooltip (if exists) */}
-                                {hasNote && (
-                                    <div className="relative group flex items-center justify-center">
-                                        <IconNote
-                                            className={`h-6 w-6 transition-colors duration-200 ${isActive ? "text-primary" : "text-quaternary-700 hover:text-quaternary-900"}`}
-                                        />
-
-                                        <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 hidden w-48 p-2 text-sm font-medium text-primary bg-quaternary-700 rounded-lg shadow-lg group-hover:block z-50 pointer-events-none">
-                                            {option.note}
-
-                                            <div className="absolute left-1/2 -translate-x-1/2 top-full w-0 h-0 border-x-8 border-x-transparent border-t-8 border-t-quaternary-700"></div>
-                                        </div>
+                                        <span className={`text-xl ${isActive ? "" : "text-quaternary-700"}`}>
+                                            {option.name}
+                                        </span>
                                     </div>
-                                )}
-                            </div>
-                        );
-                    })}
+
+                                    {/* Stage Note Tooltip (if exists) */}
+                                    {hasNote && (
+                                        <div className="relative group flex items-center justify-center">
+                                            <IconNote
+                                                className={`h-5 w-5 transition-colors duration-200 ${isActive ? "text-primary" : "text-quaternary-700 hover:text-quaternary-900"}`}
+                                            />
+
+                                            <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 hidden w-48 p-2 text-sm font-medium text-primary bg-quaternary-700 rounded-lg shadow-lg group-hover:block z-50 pointer-events-none">
+                                                {option.description}
+
+                                                <div className="absolute left-1/2 -translate-x-1/2 top-full w-0 h-0 border-x-8 border-x-transparent border-t-8 border-t-quaternary-700"></div>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            );
+                        })
+                    ) : (
+                        <div className="flex-1 flex items-center justify-center text-quaternary-400 italic">
+                            {t("stages.no_stages")}
+                        </div>
+                    )}
                 </div>
             </div>
 

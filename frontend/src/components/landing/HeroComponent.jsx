@@ -1,6 +1,11 @@
 /** React & Third-Party Libraries */
 import { Link } from "react-router-dom";
 
+/** Components */
+import { BaseWidget } from "../../components/app/widgets/common/BaseWidget";
+import { TimeTrackerWidget } from "../../components/app/widgets/home/TimeTrackerWidget.jsx";
+import { WeeklyProgressWidget } from "../../components/app/widgets/home/WeeklyProgressWidget.jsx";
+
 /** Language */
 import { useTranslation } from "react-i18next";
 
@@ -58,7 +63,7 @@ export const HeroComponent = () => {
             {/* Right Column - Product Visualization */}
             <div className="hidden md:flex items-center justify-center">
                 {/* Primary Widget showcase */}
-                <TimeTracker className="animate-float mb-40 w-1/2" />
+                <TimeTracker className="animate-float mb-40 w-1/2 rotate-45" />
 
                 {/* Secondary Widget showcase */}
                 <Statistics className="animate-float mt-40 w-1/2" />

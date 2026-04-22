@@ -20,7 +20,7 @@ export const BaseWidget = ({
     title,
     subtitle,
     bgColor,
-    textColor = "text-quaternary-700",
+    textColor,
     actions = true,
     pageLink,
     children,
@@ -33,11 +33,10 @@ export const BaseWidget = ({
      */
     const navigate = useNavigate();
 
-    const { activeColorId } = useTimeTracker();
-
+    const trackerContext = useTimeTracker();
+    const activeColorId = trackerContext?.activeColorId || null;
     const [customActions, setCustomActions] = useState(null);
 
-    // Clonamos el hijo para inyectarle la función setCustomActions de forma transparente
     const childrenWithProps = React.Children.map(children, (child) => {
         if (React.isValidElement(child)) {
             return React.cloneElement(child, { setCustomActions });
@@ -45,66 +44,88 @@ export const BaseWidget = ({
         return child;
     });
 
-    const isTempleMode = title === t("widgets.temple_mode");
+    const isTempleMode = title === t("widgets.temple_mode.title");
     const isAIWidget = title === "Dios de la SabidurIA";
-    const isTaskWidget = title === t("widgets.tasks");
-    const isCalendarWidget = title === t("widgets.calendar");
+    const isTaskWidget = title === t("widgets.tasks.title");
+    const isCalendarWidget = title === t("widgets.calendar.title");
+    const isTimeTracker = title === "Time tracker";
 
-    const foundColor = bgColor
-        ? title === "Time tracker"
-            ? PHASE_COLOURS.find((color) => color.id === activeColorId)?.hex || "#F1F8F3"
-            : bgColor
-        : "#F1F8F3";
+    const isEffectivenessWidget = title === t("widgets.effectiveness_chart.title");
+    const isSolarChartWidget = title === t("widgets.solar_chart.title");
+
+    const getTrackerColor = () => {
+        if (!activeColorId) return "#F1F8F3"; // Fallback si no hay tarea activa
+
+        // Buscamos tanto por ID como por código HEX (porque el backend envía HEX)
+        const colorObj = PHASE_COLOURS.find((c) => c.id === activeColorId || c.hex === activeColorId);
+
+        // Si lo encuentra, devuelve el hex oscuro. Si no, usa el valor tal cual por si es un hex personalizado.
+        return colorObj ? colorObj.hex : activeColorId;
+    };
+
+    const foundColor = isTimeTracker ? getTrackerColor() : bgColor || "#F1F8F3";
 
     const isHexColor = foundColor.startsWith("#");
 
     // Construimos el estilo de fondo
-    const backgroundStyle = {};
-
-    if (isTempleMode) {
-        backgroundStyle.backgroundImage = `linear-gradient(rgba(31, 41, 55, 0.5), rgba(31, 41, 55, 0.5)), url(${bgTemple})`;
-        backgroundStyle.backgroundSize = "cover";
-        backgroundStyle.backgroundPosition = "center";
-        backgroundStyle.backgroundRepeat = "no-repeat";
-    } else if (isAIWidget) {
-        backgroundStyle.backgroundImage = `linear-gradient(rgba(10, 10, 10, 0.2), rgba(10, 10, 10, 0.2)), url(${bgAI})`;
-        backgroundStyle.backgroundSize = "cover";
-        backgroundStyle.backgroundPosition = "center";
-        backgroundStyle.backgroundRepeat = "no-repeat";
-    } else {
-        backgroundStyle.backgroundColor = foundColor;
-    }
+    const getBackgroundStyle = () => {
+        if (isTempleMode)
+            return {
+                backgroundImage: `linear-gradient(rgba(31, 41, 55, 0.5), rgba(31, 41, 55, 0.5)), url(${bgTemple})`,
+                backgroundSize: "cover",
+            };
+        if (isAIWidget)
+            return {
+                backgroundImage: `linear-gradient(rgba(10, 10, 10, 0.2), rgba(10, 10, 10, 0.2)), url(${bgAI})`,
+                backgroundSize: "cover",
+            };
+        return { backgroundColor: foundColor };
+    };
 
     return (
         <div
-            className={`h-full w-full ${!isHexColor ? foundColor : ""} rounded-3xl flex flex-col ${isTaskWidget ? "" : "p-5"} shadow-md ${className}`}
-            style={backgroundStyle}
+            className={`h-full w-full ${!isHexColor ? foundColor : ""} rounded-3xl flex flex-col ${isTaskWidget ? "" : isSolarChartWidget ? "pt-5" : "p-5"} shadow-md ${className}`}
+            style={getBackgroundStyle()}
         >
             <div
-                className={`flex ${subtitle ? "items-start" : "items-center"} ${isTaskWidget ? "px-5 pt-5" : ""} justify-between`}
+                className={`flex ${subtitle || isEffectivenessWidget ? "items-start" : "items-center"} ${isTaskWidget ? "px-5 pt-5" : ""} justify-between`}
             >
                 <div
                     className={`flex flex-col ${isAIWidget ? "items-center w-full font-passero tracking-[0.1em]" : ""}`}
                 >
-                    <span className={`${textColor} text-2xl font-semibold leading-none`}>{title}</span>
-                    {subtitle && <span className={`${textColor} text-lg font-semibold`}>{subtitle}</span>}
+                    <span
+                        className={`${textColor} ${isSolarChartWidget ? "px-5" : ""} text-2xl font-semibold leading-none`}
+                    >
+                        {title}
+                    </span>
+                    {subtitle && (
+                        <span className={`${textColor} text-lg font-semibold opacity-90 uppercase`}>{subtitle}</span>
+                    )}
                 </div>
 
-                {customActions}
+                {!isTaskWidget && customActions}
 
                 {actions && (
-                    <div className="flex items-center gap-1">
-                        <IconCircleArrowUpRight
-                            onClick={() => {
-                                if (pageLink) navigate(pageLink);
-                            }}
-                            className={`h-8 w-8 ${textColor} opacity-70 hover:${textColor} hover:opacity-100 transition-colors duration-200 cursor-pointer`}
-                        />
+                    <div className="flex flex-col items-end">
+                        <div className="flex items-center gap-1">
+                            <IconCircleArrowUpRight
+                                onClick={() => {
+                                    if (pageLink) navigate(pageLink);
+                                }}
+                                className={`h-8 w-8 ${textColor} opacity-70 hover:${textColor} hover:opacity-100 transition-colors duration-200 cursor-pointer`}
+                            />
+                        </div>
+
+                        {isTaskWidget && customActions}
                     </div>
                 )}
             </div>
 
-            <div className={`flex-1 ${isCalendarWidget ? "mt-0" : "mt-4"}`}>{childrenWithProps}</div>
+            <div
+                className={`flex-1 ${isCalendarWidget || isEffectivenessWidget ? "mt-0" : isTimeTracker ? "mt-7" : "mt-4"}`}
+            >
+                {childrenWithProps}
+            </div>
         </div>
     );
 };

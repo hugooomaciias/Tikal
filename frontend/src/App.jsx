@@ -55,11 +55,11 @@ function App() {
                     {/* Password Recovery Routes */}
                     <Route path="/forgot-password" element={<ForgotPasswordPage />} />
 
-                    {/* Loading Screen Route */}
-                    <Route path="/loading" element={<LoadingPage />} />
-
-                    {/* Protected App Routes */}
                     <Route element={<MainProvider />}>
+                        {/* Loading Screen Route */}
+                        <Route path="/loading" element={<LoadingPage />} />
+
+                        {/* Protected App Routes */}
                         <Route element={<TimeTrackerProvider />}>
                             <Route
                                 path="/home"

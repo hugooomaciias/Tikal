@@ -1,71 +1,79 @@
 const INTENSITY_COLORS = {
-    NONE: "bg-primary-50 text-primary-200/50", // Casi invisible
-    LOW: "bg-primary-100 text-primary-600", // Verde muy suave
-    MEDIUM: "bg-primary-200 text-primary-700", // Verde medio
-    HIGH: "bg-primary-400 text-primary-50", // Verde fuerte
-    MAXIMUM: "bg-primary-700 text-primary-50", // Verde GitHub oscuro
+    NONE: "bg-primary-50 text-primary-200", // x = 0
+    VERY_LOW: "bg-primary-100/50 text-primary-500", // 0 < x <=2
+    LOW: "bg-primary-100 text-primary-600", // 2 < x <=4
+    MEDIUM: "bg-primary-200 text-primary-700", // 4 < x <= 6
+    HIGH: "bg-primary-400 text-primary-50", // 6 < x <= 8
+    VERY_HIGH: "bg-primary-500 text-primary-50", // 8 < x <= 10
+    MAXIMUM: "bg-primary-700 text-primary-50", // 10 < x
 };
 
-export const ConcentrationHeatmapWidget = () => {
-    const generateHeatmapData = (month, year) => {
-        // Obtenemos el primer día del mes (0 = Domingo, 1 = Lunes...)
+export const ConcentrationHeatmapWidget = ({ props }) => {
+    const year = props?.year || new Date().getFullYear();
+    const month = props?.month || new Date().getMonth() + 1;
+    const days = props?.days || [];
+
+    const generateHeatmapData = () => {
+        if (!days.length) return [];
+
         const firstDayOfMonth = new Date(year, month - 1, 1).getDay();
-        // Ajustamos para que Lunes sea 0 (Si el getDay es 0 -domingo-, lo pasamos a 6)
         const emptySlots = firstDayOfMonth === 0 ? 6 : firstDayOfMonth - 1;
 
-        const daysInMonth = new Date(year, month, 0).getDate();
-        const days = [];
+        const data = [];
 
-        // 1. Añadimos slots vacíos (Días del mes anterior para alinear el grid)
         for (let i = 0; i < emptySlots; i++) {
-            days.push({ dayOfMonth: null, intensity: "NONE", minutesDedicated: 0 });
+            data.push({ dayOfMonth: null, intensity: "NONE", minutesDedicated: 0 });
         }
-
-        // 2. Generamos los días del mes con intensidades variadas para ver el diseño
-        for (let i = 1; i <= daysInMonth; i++) {
-            let intensity = "LOW";
-            let minutes = Math.floor(Math.random() * 60) + 10;
-
-            // Simulamos el patrón de tu imagen (aproximado)
-            if ([1, 2, 3, 4, 5].includes(i)) intensity = "MEDIUM";
-            if ([6, 7, 8, 9, 10].includes(i)) intensity = "MAXIMUM";
-            if ([11, 12, 13, 14, 15].includes(i)) intensity = "LOW";
-            if ([16, 17, 18, 19, 20].includes(i)) {
-                intensity = "NONE"; // Días sin apenas actividad
-                minutes = 0;
-            }
-
-            days.push({
-                date: `${year}-${String(month).padStart(2, "0")}-${String(i).padStart(2, "0")}`,
-                dayOfMonth: i,
-                minutesDedicated: minutes,
-                intensity: intensity,
+        days.forEach((day) => {
+            data.push({
+                date: day.date,
+                dayOfMonth: day.dayOfMonth,
+                minutesDedicated: day.minutesDedicated,
+                intensity: INTENSITY_COLORS[day.intensity] ? day.intensity : "NONE",
             });
-        }
+        });
 
-        return { year, month, days };
+        return data;
     };
 
-    const heatmapMock = generateHeatmapData(9, 2025);
+    const heatmap = generateHeatmapData();
 
-    if (!heatmapMock?.days) return null;
+    if (!heatmap.length) {
+        return null;
+    }
 
     return (
         <div className="h-full w-full flex items-center justify-center p-1">
             <div className="grid grid-cols-7 gap-1 w-full">
-                {heatmapMock.days.map((day, index) => (
-                    <div
-                        key={index}
-                        title={day.dayOfMonth ? `${day.minutesDedicated} min` : ""}
-                        className={`
-                            h-5 md:h-[26px] flex items-center justify-center 
-                            rounded-md text-[11px] font-bold transition-all duration-300
-                            ${INTENSITY_COLORS[day.intensity]}
-                        `}
-                    >
-                        <span className="leading-none">{day.dayOfMonth}</span>
-                    </div>
-                ))}
+                {heatmap.map((day, index) => {
+                    if (!day.dayOfMonth) {
+                        return <div key={index} className="h-5 md:h-[26px]"></div>;
+                    }
+                    return (
+                        <div
+                            key={index}
+                            title={day.dayOfMonth ? `${day.minutesDedicated} min` : ""}
+                            className={`
+                                relative group/celda h-5 md:h-[26px] flex items-center justify-center 
+                                rounded-md text-[11px] font-bold transition-all duration-300
+                                ${INTENSITY_COLORS[day.intensity]}
+                            `}
+                        >
+                            <span className="leading-none">{day.dayOfMonth}</span>
+
+                            <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 opacity-0 invisible group-hover/celda:opacity-100 group-hover/celda:visible transition-all duration-200 z-50 pointer-events-none">
+                                {/* Caja del contenido del tooltip (DISEÑA AQUÍ A TU GUSTO) */}
+                                <div className="bg-primary-300 text-primary-50 text-[10px] px-2 py-1 rounded-md shadow-lg whitespace-nowrap flex items-center gap-1">
+                                    <span className="font-extrabold">{day.minutesDedicated}</span>
+                                    <span>min</span>
+                                </div>
+
+                                {/* Triangulito (Flecha) apuntando a la celda */}
+                                <div className="w-0 h-0 border-l-[5px] border-r-[5px] border-t-[5px] border-transparent border-t-primary-300 mx-auto"></div>
+                            </div>
+                        </div>
+                    );
+                })}
             </div>
         </div>
     );

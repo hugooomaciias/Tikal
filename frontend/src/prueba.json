@@ -1,0 +1,906 @@
+{
+    "userProfile": {
+        "name": "hugomacias",
+        "email": "hugo@gmail.com",
+        "avatarUrl": "/images/avatar/default.png",
+        "subscriptionPlan": "GRATUITO",
+        "totems": []
+    },
+    "settings": {
+        "theme": "MAYA",
+        "timeRange": "SEMANAL",
+        "hoursGoal": 40,
+        "focusSessionMinutes": 25,
+        "timezone": "UTC",
+        "firstDayOfWeek": "LUNES",
+        "showRankInTeam": true,
+        "userLanguage": "ES",
+        "layoutsDashboards": {
+            "home": [
+                {
+                    "i": "weeklyProgressWidget",
+                    "x": 0,
+                    "y": 0,
+                    "w": 1,
+                    "h": 1
+                },
+                {
+                    "i": "timeTrackerWidget",
+                    "x": 0,
+                    "y": 1,
+                    "w": 1,
+                    "h": 1
+                },
+                {
+                    "i": "templeModeWidget",
+                    "x": 0,
+                    "y": 2,
+                    "w": 1,
+                    "h": 1
+                },
+                {
+                    "i": "taskWidget",
+                    "x": 0,
+                    "y": 3,
+                    "w": 1,
+                    "h": 2
+                },
+                {
+                    "i": "AIMainWidget",
+                    "x": 1,
+                    "y": 0,
+                    "w": 1,
+                    "h": 1
+                },
+                {
+                    "i": "calendarWidget",
+                    "x": 1,
+                    "y": 1,
+                    "w": 2,
+                    "h": 1
+                }
+            ],
+            "statistics": [
+                {
+                    "i": "solarChartWidget",
+                    "x": 0,
+                    "y": 0,
+                    "w": 1,
+                    "h": 2
+                },
+                {
+                    "i": "effectivenessChartWidget",
+                    "x": 0,
+                    "y": 1,
+                    "w": 2,
+                    "h": 1
+                },
+                {
+                    "i": "timeGoalWidget",
+                    "x": 0,
+                    "y": 3,
+                    "w": 1,
+                    "h": 1
+                },
+                {
+                    "i": "concentrationHeatmapWidget",
+                    "x": 1,
+                    "y": 1,
+                    "w": 1,
+                    "h": 1
+                },
+                {
+                    "i": "comparisonWidget",
+                    "x": 1,
+                    "y": 2,
+                    "w": 1,
+                    "h": 1
+                },
+                {
+                    "i": "iaAdviceWidget",
+                    "x": 1,
+                    "y": 3,
+                    "w": 1,
+                    "h": 1
+                }
+            ],
+            "team": []
+        },
+        "widgetPreferences": {
+            "preferences": {}
+        },
+        "notificationSettings": {
+            "email": {
+                "weeklySummary": true,
+                "teamInvites": true,
+                "marketing": false
+            },
+            "inApp": {
+                "chatMentions": true,
+                "taskAssignments": true,
+                "soundEnabled": true
+            },
+            "push": {
+                "templeModeEnd": true
+            }
+        }
+    },
+    "templeMode": {
+        "rank": 1,
+        "templeName": "Templo de los Orígenes",
+        "awardedTitle": "Aprendiz maya",
+        "requiredHours": 0,
+        "currentHours": 0,
+        "badgeImageUrl": "/images/temple/badge1.png",
+        "clockImageUrl": "/images/temple/clock1.png",
+        "templeImageUrl": "/images/temple/templeLogo1.png",
+        "primaryColor": "#63A47D",
+        "totems": [
+            {
+                "id": 1,
+                "name": "IMIX",
+                "goalDescription": "Alcanza 10 horas totales de concentración",
+                "currentProgress": {
+                    "progress": 0,
+                    "description": "Horas de concentración acumuladas"
+                },
+                "targetProgress": 10,
+                "totemImageUrl": "/images/totems/imix.svg",
+                "isActive": false,
+                "totemType": "CONCENTRATION"
+            },
+            {
+                "id": 2,
+                "name": "IK",
+                "goalDescription": "Alcanza 25 horas totales de concentración",
+                "currentProgress": {
+                    "progress": 0,
+                    "description": "Horas de concentración acumuladas"
+                },
+                "targetProgress": 25,
+                "totemImageUrl": "/images/totems/ik.svg",
+                "isActive": false,
+                "totemType": "CONCENTRATION"
+            },
+            {
+                "id": 3,
+                "name": "AKBAL",
+                "goalDescription": "Alcanza 50 horas totales de concentración",
+                "currentProgress": {
+                    "progress": 0,
+                    "description": "Horas de concentración acumuladas"
+                },
+                "targetProgress": 50,
+                "totemImageUrl": "/images/totems/akbal.svg",
+                "isActive": false,
+                "totemType": "CONCENTRATION"
+            },
+            {
+                "id": 4,
+                "name": "KAN",
+                "goalDescription": "Alcanza una precisión de planificación superior al 60%",
+                "currentProgress": {
+                    "progress": 79,
+                    "description": "Porcentaje de precisión en planificación"
+                },
+                "targetProgress": 60,
+                "totemImageUrl": "/images/totems/kan.svg",
+                "isActive": false,
+                "totemType": "PLANNING_ACCURACY"
+            },
+            {
+                "id": 5,
+                "name": "CHIKCHAN",
+                "goalDescription": "Alcanza una efectividad global superior al 65%",
+                "currentProgress": {
+                    "progress": 79,
+                    "description": "Porcentaje de efectividad global"
+                },
+                "targetProgress": 65,
+                "totemImageUrl": "/images/totems/chikchan.svg",
+                "isActive": false,
+                "totemType": "GLOBAL_EFFECTIVENESS"
+            }
+        ]
+    },
+    "calendarEvents": [],
+    "homeGeneralInformation": [
+        {
+            "title": "Tareas pendientes",
+            "logo": "IconTrendingUp",
+            "value": 19,
+            "custom": null
+        },
+        {
+            "title": "Minutos hoy",
+            "logo": "IconClockHour3Filled",
+            "value": 0,
+            "custom": null
+        },
+        {
+            "title": "Proyectos totales",
+            "logo": "IconClipboardTextFilled",
+            "value": 3,
+            "custom": null
+        },
+        {
+            "title": "Proyectos totales",
+            "logo": "IconClipboardTextFilled",
+            "value": 3,
+            "custom": null
+        }
+    ],
+    "homeWidgetsData": {
+        "weeklyProgressWidget": {
+            "startDate": "2026-04-11",
+            "endDate": "2026-04-17",
+            "maxMinutesRegistered": 0,
+            "days": [
+                {
+                    "date": "2026-04-11",
+                    "dayLabel": "S",
+                    "minutesDedicated": 0
+                },
+                {
+                    "date": "2026-04-12",
+                    "dayLabel": "D",
+                    "minutesDedicated": 0
+                },
+                {
+                    "date": "2026-04-13",
+                    "dayLabel": "L",
+                    "minutesDedicated": 0
+                },
+                {
+                    "date": "2026-04-14",
+                    "dayLabel": "M",
+                    "minutesDedicated": 0
+                },
+                {
+                    "date": "2026-04-15",
+                    "dayLabel": "X",
+                    "minutesDedicated": 0
+                },
+                {
+                    "date": "2026-04-16",
+                    "dayLabel": "J",
+                    "minutesDedicated": 0
+                },
+                {
+                    "date": "2026-04-17",
+                    "dayLabel": "V",
+                    "minutesDedicated": 0
+                }
+            ]
+        },
+        "templeModeWidget": {
+            "rankPercentage": 0,
+            "colour": "#63A47D",
+            "logo": "/images/temple/badge1.png",
+            "defaultFocusSessionMinutes": 25
+        },
+        "calendarWidget": {
+            "startDate": "2026-04-13",
+            "endDate": "2026-04-19",
+            "startHour": "08:00:00",
+            "showWeekends": true
+        },
+        "timeTrackerWidget": {
+            "taskId": 1,
+            "projectOrPhaseName": "Fase 1 de ejemplo",
+            "taskName": "Explorar el Dashboard Solar",
+            "parentColor": "#E1BA63",
+            "projectLogoIcon": "IconBook",
+            "accumulatedSeconds": 0
+        },
+        "taskWidget": {
+            "selectedGroupingMode": "BY_DEADLINE",
+            "globalProgressPercentage": 0,
+            "hasMoreCards": false,
+            "cards": [
+                {
+                    "title": "Para hoy y atrasadas",
+                    "subtitle": "17 abr",
+                    "completedTasksCount": 5,
+                    "totalTasksCount": 5,
+                    "tasks": [
+                        {
+                            "taskId": 4,
+                            "name": "Configurar mi perfil y avatar",
+                            "iconIdentifier": "IconBook",
+                            "colorHex": "#224A57",
+                            "subtasksCount": 2,
+                            "isCompleted": false
+                        },
+                        {
+                            "taskId": 5,
+                            "name": "Entrevistas con Stakeholders",
+                            "iconIdentifier": "IconAppWindow",
+                            "colorHex": "#91C4A5",
+                            "isCompleted": false
+                        },
+                        {
+                            "taskId": 19,
+                            "name": "Aprender a centrar un div",
+                            "iconIdentifier": "IconBook",
+                            "colorHex": "#224A57",
+                            "isCompleted": false
+                        },
+                        {
+                            "taskId": 23,
+                            "name": "Aprender a centrar un div",
+                            "iconIdentifier": "IconBook",
+                            "colorHex": "#224A57",
+                            "isCompleted": false
+                        },
+                        {
+                            "taskId": 27,
+                            "name": "Aprender a centrar un div",
+                            "iconIdentifier": "IconBook",
+                            "colorHex": "#224A57",
+                            "isCompleted": false
+                        }
+                    ]
+                },
+                {
+                    "title": "Próximos 3 días",
+                    "subtitle": "18 abr - 20 abr",
+                    "completedTasksCount": 4,
+                    "totalTasksCount": 4,
+                    "tasks": [
+                        {
+                            "taskId": 18,
+                            "name": "Haz cosas Hugo",
+                            "iconIdentifier": "IconBook",
+                            "colorHex": "#E1BA63",
+                            "isCompleted": false
+                        },
+                        {
+                            "taskId": 22,
+                            "name": "Haz cosas Hugo",
+                            "iconIdentifier": "IconBook",
+                            "colorHex": "#E1BA63",
+                            "isCompleted": false
+                        },
+                        {
+                            "taskId": 26,
+                            "name": "Haz cosas Hugo",
+                            "iconIdentifier": "IconBook",
+                            "colorHex": "#E1BA63",
+                            "isCompleted": false
+                        },
+                        {
+                            "taskId": 29,
+                            "name": "Implementar BaseWidget",
+                            "iconIdentifier": "IconAppWindow",
+                            "colorHex": "#7DDAE3",
+                            "isCompleted": false
+                        }
+                    ]
+                },
+                {
+                    "title": "Próxima semana",
+                    "subtitle": "21 abr - 27 abr",
+                    "completedTasksCount": 3,
+                    "totalTasksCount": 3,
+                    "tasks": [
+                        {
+                            "taskId": 20,
+                            "name": "Entrevistas con Stakeholders",
+                            "iconIdentifier": "IconAppWindow",
+                            "colorHex": "#91C4A5",
+                            "isCompleted": false
+                        },
+                        {
+                            "taskId": 24,
+                            "name": "Entrevistas con Stakeholders",
+                            "iconIdentifier": "IconAppWindow",
+                            "colorHex": "#91C4A5",
+                            "isCompleted": false
+                        },
+                        {
+                            "taskId": 28,
+                            "name": "Entrevistas con Stakeholders",
+                            "iconIdentifier": "IconAppWindow",
+                            "colorHex": "#91C4A5",
+                            "isCompleted": false
+                        }
+                    ]
+                }
+            ]
+        }
+    },
+    "statisticsGeneralInformation": [
+        {
+            "title": "Horas registradas",
+            "logo": "IconClockHour3Filled",
+            "value": 0,
+            "custom": null
+        },
+        {
+            "title": "Eficiencia global",
+            "logo": "IconBoltFilled",
+            "value": 79,
+            "custom": null
+        },
+        {
+            "title": "Planificación",
+            "logo": "IconTimelineEventFilled",
+            "value": 79,
+            "custom": null
+        },
+        {
+            "title": "Rango actual",
+            "logo": "IconBadgesFilled",
+            "value": 1,
+            "custom": "rotate-180"
+        }
+    ],
+    "statisticsWidgetsData": {
+        "timeGoalWidget": {
+            "currentMinutes": 0,
+            "goalMinutes": 2400,
+            "completionPercentage": 0,
+            "startDate": "2026-04-13",
+            "endDate": "2026-04-19",
+            "subtitle": "13 - 19 abr, 2026"
+        },
+        "comparisonWidget": {
+            "selectedFilter": "THIS_WEEK",
+            "metrics": [
+                {
+                    "id": "TOTAL_HOURS",
+                    "label": "Horas registradas",
+                    "displayValue": "0 m",
+                    "direction": "NEUTRAL"
+                },
+                {
+                    "id": "TEMPLE_HOURS",
+                    "label": "Modo Templo",
+                    "displayValue": "+0m",
+                    "direction": "NEUTRAL"
+                },
+                {
+                    "id": "COMPLETED_TASKS",
+                    "label": "Tareas completadas",
+                    "displayValue": "0",
+                    "direction": "NEUTRAL"
+                }
+            ]
+        },
+        "effectivenessChartWidget": {
+            "selectedMetric": "CONCENTRATION",
+            "selectedTimeRange": "WEEKLY",
+            "dataPoints": [
+                {
+                    "label": "L",
+                    "percentage": 0
+                },
+                {
+                    "label": "M",
+                    "percentage": 0
+                },
+                {
+                    "label": "X",
+                    "percentage": 0
+                },
+                {
+                    "label": "J",
+                    "percentage": 0
+                },
+                {
+                    "label": "V",
+                    "percentage": 0
+                },
+                {
+                    "label": "S",
+                    "percentage": 0
+                },
+                {
+                    "label": "D",
+                    "percentage": 0
+                }
+            ]
+        },
+        "iaAdviceWidget": {
+            "advices": null
+        },
+        "solarChartWidget": {
+            "selectedFilter": "GLOBAL",
+            "customDateRange": null,
+            "slices": [],
+            "mostRecurringListName": "Sin datos",
+            "parentId": null,
+            "currentLayer": "PROJECT"
+        }
+    },
+    "tasks": [
+        {
+            "id": 1,
+            "name": "Proyecto de prueba",
+            "logo": "IconBook",
+            "description": "Proyecto de ejemplo para aprender a usar la plataforma",
+            "deadline": null,
+            "stages": [
+                {
+                    "id": 1,
+                    "name": "Fase 1 de ejemplo",
+                    "description": null,
+                    "colour": "#E1BA63",
+                    "deadline": null,
+                    "tasks": [
+                        {
+                            "id": 1,
+                            "name": "Explorar el Dashboard Solar",
+                            "description": null,
+                            "estimatedTime": null,
+                            "estimatedProfit": null,
+                            "deadline": null,
+                            "isCompleted": null,
+                            "numberOfSubTask": 4,
+                            "subtasks": [
+                                {
+                                    "id": 7,
+                                    "name": "Probar filtros de fecha",
+                                    "description": "Verificar que el heatmap cambie",
+                                    "estimatedTime": 15,
+                                    "estimatedProfit": 0,
+                                    "deadline": null,
+                                    "isCompleted": true
+                                },
+                                {
+                                    "id": 8,
+                                    "name": "Exportar reporte PDF",
+                                    "description": "Validar la generación de documentos",
+                                    "estimatedTime": 15,
+                                    "estimatedProfit": 0,
+                                    "deadline": null,
+                                    "isCompleted": true
+                                },
+                                {
+                                    "id": 13,
+                                    "name": "Probar filtros de fecha",
+                                    "description": "Verificar que el heatmap cambie",
+                                    "estimatedTime": 15,
+                                    "estimatedProfit": 0,
+                                    "deadline": null,
+                                    "isCompleted": true
+                                },
+                                {
+                                    "id": 14,
+                                    "name": "Exportar reporte PDF",
+                                    "description": "Validar la generación de documentos",
+                                    "estimatedTime": 15,
+                                    "estimatedProfit": 0,
+                                    "deadline": null,
+                                    "isCompleted": true
+                                }
+                            ]
+                        },
+                        {
+                            "id": 15,
+                            "name": "Probar filtros de fecha",
+                            "description": "Verificar que el heatmap cambie",
+                            "estimatedTime": 15,
+                            "estimatedProfit": 0,
+                            "deadline": null,
+                            "isCompleted": true,
+                            "numberOfSubTask": 0,
+                            "subtasks": []
+                        },
+                        {
+                            "id": 16,
+                            "name": "Exportar reporte PDF",
+                            "description": "Validar la generación de documentos",
+                            "estimatedTime": 15,
+                            "estimatedProfit": 0,
+                            "deadline": null,
+                            "isCompleted": true,
+                            "numberOfSubTask": 0,
+                            "subtasks": []
+                        },
+                        {
+                            "id": 17,
+                            "name": "Explorar el Dashboard Solar",
+                            "description": "Revisar todos los widgets del panel principal",
+                            "estimatedTime": 60,
+                            "estimatedProfit": 50,
+                            "deadline": "2026-01-20T18:00:00",
+                            "isCompleted": true,
+                            "numberOfSubTask": 0,
+                            "subtasks": []
+                        }
+                    ]
+                },
+                {
+                    "id": 2,
+                    "name": "Fase 2 de ejemplo",
+                    "description": null,
+                    "colour": "#224A57",
+                    "deadline": null,
+                    "tasks": [
+                        {
+                            "id": 2,
+                            "name": "Configurar mi perfil y avatar",
+                            "description": null,
+                            "estimatedTime": null,
+                            "estimatedProfit": null,
+                            "deadline": null,
+                            "isCompleted": null,
+                            "numberOfSubTask": 0,
+                            "subtasks": []
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": 2,
+            "name": "Proyecto de prueba",
+            "logo": "IconBook",
+            "description": "Proyecto de ejemplo para aprender a usar la plataforma",
+            "deadline": "2026-12-31T23:59:59",
+            "stages": [
+                {
+                    "id": 5,
+                    "name": "Fase 1 de ejemplo",
+                    "description": "Introducción y conceptos básicos",
+                    "colour": "#E1BA63",
+                    "deadline": "2026-02-01T12:00:00",
+                    "tasks": [
+                        {
+                            "id": 3,
+                            "name": "Explorar el Dashboard Solar",
+                            "description": "Revisar todos los widgets del panel principal",
+                            "estimatedTime": 60,
+                            "estimatedProfit": 50,
+                            "deadline": "2026-01-20T18:00:00",
+                            "isCompleted": true,
+                            "numberOfSubTask": 2,
+                            "subtasks": [
+                                {
+                                    "id": 9,
+                                    "name": "Preparar cuestionario",
+                                    "description": "Lista de preguntas sobre el tracker",
+                                    "estimatedTime": 45,
+                                    "estimatedProfit": 0,
+                                    "deadline": null,
+                                    "isCompleted": false
+                                },
+                                {
+                                    "id": 10,
+                                    "name": "Grabar sesión Zoom",
+                                    "description": "Asegurar el consentimiento de grabación",
+                                    "estimatedTime": 10,
+                                    "estimatedProfit": 0,
+                                    "deadline": null,
+                                    "isCompleted": false
+                                }
+                            ]
+                        },
+                        {
+                            "id": 18,
+                            "name": "Haz cosas Hugo",
+                            "description": "Revisar todos los widgets del panel principal",
+                            "estimatedTime": 60,
+                            "estimatedProfit": 50,
+                            "deadline": "2026-04-20T18:00:00",
+                            "isCompleted": false,
+                            "numberOfSubTask": 0,
+                            "subtasks": []
+                        },
+                        {
+                            "id": 22,
+                            "name": "Haz cosas Hugo",
+                            "description": "Revisar todos los widgets del panel principal",
+                            "estimatedTime": 60,
+                            "estimatedProfit": 50,
+                            "deadline": "2026-04-20T18:00:00",
+                            "isCompleted": false,
+                            "numberOfSubTask": 0,
+                            "subtasks": []
+                        },
+                        {
+                            "id": 26,
+                            "name": "Haz cosas Hugo",
+                            "description": "Revisar todos los widgets del panel principal",
+                            "estimatedTime": 60,
+                            "estimatedProfit": 50,
+                            "deadline": "2026-04-20T18:00:00",
+                            "isCompleted": false,
+                            "numberOfSubTask": 0,
+                            "subtasks": []
+                        }
+                    ]
+                },
+                {
+                    "id": 6,
+                    "name": "Fase 2 de ejemplo",
+                    "description": "Configuración avanzada del entorno",
+                    "colour": "#224A57",
+                    "deadline": "2026-03-01T12:00:00",
+                    "tasks": [
+                        {
+                            "id": 4,
+                            "name": "Configurar mi perfil y avatar",
+                            "description": "Subir foto y ajustar preferencias",
+                            "estimatedTime": 30,
+                            "estimatedProfit": 10,
+                            "deadline": "2026-02-15T09:00:00",
+                            "isCompleted": false,
+                            "numberOfSubTask": 2,
+                            "subtasks": [
+                                {
+                                    "id": 11,
+                                    "name": "Responsive Design",
+                                    "description": "Ajustar para pantallas móviles",
+                                    "estimatedTime": 60,
+                                    "estimatedProfit": 0,
+                                    "deadline": null,
+                                    "isCompleted": false
+                                },
+                                {
+                                    "id": 12,
+                                    "name": "Integrar IconMap",
+                                    "description": "Mapear strings a componentes de Tabler",
+                                    "estimatedTime": 40,
+                                    "estimatedProfit": 0,
+                                    "deadline": null,
+                                    "isCompleted": false
+                                }
+                            ]
+                        },
+                        {
+                            "id": 19,
+                            "name": "Aprender a centrar un div",
+                            "description": "Subir foto y ajustar preferencias",
+                            "estimatedTime": 30,
+                            "estimatedProfit": 10,
+                            "deadline": "2026-04-16T09:00:00",
+                            "isCompleted": false,
+                            "numberOfSubTask": 0,
+                            "subtasks": []
+                        },
+                        {
+                            "id": 23,
+                            "name": "Aprender a centrar un div",
+                            "description": "Subir foto y ajustar preferencias",
+                            "estimatedTime": 30,
+                            "estimatedProfit": 10,
+                            "deadline": "2026-04-16T09:00:00",
+                            "isCompleted": false,
+                            "numberOfSubTask": 0,
+                            "subtasks": []
+                        },
+                        {
+                            "id": 27,
+                            "name": "Aprender a centrar un div",
+                            "description": "Subir foto y ajustar preferencias",
+                            "estimatedTime": 30,
+                            "estimatedProfit": 10,
+                            "deadline": "2026-04-16T09:00:00",
+                            "isCompleted": false,
+                            "numberOfSubTask": 0,
+                            "subtasks": []
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": 3,
+            "name": "Desarrollo Web Tikal",
+            "logo": "IconAppWindow",
+            "description": "Rebranding y optimización del portal principal",
+            "deadline": "2026-06-15T18:00:00",
+            "stages": [
+                {
+                    "id": 3,
+                    "name": "Análisis de Requisitos",
+                    "description": "Definición de funcionalidades y diseño",
+                    "colour": "#91C4A5",
+                    "deadline": "2026-04-10T10:00:00",
+                    "tasks": [
+                        {
+                            "id": 5,
+                            "name": "Entrevistas con Stakeholders",
+                            "description": "Reunión para definir el flujo de navegación",
+                            "estimatedTime": 120,
+                            "estimatedProfit": 200,
+                            "deadline": "2026-04-05T14:00:00",
+                            "isCompleted": false,
+                            "numberOfSubTask": 0,
+                            "subtasks": []
+                        },
+                        {
+                            "id": 20,
+                            "name": "Entrevistas con Stakeholders",
+                            "description": "Reunión para definir el flujo de navegación",
+                            "estimatedTime": 120,
+                            "estimatedProfit": 200,
+                            "deadline": "2026-04-25T14:00:00",
+                            "isCompleted": false,
+                            "numberOfSubTask": 0,
+                            "subtasks": []
+                        },
+                        {
+                            "id": 24,
+                            "name": "Entrevistas con Stakeholders",
+                            "description": "Reunión para definir el flujo de navegación",
+                            "estimatedTime": 120,
+                            "estimatedProfit": 200,
+                            "deadline": "2026-04-25T14:00:00",
+                            "isCompleted": false,
+                            "numberOfSubTask": 0,
+                            "subtasks": []
+                        },
+                        {
+                            "id": 28,
+                            "name": "Entrevistas con Stakeholders",
+                            "description": "Reunión para definir el flujo de navegación",
+                            "estimatedTime": 120,
+                            "estimatedProfit": 200,
+                            "deadline": "2026-04-25T14:00:00",
+                            "isCompleted": false,
+                            "numberOfSubTask": 0,
+                            "subtasks": []
+                        }
+                    ]
+                },
+                {
+                    "id": 4,
+                    "name": "Maquetación UI",
+                    "description": "Desarrollo de componentes en React",
+                    "colour": "#7DDAE3",
+                    "deadline": "2026-05-20T20:00:00",
+                    "tasks": [
+                        {
+                            "id": 6,
+                            "name": "Implementar BaseWidget",
+                            "description": "Crear el contenedor genérico para los widgets",
+                            "estimatedTime": 180,
+                            "estimatedProfit": 150,
+                            "deadline": "2026-05-05T17:00:00",
+                            "isCompleted": false,
+                            "numberOfSubTask": 0,
+                            "subtasks": []
+                        },
+                        {
+                            "id": 21,
+                            "name": "Implementar BaseWidget",
+                            "description": "Crear el contenedor genérico para los widgets",
+                            "estimatedTime": 180,
+                            "estimatedProfit": 150,
+                            "deadline": "2026-05-05T17:00:00",
+                            "isCompleted": false,
+                            "numberOfSubTask": 0,
+                            "subtasks": []
+                        },
+                        {
+                            "id": 25,
+                            "name": "Implementar BaseWidget",
+                            "description": "Crear el contenedor genérico para los widgets",
+                            "estimatedTime": 180,
+                            "estimatedProfit": 150,
+                            "deadline": "2026-05-18T17:00:00",
+                            "isCompleted": false,
+                            "numberOfSubTask": 0,
+                            "subtasks": []
+                        },
+                        {
+                            "id": 29,
+                            "name": "Implementar BaseWidget",
+                            "description": "Crear el contenedor genérico para los widgets",
+                            "estimatedTime": 180,
+                            "estimatedProfit": 150,
+                            "deadline": "2026-04-18T17:00:00",
+                            "isCompleted": false,
+                            "numberOfSubTask": 0,
+                            "subtasks": []
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

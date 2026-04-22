@@ -42,7 +42,7 @@ export const AIWidget = () => {
 
             <button className="flex items-center gap-2 bg-primary-900/40 px-3 py-1 rounded-full border border-quaternary-50/40 transition-all duration-300 ease-in-out hover:border-quaternary-50/80 hover:shadow-[0_0_15px_rgba(74,222,128,0.4)] group">
                 <span className="text-[10px] font-bold tracking-[0.2em] text-quaternary-50/80 uppercase transition-colors duration-300 group-hover:text-primary-100">
-                    {t("widgets.ai")}
+                    {t("widgets.ai.title")}
                 </span>
             </button>
         </div>

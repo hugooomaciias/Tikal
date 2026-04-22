@@ -7,11 +7,37 @@
         "fourth_stat": "Current rank"
     },
     "widgets": {
-        "solar_chart": "Solar chart",
-        "effectiveness_chart": "Effectiveness chart",
-        "time_goal": "Time goal",
-        "concentration_heatmap": "Concentration",
-        "comparison": "Comparison",
-        "tips": "Tips"
+        "solar_chart": {
+            "title": "Solar chart"
+        },
+        "effectiveness_chart": {
+            "title": "Effectiveness chart",
+            "axis": {
+                "x": "X-axis",
+                "y": "Y-axis"
+            },
+            "tabs": {
+                "axisX": {
+                    "weekly": "Weekly",
+                    "monthly": "Monthly"
+                },
+                "axisY": {
+                    "concentration": "Conc",
+                    "profitability": "Prof"
+                }
+            }
+        },
+        "time_goal": {
+            "title": "Time goal"
+        },
+        "concentration_heatmap": {
+            "title": "Concentration"
+        },
+        "comparison": {
+            "title": "Comparison"
+        },
+        "tips": {
+            "title": "Tips"
+        }
     }
 }

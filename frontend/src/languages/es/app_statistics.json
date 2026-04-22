@@ -7,11 +7,37 @@
         "fourth_stat": "Rango actual"
     },
     "widgets": {
-        "solar_chart": "Gráfico solar",
-        "effectiveness_chart": "Gráfico de efectividad",
-        "time_goal": "Objetivo temporal",
-        "concentration_heatmap": "Concentración",
-        "comparison": "Comparación",
-        "tips": "Consejos"
+        "solar_chart": {
+            "title": "Gráfico solar"
+        },
+        "effectiveness_chart": {
+            "title": "Gráfico de efectividad",
+            "axis": {
+                "x": "Eje X",
+                "y": "Eje Y"
+            },
+            "tabs": {
+                "axisX": {
+                    "weekly": "Semanal",
+                    "monthly": "Mensual"
+                },
+                "axisY": {
+                    "concentration": "Conc",
+                    "profitability": "Rent"
+                }
+            }
+        },
+        "time_goal": {
+            "title": "Objetivo temporal"
+        },
+        "concentration_heatmap": {
+            "title": "Concentración"
+        },
+        "comparison": {
+            "title": "Comparación"
+        },
+        "tips": {
+            "title": "Consejos"
+        }
     }
 }

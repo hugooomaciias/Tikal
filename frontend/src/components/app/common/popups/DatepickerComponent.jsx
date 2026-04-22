@@ -78,6 +78,8 @@ export const DatePickerComponent = ({ value, onChange, className, label }) => {
                 showMonthDropdown
                 showYearDropdown
                 dropdownMode="select"
+                portalId="root-portal"
+                popperClassName="main-datepicker-theme"
             />
 
             {/* Floating Label */}

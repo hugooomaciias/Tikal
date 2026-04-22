@@ -1,5 +1,5 @@
 /** React & Third-Party Libraries */
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Responsive, WidthProvider } from "react-grid-layout/legacy";
 
 /** Components */
@@ -10,6 +10,9 @@ import { BaseWidget } from "../../components/app/widgets/common/BaseWidget.jsx";
 import { TimeGoalWidget } from "../../components/app/widgets/statistics/TimeGoalWidget.jsx";
 import { ConcentrationHeatmapWidget } from "../../components/app/widgets/statistics/ConcentrationHeatmapWidget.jsx";
 import { EffectivenessChartWidget } from "../../components/app/widgets/statistics/EffectivenessChartWidget.jsx";
+import { ComparisonWidget } from "../../components/app/widgets/statistics/ComparisonWidget.jsx";
+import { SolarChartWidget } from "../../components/app/widgets/statistics/SolarChart/SolarChartWidget.jsx";
+import { useMain } from "../../hooks/useMain.js";
 
 /** Assets & Icons */
 import { IconCircleXFilled } from "@tabler/icons-react";
@@ -24,6 +27,46 @@ import { useTranslation } from "react-i18next";
 /** Setup & Configurations */
 const ResponsiveGridLayout = WidthProvider(Responsive);
 
+const WIDGET_CONFIG = {
+    solarChartWidget: {
+        component: SolarChartWidget,
+        titleKey: "widgets.solar_chart.title",
+        actions: false,
+        textColor: "text-quaternary-700",
+    },
+    effectivenessChartWidget: {
+        component: EffectivenessChartWidget,
+        titleKey: "widgets.effectiveness_chart.title",
+        actions: false,
+        textColor: "text-quaternary-700",
+    },
+    timeGoalWidget: {
+        component: TimeGoalWidget,
+        titleKey: "widgets.time_goal.title",
+        subtitle: "22-28 Sept, 2025",
+        actions: false,
+        textColor: "text-quaternary-700",
+    },
+    concentrationHeatmapWidget: {
+        component: ConcentrationHeatmapWidget,
+        titleKey: "widgets.concentration_heatmap.title",
+        actions: false,
+        textColor: "text-quaternary-700",
+    },
+    comparisonWidget: {
+        component: ComparisonWidget,
+        titleKey: "widgets.comparison.title",
+        actions: false,
+        textColor: "text-quaternary-700",
+    },
+    aiAdviceWidget: {
+        component: TimeGoalWidget,
+        titleKey: "widgets.tips.title",
+        pageLink: "/statistics",
+        textColor: "text-quaternary-700",
+    },
+};
+
 /**
  * Main Application Dashboard Component
  *
@@ -35,6 +78,14 @@ const ResponsiveGridLayout = WidthProvider(Responsive);
  * @returns {JSX.Element} The rendered dashboard layout.
  */
 export const StatisticsPage = () => {
+    const {
+        getUserProfile,
+        getStatisticsGeneralInformation,
+        getStatisticsLayout,
+        getStatisticsWidgetsData,
+        isDataLoaded,
+    } = useMain();
+
     /**
      * Translation Hook
      *
@@ -65,78 +116,50 @@ export const StatisticsPage = () => {
      * Maintains the active list of widgets rendered on the dashboard, including
      * their identifier, component type, and spatial grid coordinates.
      */
-    const [widgets, setWidgets] = useState([
-        {
-            id: "widget-1",
-            grid: { x: 0, y: 0, w: 1, h: 2 },
-            config: {
-                title: t("widgets.solar_chart"),
-                pageLink: "/statistics",
-                content: {
-                    component: TimeGoalWidget,
-                },
-            },
-        },
-        {
-            id: "widget-2",
-            grid: { x: 1, y: 0, w: 2, h: 1 },
-            config: {
-                title: t("widgets.effectiveness_chart"),
-                actions: false,
-                pageLink: "/tasks",
-                content: {
-                    component: EffectivenessChartWidget,
-                },
-            },
-        },
-        {
-            id: "widget-3",
-            grid: { x: 3, y: 0, w: 1, h: 1 },
-            config: {
-                title: t("widgets.time_goal"),
-                subtitle: "22-28 Sept, 2025",
-                actions: false,
-                pageLink: "/home",
-                content: {
-                    component: TimeGoalWidget,
-                },
-            },
-        },
-        {
-            id: "widget-4",
-            grid: { x: 1, y: 1, w: 1, h: 1 },
-            config: {
-                title: t("widgets.concentration_heatmap"),
-                actions: false,
-                pageLink: "/tasks",
-                content: {
-                    component: ConcentrationHeatmapWidget,
-                },
-            },
-        },
-        {
-            id: "widget-5",
-            grid: { x: 2, y: 1, w: 1, h: 1 },
-            config: {
-                title: t("widgets.comparison"),
-                pageLink: "/home",
-                content: {
-                    component: TimeGoalWidget,
-                },
-            },
-        },
-        {
-            id: "widget-6",
-            grid: { x: 3, y: 1, w: 1, h: 1 },
-            config: {
-                title: t("widgets.tips"),
-                pageLink: "/calendar",
-                content: {
-                    component: TimeGoalWidget,
-                },
-            },
-        },
-    ]);
+    const [widgets, setWidgets] = useState([]);
+
+    const userProfile = getUserProfile();
+    const statisticsGeneralInformation = getStatisticsGeneralInformation();
+
+    useEffect(() => {
+        if (isDataLoaded) {
+            const layout = getStatisticsLayout();
+            const allWidgetsData = getStatisticsWidgetsData();
+
+            const mappedWidgets = layout
+                .map((item) => {
+                    const configBase = WIDGET_CONFIG[item.i];
+
+                    if (!configBase) return null;
+
+                    const widgetData = allWidgetsData[item.i];
+
+                    return {
+                        id: item.i,
+                        grid: { x: item.y, y: item.x, w: item.w, h: item.h },
+                        config: {
+                            title: configBase.titleKey.includes(".") ? t(configBase.titleKey) : configBase.titleKey,
+                            subtitle: widgetData?.subtitle,
+                            bgColor: configBase.bgColor,
+                            textColor: configBase.textColor,
+                            actions: configBase.actions ?? true,
+                            pageLink: configBase.pageLink,
+                            content: {
+                                component: configBase.component,
+                                props: widgetData,
+                            },
+                        },
+                    };
+                })
+                .filter(Boolean);
+
+            setWidgets(mappedWidgets);
+        }
+    }, [isDataLoaded, t, getStatisticsWidgetsData()]);
+
+    if (!isDataLoaded || widgets.length === 0) {
+        return null;
+    }
 
     /**
      * Layout Change Handler
@@ -188,7 +211,7 @@ export const StatisticsPage = () => {
     return (
         <div className="flex flex-col md:flex-row h-[100dvh] bg-gradient-to-t from-primary-30 to-primary-300 md:bg-gradient-to-r md:from-primary-50 md:to-primary-300 p-2 md:p-4 gap-4 md:gap-8 overflow-hidden">
             {/* Vertical Navbar */}
-            <NavbarComponent />
+            <NavbarComponent data={userProfile} />
 
             {/* Main Content Area */}
             <section className="flex-1 flex flex-col gap-6 w-full h-full overflow-hidden">
@@ -203,7 +226,7 @@ export const StatisticsPage = () => {
                         t={t}
                     />
 
-                    <MainDataHeaderComponent t={t} />
+                    <MainDataHeaderComponent data={statisticsGeneralInformation} />
                 </div>
 
                 {/* Dashboard Area */}
@@ -243,7 +266,7 @@ export const StatisticsPage = () => {
                                     className={`transition-all duration-300 ${isEditing ? "opacity-60 border-dashed border-[3px] border-primary-50 cursor-move" : "opacity-100"}`}
                                 >
                                     {widget.config.content && (
-                                        <widget.config.content.component {...widget.config.content.config} />
+                                        <widget.config.content.component props={widget.config.content.props} />
                                     )}
                                 </BaseWidget>
                             </div>

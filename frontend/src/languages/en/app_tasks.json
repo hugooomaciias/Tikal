@@ -3,6 +3,7 @@
     "projects": {
         "title": "Projects",
         "search": "Search project",
+        "no_projects": "No projects found",
         "popup": {
             "title": {
                 "new": {
@@ -38,6 +39,7 @@
     "stages": {
         "title": "Stages",
         "search": "Search stage",
+        "no_stages": "No stages found",
         "popup": {
             "title": {
                 "new": {
@@ -73,6 +75,9 @@
     "tasks": {
         "title": "Tasks",
         "search": "Search task",
+        "no_tasks": "No tasks found",
+        "subtasks": "subtasks",
+        "no_subtasks": "No",
         "popup": {
             "title": {
                 "new": "New task",

@@ -2,21 +2,56 @@
 import { createContext, useState, useEffect, useContext } from "react";
 import { Outlet } from "react-router-dom";
 
+import { PROJECTS_ICONS } from "../constants/projects_icons";
+import { IconDatabase } from "@tabler/icons-react";
+import { useMain } from "../hooks/useMain.js";
+
 // 1. Creamos el contexto
 const TimeTrackerContext = createContext();
 
 // 2. Creamos el Provider que envolverá nuestra App
 export const TimeTrackerProvider = ({ children }) => {
+    const { getHomeWidgetsData, isDataLoaded } = useMain();
+    const initialData = getHomeWidgetsData();
+
+    const [hasInitialized, setHasInitialized] = useState(false);
     const [isActive, setIsActive] = useState(false);
     const [secs, setSecs] = useState(0);
 
+    const [taskId, setTaskId] = useState(null);
     const [activeColorId, setActiveColorId] = useState(null);
     const [projectIcon, setProjectIcon] = useState(null);
     const [taskName, setTaskName] = useState("");
+    const [subTaskName, setSubTaskName] = useState(null);
 
-    // Mantenemos la lógica del intervalo aquí de forma global
+    useEffect(() => {
+        // Solo inicializamos si no hay nada corriendo y tenemos datos del backend
+        if (!hasInitialized && initialData?.timeTrackerWidget) {
+            const data = initialData.timeTrackerWidget;
+
+            setTaskId(data.taskId);
+            setTaskName(data.taskName);
+            setSubTaskName(data.projectOrPhaseName);
+            setActiveColorId(data.parentColor);
+
+            if (data.accumulatedSeconds > 0) {
+                setSecs(data.accumulatedSeconds);
+            }
+
+            // Normalizamos el icono del backend
+            if (data.projectLogoIcon) {
+                const projectLogoIcon = data.projectLogoIcon;
+                const iconObj = PROJECTS_ICONS.find((i) => i.id === projectLogoIcon);
+                setProjectIcon(() => (iconObj ? iconObj.component : IconDatabase));
+            }
+
+            setHasInitialized(true);
+        }
+    }, [initialData, hasInitialized]);
+
     useEffect(() => {
         let interval = null;
+
         if (isActive) {
             interval = setInterval(() => {
                 setSecs((prev) => prev + 1);
@@ -27,15 +62,14 @@ export const TimeTrackerProvider = ({ children }) => {
         return () => clearInterval(interval);
     }, [isActive]);
 
-    const playTimer = () => {
-        // Nota: Si solo es pausa (!isActive se vuelve falso), los datos se mantienen.
-        setIsActive(!isActive);
-    };
+    const playTimer = () => setIsActive(!isActive);
 
     const stopTimer = () => {
         setIsActive(false);
         setSecs(0);
     };
+
+    const toggleTimer = () => setIsActive(!isActive);
 
     const getParsedTime = (totalSeconds) => {
         const h = Math.floor(totalSeconds / 3600);
@@ -52,15 +86,24 @@ export const TimeTrackerProvider = ({ children }) => {
         };
     };
 
-    const setActiveTask = (colorId, icon, name) => {
-        stopTimer();
+    const setActiveTask = (newTaskId, colorHex, IconComp, newTaskName, newSubTaskName) => {
+        if (isActive) {
+            setIsActive(false);
+        }
 
-        setActiveColorId(colorId);
-        setProjectIcon(icon);
-        setTaskName(name);
+        setTaskId(newTaskId);
+        setActiveColorId(colorHex);
+        setProjectIcon(() => IconComp);
+        setTaskName(newTaskName);
+        setSubTaskName(newSubTaskName || "Tarea individual");
 
+        setSecs(0);
         setIsActive(true);
     };
+
+    if (!isDataLoaded || initialData.length === 0) {
+        return null;
+    }
 
     return (
         <TimeTrackerContext.Provider
@@ -70,8 +113,11 @@ export const TimeTrackerProvider = ({ children }) => {
                 activeColorId,
                 projectIcon,
                 taskName,
+                subTaskName,
+                taskId,
                 playTimer,
                 stopTimer,
+                toggleTimer,
                 getParsedTime,
                 setActiveTask,
             }}

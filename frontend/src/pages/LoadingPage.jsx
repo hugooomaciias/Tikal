@@ -1,10 +1,11 @@
 /** React & Third-Party Libraries */
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Lottie from "lottie-react";
 
 /** Components */
 import { useAuth } from "../hooks/useAuth";
+import { useMain } from "../hooks/useMain";
 
 /** Animations */
 import firstPartAnimation from "../assets/animations/firstPartAnimationLoadingScreen.json";
@@ -34,16 +35,7 @@ export const LoadingPage = () => {
      * Provides the 'isLoading' state to communicate with the Auth Context/API.
      */
     const { isLoading } = useAuth();
-
-    /**
-     * Reference to track the latest isLoading state
-     *
-     * We use a ref so the Lottie callback always reads the most recent value
-     * without causing unnecessary re-renders or stale closure issues.
-     *
-     * @type {React.MutableRefObject}
-     */
-    const isLoadingRef = useRef(isLoading);
+    const { initialSync } = useMain();
 
     /**
      * State to control which phase of the animation is currently active.
@@ -51,6 +43,7 @@ export const LoadingPage = () => {
      * @type {[boolean, function]}
      */
     const [showSecondPartAnimation, setShowSecondPartAnimation] = useState(false);
+    const [dataReady, setDataReady] = useState(false);
 
     /**
      * Authentication Loading Status Effect
@@ -61,8 +54,19 @@ export const LoadingPage = () => {
      * @function
      */
     useEffect(() => {
-        isLoadingRef.current = isLoading;
-    }, [isLoading]);
+        const fetchData = async () => {
+            if (!isLoading) {
+                try {
+                    await initialSync();
+                    setDataReady(true); // Marcamos que todo está listo
+                } catch (error) {
+                    console.error("Error al sincronizar", error);
+                    navigate("/login");
+                }
+            }
+        };
+        fetchData();
+    }, [isLoading, initialSync, navigate]);
 
     /**
      * Animation Phase One Handler
@@ -73,23 +77,12 @@ export const LoadingPage = () => {
      *
      * @function
      */
-    const handleFirstPhaseLoopComplete = () => {
-        if (!isLoadingRef.current) {
+    const handleLoopComplete = () => {
+        // Solo si los datos ya llegaron (dataReady), permitimos el cambio.
+        // Si no han llegado, el componente Lottie hará otro loop automáticamente.
+        if (dataReady) {
             setShowSecondPartAnimation(true);
         }
-    };
-
-    /**
-     * Animation Phase Two Handler
-     *
-     * Callback function triggered specifically by the Lottie component's `onComplete` prop.
-     * It executes exactly when the second phase of animation reaches its final frame,
-     * ensuring a seamless transition to the dashboard.
-     *
-     * @function
-     */
-    const handleAnimationComplete = () => {
-        navigate("/home");
     };
 
     return (
@@ -103,7 +96,7 @@ export const LoadingPage = () => {
                             animationData={firstPartAnimation}
                             loop={true}
                             autoplay={true}
-                            onLoopComplete={handleFirstPhaseLoopComplete}
+                            onLoopComplete={handleLoopComplete}
                         />
                     ) : (
                         <Lottie
@@ -111,7 +104,7 @@ export const LoadingPage = () => {
                             animationData={secondPartAnimation}
                             loop={false}
                             autoplay={true}
-                            onComplete={handleAnimationComplete}
+                            onComplete={() => navigate("/home")}
                         />
                     )}
                 </div>
