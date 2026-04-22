@@ -10,10 +10,7 @@ import java.util.List;
 @Data
 @Builder
 public class WeeklyProgressWidgetData implements WidgetData {
-    private LocalDate startDate; // It will refer to today minus 6 days.
-    private LocalDate endDate;
-
-    private Integer maxMinutesRegistered;
+    private String subtitle;
 
     private List<DailyProgress> days;
 

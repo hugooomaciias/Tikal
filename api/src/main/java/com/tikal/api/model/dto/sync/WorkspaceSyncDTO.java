@@ -3,13 +3,7 @@ package com.tikal.api.model.dto.sync;
 import com.tikal.api.model.dto.UserSettingsDTO;
 import com.tikal.api.model.dto.sync.domain.ProjectSyncDTO;
 import com.tikal.api.model.dto.sync.widgets.WidgetData;
-import com.tikal.api.model.entity.enumerated.DayOfWeekSetting;
-import com.tikal.api.model.entity.enumerated.ThemeSetting;
-import com.tikal.api.model.entity.enumerated.TimeRangeSetting;
 import com.tikal.api.model.entity.enumerated.TypeOfGoal;
-import com.tikal.api.model.entity.metadata.LayoutsDashboardMetadata;
-import com.tikal.api.model.entity.metadata.NotificationSettingsMetadata;
-import com.tikal.api.model.entity.metadata.WidgetPreferencesMetadata;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -32,7 +26,7 @@ public class WorkspaceSyncDTO {
     private List<HeaderInformation> statisticsGeneralInformation;
     private Map<String, WidgetData> statisticsWidgetsData;
 
-    private List<ProjectSyncDTO> projects;
+    private List<ProjectSyncDTO> tasks;
 
     // ==========================================
     // 1. USER PROFILE
@@ -109,6 +103,7 @@ public class WorkspaceSyncDTO {
     public static class HeaderInformation {
         private String title;
         private String logo;
-        private Integer value;
+        private String value;
+        private String custom;
     }
 }

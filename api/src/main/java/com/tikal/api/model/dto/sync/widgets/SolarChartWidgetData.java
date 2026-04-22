@@ -1,7 +1,9 @@
 package com.tikal.api.model.dto.sync.widgets;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -15,6 +17,8 @@ public class SolarChartWidgetData implements WidgetData {
     private String mostRecurringListName;
     private Integer parentId;
     private String currentLayer;
+    private String colour;
+    private String logo;
 
     public enum TimeRangeFilter {
         DAILY,
@@ -26,6 +30,8 @@ public class SolarChartWidgetData implements WidgetData {
 
     @Data
     @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
     public static class CustomDateRange {
         private LocalDate startDate;
         private LocalDate endDate;
@@ -38,6 +44,6 @@ public class SolarChartWidgetData implements WidgetData {
         private String sliceName;
         private Double percentage;
         private Integer minutesDedicated;
-        private String logoOrColor;
+        private String logoOrColour;
     }
 }

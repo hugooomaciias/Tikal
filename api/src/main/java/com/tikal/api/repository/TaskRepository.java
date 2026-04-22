@@ -21,6 +21,15 @@ public interface TaskRepository extends JpaRepository<Task, Integer>{
     /* --- Obtain tasks from an assigned user --- */
     List<Task> findByAssignedUser_Id(Integer userId);
 
+    /* --- Obtain main tasks (without a parent) from an assigned user --- */
+    @Query("SELECT t FROM Task t " +
+            "WHERE t.assignedUser.id = :userId " +
+            "AND t.parentTask IS NULL")
+    List<Task> findByAssignedUser_IdWithoutParent(Integer userId);
+
+    /* --- Obtain main tasks (without a parent) from a stage  --- */
+    List<Task> findByStage_IdAndParentTaskIsNull(Integer stageId);
+
     /* --- Obtain tasks which stageId is on the given list --- */
     List<Task> findByStage_IdIn(List<Integer> stagesIds);
 
@@ -42,6 +51,7 @@ public interface TaskRepository extends JpaRepository<Task, Integer>{
     @Query("SELECT t FROM Task t " +
             "WHERE t.assignedUser.id = :userId " +
             "AND t.parentTask IS NULL " +
+            "AND t.deadline IS NOT NULL " +
             "AND (t.isCompleted = false OR (t.isCompleted = true AND t.completionDate >= :since))")
     List<Task> findMainTasksPendingOrCompletedSince(
             @Param("userId") Integer userId,

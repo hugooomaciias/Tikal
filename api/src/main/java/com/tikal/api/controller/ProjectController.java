@@ -1,8 +1,8 @@
 package com.tikal.api.controller;
 
-import com.tikal.api.model.dto.project.CreateProjectRequest;
-import com.tikal.api.model.dto.project.ProjectDTO;
-import com.tikal.api.model.dto.project.UpdateProjectRequest;
+import com.tikal.api.model.dto.task.CreateProjectRequest;
+import com.tikal.api.model.dto.task.ProjectDTO;
+import com.tikal.api.model.dto.task.UpdateProjectRequest;
 import com.tikal.api.model.entity.Project;
 import com.tikal.api.service.ProjectService;
 import lombok.RequiredArgsConstructor;
@@ -10,12 +10,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/projects")
+@CrossOrigin(origins = "*")
 @RequiredArgsConstructor
 public class ProjectController {
     private final ProjectService projectService;

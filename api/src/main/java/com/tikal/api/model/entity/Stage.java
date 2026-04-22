@@ -31,8 +31,8 @@ public class Stage {
     @Column(columnDefinition = "TEXT")
     private String description;
 
-    /* --- Definition of colour in hexadecimal format --- */
-    @Column(name = "colour", length = 7)
+    /* --- Definition of colour in front-end id format --- */
+    @Column(name = "colour", length = 4)
     private String colour;
 
     /* --- Deadline for completing the stage --- */

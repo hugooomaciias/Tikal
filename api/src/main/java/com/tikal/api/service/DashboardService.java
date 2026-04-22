@@ -64,7 +64,7 @@ public class DashboardService {
                 .settings(userSettings)
                 .templeMode(templeMode)
                 .calendarEvents(buildCalendarEvents(userId))
-                .projects(buildProjectsList(userId))
+                .tasks(buildProjectsList(userId))
                 .homeGeneralInformation(buildHomeHeaders(userId))
                 .homeWidgetsData(homeWidgets)
                 .statisticsGeneralInformation(buildStatsHeaders(user))
@@ -240,7 +240,9 @@ public class DashboardService {
         LocalDateTime startOfToday = LocalDate.now().atStartOfDay();
         LocalDateTime endOfToday = LocalDate.now().atTime(LocalTime.MAX);
         Integer todayMinutesWrapper = timeLogRepository.getTotalMinutesBetweenDates(userId, startOfToday, endOfToday);
-        Integer todayMinutes = todayMinutesWrapper != null ? todayMinutesWrapper : 0;
+        int todayMinutes = todayMinutesWrapper != null ? todayMinutesWrapper : 0;
+        int todayHours = todayMinutes / 60;
+        todayMinutes = todayMinutes % 60;
 
         // 3. Proyectos (Ajusta la llamada a tu repositorio de proyectos)
         Integer totalProjects = projectRepository.countByUserOwnerId(userId);
@@ -248,23 +250,27 @@ public class DashboardService {
         return List.of(
                 WorkspaceSyncDTO.HeaderInformation.builder()
                         .title("Tareas pendientes")
-                        .value(pendingTasks != null ? pendingTasks : 0)
+                        .value(String.valueOf(pendingTasks != null ? pendingTasks : 0))
                         .logo("IconTrendingUp")
+                        .custom("")
                         .build(),
                 WorkspaceSyncDTO.HeaderInformation.builder()
-                        .title("Minutos hoy")
-                        .value(todayMinutes)
+                        .title("Tiempo hoy")
+                        .value(todayHours + " h " + todayMinutes + " m")
                         .logo("IconClockHour3Filled")
+                        .custom("")
                         .build(),
                 WorkspaceSyncDTO.HeaderInformation.builder()
                         .title("Proyectos totales")
-                        .value(totalProjects != null ? totalProjects : 0)
+                        .value(String.valueOf(totalProjects != null ? totalProjects : 0))
                         .logo("IconClipboardTextFilled")
+                        .custom("")
                         .build(),
                 WorkspaceSyncDTO.HeaderInformation.builder()
                         .title("Proyectos totales")
-                        .value(totalProjects != null ? totalProjects : 0)
+                        .value(String.valueOf(totalProjects != null ? totalProjects : 0))
                         .logo("IconClipboardTextFilled")
+                        .custom("")
                         .build()
         );
     }
@@ -274,7 +280,9 @@ public class DashboardService {
 
         // 1. Total Hours Register
         Integer totalHistoricalMinutes = timeLogRepository.getHistoricalTotalMinutes(userId);
-        Integer totalHours = (totalHistoricalMinutes != null ? totalHistoricalMinutes : 0) / 60;
+        int totalMins = (totalHistoricalMinutes != null ? totalHistoricalMinutes : 0);
+        int totalHours = totalMins / 60;
+        totalMins = totalHours % 60;
 
         // 2. Global effectiveness
         Integer effectiveness = statisticsService.globalEffectiveness(userId, TimeRangeSetting.GLOBAL);
@@ -285,23 +293,27 @@ public class DashboardService {
         return List.of(
                 WorkspaceSyncDTO.HeaderInformation.builder()
                         .title("Horas registradas")
-                        .value(totalHours)
+                        .value(totalHours + " h " + totalMins + " m")
                         .logo("IconClockHour3Filled")
+                        .custom("")
                         .build(),
                 WorkspaceSyncDTO.HeaderInformation.builder()
                         .title("Eficiencia global")
-                        .value(effectiveness != null ? effectiveness : 0)
+                        .value(String.valueOf(effectiveness != null ? effectiveness : 0))
                         .logo("IconBoltFilled")
+                        .custom("")
                         .build(),
                 WorkspaceSyncDTO.HeaderInformation.builder()
                         .title("Planificación")
-                        .value(planification != null ? planification : 0)
+                        .value(String.valueOf(planification != null ? planification : 0))
                         .logo("IconTimelineEventFilled")
+                        .custom("")
                         .build(),
                 WorkspaceSyncDTO.HeaderInformation.builder()
                         .title("Rango actual")
-                        .value(user.getCurrentRank().getId())
+                        .value(String.valueOf(user.getCurrentRank().getId()))
                         .logo("IconBadgesFilled")
+                        .custom("rotate-180")
                         .build()
         );
     }
@@ -322,7 +334,7 @@ public class DashboardService {
         return ProjectSyncDTO.builder()
                 .id(project.getId())
                 .name(project.getName())
-                .logoUrl(project.getLogoUrl())
+                .logo(project.getLogoUrl())
                 .description(project.getDescription())
                 .deadline(project.getDeadline())
                 .stages(stageDTOs)

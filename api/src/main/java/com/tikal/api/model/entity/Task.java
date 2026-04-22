@@ -6,6 +6,8 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * This class represents the Task entity, the fundamental unit of work within the
@@ -35,8 +37,8 @@ public class Task {
     private Integer estimatedTime;
 
     /* --- Task completion status (true = completed, false = pending) --- */
-    @Column(name = "is_completed")
-    private Boolean isCompleted;
+    @Column(name = "is_completed", nullable = false)
+    private Boolean isCompleted = false;
 
     /* --- Timestamp when the task was marked as completed --- */
     @Column(name = "completion_date", columnDefinition = "DATETIME")
@@ -44,7 +46,7 @@ public class Task {
 
     /* --- Estimated profit obtained upon completion of the Task --- */
     @Column(name = "estimated_profit", precision = 10, scale = 2)
-    private BigDecimal estimatedProfit; 
+    private BigDecimal estimatedProfit;
 
     /* --- Deadline for completing the Task --- */
     @Column(name = "deadline", columnDefinition = "DATETIME")
@@ -72,4 +74,8 @@ public class Task {
     @ManyToOne(optional = true)
     @JoinColumn(name = "parent_task_id") 
     private Task parentTask;
+
+    /* --- Two-way relationship to save parent and children in one go --- */
+    @OneToMany(mappedBy = "parentTask", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Task> subtasks = new ArrayList<>();
 }

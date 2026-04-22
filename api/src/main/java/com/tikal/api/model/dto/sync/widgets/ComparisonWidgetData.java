@@ -9,6 +9,9 @@ import java.util.List;
 @Builder
 public class ComparisonWidgetData implements WidgetData {
 
+    private String week;
+    private String month;
+
     // The currently selected filter
     private TimeRangeFilter selectedFilter;
 

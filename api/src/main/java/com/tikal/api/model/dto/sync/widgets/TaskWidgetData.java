@@ -14,7 +14,7 @@ public class TaskWidgetData implements WidgetData {
     private GroupingMode selectedGroupingMode;
 
     // Overall percentage of tasks completed (18% of the design)
-    private Double globalProgressPercentage;
+    private String subtitle;
 
     // Flag to notify the Front that there are more cards waiting in the database
     private Boolean hasMoreCards;
@@ -42,8 +42,8 @@ public class TaskWidgetData implements WidgetData {
     public static class TaskItem {
         private Integer taskId;
         private String name;
-        private String iconIdentifier;
-        private String colorHex;
+        private String logo;
+        private String color;
         private Integer subtasksCount;
         private Boolean isCompleted;
     }
