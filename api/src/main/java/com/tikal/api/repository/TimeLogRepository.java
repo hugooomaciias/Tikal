@@ -3,6 +3,7 @@ package com.tikal.api.repository;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import com.tikal.api.model.entity.User;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -212,4 +213,6 @@ public interface TimeLogRepository extends JpaRepository<TimeLog, Integer> {
             "WHERE user_id = :userId AND end_date_time IS NOT NULL",
             nativeQuery = true)
     Integer getHistoricalTotalMinutes(@Param("userId") Integer userId);
+
+    List<TimeLog> findByUserIdAndInitDateTimeBetween(Integer currentUser, LocalDateTime startOfDay, LocalDateTime endOfDay);
 }

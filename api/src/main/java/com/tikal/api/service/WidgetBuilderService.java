@@ -171,8 +171,8 @@ public class WidgetBuilderService {
         //}
 
         // NOTE: To avoid overloading the system, we should ideally create a method that retrieves the
-        // pending and completed tasks from the last 10 days.
-        LocalDateTime daysAgo = LocalDateTime.now().minusDays(10);
+        // pending and completed tasks from the last 4 days.
+        LocalDateTime daysAgo = LocalDateTime.now().minusDays(4);
         List<Task> sampleTasks = taskRepository.findMainTasksPendingOrCompletedSince(userId, daysAgo);
 
         List<Task> pendingTasks = sampleTasks.stream().filter(t -> !t.getIsCompleted()).collect(Collectors.toList());
@@ -227,6 +227,7 @@ public class WidgetBuilderService {
         LocalDateTime inOneWeek = endOfToday.plusDays(10);
 
         // Subtitle formatter
+        String subtitlePrevious = "Antes del " + DateUtils.formatSingleDate(today);
         String subtitleToday = DateUtils.formatSingleDate(today);
         String subtitleThreeDays = DateUtils.formatDateRange(today.plusDays(1), today.plusDays(3), false);
         String subtitleOneWeek = DateUtils.formatDateRange(today.plusDays(4), today.plusDays(10), false);
@@ -270,7 +271,7 @@ public class WidgetBuilderService {
         }
 
         return List.of(
-                buildCard("Atrasadas", subtitleToday, previousTasks, previousTasksCompleted, previousTasks.size()),
+                buildCard("Atrasadas", subtitlePrevious, previousTasks, previousTasksCompleted, previousTasks.size()),
                 buildCard("Para hoy", subtitleToday, todayTasks, todayTasksCompleted, todayTasks.size()),
                 buildCard("Próximos 3 días", subtitleThreeDays, threeDaysTasks, threeDaysTasksCompleted, threeDaysTasks.size()),
                 buildCard("Próxima semana", subtitleOneWeek, nextWeekTasks, nextWeekTasksCompleted, nextWeekTasks.size())
