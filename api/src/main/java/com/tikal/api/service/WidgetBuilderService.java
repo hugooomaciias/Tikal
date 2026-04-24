@@ -154,6 +154,7 @@ public class WidgetBuilderService {
         percentage = Math.round(percentage * 10.0) / 10.0;
         return TempleModeWidgetData.builder()
                 .rank(user.getCurrentRank().getId())
+                .rankTitle(user.getCurrentRank().getAwardedTitle())
                 .rankPercentage(percentage)
                 .colour(userRank.getColour())
                 .logo(userRank.getBadgeImageUrl())
