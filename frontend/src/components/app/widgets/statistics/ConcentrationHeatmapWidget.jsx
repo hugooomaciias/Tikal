@@ -1,11 +1,11 @@
 const INTENSITY_COLORS = {
     NONE: "bg-primary-50 text-primary-200", // x = 0
     VERY_LOW: "bg-primary-100/50 text-primary-500", // 0 < x <=2
-    LOW: "bg-primary-100 text-primary-600", // 2 < x <=4
+    LOW: "bg-primary-100 text-primary-700", // 2 < x <=4
     MEDIUM: "bg-primary-200 text-primary-700", // 4 < x <= 6
-    HIGH: "bg-primary-400 text-primary-50", // 6 < x <= 8
-    VERY_HIGH: "bg-primary-500 text-primary-50", // 8 < x <= 10
-    MAXIMUM: "bg-primary-700 text-primary-50", // 10 < x
+    HIGH: "bg-primary-400 text-primary", // 6 < x <= 8
+    VERY_HIGH: "bg-primary-500 text-primary", // 8 < x <= 10
+    MAXIMUM: "bg-primary-700 text-primary", // 10 < x
 };
 
 export const ConcentrationHeatmapWidget = ({ props }) => {

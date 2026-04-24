@@ -3,6 +3,11 @@ import { useState } from "react";
 
 /** Components */
 import { StagePopUpComponent } from "./StagePopUpComponent.jsx";
+import tailwindConfig from "../../../../tailwind.config.js";
+import resolveConfig from "tailwindcss/resolveConfig";
+
+const fullConfig = resolveConfig(tailwindConfig);
+const tailwindColors = fullConfig.theme.colors;
 
 /** Constants */
 import { PHASE_COLOURS } from "../../../constants/phase_colours.js";
@@ -44,15 +49,6 @@ export const StagesCardComponent = ({ data, selectedId, onSelect, t }) => {
     const [stageToEdit, setStageToEdit] = useState(null);
 
     const filteredStages = data.filter((stage) => stage.name.toLowerCase().includes(stageSearchQuery.toLowerCase()));
-
-    const getStageColorInfo = (hexValue) => {
-        return (
-            PHASE_COLOURS.find((c) => c.hex.toLowerCase() === hexValue?.toLowerCase()) || {
-                hex: hexValue,
-                light: "#f8f9fa",
-            }
-        );
-    };
 
     if (!data || !Array.isArray(data)) return null;
 
@@ -97,19 +93,20 @@ export const StagesCardComponent = ({ data, selectedId, onSelect, t }) => {
                 {/* Stages List */}
                 <div className="h-fit w-full flex flex-col gap-3">
                     {filteredStages.length > 0 ? (
-                        filteredStages.map((option) => {
-                            const isActive = selectedId === option.id;
-                            const hasNote = option.description && option.description !== "";
-                            const colorInfo = getStageColorInfo(option.colour);
+                        filteredStages.map((stage) => {
+                            const isActive = selectedId === stage.id;
+                            const hasNote = stage.description && stage.description !== "";
+                            const foundColor = PHASE_COLOURS.find((c) => c.id === stage.colour);
+                            const color = foundColor ? foundColor.hex : tailwindColors.primary[600];
 
                             return (
                                 <div
-                                    key={option.id}
-                                    onClick={() => onSelect(option.id)}
-                                    onDoubleClick={() => setStageToEdit(option)}
+                                    key={stage.id}
+                                    onClick={() => onSelect(stage.id)}
+                                    onDoubleClick={() => setStageToEdit(stage)}
                                     className="flex items-center justify-between bg-transparent p-3 text-primary rounded-full transition-all duration-200 cursor-pointer"
                                     style={{
-                                        backgroundColor: isActive ? colorInfo.hex : "",
+                                        backgroundColor: isActive ? color : "",
                                     }}
                                 >
                                     {/* Stage Color & Title */}
@@ -117,12 +114,12 @@ export const StagesCardComponent = ({ data, selectedId, onSelect, t }) => {
                                         <div
                                             className="h-6 w-6 bg-primary p-3 rounded-full"
                                             style={{
-                                                backgroundColor: !isActive ? colorInfo.hex : "",
+                                                backgroundColor: !isActive ? color : "",
                                             }}
                                         ></div>
 
                                         <span className={`text-xl ${isActive ? "" : "text-quaternary-700"}`}>
-                                            {option.name}
+                                            {stage.name}
                                         </span>
                                     </div>
 
@@ -134,7 +131,7 @@ export const StagesCardComponent = ({ data, selectedId, onSelect, t }) => {
                                             />
 
                                             <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 hidden w-48 p-2 text-sm font-medium text-primary bg-quaternary-700 rounded-lg shadow-lg group-hover:block z-50 pointer-events-none">
-                                                {option.description}
+                                                {stage.description}
 
                                                 <div className="absolute left-1/2 -translate-x-1/2 top-full w-0 h-0 border-x-8 border-x-transparent border-t-8 border-t-quaternary-700"></div>
                                             </div>

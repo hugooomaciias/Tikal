@@ -14,6 +14,11 @@ import {
 /** Contexts */
 import { useTimeTracker } from "../../../../context/TimeTrackerContext";
 import { TabsComponent } from "../common/TabsComponent";
+import tailwindConfig from "../../../../../tailwind.config.js";
+import resolveConfig from "tailwindcss/resolveConfig";
+
+const fullConfig = resolveConfig(tailwindConfig);
+const tailwindColors = fullConfig.theme.colors;
 
 /** Constants */
 import { PHASE_COLOURS } from "../../../../constants/phase_colours";
@@ -26,7 +31,7 @@ export const TaskWidget = ({ props }) => {
     const { t } = useTranslation("app_home");
 
     const [taskData, setTaskData] = useState(props);
-    const [activeIndex, setActiveIndex] = useState(0);
+    const [activeIndex, setActiveIndex] = useState(1);
 
     // Extraemos las funciones del contexto
     const { isActive, taskId, taskName, playTimer, stopTimer, setActiveTask } = useTimeTracker();
@@ -68,9 +73,19 @@ export const TaskWidget = ({ props }) => {
         setTaskData({ ...taskData, cards: updatedCards });
     };
 
+    // Calculamos si es la última tarjeta de la matriz local
+    const isLastCard = activeIndex === taskData.cards.length - 1;
+    console.log(activeIndex);
+    console.log(taskData.cards.length - 1);
+
+    // Podemos avanzar si no es la última, o si el backend nos dice que hay más por cargar
+    const canGoNext = !isLastCard;
+
     // Función para rotar tarjetas (ir a la siguiente o volver a la primera)
     const handleNextCard = () => {
-        setActiveIndex((prev) => (prev + 1) % taskData.cards.length);
+        if (!canGoNext) return;
+
+        setActiveIndex((prev) => prev + 1);
     };
 
     const jumpToCard = (index) => {
@@ -90,7 +105,7 @@ export const TaskWidget = ({ props }) => {
 
             // Llamamos a la función del contexto con los datos de la tarea pulsada
             // Esto activará el TimeTracker globalmente
-            setActiveTask(task.taskId, task.colorHex, IconComponent, task.name, "Nueva Tarea");
+            setActiveTask(task.taskId, task.color, IconComponent, task.name, "Nueva Tarea");
         }
     };
 
@@ -100,7 +115,7 @@ export const TaskWidget = ({ props }) => {
 
     return (
         <div className="h-full w-full relative flex flex-col gap-1.5 overflow-hidden">
-            <div className="w-full flex items-center justify-center gap-2">
+            <div className="w-full flex items-center justify-center gap-2 relative z-0">
                 <TabsComponent widget="Task" t={t} />
             </div>
 
@@ -111,17 +126,27 @@ export const TaskWidget = ({ props }) => {
                 {prevIndex2 !== null && (
                     <div
                         onClick={() => jumpToCard(prevIndex2)}
-                        className="absolute top-0 left-8 right-8 h-20 bg-primary-100 rounded-t-3xl cursor-pointer hover:translate-y-[-2px] transition-all duration-300"
-                        title={taskData.cards[prevIndex2].title}
-                    />
+                        className="group/card2 absolute top-0 left-8 right-8 h-20 bg-primary-100 rounded-t-3xl cursor-pointer hover:translate-y-[-2px] transition-all duration-300"
+                    >
+                        <div className="absolute left-1/2 -translate-x-1/2 top-0 -mt-8 hidden px-3 py-1.5 text-xs font-bold tracking-wide text-primary bg-quaternary-700 rounded-lg shadow-xl whitespace-nowrap group-hover/card2:block z-10 pointer-events-none animate-fade-in-up">
+                            {taskData.cards[prevIndex2].title}
+                            {/* Triangulito inferior */}
+                            <div className="absolute left-1/2 -translate-x-1/2 top-full w-0 h-0 border-x-[6px] border-x-transparent border-t-[6px] border-t-quaternary-700"></div>
+                        </div>
+                    </div>
                 )}
 
                 {prevIndex1 !== null && (
                     <div
                         onClick={() => jumpToCard(prevIndex1)}
-                        className={`absolute ${cardsBehind === 2 ? "top-5" : "top-0"} left-4 right-4 h-20 bg-primary-300 rounded-t-3xl cursor-pointer hover:translate-y-[-2px] transition-all duration-300`}
-                        title={taskData.cards[prevIndex1].title}
-                    />
+                        className={`group/card1 absolute ${cardsBehind === 2 ? "top-5" : "top-0"} left-4 right-4 h-20 bg-primary-300 rounded-t-3xl cursor-pointer hover:translate-y-[-2px] transition-all duration-300`}
+                    >
+                        <div className="absolute left-1/2 -translate-x-1/2 top-0 -mt-8 hidden px-3 py-1.5 text-xs font-bold tracking-wide text-primary bg-quaternary-700 rounded-lg shadow-xl whitespace-nowrap group-hover/card1:block z-10 pointer-events-none animate-fade-in-up">
+                            {taskData.cards[prevIndex1].title}
+                            {/* Triangulito inferior */}
+                            <div className="absolute left-1/2 -translate-x-1/2 top-full w-0 h-0 border-x-[6px] border-x-transparent border-t-[6px] border-t-quaternary-700"></div>
+                        </div>
+                    </div>
                 )}
 
                 {/* 2. TARJETA PRINCIPAL (ACTUAL) */}
@@ -133,7 +158,7 @@ export const TaskWidget = ({ props }) => {
                     <div className="p-5 flex justify-between items-start shrink-0">
                         <div className="flex flex-col">
                             <h4 className="text-primary text-lg font-bold leading-tigh">{currentCard.title}</h4>
-                            <span className="text-primary/60 text-xs font-semibold tracking-wider uppercase mt-0.5">
+                            <span className="text-primary/60 text-xs font-semibold tracking-wider uppercase">
                                 {currentCard.subtitle}
                             </span>
                         </div>
@@ -147,7 +172,11 @@ export const TaskWidget = ({ props }) => {
                     {/* Lista de Tareas */}
                     <div className="flex-grow h-0 px-3 space-y-1 overflow-y-auto custom-scrollbar pb-4">
                         {currentCard.tasks.map((task) => {
-                            const IconComponent = getIconComponent(task.iconIdentifier);
+                            const IconComponent = getIconComponent(task.logo);
+                            const foundColor = PHASE_COLOURS.find((c) => c.id === task.color);
+                            const colors = foundColor
+                                ? { bg: foundColor.hex, text: foundColor.text }
+                                : { bg: tailwindColors.primary[600], text: tailwindColors.primary["DEFAULT"] };
 
                             return (
                                 <div
@@ -157,9 +186,9 @@ export const TaskWidget = ({ props }) => {
                                     {/* Círculo del Proyecto (Color dinámico del backend) */}
                                     <div
                                         className="w-11 h-11 rounded-full flex items-center justify-center shadow-lg shrink-0 transition-transform"
-                                        style={{ backgroundColor: task.colorHex }}
+                                        style={{ backgroundColor: colors.bg }}
                                     >
-                                        <IconComponent className="h-6 w-6 text-quaternary-900/90" />
+                                        <IconComponent className="h-6 w-6" style={{ color: colors.text }} />
                                     </div>
 
                                     {/* Cuerpo de la Tarea */}
@@ -200,16 +229,26 @@ export const TaskWidget = ({ props }) => {
 
                     {/* Footer Navegación (Solo si hay más tarjetas o el flag hasMoreCards es true) */}
                     {(taskData.cards.length > 1 || taskData.hasMoreCards) && (
-                        <div
-                            className="p-4 bg-primary-700 hover:bg-primary-800 cursor-pointer flex justify-center shrink-0 transition-colors"
+                        <button
+                            type="button"
+                            disabled={!canGoNext}
+                            className={`w-full p-4 flex justify-center shrink-0 transition-colors ${
+                                canGoNext
+                                    ? "bg-primary-700 hover:bg-primary-800 cursor-pointer"
+                                    : "bg-primary-700/60 cursor-not-allowed"
+                            }`}
                             onClick={handleNextCard}
                         >
-                            <div className="flex items-center gap-1 text-primary transition-all">
+                            <div
+                                className={`flex items-center gap-1 ${
+                                    canGoNext ? "text-primary" : "text-primary/50"
+                                } transition-all`}
+                            >
                                 <span className="text-[10px] font-bold uppercase tracking-[0.2em] leading-none">
-                                    Siguiente día
+                                    {canGoNext ? "Siguiente tarjeta" : "Última tarjeta"}
                                 </span>
                             </div>
-                        </div>
+                        </button>
                     )}
                 </div>
             </div>

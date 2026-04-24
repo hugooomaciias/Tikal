@@ -1,5 +1,10 @@
 /** Contexts */
 import { useTimeTracker } from "../../../../context/TimeTrackerContext";
+import tailwindConfig from "../../../../../tailwind.config.js";
+import resolveConfig from "tailwindcss/resolveConfig";
+
+const fullConfig = resolveConfig(tailwindConfig);
+const tailwindColors = fullConfig.theme.colors;
 
 /** Assets & Icons */
 import { ScrollingText } from "../../common/ScrollingText";
@@ -25,31 +30,37 @@ export const TimeTrackerWidget = () => {
     const { isActive, secs, toggleTimer, stopTimer, getParsedTime, activeColorId, taskName, subtaskName, projectIcon } =
         useTimeTracker();
 
-    const displayTaskName = taskName || "Sin tarea seleccionada";
-    const displaySubTaskName = subtaskName || "Pulsa en una tarea para comenzar a medir";
+    const displayTaskName = taskName || "No se ha seleccionado ninguna tarea";
+    const displaySubTaskName = subtaskName || "";
     const DisplayIcon = projectIcon || IconDatabase;
 
-    const foundColor = PHASE_COLOURS.find((c) => c.id === activeColorId || c.hex === activeColorId);
+    const foundColor = PHASE_COLOURS.find((c) => c.id === activeColorId);
     const colors = foundColor
         ? { dark: foundColor.hex, light: foundColor.light }
-        : { dark: "#2F6C4B", light: "#BDDDC7" };
+        : { dark: tailwindColors.primary[600], light: tailwindColors.primary["DEFAULT"] };
 
     const { hours, minutes, seconds } = getParsedTime(secs);
 
     return (
-        <div className="h-full w-full flex flex-col items-start gap-2">
-            <div className="w-full flex items-start justify-between gap-2" style={{ color: colors.light }}>
+        <div className="h-full w-full flex flex-col items-center justify-end gap-2">
+            <div
+                className={`w-full flex ${displaySubTaskName ? "items-start" : "items-center"} justify-between gap-3 shrink-0`}
+                style={{ color: colors.light }}
+            >
                 <div className="min-w-0 flex flex-1 flex-col items-start text-xl">
                     <ScrollingText text={displayTaskName} className="font-semibold" />
-                    <ScrollingText text={displaySubTaskName} className="font-extralight" />
+                    {displaySubTaskName && <ScrollingText text={displaySubTaskName} className="font-thin" />}
                 </div>
 
-                <div className="pr-1 rounded-xl shrink-0" style={{ backgroundColor: `${colors.dark}15` }}>
+                <div
+                    className={`${displaySubTaskName ? "mt-1" : ""} mr-1`}
+                    style={{ backgroundColor: `${colors.dark}15` }}
+                >
                     <DisplayIcon className="w-6 h-6" />
                 </div>
             </div>
 
-            <div className="h-full w-full flex items-center justify-between">
+            <div className={`h-[100px] w-full flex items-end justify-between ${displaySubTaskName ? "" : "mt-2"}`}>
                 <div
                     className="h-full flex flex-col items-start justify-center rounded-2xl p-3"
                     style={{ backgroundColor: colors.light, color: colors.dark }}

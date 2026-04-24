@@ -77,7 +77,7 @@ export const BaseWidget = ({
         if (isAIWidget)
             return {
                 backgroundImage: `linear-gradient(rgba(10, 10, 10, 0.2), rgba(10, 10, 10, 0.2)), url(${bgAI})`,
-                backgroundSize: "cover",
+                backgroundSize: "contain",
             };
         return { backgroundColor: foundColor };
     };

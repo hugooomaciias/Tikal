@@ -48,14 +48,19 @@ export const SolarChartWidget = ({ props }) => {
     const chartData = sortedSlices.map((slice, index) => ({
         id: slice.sliceId.toString(),
         label: slice.sliceName,
-        value: slice.percentage,
         minutes: slice.minutesDedicated,
         iconString: slice.logoOrColor,
         // Asignamos el color basado en su posición para asegurar el degradado
         color: SOLAR_PALETTE[index % SOLAR_PALETTE.length],
     }));
 
-    const visibleChartData = chartData.filter((d) => !hiddenProjects.includes(d.id));
+    const visibleSlicesBase = chartData.filter((d) => !hiddenProjects.includes(d.id));
+    const totalVisibleMinutes = visibleSlicesBase.reduce((sum, slice) => sum + slice.minutes, 0);
+
+    const visibleChartData = visibleSlicesBase.map((slice) => ({
+        ...slice,
+        value: totalVisibleMinutes > 0 ? Math.round((slice.minutes / totalVisibleMinutes) * 100) : 0,
+    }));
 
     // Encontramos el icono de la lista más recurrente buscándolo en los slices
     const recurringData = chartData.find((d) => d.label === mostRecurringName);

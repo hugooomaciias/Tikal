@@ -1,5 +1,5 @@
 import { ResponsiveLine } from "@nivo/line";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { IconChevronDown } from "@tabler/icons-react";
 import tailwindConfig from "../../../../../tailwind.config.js";
 import resolveConfig from "tailwindcss/resolveConfig";
@@ -22,6 +22,9 @@ export const EffectivenessChartWidget = ({ props, setCustomActions }) => {
      */
     const { t } = useTranslation("app_statistics");
 
+    const [metric, setMetric] = useState(props?.selectedMetric?.toLowerCase() || "concentration");
+    const [timeRange, setTimeRange] = useState(props?.selectedTimeRange?.toLowerCase() || "weekly");
+
     const dataPoints = props?.dataPoints || [];
 
     const nivoData = [
@@ -39,11 +42,21 @@ export const EffectivenessChartWidget = ({ props, setCustomActions }) => {
             <div className="flex flex-col items-center justify-end gap-1.5 text-sm text-quaternary-700 font-bold">
                 <div className="flex items-center gap-2">
                     <span>{t("widgets.effectiveness_chart.axis.x")}</span>
-                    <TabsComponent widget="EffectivenessX" t={t} />
+                    <TabsComponent
+                        widget="EffectivenessX"
+                        value={timeRange}
+                        onChange={(newValue) => setTimeRange(newValue)}
+                        t={t}
+                    />
                 </div>
                 <div className="flex items-center gap-2">
                     <span>{t("widgets.effectiveness_chart.axis.y")}</span>
-                    <TabsComponent widget="EffectivenessY" t={t} />
+                    <TabsComponent
+                        widget="EffectivenessY"
+                        value={metric}
+                        onChange={(newValue) => setMetric(newValue)}
+                        t={t}
+                    />
                 </div>
             </div>
         );
@@ -53,7 +66,9 @@ export const EffectivenessChartWidget = ({ props, setCustomActions }) => {
         }
 
         return () => setCustomActions?.(null);
-    }, [setCustomActions]);
+    }, [setCustomActions, metric, timeRange, t]);
+
+    const tooltipLabel = metric === "concentration" ? "Concentración" : "Rentabilidad";
 
     if (!dataPoints.length) return null;
 
@@ -111,7 +126,7 @@ export const EffectivenessChartWidget = ({ props, setCustomActions }) => {
                             </div>
 
                             <div className="h-full flex flex-col items-start justify-between">
-                                <span className="text-xs text-primary">Concentración</span>
+                                <span className="text-xs text-primary">{tooltipLabel}</span>
                                 <span className="text-base font-bold text-primary">{point.data.y}%</span>
                             </div>
                         </div>

@@ -6,6 +6,9 @@ import resolveConfig from "tailwindcss/resolveConfig";
 /** Components */
 import { TaskPopUpComponent } from "./TaskPopUpComponent.jsx";
 
+/** Constants */
+import { PHASE_COLOURS } from "../../../constants/phase_colours.js";
+
 /** Assets & Icons */
 import {
     IconSearch,
@@ -18,7 +21,7 @@ import {
 } from "@tabler/icons-react";
 
 const fullConfig = resolveConfig(tailwindConfig);
-const colors = fullConfig.theme.colors;
+const tailwindColors = fullConfig.theme.colors;
 
 /**
  * Tasks Card Component
@@ -89,6 +92,9 @@ export const TasksCardComponent = ({ data, stageColor, isCompletedFilter, t }) =
         );
     };
 
+    const foundColor = PHASE_COLOURS.find((c) => c.id === stageColor);
+    const color = foundColor ? foundColor.hex : tailwindColors.primary["DEFAULT"];
+
     if (!data || !Array.isArray(data)) return null;
 
     return (
@@ -128,44 +134,44 @@ export const TasksCardComponent = ({ data, stageColor, isCompletedFilter, t }) =
 
                 <div className="h-fit w-full flex flex-col gap-3">
                     {filteredTasks.length > 0 ? (
-                        filteredTasks.map((option) => {
-                            const isActive = activeTaskId === option.id;
-                            const hasNote = option.description && option.description !== "";
-                            const hasSubtasks = option.numberOfSubTask > 0;
+                        filteredTasks.map((tasks) => {
+                            const isActive = activeTaskId === tasks.id;
+                            const hasNote = tasks.description && tasks.description !== "";
+                            const hasSubtasks = tasks.numberOfSubTask > 0;
 
                             return (
                                 <div
-                                    key={option.id}
-                                    className={`h-fit w-full flex items-start justify-between ${hasSubtasks && isActive ? "bg-primary-200 py-3" : "bg-transparent"} ${option.isCompleted ? "opacity-40" : "opacity-100"} px-3 rounded-3xl`}
+                                    key={tasks.id}
+                                    className={`h-fit w-full flex items-start justify-between ${hasSubtasks && isActive ? "bg-primary-200 py-3" : "bg-transparent"} ${tasks.isCompleted ? "opacity-40" : "opacity-100"} px-3 rounded-3xl`}
                                 >
                                     <div className="w-full flex-1 flex gap-4">
                                         <button
-                                            onClick={() => toggleTaskCompletion(option.id)}
+                                            onClick={() => toggleTaskCompletion(tasks.id)}
                                             className={`h-7 w-7 flex items-center justify-center p-[0.20rem] ${hasSubtasks && isActive ? "" : "mt-1"} rounded-full`}
                                             style={{
-                                                backgroundColor: stageColor,
+                                                backgroundColor: color,
                                             }}
                                         >
                                             <IconCircleCheckFilled
-                                                className={`w-full h-full text-primary ${option.isCompleted ? "" : "opacity-0"} z-50`}
+                                                className={`w-full h-full text-primary ${tasks.isCompleted ? "" : "opacity-0"} z-50`}
                                             />
                                         </button>
 
                                         {/* Task Title & Interaction */}
                                         <div
                                             className="flex-1 flex flex-col cursor-pointer overflow-hidden"
-                                            onClick={() => setActiveTaskId(isActive ? null : option.id)}
+                                            onClick={() => setActiveTaskId(isActive ? null : tasks.id)}
                                         >
                                             <span
                                                 className={`text-xl truncate ${hasSubtasks && isActive ? "text-primary" : "text-quaternary-700"}`}
                                             >
-                                                {option.name}
+                                                {tasks.name}
                                             </span>
 
                                             {(!isActive || (isActive && !hasSubtasks)) && (
                                                 <div className="flex items-center gap-2 text-xs text-quaternary-400">
                                                     <span>
-                                                        {option.numberOfSubTask || t("tasks.no_subtasks")}{" "}
+                                                        {tasks.numberOfSubTask || t("tasks.no_subtasks")}{" "}
                                                         {t("tasks.subtasks")}
                                                     </span>
                                                     {hasNote && <IconNote className="h-3 w-3" />}
@@ -178,17 +184,17 @@ export const TasksCardComponent = ({ data, stageColor, isCompletedFilter, t }) =
                                             <div
                                                 className="p-1.5 rounded-full transition-all cursor-pointer"
                                                 style={{
-                                                    backgroundColor: `${stageColor}10`,
-                                                    color: stageColor,
-                                                    border: `2px solid ${stageColor}`,
+                                                    backgroundColor: `${color}10`,
+                                                    color: color,
+                                                    border: `2px solid ${color}`,
                                                 }}
                                                 onMouseEnter={(e) => {
-                                                    e.currentTarget.style.backgroundColor = stageColor;
-                                                    e.currentTarget.style.color = colors.primary["DEFAULT"];
+                                                    e.currentTarget.style.backgroundColor = color;
+                                                    e.currentTarget.style.color = tailwindColors.primary["DEFAULT"];
                                                 }}
                                                 onMouseLeave={(e) => {
-                                                    e.currentTarget.style.backgroundColor = `${stageColor}10`;
-                                                    e.currentTarget.style.color = stageColor;
+                                                    e.currentTarget.style.backgroundColor = `${color}10`;
+                                                    e.currentTarget.style.color = color;
                                                 }}
                                             >
                                                 <IconPlayerPlayFilled
@@ -197,20 +203,20 @@ export const TasksCardComponent = ({ data, stageColor, isCompletedFilter, t }) =
                                                 />
                                             </div>
                                             <div
-                                                onClick={() => setTaskToEdit(option)}
+                                                onClick={() => setTaskToEdit(tasks)}
                                                 className="p-1.5 rounded-full transition-all cursor-pointer"
                                                 style={{
-                                                    backgroundColor: `${stageColor}10`,
-                                                    color: stageColor,
-                                                    border: `2px solid ${stageColor}`,
+                                                    backgroundColor: `${color}10`,
+                                                    color: color,
+                                                    border: `2px solid ${color}`,
                                                 }}
                                                 onMouseEnter={(e) => {
-                                                    e.currentTarget.style.backgroundColor = stageColor;
-                                                    e.currentTarget.style.color = colors.primary["DEFAULT"];
+                                                    e.currentTarget.style.backgroundColor = color;
+                                                    e.currentTarget.style.color = tailwindColors.primary["DEFAULT"];
                                                 }}
                                                 onMouseLeave={(e) => {
-                                                    e.currentTarget.style.backgroundColor = `${stageColor}10`;
-                                                    e.currentTarget.style.color = stageColor;
+                                                    e.currentTarget.style.backgroundColor = `${color}10`;
+                                                    e.currentTarget.style.color = color;
                                                 }}
                                             >
                                                 <IconPencilFilled className="w-4 h-4" style={{ color: "inherit" }} />
@@ -221,7 +227,7 @@ export const TasksCardComponent = ({ data, stageColor, isCompletedFilter, t }) =
                                     {/* Subtasks Expanded View */}
                                     {isActive && hasSubtasks && (
                                         <div className="w-full mt-4 pl-11 flex flex-col gap-2 border-l-2 border-primary-300 ml-3">
-                                            {option.subtasks.map((sub, idx) => (
+                                            {tasks.subtasks.map((sub, idx) => (
                                                 <div
                                                     key={idx}
                                                     className="flex items-center justify-between text-sm text-primary/80"
@@ -234,7 +240,7 @@ export const TasksCardComponent = ({ data, stageColor, isCompletedFilter, t }) =
                                             ))}
                                             {hasNote && (
                                                 <div className="mt-2 p-3 bg-white/50 rounded-xl text-xs text-quaternary-600 italic">
-                                                    {option.description}
+                                                    {tasks.description}
                                                 </div>
                                             )}
                                         </div>

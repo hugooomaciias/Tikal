@@ -122,7 +122,7 @@ export const CalendarWidget = ({ props, setCustomActions }) => {
         // Creamos los botones que queremos inyectar en el Header
         const actions = (
             <div className="w-full flex items-center justify-end gap-2 mr-3">
-                <div className="flex items-center gap-1 bg-primary-500 rounded-full text-primary p-1">
+                <div className="flex items-center gap-1 bg-primary-100 rounded-full text-primary-500 p-1">
                     <button onClick={() => calendarRef.current.getApi().prev()}>
                         <IconChevronLeft className="h-6 w-6 cursor-pointer" />
                     </button>

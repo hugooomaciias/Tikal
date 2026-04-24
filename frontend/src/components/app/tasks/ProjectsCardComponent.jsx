@@ -3,6 +3,7 @@ import { useState } from "react";
 
 /** Components */
 import { ProjectPopUpComponent } from "./ProjectPopUpComponent.jsx";
+import { ScrollingText } from "../common/ScrollingText";
 
 /** Assets & Icons */
 import {
@@ -15,17 +16,7 @@ import {
     IconCirclePlusFilled,
 } from "@tabler/icons-react";
 
-/**
- * Icon Component Map
- *
- * A static dictionary linking string keys to their corresponding React icon components.
- * Declared outside the component to prevent unnecessary object recreation during re-renders.
- */
-const ICON_MAP = {
-    IconBook: IconBook,
-    IconDatabase: IconDatabase,
-    IconAppWindow: IconAppWindow,
-};
+import { PROJECTS_ICONS } from "../../../constants/projects_icons";
 
 /**
  * Projects Card Component
@@ -63,6 +54,11 @@ export const ProjectsCardComponent = ({ data, selectedId, onSelect, t }) => {
     const filteredProjects = data.filter((project) =>
         project.name.toLowerCase().includes(projectSearchQuery.toLowerCase()),
     );
+
+    const getIconComponent = (iconIdentifier) => {
+        const iconObj = PROJECTS_ICONS.find((i) => i.component.name === iconIdentifier || i.id === iconIdentifier);
+        return iconObj ? iconObj.component : IconBook;
+    };
 
     if (!data || !Array.isArray(data)) return null;
 
@@ -107,43 +103,53 @@ export const ProjectsCardComponent = ({ data, selectedId, onSelect, t }) => {
                 {/* Projects List */}
                 <div className="h-fit w-full flex flex-col gap-3">
                     {filteredProjects.length > 0 ? (
-                        filteredProjects.map((option) => {
-                            const IconComponent = ICON_MAP[option.logo] || IconBook;
-                            const isActive = selectedId === option.id;
-                            const hasNote = option.description && option.description !== "";
+                        filteredProjects.map((project) => {
+                            const IconComponent = getIconComponent(project.logo);
+                            const isActive = selectedId === project.id;
+                            const hasNote = project.description && project.description !== "";
 
                             return (
                                 <div
-                                    key={option.id}
-                                    onClick={() => onSelect(option.id)}
-                                    onDoubleClick={() => setProjectToEdit(option)}
-                                    className={`flex items-center justify-between pr-3 text-primary rounded-full transition-all duration-200 cursor-pointer ${isActive ? "bg-primary-200" : "bg-transparent"}`}
+                                    key={project.id}
+                                    onClick={() => onSelect(project.id)}
+                                    onDoubleClick={() => setProjectToEdit(project)}
+                                    // 1. Padding dinámico:
+                                    // - Si está activo: Fondo verde, padding completo (p-2 pl-4 pr-5) para que el bg envuelva bien.
+                                    // - Si inactivo: Sin fondo, padding horizontal (px-6) para mantener la alineación general.
+                                    className={`w-full flex items-center justify-between text-primary rounded-[2rem] transition-all duration-200 cursor-pointer ${
+                                        isActive ? "bg-primary-200 pr-5" : "bg-transparent"
+                                    }`}
                                 >
-                                    {/* Project Icon & Title */}
+                                    {/* 2. Sección Izquierda + Centro (Icono + Título) */}
+                                    {/* Usamos flex-1 y min-w-0 para que esta sección empuje a la nota hacia la derecha */}
                                     <div
-                                        className={`flex items-center ${isActive ? "" : "gap-4"} transition-all duration-300`}
+                                        className={`flex-1 min-w-0 flex items-center ${isActive ? "" : "gap-3"} transition-all duration-300`}
                                     >
-                                        <div className={`h-fit w-fit bg-primary-200 p-3 rounded-full`}>
+                                        <div className="h-fit w-fit bg-primary-200 p-3 rounded-full shrink-0">
                                             <IconComponent className="h-7 w-7" />
                                         </div>
 
-                                        <span
-                                            className={`text-xl ${isActive ? "" : "text-quaternary-700"} leading-none`}
+                                        <div
+                                            className={`min-w-0 w-full overflow-hidden flex flex-col items-start text-xl ${
+                                                isActive ? "text-primary" : "text-quaternary-700"
+                                            } leading-none`}
                                         >
-                                            {option.name}
-                                        </span>
+                                            <ScrollingText text={project.name} />
+                                        </div>
                                     </div>
 
-                                    {/* Project Note Tooltip (if exists) */}
+                                    {/* 3. Sección Derecha (Icono Nota Tooltip) */}
+                                    {/* Le damos un margin-left (ml-3) para asegurar que NUNCA se pegue al texto, por muy largo que sea */}
                                     {hasNote && (
-                                        <div className="relative group flex items-center justify-center">
+                                        <div className="relative group flex items-center justify-center shrink-0 ml-3">
                                             <IconNote
-                                                className={`h-5 w-5 transition-colors duration-200 ${isActive ? "text-primary" : "text-quaternary-700 hover:text-quaternary-900"}`}
+                                                className={`h-5 w-5 transition-colors duration-200 ${
+                                                    isActive ? "text-primary" : "text-quaternary-700"
+                                                }`}
                                             />
 
                                             <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 hidden w-48 p-2 text-sm font-medium text-primary bg-quaternary-700 rounded-lg shadow-lg group-hover:block z-50 pointer-events-none">
-                                                {option.description}
-
+                                                {project.description}
                                                 <div className="absolute left-1/2 -translate-x-1/2 top-full w-0 h-0 border-x-8 border-x-transparent border-t-8 border-t-quaternary-700"></div>
                                             </div>
                                         </div>

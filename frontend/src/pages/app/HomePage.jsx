@@ -124,21 +124,13 @@ export const HomePage = () => {
 
                     const widgetData = allWidgetsData[item.i];
 
-                    // --- LÓGICA DE SUBTÍTULOS DINÁMICOS ---
-                    let dynamicSubtitle = "";
-                    if (item.i === "taskWidget") {
-                        dynamicSubtitle = `${widgetData?.globalProgressPercentage || 0}%`;
-                    } else if (item.i === "weeklyProgressWidget") {
-                        dynamicSubtitle = widgetData?.startDate + " - " + widgetData?.endDate;
-                    }
-
                     return {
                         id: item.i,
                         // Nota: He corregido el orden x/y para que coincida con el estándar de RGL
-                        grid: { x: item.y, y: item.x, w: item.w, h: item.h },
+                        grid: { x: item.x, y: item.y, w: item.w, h: item.h },
                         config: {
                             title: configBase.titleKey.includes(".") ? t(configBase.titleKey) : configBase.titleKey,
-                            subtitle: dynamicSubtitle,
+                            subtitle: widgetData?.subtitle,
                             bgColor: configBase.bgColor,
                             textColor: configBase.textColor,
                             actions: configBase.actions ?? true,
@@ -238,7 +230,7 @@ export const HomePage = () => {
                         onLayoutChange={handleLayoutChange}
                     >
                         {widgets.map((widget) => (
-                            <div key={widget.id} data-grid={widget.grid} className="relative group">
+                            <div key={widget.id} data-grid={widget.grid} className="relative group h-full">
                                 {isEditing && (
                                     <button
                                         onMouseDown={(e) => e.stopPropagation()}
@@ -249,6 +241,8 @@ export const HomePage = () => {
                                         <IconCircleXFilled className="w-full h-full text-tertiary-200/70 hover:text-tertiary-200" />
                                     </button>
                                 )}
+
+                                {isEditing && <div className="absolute inset-0 z-40 cursor-move rounded-3xl" />}
 
                                 {/* Render the correct widget component based on the 'type' property */}
                                 <BaseWidget

@@ -38,7 +38,7 @@ export const ComparisonWidget = ({ props, setCustomActions }) => {
 
     useEffect(() => {
         // Creamos los botones que queremos inyectar en el Header
-        const actions = <TabsComponent widget="Comparison" t={t} />;
+        const actions = <TabsComponent widget="Comparison" props={props} t={t} />;
 
         // Se los pasamos al padre si la función existe
         if (setCustomActions) {

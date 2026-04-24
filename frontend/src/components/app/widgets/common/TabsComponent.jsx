@@ -22,7 +22,7 @@ import { IconTarget, IconCoin } from "@tabler/icons-react";
  * @param {Function} props.t - The i18n translation function.
  * @returns {JSX.Element} The rendered tabs component.
  */
-export const TabsComponent = ({ widget, t }) => {
+export const TabsComponent = ({ widget, props = [], value, onChange, t }) => {
     /**
      * Tab Type Identifiers
      *
@@ -56,13 +56,24 @@ export const TabsComponent = ({ widget, t }) => {
      * Retrieves the currently active tab value directly from the parent's form data
      * to determine which side the animated slider should highlight.
      */
-    const [currentValue, setCurrentValue] = useState(firstTabType);
+    const [internalValue, setInternalValue] = useState(firstTabType);
+    const currentValue = value !== undefined ? value : internalValue;
+
+    const handleTabClick = (tabValue) => {
+        if (value === undefined) {
+            setInternalValue(tabValue); // Usamos el estado interno si no hay prop
+        }
+
+        if (onChange) {
+            onChange(tabValue); // Le avisamos al padre (el gráfico) del cambio
+        }
+    };
 
     const renderFirstTabContent = () => {
         if (widget === "Calendar") return t("widgets.calendar.tabs.event");
         if (widget === "Task") return t("widgets.tasks.tabs.day");
         if (widget === "EffectivenessX") return t("widgets.effectiveness_chart.tabs.axisX.weekly");
-        if (widget === "Comparison") return "20-26";
+        if (widget === "Comparison") return props.week;
         return (
             <div className="flex items-center gap-1.5 justify-center">
                 <IconTarget className="h-4 w-4" stroke={2.5} />
@@ -75,7 +86,7 @@ export const TabsComponent = ({ widget, t }) => {
         if (widget === "Calendar") return t("widgets.calendar.tabs.project");
         if (widget === "Task") return t("widgets.tasks.tabs.project");
         if (widget === "EffectivenessX") return t("widgets.effectiveness_chart.tabs.axisX.monthly");
-        if (widget === "Comparison") return "ABR";
+        if (widget === "Comparison") return props.month;
         return (
             <div className="flex items-center gap-1.5 justify-center">
                 <IconCoin className="h-4 w-4" stroke={2.5} />
@@ -94,7 +105,7 @@ export const TabsComponent = ({ widget, t }) => {
             {/* Left / First Tab Button */}
             <button
                 type="button"
-                onClick={() => setCurrentValue(firstTabType)}
+                onClick={() => handleTabClick(firstTabType)}
                 className="relative z-10 flex-1 py-1.5 px-2 text-sm text-primary-500 font-semibold transition-colors duration-300"
             >
                 {renderFirstTabContent()}
@@ -103,7 +114,7 @@ export const TabsComponent = ({ widget, t }) => {
             {/* Right / Second Tab Button */}
             <button
                 type="button"
-                onClick={() => setCurrentValue(secondTabType)}
+                onClick={() => handleTabClick(secondTabType)}
                 className="relative z-10 flex-1 py-1.5 px-2 text-sm text-primary-500 font-semibold transition-colors duration-300"
             >
                 {renderSecondTabContent()}

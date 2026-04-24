@@ -136,7 +136,7 @@ export const StatisticsPage = () => {
 
                     return {
                         id: item.i,
-                        grid: { x: item.y, y: item.x, w: item.w, h: item.h },
+                        grid: { x: item.x, y: item.y, w: item.w, h: item.h },
                         config: {
                             title: configBase.titleKey.includes(".") ? t(configBase.titleKey) : configBase.titleKey,
                             subtitle: widgetData?.subtitle,
@@ -242,7 +242,7 @@ export const StatisticsPage = () => {
                         onLayoutChange={handleLayoutChange}
                     >
                         {widgets.map((widget) => (
-                            <div key={widget.id} data-grid={widget.grid} className="relative group">
+                            <div key={widget.id} data-grid={widget.grid} className="relative group h-full">
                                 {isEditing && (
                                     <button
                                         onMouseDown={(e) => e.stopPropagation()}
@@ -253,6 +253,8 @@ export const StatisticsPage = () => {
                                         <IconCircleXFilled className="w-full h-full text-tertiary-200/70 hover:text-tertiary-200" />
                                     </button>
                                 )}
+
+                                {isEditing && <div className="absolute inset-0 z-40 cursor-move rounded-3xl" />}
 
                                 {/* Render the correct widget component based on the 'type' property */}
                                 <BaseWidget
