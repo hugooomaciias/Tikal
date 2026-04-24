@@ -43,7 +43,7 @@ public class SolarChartWidgetData implements WidgetData {
         private Integer sliceId;
         private String sliceName;
         private Double percentage;
-        private Integer minutesDedicated;
+        private String timeDedicated;
         private String logoOrColour;
     }
 }

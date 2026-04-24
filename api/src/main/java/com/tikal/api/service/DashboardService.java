@@ -12,6 +12,7 @@ import com.tikal.api.model.entity.*;
 import com.tikal.api.model.entity.enumerated.TimeRangeSetting;
 import com.tikal.api.model.entity.metadata.LayoutsDashboardMetadata;
 import com.tikal.api.repository.*;
+import com.tikal.api.utils.DateUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -241,8 +242,7 @@ public class DashboardService {
         LocalDateTime endOfToday = LocalDate.now().atTime(LocalTime.MAX);
         Integer todayMinutesWrapper = timeLogRepository.getTotalMinutesBetweenDates(userId, startOfToday, endOfToday);
         int todayMinutes = todayMinutesWrapper != null ? todayMinutesWrapper : 0;
-        int todayHours = todayMinutes / 60;
-        todayMinutes = todayMinutes % 60;
+        String hoursAndMins = DateUtils.formatMinutes(todayMinutes);
 
         // 3. Proyectos (Ajusta la llamada a tu repositorio de proyectos)
         Integer totalProjects = projectRepository.countByUserOwnerId(userId);
@@ -256,7 +256,7 @@ public class DashboardService {
                         .build(),
                 WorkspaceSyncDTO.HeaderInformation.builder()
                         .title("Tiempo hoy")
-                        .value(todayHours + " h " + todayMinutes + " m")
+                        .value(hoursAndMins)
                         .logo("IconClockHour3Filled")
                         .custom("")
                         .build(),
@@ -281,8 +281,7 @@ public class DashboardService {
         // 1. Total Hours Register
         Integer totalHistoricalMinutes = timeLogRepository.getHistoricalTotalMinutes(userId);
         int totalMins = (totalHistoricalMinutes != null ? totalHistoricalMinutes : 0);
-        int totalHours = totalMins / 60;
-        totalMins = totalHours % 60;
+        String hoursAndMins = DateUtils.formatMinutes(totalMins);
 
         // 2. Global effectiveness
         Integer effectiveness = statisticsService.globalEffectiveness(userId, TimeRangeSetting.GLOBAL);
@@ -293,7 +292,7 @@ public class DashboardService {
         return List.of(
                 WorkspaceSyncDTO.HeaderInformation.builder()
                         .title("Horas registradas")
-                        .value(totalHours + " h " + totalMins + " m")
+                        .value(hoursAndMins)
                         .logo("IconClockHour3Filled")
                         .custom("")
                         .build(),

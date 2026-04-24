@@ -31,11 +31,11 @@ public class TimeLog {
 
     /* --- Target time for focusing on a Task --- */
     @Column(name = "target_time")
-    private Integer targetTime; 
+    private Integer targetTime;
 
     /* --- If the Time_Log is in temple mode, this attribute has to be 'True' --- */
     @Column(name = "is_temple_mode", columnDefinition = "TINYINT(1) DEFAULT 0")
-    private Boolean isTempleMode = false; 
+    private Boolean isTempleMode = false;
 
     /* --- Description of the activity carried out during the focused time --- */
     @Column(name = "activity_description")
@@ -43,7 +43,7 @@ public class TimeLog {
 
     /* --- User relation ==> Many time logs can be recorded by the same User --- */
     @ManyToOne(optional = false)
-    @JoinColumn(name = "user_id", nullable = false) 
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
     /* --- Project relation ==> Many time logs can be recorded to the same Project --- */
@@ -58,6 +58,22 @@ public class TimeLog {
 
     /* --- Task relation ==> Many time logs can be recorded to the same Task --- */
     @ManyToOne(optional = true)
-    @JoinColumn(name = "task_id") 
+    @JoinColumn(name = "task_id")
     private Task task;
+
+    /**
+     * Calculates the total minutes between initDateTime and endDateTime
+     * @return number of minutes, or 0 if endDateTime is null or before initDateTime
+     */
+    public long getMinutes() {
+        if (initDateTime == null || endDateTime == null) {
+            return 0L;
+        }
+
+        if (endDateTime.isBefore(initDateTime)) {
+            return 0L; // Invalid case: end time is before start time
+        }
+
+        return java.time.Duration.between(initDateTime, endDateTime).toMinutes();
+    }
 }

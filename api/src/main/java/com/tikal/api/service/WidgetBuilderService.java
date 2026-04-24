@@ -154,6 +154,7 @@ public class WidgetBuilderService {
         percentage = Math.round(percentage * 10.0) / 10.0;
         return TempleModeWidgetData.builder()
                 .rank(user.getCurrentRank().getId())
+                .rankTitle(user.getCurrentRank().getAwardedTitle())
                 .rankPercentage(percentage)
                 .colour(userRank.getColour())
                 .logo(userRank.getBadgeImageUrl())
@@ -171,8 +172,8 @@ public class WidgetBuilderService {
         //}
 
         // NOTE: To avoid overloading the system, we should ideally create a method that retrieves the
-        // pending and completed tasks from the last 10 days.
-        LocalDateTime daysAgo = LocalDateTime.now().minusDays(10);
+        // pending and completed tasks from the last 4 days.
+        LocalDateTime daysAgo = LocalDateTime.now().minusDays(4);
         List<Task> sampleTasks = taskRepository.findMainTasksPendingOrCompletedSince(userId, daysAgo);
 
         List<Task> pendingTasks = sampleTasks.stream().filter(t -> !t.getIsCompleted()).collect(Collectors.toList());
@@ -197,7 +198,7 @@ public class WidgetBuilderService {
         boolean hasMoreCards = false;
 
         if (mode == TaskWidgetData.GroupingMode.BY_DEADLINE) {
-            cards = buildCardsByDeadline(pendingTasks, subtasksCountMap);
+            cards = buildCardsByDeadline(sampleTasks, subtasksCountMap);
             if (cards.size() > 3) {
                 hasMoreCards = true;
             }
@@ -227,6 +228,7 @@ public class WidgetBuilderService {
         LocalDateTime inOneWeek = endOfToday.plusDays(10);
 
         // Subtitle formatter
+        String subtitlePrevious = "Antes del " + DateUtils.formatSingleDate(today);
         String subtitleToday = DateUtils.formatSingleDate(today);
         String subtitleThreeDays = DateUtils.formatDateRange(today.plusDays(1), today.plusDays(3), false);
         String subtitleOneWeek = DateUtils.formatDateRange(today.plusDays(4), today.plusDays(10), false);
@@ -246,7 +248,7 @@ public class WidgetBuilderService {
 
             TaskWidgetData.TaskItem item = mapToTaskItem(task, subtasksCountMap);
 
-            if (task.getDeadline().isBefore(endOfToday)){
+            if (task.getDeadline().isBefore(today.atStartOfDay())){
                 previousTasks.add(item);
                 if (task.getIsCompleted()) {
                     previousTasksCompleted++;
@@ -270,7 +272,7 @@ public class WidgetBuilderService {
         }
 
         return List.of(
-                buildCard("Atrasadas", subtitleToday, previousTasks, previousTasksCompleted, previousTasks.size()),
+                buildCard("Atrasadas", subtitlePrevious, previousTasks, previousTasksCompleted, previousTasks.size()),
                 buildCard("Para hoy", subtitleToday, todayTasks, todayTasksCompleted, todayTasks.size()),
                 buildCard("Próximos 3 días", subtitleThreeDays, threeDaysTasks, threeDaysTasksCompleted, threeDaysTasks.size()),
                 buildCard("Próxima semana", subtitleOneWeek, nextWeekTasks, nextWeekTasksCompleted, nextWeekTasks.size())
@@ -533,11 +535,13 @@ public class WidgetBuilderService {
                 percentage = Math.round(percentage * 10.0) / 10.0;
             }
 
+            String timeDedicated = DateUtils.formatMinutesForSolarChart(minutes);
+
             slices.add(SolarChartWidgetData.SolarChartSlice.builder()
                     .sliceId(id)
                     .sliceName(name)
                     .logoOrColour(logoOrColor)
-                    .minutesDedicated(minutes)
+                    .timeDedicated(timeDedicated)
                     .percentage(percentage)
                     .build());
         }
@@ -807,11 +811,6 @@ public class WidgetBuilderService {
         }
         completionPercentage = Math.round(completionPercentage * 10.0) / 10.0;
 
-        Locale locale = new Locale("es", "ES");
-        DateTimeFormatter dayFormatter = DateTimeFormatter.ofPattern("d");
-        DateTimeFormatter monthFormatter = DateTimeFormatter.ofPattern("MMM", locale);
-        DateTimeFormatter yearFormatter = DateTimeFormatter.ofPattern("yyyy");
-
         // 2. Construcción del subtítulo dinámico
         String subtitle = DateUtils.formatDateRange(startDate, endDate, true);
 
@@ -907,7 +906,7 @@ public class WidgetBuilderService {
         int diffMins = currMins - prevMins;
         ComparisonWidgetData.Trend trend = determineTrend(diffMins);
 
-        String displayValue = formatTimeDiff(diffMins);
+        String displayValue = DateUtils.formatMinutes(diffMins);
 
         return ComparisonWidgetData.ComparisonMetric.builder()
                 .id(id)
@@ -935,19 +934,6 @@ public class WidgetBuilderService {
         if (difference > 0) return ComparisonWidgetData.Trend.POSITIVE;
         if (difference < 0) return ComparisonWidgetData.Trend.NEGATIVE;
         return ComparisonWidgetData.Trend.NEUTRAL;
-    }
-
-    private String formatTimeDiff(int totalMinutesDiff) {
-        int absMins = Math.abs(totalMinutesDiff);
-        int hours = absMins / 60;
-        int mins = absMins % 60;
-
-        StringBuilder sb = new StringBuilder();
-
-        if (hours > 0 || mins == 0) sb.append(hours).append(" hrs");
-        if (mins > 0 && hours == 0) sb.append(mins).append(" min");
-
-        return sb.toString().trim();
     }
 
     private int getSafeInt(Integer value) {

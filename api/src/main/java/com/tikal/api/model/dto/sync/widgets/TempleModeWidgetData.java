@@ -7,6 +7,7 @@ import lombok.Data;
 @Builder
 public class TempleModeWidgetData implements WidgetData {
     private Integer rank;
+    private String rankTitle;
     private Double rankPercentage;
     private String colour;
     private String logo;
