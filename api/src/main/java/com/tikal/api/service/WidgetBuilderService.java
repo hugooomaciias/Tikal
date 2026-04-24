@@ -197,7 +197,7 @@ public class WidgetBuilderService {
         boolean hasMoreCards = false;
 
         if (mode == TaskWidgetData.GroupingMode.BY_DEADLINE) {
-            cards = buildCardsByDeadline(pendingTasks, subtasksCountMap);
+            cards = buildCardsByDeadline(sampleTasks, subtasksCountMap);
             if (cards.size() > 3) {
                 hasMoreCards = true;
             }
@@ -247,7 +247,7 @@ public class WidgetBuilderService {
 
             TaskWidgetData.TaskItem item = mapToTaskItem(task, subtasksCountMap);
 
-            if (task.getDeadline().isBefore(endOfToday)){
+            if (task.getDeadline().isBefore(today.atStartOfDay())){
                 previousTasks.add(item);
                 if (task.getIsCompleted()) {
                     previousTasksCompleted++;
@@ -534,11 +534,13 @@ public class WidgetBuilderService {
                 percentage = Math.round(percentage * 10.0) / 10.0;
             }
 
+            String timeDedicated = DateUtils.formatMinutesForSolarChart(minutes);
+
             slices.add(SolarChartWidgetData.SolarChartSlice.builder()
                     .sliceId(id)
                     .sliceName(name)
                     .logoOrColour(logoOrColor)
-                    .minutesDedicated(minutes)
+                    .timeDedicated(timeDedicated)
                     .percentage(percentage)
                     .build());
         }
@@ -808,11 +810,6 @@ public class WidgetBuilderService {
         }
         completionPercentage = Math.round(completionPercentage * 10.0) / 10.0;
 
-        Locale locale = new Locale("es", "ES");
-        DateTimeFormatter dayFormatter = DateTimeFormatter.ofPattern("d");
-        DateTimeFormatter monthFormatter = DateTimeFormatter.ofPattern("MMM", locale);
-        DateTimeFormatter yearFormatter = DateTimeFormatter.ofPattern("yyyy");
-
         // 2. Construcción del subtítulo dinámico
         String subtitle = DateUtils.formatDateRange(startDate, endDate, true);
 
@@ -908,7 +905,7 @@ public class WidgetBuilderService {
         int diffMins = currMins - prevMins;
         ComparisonWidgetData.Trend trend = determineTrend(diffMins);
 
-        String displayValue = formatTimeDiff(diffMins);
+        String displayValue = DateUtils.formatMinutes(diffMins);
 
         return ComparisonWidgetData.ComparisonMetric.builder()
                 .id(id)
@@ -936,19 +933,6 @@ public class WidgetBuilderService {
         if (difference > 0) return ComparisonWidgetData.Trend.POSITIVE;
         if (difference < 0) return ComparisonWidgetData.Trend.NEGATIVE;
         return ComparisonWidgetData.Trend.NEUTRAL;
-    }
-
-    private String formatTimeDiff(int totalMinutesDiff) {
-        int absMins = Math.abs(totalMinutesDiff);
-        int hours = absMins / 60;
-        int mins = absMins % 60;
-
-        StringBuilder sb = new StringBuilder();
-
-        if (hours > 0 || mins == 0) sb.append(hours).append(" hrs");
-        if (mins > 0 && hours == 0) sb.append(mins).append(" min");
-
-        return sb.toString().trim();
     }
 
     private int getSafeInt(Integer value) {
