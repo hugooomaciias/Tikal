@@ -1,11 +1,11 @@
 /** React & Third-Party Libraries */
-import { useState } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-/** Components */
+/** Contexts, Hooks & Services */
 import { useAuth } from "../../hooks/useAuth";
 
-/** Assets & Icons */
+/** Icons */
 import { IconUser, IconMail, IconEyeClosed, IconEye, IconInfoCircleFilled } from "@tabler/icons-react";
 
 /**
@@ -17,15 +17,19 @@ import { IconUser, IconMail, IconEyeClosed, IconEye, IconInfoCircleFilled } from
  *
  * @component
  * @param {Object} props - The component props.
- * @param {string} props.apiError - The current API error state from the parent.
+ * @param {string|null} props.apiError - The current API error state from the parent.
  * @param {Function} props.setApiError - Function to set or clear API errors.
  * @param {string} props.plan - The selected tier plan for registration.
  * @param {Function} props.t - Translation function from i18next.
  * @returns {JSX.Element} The interactive registration form.
  */
 export const FormRegisterComponent = ({ apiError, setApiError, plan, t }) => {
+    // --- 1. Hooks & Contexts ---
+
     /**
-     * Hook for programmatic navigation.
+     * Navigation Hook
+     *
+     * Provides programmatic navigation to redirect the user after a successful registration.
      */
     const navigate = useNavigate();
 
@@ -35,6 +39,8 @@ export const FormRegisterComponent = ({ apiError, setApiError, plan, t }) => {
      * Provides the 'register' function to communicate with the Auth Context/API.
      */
     const { register } = useAuth();
+
+    // --- 2. Local State ---
 
     /**
      * Form Input State
@@ -49,20 +55,27 @@ export const FormRegisterComponent = ({ apiError, setApiError, plan, t }) => {
     });
 
     /**
-     * Password Visibility States
+     * Password Visibility State
      *
-     * Toggles the input type between "password" and "text" for the
-     * respective fields.
+     * Toggles the input type between "password" and "text" for the main password field.
      */
     const [showPassword, setShowPassword] = useState(false);
+
+    /**
+     * Confirm Password Visibility State
+     *
+     * Toggles the input type between "password" and "text" for the confirmation field.
+     */
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
     /**
      * Validation Error State
      *
-     * Stores specific error messages for each field to be displayed in the UI.
+     * Stores localized error messages for each field to be displayed in the UI.
      */
     const [errors, setErrors] = useState({});
+
+    // --- 5. Event Handlers & Functions ---
 
     /**
      * Form Validation Logic
@@ -70,6 +83,7 @@ export const FormRegisterComponent = ({ apiError, setApiError, plan, t }) => {
      * Performs client-side checks for required fields and validates non-empty
      * fields, the email format using a strict Regex pattern, strong password and
      * password confirmation matching.
+     *
      * @returns {boolean} True if the form is valid, false otherwise.
      */
     const validateForm = () => {
@@ -121,8 +135,8 @@ export const FormRegisterComponent = ({ apiError, setApiError, plan, t }) => {
      * Input Change Handler
      *
      * Updates the specific field in the state object while preserving other
-     * values. Also, if a field has an error, typing in it immediately
-     * clears the visual error state to improve UX.
+     * values. Also clears the visual error state and API errors to improve UX.
+     *
      * @param {React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>} e - The change event.
      */
     const handleChange = (e) => {
@@ -150,6 +164,7 @@ export const FormRegisterComponent = ({ apiError, setApiError, plan, t }) => {
      *
      * Orchestrates the submission process: prevents default behavior, runs
      * validation, and registers user via AuthContext if successful.
+     *
      * @param {React.FormEvent} e - The form submission event.
      */
     const handleSubmit = async (e) => {
@@ -174,10 +189,11 @@ export const FormRegisterComponent = ({ apiError, setApiError, plan, t }) => {
     };
 
     /**
-     * Dynamic Input Styling Helper
+     * Input Style Generator
      *
      * Computes the Tailwind classes for input fields based on their current
      * validation state.
+     *
      * @param {string} fieldName - The name of the field to check.
      * @returns {string} The computed CSS class string.
      */
@@ -191,10 +207,11 @@ export const FormRegisterComponent = ({ apiError, setApiError, plan, t }) => {
     };
 
     /**
-     * Dynamic Icon Styling Helper
+     * Icon Style Generator
      *
      * Determines the color and styling of input icons based on error presence
      * or user interaction.
+     *
      * @param {string} fieldName - The name of the field associated with the icon.
      * @returns {string} The computed CSS class string for the icon container.
      */
@@ -220,6 +237,8 @@ export const FormRegisterComponent = ({ apiError, setApiError, plan, t }) => {
 
         return `${baseClass} ${errors[fieldName] !== undefined && errors[fieldName] !== blankErrorText ? errorClass : normalClass}`;
     };
+
+    // --- 6. Render ---
 
     return (
         <form onSubmit={handleSubmit} className="flex flex-col items-center justify-center gap-6" noValidate>

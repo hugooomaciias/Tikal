@@ -1,11 +1,11 @@
 /** React & Third-Party Libraries */
-import { useState } from "react";
+import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 
-/** Components */
+/** Contexts, Hooks & Services */
 import { useAuth } from "../../hooks/useAuth";
 
-/** Assets & Icons */
+/** Icons */
 import { IconUser, IconEyeClosed, IconEye, IconInfoCircleFilled } from "@tabler/icons-react";
 
 /**
@@ -17,14 +17,18 @@ import { IconUser, IconEyeClosed, IconEye, IconInfoCircleFilled } from "@tabler/
  *
  * @component
  * @param {Object} props - The component props.
- * @param {string} props.apiError - The current API error state from the parent.
+ * @param {string|null} props.apiError - The current API error state from the parent.
  * @param {Function} props.setApiError - Function to set or clear API errors.
  * @param {Function} props.t - Translation function from i18next.
  * @returns {JSX.Element} The interactive login form.
  */
 export const FormLoginComponent = ({ apiError, setApiError, t }) => {
+    // --- 1. Hooks & Contexts ---
+
     /**
-     * Hook for programmatic navigation.
+     * Navigation Hook
+     *
+     * Provides programmatic navigation to redirect the user after a successful login.
      */
     const navigate = useNavigate();
 
@@ -35,10 +39,12 @@ export const FormLoginComponent = ({ apiError, setApiError, t }) => {
      */
     const { login } = useAuth();
 
+    // --- 2. Local State ---
+
     /**
      * Form Input State
      *
-     * Manages the controlled inputs for the login form.
+     * Manages the controlled inputs for the login form (username/email and password).
      */
     const [formData, setFormData] = useState({
         username: "",
@@ -48,23 +54,25 @@ export const FormLoginComponent = ({ apiError, setApiError, t }) => {
     /**
      * Password Visibility State
      *
-     * Toggles the input type between "password" and "text" for the
-     * respective fields.
+     * Toggles the input type between "password" and "text" for the password field.
      */
     const [showPassword, setShowPassword] = useState(false);
 
     /**
      * Validation Error State
      *
-     * Stores specific error messages for each field to be displayed in the UI.
+     * Stores localized error messages for each field to be displayed in the UI.
      */
     const [errors, setErrors] = useState({});
+
+    // --- 5. Event Handlers & Functions ---
 
     /**
      * Form Validation Logic
      *
      * Performs client-side checks for required fields and validates the email
-     * format using a strict Regex pattern and strong password.
+     * format (if provided) and strong password requirements.
+     *
      * @returns {boolean} True if the form is valid, false otherwise.
      */
     const validateForm = () => {
@@ -102,7 +110,8 @@ export const FormLoginComponent = ({ apiError, setApiError, t }) => {
      * Input Change Handler
      *
      * Updates the specific field in the state object while preserving
-     * other values. Also clears visual errors.
+     * other values. Also clears visual errors and API errors to improve UX.
+     *
      * @param {React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>} e - The change event.
      */
     const handleChange = (e) => {
@@ -129,8 +138,8 @@ export const FormLoginComponent = ({ apiError, setApiError, t }) => {
      * Form Submission Handler
      *
      * Orchestrates the submission process: prevents default behavior, runs
-     * validation, and attempts to authenticate the user. On success, it navigates
-     * the user to the loading screen. On error, it displays the specific backend error message.
+     * validation, and attempts to authenticate the user. On success, navigates
+     * to the loading screen.
      *
      * @param {React.FormEvent} e - The form submission event.
      */
@@ -154,10 +163,11 @@ export const FormLoginComponent = ({ apiError, setApiError, t }) => {
     };
 
     /**
-     * Dynamic Input Styling Helper
+     * Input Style Generator
      *
      * Computes the Tailwind classes for input fields based on their current
      * validation state.
+     *
      * @param {string} fieldName - The name of the field to check.
      * @returns {string} The computed CSS class string.
      */
@@ -171,10 +181,11 @@ export const FormLoginComponent = ({ apiError, setApiError, t }) => {
     };
 
     /**
-     * Dynamic Icon Styling Helper
+     * Icon Style Generator
      *
      * Determines the color and styling of input icons based on error presence
      * or user interaction.
+     *
      * @param {string} fieldName - The name of the field associated with the icon.
      * @returns {string} The computed CSS class string for the icon container.
      */
@@ -194,6 +205,8 @@ export const FormLoginComponent = ({ apiError, setApiError, t }) => {
 
         return `${baseClass} ${errors[fieldName] !== undefined && errors[fieldName] !== t("auth.login.form.errors.password") ? errorClass : normalClass}`;
     };
+
+    // --- 6. Render ---
 
     return (
         <form onSubmit={handleSubmit} className="flex flex-col items-center justify-center gap-6" noValidate>

@@ -1,11 +1,11 @@
 /** React & Third-Party Libraries */
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 
-/** Components */
+/** Contexts, Hooks & Services */
 import { useAuth } from "../../hooks/useAuth";
 
-/** Assets & Icons */
+/** Icons */
 import { IconMail, IconEyeClosed, IconEye, IconInfoCircleFilled } from "@tabler/icons-react";
 
 /**
@@ -17,39 +17,50 @@ import { IconMail, IconEyeClosed, IconEye, IconInfoCircleFilled } from "@tabler/
  *
  * @component
  * @param {Object} props - The component props.
- * @param {string} props.apiError - The current API error state from the parent.
+ * @param {string|null} props.apiError - The current API error state from the parent.
  * @param {Function} props.setApiError - Function to set or clear API errors.
  * @param {Function} props.t - Translation function from i18next.
  * @returns {JSX.Element} The interactive password recovery form.
  */
 export const FormForgotPasswordComponent = ({ apiError, setApiError, t }) => {
+    // --- 1. Hooks & Contexts ---
+
     /**
-     * Hook for programmatic navigation.
+     * Navigation Hook
+     *
+     * Provides programmatic navigation to redirect the user after a successful
+     * password reset.
      */
     const navigate = useNavigate();
 
     /**
-     * Hook for URL search parameters.
+     * Search Parameters Hook
+     *
+     * Parses the URL parameters to auto-populate the email field if provided
+     * in the recovery link.
      */
     const [searchParams] = useSearchParams();
 
     /**
      * Authentication Hook
      *
-     * Provides different functions to communicate with the Auth Context/API.
+     * Provides API interaction methods for the forgot password flow (trigger email,
+     * verify OTP, and reset password).
      */
     const { forgotPassword, verifyOTP, resetPassword } = useAuth();
+
+    // --- 2. Local State ---
 
     /**
      * Form Input State
      *
-     * Manages the controlled inputs for the password recovery form.
+     * Tracks the controlled inputs for the email, OTP, and new password fields.
      */
     const [formData, setFormData] = useState({
         email: "",
         otpCode: "",
         password: "",
-        confirmPassword: "",
+        passwordConf: "",
     });
 
     /**
@@ -63,20 +74,27 @@ export const FormForgotPasswordComponent = ({ apiError, setApiError, t }) => {
     const [step, setStep] = useState(1);
 
     /**
-     * Password Visibility States
+     * Password Visibility State
      *
-     * Toggles the input type between "password" and "text" for the
-     * respective fields.
+     * Toggles the input type between "password" and "text" for the main password field.
      */
     const [showPassword, setShowPassword] = useState(false);
+
+    /**
+     * Confirm Password Visibility State
+     *
+     * Toggles the input type between "password" and "text" for the confirmation field.
+     */
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
     /**
      * Validation Error State
      *
-     * Stores specific error messages for each field to be displayed in the UI.
+     * Stores localized error messages for each field to be displayed in the UI.
      */
     const [errors, setErrors] = useState({});
+
+    // --- 4. Side Effects ---
 
     /**
      * URL Parameter Initialization Effect
@@ -98,11 +116,14 @@ export const FormForgotPasswordComponent = ({ apiError, setApiError, t }) => {
         }
     }, [searchParams]);
 
+    // --- 5. Event Handlers & Functions ---
+
     /**
      * Form Validation Logic
      *
-     * Performs client-side checks based on the current step.
-     * @returns {boolean} True if the form step is valid, false otherwise.
+     * Performs client-side validation checks based on the current step.
+     *
+     * @returns {boolean} True if the current form step is valid, false otherwise.
      */
     const validateForm = () => {
         let tempErrors = {};
@@ -157,8 +178,10 @@ export const FormForgotPasswordComponent = ({ apiError, setApiError, t }) => {
     };
 
     /**
-     * Handles typing in the individual OTP inputs.
-     * Overwrites the character at the specified index and auto-focuses the next input.
+     * OTP Change Handler
+     *
+     * Handles typing in the individual OTP inputs. Overwrites the character
+     * at the specified index and auto-focuses the next input.
      *
      * @param {number} index - The index of the OTP input field (0-5).
      * @param {React.ChangeEvent<HTMLInputElement>} e - The change event.
@@ -185,6 +208,8 @@ export const FormForgotPasswordComponent = ({ apiError, setApiError, t }) => {
     };
 
     /**
+     * OTP Keydown Handler
+     *
      * Handles keyboard navigation and backspace inside the OTP inputs.
      * Allows seamless moving backward and forward between the separate boxes.
      *
@@ -210,8 +235,10 @@ export const FormForgotPasswordComponent = ({ apiError, setApiError, t }) => {
     };
 
     /**
-     * Handles pasting logic for the OTP inputs.
-     * Extracts exactly 6 valid characters and populates the separated inputs automatically.
+     * OTP Paste Handler
+     *
+     * Handles pasting logic for the OTP inputs. Extracts exactly 6 valid
+     * characters and populates the separated inputs automatically.
      *
      * @param {React.ClipboardEvent<HTMLDivElement>} e - The paste event.
      */
@@ -240,12 +267,9 @@ export const FormForgotPasswordComponent = ({ apiError, setApiError, t }) => {
     };
 
     /**
-     * OTP Resend Handler
+     * Resend OTP Handler
      *
      * Invokes the forgotPassword flow again to generate and mail a new code securely.
-     *
-     * @async
-     * @function
      */
     const handleResendOTP = async () => {
         try {
@@ -259,10 +283,9 @@ export const FormForgotPasswordComponent = ({ apiError, setApiError, t }) => {
      * Input Change Handler
      *
      * Updates the specific field in the state object while preserving other
-     * values. Also, if a field has an error, typing in it immediately clears
-     * the visual error state to improve UX.
+     * values. Also clears the specific field error and API error to improve UX.
      *
-     * @param {React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>} e - The change event.
+     * @param {React.ChangeEvent<HTMLInputElement>} e - The change event.
      */
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -285,10 +308,11 @@ export const FormForgotPasswordComponent = ({ apiError, setApiError, t }) => {
     };
 
     /**
-     * Form Submission Handler
+     * Form Submit Handler
      *
      * Orchestrates the submission process: prevents default behavior, runs
      * validation, advances the steps, and redirects the user if successful.
+     *
      * @param {React.FormEvent} e - The form submission event.
      */
     const handleSubmit = async (e) => {
@@ -316,7 +340,7 @@ export const FormForgotPasswordComponent = ({ apiError, setApiError, t }) => {
                     await resetPassword(formData);
 
                     navigate("/login");
-                    setFormData({ email: "", otpCode: "", password: "", confirmPassword: "" });
+                    setFormData({ email: "", otpCode: "", password: "", passwordConf: "" });
                 } catch (error) {
                     console.error("Error al restablecer la contraseña:", error);
                     setApiError(error.message || "Error al restablecer la contraseña. Por favor, inténtalo de nuevo.");
@@ -326,10 +350,11 @@ export const FormForgotPasswordComponent = ({ apiError, setApiError, t }) => {
     };
 
     /**
-     * Dynamic Input Styling Helper
+     * Input Style Generator
      *
      * Computes the Tailwind classes for input fields based on their current
      * validation state.
+     *
      * @param {string} fieldName - The name of the field to check.
      * @returns {string} The computed CSS class string.
      */
@@ -343,10 +368,11 @@ export const FormForgotPasswordComponent = ({ apiError, setApiError, t }) => {
     };
 
     /**
-     * Dynamic Icon Styling Helper
+     * Icon Style Generator
      *
      * Determines the color and styling of input icons based on error presence
      * or user interaction.
+     *
      * @param {string} fieldName - The name of the field associated with the icon.
      * @returns {string} The computed CSS class string for the icon container.
      */
@@ -371,9 +397,11 @@ export const FormForgotPasswordComponent = ({ apiError, setApiError, t }) => {
         return `${baseClass} ${errors[fieldName] !== undefined && errors[fieldName] !== errorText ? errorClass : normalClass}`;
     };
 
+    // --- 6. Render ---
+
     return (
         <form onSubmit={handleSubmit} className="flex flex-col items-center justify-center gap-6" noValidate>
-            {/* Email Input */}
+            {/* Email Input Field */}
             <div className="relative w-full">
                 <input
                     type="text"
@@ -402,9 +430,10 @@ export const FormForgotPasswordComponent = ({ apiError, setApiError, t }) => {
                 )}
             </div>
 
-            {/* OTP Input */}
+            {/* OTP Verification Step */}
             {step >= 2 && (
                 <div className="relative w-full">
+                    {/* OTP Header */}
                     <div className="flex justify-between items-center w-full">
                         <label className="text-primary-500 font-semibold text-sm">
                             {t("auth.forgot_password.form.otp_code")}
@@ -419,10 +448,12 @@ export const FormForgotPasswordComponent = ({ apiError, setApiError, t }) => {
                         </button>
                     </div>
 
+                    {/* OTP Input Grid */}
                     <div
                         className="flex items-center justify-between gap-2 md:gap-4 w-full mt-1"
                         onPaste={handleOtpPaste}
                     >
+                        {/* First Half of OTP */}
                         {[0, 1, 2].map((index) => {
                             const val = (formData.otpCode || "").padEnd(6, " ")[index];
                             return (
@@ -441,6 +472,7 @@ export const FormForgotPasswordComponent = ({ apiError, setApiError, t }) => {
 
                         <span className="text-2xl font-bold text-primary-300">-</span>
 
+                        {/* Second Half of OTP */}
                         {[3, 4, 5].map((index) => {
                             const val = (formData.otpCode || "").padEnd(6, " ")[index];
                             return (
@@ -465,10 +497,10 @@ export const FormForgotPasswordComponent = ({ apiError, setApiError, t }) => {
                 </div>
             )}
 
-            {/* Passwords Input */}
+            {/* New Password Creation Step */}
             {step >= 3 && (
                 <>
-                    {/* Password Input */}
+                    {/* New Password Input */}
                     <div className="relative w-full">
                         <input
                             type={showPassword ? "text" : "password"}
@@ -492,6 +524,7 @@ export const FormForgotPasswordComponent = ({ apiError, setApiError, t }) => {
                             <div className="absolute -bottom-5 left-0 flex items-center gap-1 text-tertiary-200 text-xs font-semibold">
                                 <span>{errors.password}</span>
 
+                                {/* Password Requirements Tooltip */}
                                 {errors.password === t("auth.forgot_password.form.errors.incorrect_password") && (
                                     <div className="relative group flex items-center">
                                         <IconInfoCircleFilled className="h-4 w-4 cursor-pointer" />
@@ -515,7 +548,7 @@ export const FormForgotPasswordComponent = ({ apiError, setApiError, t }) => {
                         )}
                     </div>
 
-                    {/* Confirm Password Input */}
+                    {/* Confirm New Password Input */}
                     <div className="relative w-full">
                         <input
                             type={showConfirmPassword ? "text" : "password"}
@@ -546,6 +579,7 @@ export const FormForgotPasswordComponent = ({ apiError, setApiError, t }) => {
                             <div className="absolute -bottom-5 left-0 flex items-center gap-1 text-tertiary-200 text-xs font-semibold">
                                 <span>{errors.passwordConf}</span>
 
+                                {/* Password Requirements Tooltip */}
                                 {errors.passwordConf === t("auth.forgot_password.form.errors.incorrect_password") && (
                                     <div className="relative group flex items-center">
                                         <IconInfoCircleFilled className="h-4 w-4" />
@@ -571,7 +605,7 @@ export const FormForgotPasswordComponent = ({ apiError, setApiError, t }) => {
                 </>
             )}
 
-            {/* Submit Button */}
+            {/* Form Submit Action Button */}
             <button type="submit" className="btn md:w-1/2 btn-primary mt-6">
                 <span>
                     {step === 1

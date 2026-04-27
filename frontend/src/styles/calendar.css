@@ -149,3 +149,43 @@
 .calendar-widget-container .fc-scroller {
     @apply custom-scrollbar;
 }
+
+/* Contenedor principal de la lista */
+.main-calendar-theme .fc-list {
+    @apply rounded-[1rem] overflow-hidden !important;
+}
+
+/* Encabezado del día (Fila que separa los días) */
+.main-calendar-theme .fc .fc-list-day-cushion {
+    @apply bg-primary-100 px-4 py-3 !important;
+}
+
+/* Texto del día (Izquierda: Lunes) */
+.main-calendar-theme .fc .fc-list-day-text {
+    @apply no-underline text-sm font-bold text-primary-600 uppercase tracking-wide !important;
+}
+
+/* Texto lateral/fecha (Derecha: 25 abr.) */
+.main-calendar-theme .fc .fc-list-day-side-text {
+    @apply no-underline text-sm font-medium text-primary-600 !important;
+}
+
+/* Celdas de la lista (quitar bordes internos excesivos) */
+.main-calendar-theme .fc-list-event td {
+    @apply border-none py-3 !important;
+}
+
+/* El punto de color del evento */
+.main-calendar-theme .fc-list-event-dot {
+    @apply border-[6px] rounded-full !important;
+}
+
+/* Texto del título del evento */
+.main-calendar-theme .fc-list-event-title {
+    @apply text-sm font-bold text-quaternary-700 !important;
+}
+
+/* Texto de la hora del evento */
+.main-calendar-theme .fc-list-event-time {
+    @apply text-sm font-medium text-quaternary-500 !important;
+}

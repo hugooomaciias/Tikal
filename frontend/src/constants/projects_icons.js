@@ -1,4 +1,4 @@
-/** Assets & Icons */
+/** Icons */
 import {
     IconBook,
     IconNote,

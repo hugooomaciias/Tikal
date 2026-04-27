@@ -1,19 +1,21 @@
 /** React & Third-Party Libraries */
+import React, { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
-import { useState, useEffect } from "react";
-
-/** Language */
 import { useTranslation } from "react-i18next";
 
-/** Components */
+/** Components & Layouts */
 import { HeroComponent } from "../../components/landing/HeroComponent.jsx";
 import { PlansComponent } from "../../components/landing/PlansComponent.jsx";
 import { ContactComponent } from "../../components/landing/contact/ContactComponent.jsx";
 import { FooterComponent } from "../../components/landing/FooterComponent.jsx";
 import { LanguagePickerComponent } from "../../components/landing/LanguagePickerComponent.jsx";
 
-/** Assets & Icons */
-import { IconMenu2Filled, IconX, IconWorld } from "@tabler/icons-react";
+/** Icons */
+import { IconMenu2Filled, IconX } from "@tabler/icons-react";
+
+/** Assets, Utils & Constants */
+import logoHeaderDark from "../../assets/tikal/logoHeader_1.svg";
+import logoHeaderLight from "../../assets/tikal/logoHeader_2.svg";
 
 /**
  * Main Landing Page Component
@@ -26,10 +28,11 @@ import { IconMenu2Filled, IconX, IconWorld } from "@tabler/icons-react";
  * and responsive mobile menu states.
  *
  * @component
- * @returns {JSX.Element} The rendered Landing Page with sticky navigation and
- * content sections.
+ * @returns {JSX.Element} The rendered Landing Page with sticky navigation and content sections.
  */
 export const LandingPage = () => {
+    // --- 1. Hooks & Contexts ---
+
     /**
      * Translation Hook
      *
@@ -39,15 +42,19 @@ export const LandingPage = () => {
     const { t } = useTranslation("landing");
 
     /**
-     * Access the current URL hash to handle deep linking.
+     * Location Hook
+     *
+     * Accesses the current URL hash to handle deep linking.
      */
     const { hash } = useLocation();
 
+    // --- 2. Local State ---
+
     /**
-     * State to track the ID of the section currently visible in the viewport.
-     * Drives the conditional styling of the navbar and logo.
+     * Active Section State
      *
-     * @type {[string, function]}
+     * Tracks the ID of the section currently visible in the viewport.
+     * Drives the conditional styling of the navbar and logo.
      */
     const [activeSection, setActiveSection] = useState("home");
 
@@ -56,33 +63,93 @@ export const LandingPage = () => {
      *
      * Tracks the current section bounding rect to conditionally style the floating
      * language picker button.
-     * @type {[string, function]}
      */
     const [langSection, setLangSection] = useState("home");
 
     /**
-     * State to toggle the mobile navigation menu visibility.
-     * True indicates the dropdown is open, False indicates it's closed.
+     * Mobile Menu Toggle State
      *
-     * @type {[boolean, function]}
+     * Tracks the mobile navigation menu visibility.
+     * True indicates the dropdown is open, False indicates it's closed.
      */
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
     /**
-     * State to track if the page has been scrolled from the top.
-     * Used to conditionally apply a shadow to the navbar for better separation.
+     * Window Scroll State
      *
-     * @type {[boolean, function]}
+     * Tracks if the page has been scrolled from the top.
+     * Used to conditionally apply a shadow to the navbar for better separation.
      */
     const [isScrolled, setIsScrolled] = useState(false);
 
+    // --- 3. Derived Variables ---
+
     /**
-     * Effect to handle Hash Navigation Handler
+     * Section Theming Configuration
+     *
+     * Configuration object mapping each section ID to its corresponding
+     * assets and color palette to ensure visual contrast as the user scrolls.
+     */
+    const section_config = {
+        home: {
+            bg: "bg-primary-50",
+            logo: logoHeaderDark,
+            navbarBg: "bg-primary-300",
+            mobileText: "text-primary",
+            langBtnBg: "bg-primary-300",
+            langBtnText: "text-primary",
+        },
+        plans: {
+            bg: "bg-primary-300",
+            logo: logoHeaderLight,
+            navbarBg: "bg-primary-50",
+            mobileText: "text-primary-300",
+            langBtnBg: "bg-primary-50",
+            langBtnText: "text-primary-300",
+        },
+        contact: {
+            bg: "bg-primary-50",
+            logo: logoHeaderDark,
+            navbarBg: "bg-primary-300",
+            mobileText: "text-primary",
+            langBtnBg: "bg-primary-300",
+            langBtnText: "text-primary",
+        },
+        footer: {
+            langBtnBg: "bg-primary-50",
+            langBtnText: "text-primary-300",
+        },
+    };
+
+    /**
+     * Active Section Theme Map
+     *
+     * Extracts the specific CSS background, logo, and text color configurations
+     * for the currently active viewport section.
+     */
+    const {
+        bg: bgColour,
+        logo: logoColour,
+        navbarBg: navbarBgColour,
+        mobileText: mobileTextColour,
+    } = section_config[activeSection] || section_config.home;
+
+    /**
+     * Language Button Theme Map
+     *
+     * Extracts the specific CSS background and text color configurations
+     * for the floating language selector based on its scroll position.
+     */
+    const { langBtnBg: langBtnBgColour, langBtnText: langBtnTextColour } =
+        section_config[langSection] || section_config.home;
+
+    // --- 4. Side Effects ---
+
+    /**
+     * Hash Navigation Scroll Effect
      *
      * Detects if the user navigated here via a specific anchor. It performs a
-     * smooth scroll to the target element after the component mounts.
-     *
-     * @function
+     * smooth scroll to the target DOM element after the component mounts.
      */
     useEffect(() => {
         if (hash) {
@@ -96,12 +163,11 @@ export const LandingPage = () => {
     }, [hash]);
 
     /**
-     * Effect to manage the window scroll event subscription
+     * Scroll Spy Registration Effect
      *
-     * It calculates which section is currently crossing the top threshold of the
-     * screen to update the 'activeSection' state.
-     *
-     * @function
+     * Manages the window scroll event subscription. It calculates which section
+     * is currently crossing the top threshold of the screen to synchronously
+     * update the active UI states.
      */
     useEffect(() => {
         // Scroll event handler
@@ -168,11 +234,15 @@ export const LandingPage = () => {
         return () => window.removeEventListener("scroll", handleScroll);
     }, [isMobileMenuOpen]);
 
+    // --- 5. Event Handlers & Functions ---
+
     /**
-     * Helper function to define navigation link classes dynamically.
-     * Ensures visual consistency between active and inactive states.
+     * Active Link Stylizer
      *
-     * @function
+     * Helper function to define navigation link classes dynamically.
+     * Ensures visual consistency between active and inactive states based on
+     * the scroll spy results.
+     *
      * @param {string} sectionName - The ID of the target section.
      * @returns {string} Tailwind CSS class string.
      */
@@ -188,56 +258,11 @@ export const LandingPage = () => {
         return classes + (isActive ? "text-primary-50" : "text-primary-600");
     };
 
-    /**
-     * Configuration object for section-specific visual styles.
-     * Maps each section ID to its corresponding assets and color palette.
-     *
-     * @constant {Object}
-     */
-    const section_config = {
-        home: {
-            bg: "bg-primary-50",
-            logo: "/public/logoHeader_1.svg",
-            navbarBg: "bg-primary-300",
-            mobileText: "text-primary",
-            langBtnBg: "bg-primary-300",
-            langBtnText: "text-primary",
-        },
-        plans: {
-            bg: "bg-primary-300",
-            logo: "/public/logoHeader_2.svg",
-            navbarBg: "bg-primary-50",
-            mobileText: "text-primary-300",
-            langBtnBg: "bg-primary-50",
-            langBtnText: "text-primary-300",
-        },
-        contact: {
-            bg: "bg-primary-50",
-            logo: "/public/logoHeader_1.svg",
-            navbarBg: "bg-primary-300",
-            mobileText: "text-primary",
-            langBtnBg: "bg-primary-300",
-            langBtnText: "text-primary",
-        },
-        footer: {
-            langBtnBg: "bg-primary-50",
-            langBtnText: "text-primary-300",
-        },
-    };
-
-    // Destructure configuration based on the current active section
-    const {
-        bg: bgColour,
-        logo: logoColour,
-        navbarBg: navbarBgColour,
-        mobileText: mobileTextColour,
-    } = section_config[activeSection];
-
-    const { langBtnBg: langBtnBgColour, langBtnText: langBtnTextColour } = section_config[langSection];
+    // --- 6. Render ---
 
     return (
         <div className="w-full relative">
-            {/* Fixed header */}
+            {/* Sticky Top Header Container */}
             <header
                 className={`fixed z-50 top-0 right-0 left-0
 								${bgColour} bg-opacity-80 backdrop-blur-md transition-all duration-500 ease-in-out 
@@ -245,12 +270,12 @@ export const LandingPage = () => {
 								`}
             >
                 <div className="w-full mx-auto flex items-center justify-between p-8">
-                    {/* Brand Logo */}
+                    {/* Brand Logo & Home Anchor */}
                     <a href="#home" className={getLinkClasses("home")}>
                         <img className="h-10 w-auto" src={`${logoColour}`} alt="Logo Tikal" />
                     </a>
 
-                    {/* Desktop navigation */}
+                    {/* Desktop Navigation Links */}
                     <nav
                         className={`hidden h-10 md:flex items-center gap-6
 									${navbarBgColour} font-semibold px-4 rounded-full transition-colors duration-500 shadow-md
@@ -267,7 +292,7 @@ export const LandingPage = () => {
                         </a>
                     </nav>
 
-                    {/* Mobile navigation */}
+                    {/* Mobile Menu Toggle Button */}
                     <div className="md:hidden z-50">
                         <button
                             className={`p-2 rounded-full focus:outline-none transition-colors
@@ -285,7 +310,7 @@ export const LandingPage = () => {
                     </div>
                 </div>
 
-                {/* Mobile dropdown menu */}
+                {/* Mobile Dropdown Menu Container */}
                 <div
                     className={`absolute md:hidden z-40 top-0 left-0 w-full flex flex-col items-center justify-center gap-6
 								${navbarBgColour} pt-24 pb-8 shadow-2xl transition-all duration-300 ease-in-out 
@@ -304,7 +329,7 @@ export const LandingPage = () => {
                 </div>
             </header>
 
-            {/* Sections Rendering */}
+            {/* Application Main Content Sections */}
             <section id="home" className=" min-h-screen flex items-center justify-center bg-primary-50">
                 <HeroComponent />
             </section>
@@ -321,6 +346,7 @@ export const LandingPage = () => {
                 <FooterComponent />
             </section>
 
+            {/* Floating Global Language Picker */}
             <LanguagePickerComponent
                 btnBgColour={langBtnBgColour}
                 btnTextColour={langBtnTextColour}

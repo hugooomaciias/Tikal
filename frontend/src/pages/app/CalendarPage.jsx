@@ -1,22 +1,23 @@
 /** React & Third-Party Libraries */
-import { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useMemo } from "react";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
+import listPlugin from "@fullcalendar/list";
 import esLocale from "@fullcalendar/core/locales/es";
 import enLocale from "@fullcalendar/core/locales/en-gb";
 import DatePicker from "react-datepicker";
+import { useTranslation } from "react-i18next";
 
-/** Components */
+/** Contexts, Hooks & Services */
+import { useMain } from "../../hooks/useMain.js";
+import i18n from "../../i18n.js";
+
+/** Components & Layouts */
 import { NavbarComponent } from "../../components/app/common/NavbarComponent.jsx";
 import { HeaderComponent } from "../../components/app/common/HeaderComponent.jsx";
 import { EventPopUpComponent } from "../../components/app/calendar/EventPopUpComponent.jsx";
-import { useMain } from "../../hooks/useMain.js";
-
-/** Language */
-import { useTranslation } from "react-i18next";
-import i18n from "../../i18n.js";
 
 /**
  * Calendar Page Component
@@ -27,9 +28,16 @@ import i18n from "../../i18n.js";
  * It also includes an agenda view of upcoming events.
  *
  * @component
- * @returns {JSX.Element} The rendered calendar page.
+ * @returns {JSX.Element|null} The rendered calendar page or null if data is loading.
  */
 export const CalendarPage = () => {
+    // --- 1. Hooks & Contexts ---
+
+    /**
+     * Main Context Hook
+     *
+     * Extracts global application state regarding user profile data and loading status.
+     */
     const { getUserProfile, isDataLoaded } = useMain();
 
     /**
@@ -43,14 +51,16 @@ export const CalendarPage = () => {
     /**
      * Calendar Reference
      *
-     * Reference to the FullCalendar instance to programmatically control navigation
+     * Reference to the FullCalendar instance to programmatically control navigation.
      */
     const calendarRef = useRef(null);
+
+    // --- 2. Local State ---
 
     /**
      * Current View State
      *
-     * Tracks the active view mode of the FullCalendar.
+     * Tracks the active view mode of the FullCalendar (e.g., dayGridMonth, timeGridWeek).
      */
     const [currentView, setCurrentView] = useState("dayGridMonth");
 
@@ -71,12 +81,28 @@ export const CalendarPage = () => {
     const [eventToEdit, setEventToEdit] = useState(null);
 
     /**
-     * Events Data State
+     * Mobile Layout State
      *
-     * Stores the local array of calendar events. Populated initially with mock data
-     * using dynamic dates relative to today.
+     * Tracks whether the viewport falls within mobile dimensions to toggle calendar modes.
      */
-    const [events, setEvents] = useState(() => {
+    const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+
+    // --- 3. Derived Variables ---
+
+    /**
+     * User Profile Data
+     *
+     * Fetches the current user's profile configuration from the global context.
+     */
+    const userProfile = getUserProfile();
+
+    /**
+     * Events Data List
+     *
+     * Stores the local array of calendar events. Generated as a memoized constant to
+     * prevent re-calculating the mock dataset on every render.
+     */
+    const events = useMemo(() => {
         /**
          * Get Offset Date Helper
          *
@@ -187,25 +213,96 @@ export const CalendarPage = () => {
                 borderColor: "#10b981",
             },
         ];
-    });
+    }, []);
 
     /**
-     * Highlight Date Derivation
+     * Highlight Date List
      *
-     * In 'timeGridWeek' mode, computes a collection of 7 dates representing the visually selected
-     * week. This highlights the equivalent week chunk in the DatePicker.
+     * Computes a collection of 7 dates representing the visually selected
+     * week in 'timeGridWeek' mode. Highlights the equivalent week block in the DatePicker.
      */
-    const highlightDates = [];
-    if (currentView === "timeGridWeek") {
-        const startOfWeek = new Date(selectedDate);
-        startOfWeek.setDate(selectedDate.getDate() - selectedDate.getDay() + (selectedDate.getDay() === 0 ? -6 : 1));
+    const highlightDates = useMemo(() => {
+        const dates = [];
+        if (currentView === "timeGridWeek") {
+            const startOfWeek = new Date(selectedDate);
+            startOfWeek.setDate(
+                selectedDate.getDate() - selectedDate.getDay() + (selectedDate.getDay() === 0 ? -6 : 1),
+            );
 
-        for (let i = 0; i < 7; i++) {
-            const day = new Date(startOfWeek);
-            day.setDate(startOfWeek.getDate() + i);
-            highlightDates.push(day);
+            for (let i = 0; i < 7; i++) {
+                const day = new Date(startOfWeek);
+                day.setDate(startOfWeek.getDate() + i);
+                dates.push(day);
+            }
         }
-    }
+        return dates;
+    }, [currentView, selectedDate]);
+
+    /**
+     * Event Color Map
+     *
+     * Pre-calculates an index dictionary mapping specific chronological dates directly
+     * to arrays of associated event hex color codes for rendering custom status dots.
+     */
+    const eventsColorMap = useMemo(() => {
+        const colorMap = {};
+        events.forEach((event) => {
+            const dateStr = event.start.split("T")[0];
+            if (!colorMap[dateStr]) colorMap[dateStr] = [];
+            colorMap[dateStr].push(event.backgroundColor);
+        });
+        return colorMap;
+    }, [events]);
+
+    /**
+     * Grouped Upcoming Events
+     *
+     * Filters event data to include only future/same-day events, then reduces them
+     * into a grouped dictionary organized generically by date string for the agenda view.
+     */
+    const groupedEvents = useMemo(() => {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const upcoming = events.filter((event) => new Date(event.start.split("T")[0]) >= today);
+        const grouped = upcoming.reduce((acc, event) => {
+            const dateStr = event.start.split("T")[0];
+            if (!acc[dateStr]) acc[dateStr] = [];
+            acc[dateStr].push(event);
+            return acc;
+        }, {});
+        return Object.keys(grouped)
+            .sort()
+            .map((dateStr) => ({ date: dateStr, events: grouped[dateStr] }));
+    }, [events]);
+
+    // --- 4. Side Effects ---
+
+    /**
+     * Window Resize Listener
+     *
+     * Detects window width changes to toggle responsive layouts. Forces the calendar
+     * into 'listWeek' mode on mobile screens, and reverts to 'dayGridMonth' on larger displays.
+     */
+    useEffect(() => {
+        const handleResize = () => {
+            const mobile = window.innerWidth < 768;
+            setIsMobile((prevMobile) => {
+                // Cambiar la vista programáticamente si es necesario
+                if (calendarRef.current) {
+                    const api = calendarRef.current.getApi();
+                    if (mobile && !prevMobile) {
+                        api.changeView("listWeek");
+                    } else if (!mobile && prevMobile) {
+                        api.changeView("dayGridMonth");
+                    }
+                }
+                return mobile;
+            });
+        };
+
+        window.addEventListener("resize", handleResize);
+        return () => window.removeEventListener("resize", handleResize);
+    }, []);
 
     /**
      * View Synchronization Effect
@@ -217,7 +314,9 @@ export const CalendarPage = () => {
         if (calendarRef.current) {
             calendarRef.current.getApi().gotoDate(selectedDate);
         }
-    }, [currentView]);
+    }, [currentView, selectedDate]);
+
+    // --- 5. Event Handlers & Functions ---
 
     /**
      * Grid Date Click Handler
@@ -229,9 +328,7 @@ export const CalendarPage = () => {
      */
     const handleDateClick = (arg) => {
         const clickedDate = arg.date;
-
         setSelectedDate(clickedDate);
-
         setEventToEdit("new");
     };
 
@@ -264,6 +361,7 @@ export const CalendarPage = () => {
      *
      * Triggered when a user clicks on a date in the DatePicker sidebar.
      * Updates the local selectedDate state and commands the FullCalendar to jump there.
+     *
      * @param {Date} date - The newly selected date from the DatePicker.
      */
     const handleMiniCalendarChange = (date) => {
@@ -279,6 +377,7 @@ export const CalendarPage = () => {
      * Triggered automatically whenever the FullCalendar's visible date range changes
      * (e.g., clicking Next/Prev month). It recalculates the active `selectedDate`
      * intelligently based on visibility.
+     *
      * @param {Object} dateInfo - FullCalendar's event object containing the current view context.
      */
     const handleDatesSet = (dateInfo) => {
@@ -317,6 +416,7 @@ export const CalendarPage = () => {
      * Month Change Navigation Handler
      *
      * Invoked specifically when sliding the central caret arrows inside the mini DatePicker header.
+     *
      * @param {Date} newDate - Internal date token dictating the target rendered block view boundary.
      */
     const handleMonthChange = (newDate) => {
@@ -336,32 +436,11 @@ export const CalendarPage = () => {
     };
 
     /**
-     * Group Upcoming Events Helper
-     *
-     * Filters event data to include only future/same-day events, then reduces them
-     * into a grouped dictionary organized generically by date string.
-     * @returns {Array} List of grouped event objects.
-     */
-    const getUpcomingEventsGrouped = () => {
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        const upcoming = events.filter((event) => new Date(event.start.split("T")[0]) >= today);
-        const grouped = upcoming.reduce((acc, event) => {
-            const dateStr = event.start.split("T")[0];
-            if (!acc[dateStr]) acc[dateStr] = [];
-            acc[dateStr].push(event);
-            return acc;
-        }, {});
-        return Object.keys(grouped)
-            .sort()
-            .map((dateStr) => ({ date: dateStr, events: grouped[dateStr] }));
-    };
-
-    /**
      * Formatting Agenda Date Helper
      *
      * Formats the raw "YYYY-MM-DD" event group keys into user-friendly localized strings,
      * including exact labels for "Hoy" (Today) and "Mañana" (Tomorrow).
+     *
      * @param {string} dateString - The raw parsed "YYYY-MM-DD" dictionary key.
      * @returns {string} Fully semantic relative context token for the agenda label.
      */
@@ -377,27 +456,11 @@ export const CalendarPage = () => {
     };
 
     /**
-     * Extract Event Color Mapping
-     *
-     * Pre-calculates an index dictionary mapping specific chronological dates directly
-     * to arrays of associated event hex color codes. Used to render custom status dots.
-     * @returns {Object} Hashmap grouping color strings sequentially against date identifiers.
-     */
-    const getEventsColorsByDate = () => {
-        const colorMap = {};
-        events.forEach((event) => {
-            const dateStr = event.start.split("T")[0];
-            if (!colorMap[dateStr]) colorMap[dateStr] = [];
-            colorMap[dateStr].push(event.backgroundColor);
-        });
-        return colorMap;
-    };
-
-    /**
      * Custom DatePicker Day Content Renderer
      *
      * Overrides React-DatePicker's native day wrapper to embed custom event indicator
      * "dots" fetched strictly from our local event color-map index.
+     *
      * @param {number} dayOfMonth - Numeric date string.
      * @param {Date} date - Raw date object.
      * @returns {JSX.Element} Composed DOM node mapping days to precise chronological dot queues.
@@ -440,21 +503,19 @@ export const CalendarPage = () => {
         );
     };
 
-    const groupedEvents = getUpcomingEventsGrouped();
-    const eventsColorMap = getEventsColorsByDate();
-    const userProfile = getUserProfile();
+    // --- 6. Render ---
 
     if (!isDataLoaded) {
         return null;
     }
 
     return (
-        <div className="flex flex-col md:flex-row h-[100dvh] bg-gradient-to-t from-primary-30 to-primary-300 md:bg-gradient-to-r md:from-primary-50 md:to-primary-300 p-2 md:p-4 gap-4 md:gap-8 overflow-hidden">
+        <div className="flex flex-col md:flex-row h-[100dvh] bg-gradient-to-t md:bg-gradient-to-r from-primary-50 to-primary-300 p-2 md:p-4 gap-4 md:gap-8 overflow-hidden">
             {/* Global Primary Navigation Menu Layer */}
             <NavbarComponent data={userProfile} />
 
             {/* Viewport Action Context Section */}
-            <section className="flex-1 flex flex-col gap-6 w-full h-full overflow-hidden">
+            <section className="flex-1 flex flex-col gap-4 md:gap-6 w-full h-full overflow-hidden">
                 {/* Universal Interactive Core Headers */}
                 <HeaderComponent
                     page={t("calendar_title")}
@@ -466,7 +527,7 @@ export const CalendarPage = () => {
                 {/* Central Data Wrapper Container */}
                 <div className="flex-1 flex gap-2 overflow-hidden">
                     {/* Collapsible Meta Tracking Sidebar Overlay Area */}
-                    <aside className="hidden shrink-0 w-1/4 lg:flex flex-col bg-primary rounded-[2.5rem] shadow-sm p-6 overflow-hidden">
+                    <aside className="hidden shrink-0 w-1/4 md:flex flex-col bg-primary rounded-[2.5rem] shadow-sm p-6 overflow-hidden">
                         {/* Left Side Fast Nav DatePicker */}
                         <div className="alt-datepicker-theme w-full flex justify-center shrink-0">
                             <DatePicker
@@ -542,14 +603,37 @@ export const CalendarPage = () => {
                         <div className="main-calendar-theme w-full h-full relative">
                             <FullCalendar
                                 ref={calendarRef}
-                                plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
-                                initialView="dayGridMonth"
+                                plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin, listPlugin]}
+                                initialView={isMobile ? "listWeek" : "dayGridMonth"}
                                 locale={i18n.language === "es" ? esLocale : enLocale}
-                                headerToolbar={{
-                                    left: "prev,next today",
-                                    center: "title",
-                                    right: "dayGridMonth,timeGridWeek,timeGridDay",
+                                headerToolbar={
+                                    isMobile
+                                        ? {
+                                              left: "prev,next",
+                                              center: "title",
+                                              right: "listDay,listWeek",
+                                          }
+                                        : {
+                                              left: "prev,next today",
+                                              center: "title",
+                                              right: "dayGridMonth,timeGridWeek,timeGridDay",
+                                          }
+                                }
+                                buttonText={{
+                                    listDay: isMobile ? "Día" : "",
+                                    listWeek: isMobile ? "Semana" : "",
                                 }}
+                                listDayFormat={
+                                    isMobile
+                                        ? { weekday: "long" } // "Lunes"
+                                        : { weekday: "long" } // "Lunes"
+                                }
+                                listDaySideFormat={
+                                    isMobile
+                                        ? { day: "numeric", month: "short" } // "25 abr."
+                                        : { day: "numeric", month: "long", year: "numeric" } // "25 de abril de 2026"
+                                }
+                                titleFormat={isMobile ? { year: "numeric" } : ""}
                                 events={events}
                                 slotLabelFormat={{
                                     hour: "numeric",

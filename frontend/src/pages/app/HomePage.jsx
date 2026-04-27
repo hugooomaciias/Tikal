@@ -1,8 +1,12 @@
 /** React & Third-Party Libraries */
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { Responsive, WidthProvider } from "react-grid-layout/legacy";
+import { useTranslation } from "react-i18next";
 
-/** Components */
+/** Contexts, Hooks & Services */
+import { useMain } from "../../hooks/useMain.js";
+
+/** Components & Layouts */
 import { NavbarComponent } from "../../components/app/common/NavbarComponent.jsx";
 import { Header } from "../../components/app/home/Header.jsx";
 import { BaseWidget } from "../../components/app/widgets/common/BaseWidget.jsx";
@@ -12,17 +16,13 @@ import { TempleModeWidget } from "../../components/app/widgets/home/TempleModeWi
 import { TaskWidget } from "../../components/app/widgets/home/TaskWidget.jsx";
 import { AIWidget } from "../../components/app/widgets/home/AIWidget.jsx";
 import { CalendarWidget } from "../../components/app/widgets/home/CalendarWidget.jsx";
-import { useMain } from "../../hooks/useMain.js";
 
-/** Assets & Icons */
+/** Icons */
 import { IconCircleXFilled } from "@tabler/icons-react";
 
-/** Styles */
+/** Assets, Utils & Constants */
 import "react-grid-layout/css/styles.css";
 import "react-resizable/css/styles.css";
-
-/** Language */
-import { useTranslation } from "react-i18next";
 
 /** Setup & Configurations */
 const ResponsiveGridLayout = WidthProvider(Responsive);
@@ -77,9 +77,17 @@ const WIDGET_CONFIG = {
  * moved, and removed.
  *
  * @component
- * @returns {JSX.Element} The rendered dashboard layout.
+ * @returns {JSX.Element|null} The rendered dashboard layout, or null if data is not loaded.
  */
 export const HomePage = () => {
+    // --- 1. Hooks & Contexts ---
+
+    /**
+     * Main Context Hook
+     *
+     * Extracts global application state regarding user profile data, layout coordinates,
+     * widget datasets, and loading status.
+     */
     const { getUserProfile, getHomeGeneralInformation, getHomeLayout, getHomeWidgetsData, isDataLoaded } = useMain();
 
     /**
@@ -89,6 +97,8 @@ export const HomePage = () => {
      * namespace to localize header text content dynamically.
      */
     const { t } = useTranslation("app_home");
+
+    // --- 2. Local State ---
 
     /**
      * Edit Mode State
@@ -106,15 +116,43 @@ export const HomePage = () => {
      */
     const [checkChanges, setCheckChanges] = useState(false);
 
+    /**
+     * Dashboard Widgets State
+     *
+     * Maintains the local collection of active widgets, allowing them to be dynamically
+     * repositioned or removed during edit mode.
+     */
     const [widgets, setWidgets] = useState([]);
 
+    // --- 3. Derived Variables ---
+
+    /**
+     * User Profile Data
+     *
+     * Fetches the current user's profile configuration from the global context.
+     */
     const userProfile = getUserProfile();
+
+    /**
+     * General Home Information
+     *
+     * Retrieves the high-level dashboard configuration and metadata from the context.
+     */
     const homeGeneralInformation = getHomeGeneralInformation();
 
+    // --- 4. Side Effects ---
+
+    /**
+     * Widget Data Synchronization Effect
+     *
+     * Hydrates the local `widgets` state with layout and data mappings provided by
+     * the context once the data is fully loaded. Re-runs to translate widget titles
+     * when the language changes.
+     */
     useEffect(() => {
         if (isDataLoaded) {
-            const layout = getHomeLayout(); // El array de {i, x, y, w, h}
-            const allWidgetsData = getHomeWidgetsData(); // El objeto homeWidgetsData
+            const layout = getHomeLayout();
+            const allWidgetsData = getHomeWidgetsData();
 
             const mappedWidgets = layout
                 .map((item) => {
@@ -126,7 +164,6 @@ export const HomePage = () => {
 
                     return {
                         id: item.i,
-                        // Nota: He corregido el orden x/y para que coincida con el estándar de RGL
                         grid: { x: item.x, y: item.y, w: item.w, h: item.h },
                         config: {
                             title: configBase.titleKey.includes(".") ? t(configBase.titleKey) : configBase.titleKey,
@@ -137,7 +174,6 @@ export const HomePage = () => {
                             pageLink: configBase.pageLink,
                             content: {
                                 component: configBase.component,
-                                // Inyectamos TODOS los datos del backend como props para el componente hijo
                                 props: widgetData,
                             },
                         },
@@ -147,11 +183,9 @@ export const HomePage = () => {
 
             setWidgets(mappedWidgets);
         }
-    }, [isDataLoaded, t, getHomeWidgetsData()]);
+    }, [isDataLoaded, t, getHomeWidgetsData, getHomeLayout]);
 
-    if (!isDataLoaded || widgets.length === 0) {
-        return null;
-    }
+    // --- 5. Event Handlers & Functions ---
 
     /**
      * Layout Change Handler
@@ -200,14 +234,20 @@ export const HomePage = () => {
         setWidgets(widgets.filter((widget) => widget.id !== idToRemove));
     };
 
+    // --- 6. Render ---
+
+    if (!isDataLoaded || widgets.length === 0) {
+        return null;
+    }
+
     return (
-        <div className="flex flex-col md:flex-row h-[100dvh] bg-gradient-to-t from-primary-30 to-primary-300 md:bg-gradient-to-r md:from-primary-50 md:to-primary-300 p-2 md:p-4 gap-4 md:gap-8 overflow-hidden">
+        <div className="flex flex-col md:flex-row h-[100dvh] bg-gradient-to-t md:bg-gradient-to-r from-primary-50 to-primary-300 p-2 md:p-4 gap-4 md:gap-8 overflow-hidden">
             {/* Vertical Navbar */}
             <NavbarComponent data={userProfile} />
 
             {/* Main Content Area */}
             <section className="flex-1 flex flex-col gap-6 w-full h-full overflow-hidden">
-                {/* Header */}
+                {/* Header Section */}
                 <Header
                     data={homeGeneralInformation}
                     isEditing={isEditing}
@@ -217,7 +257,7 @@ export const HomePage = () => {
                     t={t}
                 />
 
-                {/* Dashboard Area */}
+                {/* Dashboard Responsive Grid Area */}
                 <div className="flex-1 overflow-y-auto custom-scrollbar">
                     <ResponsiveGridLayout
                         className="layout"
@@ -228,9 +268,12 @@ export const HomePage = () => {
                         isDraggable={isEditing}
                         isResizable={isEditing}
                         onLayoutChange={handleLayoutChange}
+                        margin={[10, 10]}
+                        containerPadding={[9, 9]}
                     >
                         {widgets.map((widget) => (
                             <div key={widget.id} data-grid={widget.grid} className="relative group h-full">
+                                {/* Edit Mode Controls Overlay */}
                                 {isEditing && (
                                     <button
                                         onMouseDown={(e) => e.stopPropagation()}
@@ -242,9 +285,10 @@ export const HomePage = () => {
                                     </button>
                                 )}
 
+                                {/* Drag Handle Overlay */}
                                 {isEditing && <div className="absolute inset-0 z-40 cursor-move rounded-3xl" />}
 
-                                {/* Render the correct widget component based on the 'type' property */}
+                                {/* Dynamic Widget Injection Component */}
                                 <BaseWidget
                                     t={t}
                                     title={widget.config.title}

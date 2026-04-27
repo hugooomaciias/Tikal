@@ -1,25 +1,18 @@
-/** React & Third-Party Libraries */
-import { useState } from "react";
+/** Components & Layouts */
+import { DynamicIslandComponent } from "../common/DynamicIslandComponent";
 
-/** Contexts */
-import { useTimeTracker } from "../../../context/TimeTrackerContext";
-
-/** Assets & Icons */
+/** Icons */
 import {
-    IconLayoutKanban,
-    IconLayoutKanbanFilled,
+    IconListCheckFilled,
     IconPlusFilled,
     IconEditFilled,
     IconSquareRoundedXFilled,
     IconSquareRoundedCheckFilled,
     IconSquareRoundedPlus,
-    IconPlayerPlayFilled,
-    IconPlayerPauseFilled,
-    IconPlayerStopFilled,
 } from "@tabler/icons-react";
 
-/** Constants */
-import { PHASE_COLOURS } from "../../../constants/phase_colours.js";
+/** Assets, Utils & Constants */
+import logoSabidurIA from "../../../assets/ia/sabidurIAIcon.svg";
 
 /**
  * Application Header Component
@@ -38,118 +31,23 @@ import { PHASE_COLOURS } from "../../../constants/phase_colours.js";
  * @returns {JSX.Element} The rendered header component.
  */
 export const HeaderComponent = ({ page, get1, get2, set1, set2, t }) => {
-    const {
-        isActive,
-        secs,
-        activeColorId,
-        projectIcon: ProjectIcon,
-        taskName,
-        toggleTimer,
-        stopTimer,
-        getParsedTime,
-    } = useTimeTracker();
-
-    const [isTrackerExpanded, setIsTrackerExpanded] = useState(false);
-
-    const getIslandColors = () => {
-        if (!activeColorId) return { dark: "#2F6C4B", light: "#BDDDC7" }; // Fallback verde tikal
-
-        const foundColor = PHASE_COLOURS.find((c) => c.id === activeColorId || c.hex === activeColorId);
-
-        if (foundColor) {
-            return { dark: foundColor.hex, light: foundColor.light };
-        }
-
-        // Si el backend envía un Hex que no está en la constante, lo aplicamos directamente
-        return { dark: activeColorId, light: "#F1F8F3" };
-    };
-
-    const { dark: darkColor, light: lightColor } = getIslandColors();
-
-    const { hours, minutes, seconds, hasHours } = getParsedTime(secs);
-    const headerTimeString = hasHours ? `${hours}:${minutes}:${seconds}` : `${minutes}:${seconds}`;
+    // --- 6. Render ---
 
     return (
         <div className="flex items-center justify-between">
             {/* Page Title Wrapper */}
-            <div className="h-full w-fit flex items-center gap-4 rounded-full">
+            <div className="h-full w-fit flex items-center gap-2 md:gap-4 rounded-full">
                 <div className="h-full w-fit bg-primary flex items-center px-5 py-3 rounded-full shadow-md">
                     <h2 className="text-2xl text-primary-600 font-bold">{page}</h2>
                 </div>
 
                 {/* Time Tracker Island */}
-                {(isActive || secs > 0) && (
-                    <div
-                        className={`w-fit flex items-center rounded-full shadow-sm transition-all duration-300 ease-out overflow-hidden p-2 ${
-                            isTrackerExpanded ? "max-w-[400px] px-4" : "max-w-[120px] px-4 cursor-pointer"
-                        }`}
-                        style={{ backgroundColor: darkColor, color: lightColor }}
-                        onMouseEnter={() => setIsTrackerExpanded(true)}
-                        onMouseLeave={() => setIsTrackerExpanded(false)}
-                        onClick={() => setIsTrackerExpanded(true)} // Para móviles
-                    >
-                        {/* Indicador y Tiempo (Siempre visible) */}
-                        <div className="flex items-center justify-center gap-3 min-w-max">
-                            {/* Renderizamos el componente del icono si existe, sino un fallback */}
-                            {ProjectIcon ? (
-                                <ProjectIcon className="w-5 h-5" style={{ color: lightColor }} />
-                            ) : (
-                                <IconPlayerPlayFilled className="w-5 h-5 animate-pulse" style={{ color: lightColor }} />
-                            )}
-                            <span className="font-semibold mt-[1px] tabular-nums leading-none">{headerTimeString}</span>
-                        </div>
-
-                        {/* Contenido Expandido (Nombre + Controles) */}
-                        <div
-                            className={`flex items-center gap-3 transition-opacity duration-300 ${
-                                isTrackerExpanded ? "opacity-100 ml-4 delay-100" : "opacity-0 ml-0 pointer-events-none"
-                            }`}
-                        >
-                            {/* Separador */}
-                            <div className="w-px h-6 bg-secondary opacity-50"></div>
-
-                            {/* Nombre de la tarea real */}
-                            <span className="text-sm font-medium truncate max-w-[120px]">
-                                {taskName || "Sin nombre..."}
-                            </span>
-
-                            {/* Controles Reales */}
-                            <button
-                                type="button"
-                                onClick={(e) => {
-                                    e.stopPropagation(); // Evita que se dispare el onClick del contenedor padre
-                                    toggleTimer();
-                                }}
-                                className="p-1.5 rounded-full transition-transform duration-100 hover:scale-105"
-                                style={{ backgroundColor: lightColor, color: darkColor }}
-                            >
-                                {/* Alternamos icono según estado */}
-                                {isActive ? (
-                                    <IconPlayerPauseFilled className="w-5 h-5" />
-                                ) : (
-                                    <IconPlayerPlayFilled className="w-5 h-5" />
-                                )}
-                            </button>
-                            <button
-                                type="button"
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    stopTimer();
-                                    setIsTrackerExpanded(false); // Colapsamos al detener
-                                }}
-                                className="p-1.5 rounded-full transition-transform duration-100 hover:scale-105 hover:text-red-600"
-                                style={{ backgroundColor: lightColor, color: darkColor }}
-                            >
-                                <IconPlayerStopFilled className="w-5 h-5" />
-                            </button>
-                        </div>
-                    </div>
-                )}
+                <DynamicIslandComponent />
             </div>
 
             {/* Contextual Action Bar */}
-            <div className="h-full w-fit flex items-center gap-4 rounded-full">
-                {/* -------------------- Tasks Action -------------------- */}
+            <div className="h-full w-fit flex items-center gap-2 md:gap-4 rounded-full">
+                {/* Tasks Action */}
                 {page === t("tasks_title") && (
                     <button
                         type="button"
@@ -157,14 +55,14 @@ export const HeaderComponent = ({ page, get1, get2, set1, set2, t }) => {
                         onClick={() => set1(!get1)}
                     >
                         {!get1 ? (
-                            <IconLayoutKanban className="w-8 h-8 text-primary-600" />
+                            <IconListCheckFilled className="w-8 h-8 text-primary-600" />
                         ) : (
-                            <IconLayoutKanbanFilled className="w-8 h-8 text-primary" />
+                            <IconListCheckFilled className="w-8 h-8 text-primary" />
                         )}
                     </button>
                 )}
 
-                {/* ------------------- Calendar Action ------------------ */}
+                {/* Calendar Action */}
                 {page === t("calendar_title") && (
                     <button
                         type="button"
@@ -175,7 +73,7 @@ export const HeaderComponent = ({ page, get1, get2, set1, set2, t }) => {
                     </button>
                 )}
 
-                {/* ------------------ Statistics Action ----------------- */}
+                {/* Statistics Action */}
                 {page === t("statistics_title") && (
                     <button
                         type="button"
@@ -188,8 +86,8 @@ export const HeaderComponent = ({ page, get1, get2, set1, set2, t }) => {
                         {/* Edit Button (Visible when NOT editing) */}
                         <div
                             className={`absolute flex items-center justify-center transition-all duration-300 w-full h-full cursor-pointer
-                                ${!get1 ? "opacity-100 scale-100" : "opacity-0 scale-50 pointer-events-none"}
-                            `}
+                                    ${!get1 ? "opacity-100 scale-100" : "opacity-0 scale-50 pointer-events-none"}
+                                `}
                             onClick={() => {
                                 set1(true);
                                 set2(false);
@@ -201,10 +99,10 @@ export const HeaderComponent = ({ page, get1, get2, set1, set2, t }) => {
                         {/* Action Bar (Visible when Editing) */}
                         <div
                             className={`absolute flex items-center justify-center gap-2 transition-all duration-300 w-full h-full px-2
-                                ${get1 ? "opacity-100 scale-100" : "opacity-0 scale-150 pointer-events-none"}
-                            `}
+                                    ${get1 ? "opacity-100 scale-100" : "opacity-0 scale-150 pointer-events-none"}
+                                `}
                         >
-                            {/* Icono de Cancelar / Guardar */}
+                            {/* Cancel / Save Action Icon */}
                             <div className="cursor-pointer transition-transform" onClick={() => set1(false)}>
                                 {!get2 ? (
                                     <IconSquareRoundedXFilled className="w-8 h-8" />
@@ -221,8 +119,9 @@ export const HeaderComponent = ({ page, get1, get2, set1, set2, t }) => {
                     </button>
                 )}
 
+                {/* SabidurIA Avatar Launcher */}
                 <button className="h-fit w-fit bg-primary p-3 rounded-full shadow-md">
-                    <img className="w-10 h-10" src="/public/sabidurIAIcon.svg" alt="Icono Dios de la Sabiduría" />
+                    <img className="w-10 h-10" src={logoSabidurIA} alt="Icono Dios de la Sabiduría" />
                 </button>
             </div>
         </div>

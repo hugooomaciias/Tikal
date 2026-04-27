@@ -1,4 +1,4 @@
-/** Constants */
+/** Assets, Utils & Constants */
 import { PROJECTS_ICONS } from "../../../../constants/projects_icons.js";
 import { PHASE_COLOURS } from "../../../../constants/phase_colours.js";
 
@@ -19,6 +19,8 @@ import { PHASE_COLOURS } from "../../../../constants/phase_colours.js";
  * @returns {JSX.Element} The rendered tabs component.
  */
 export const TabsComponent = ({ page, formData, setFormData, setSelected, fieldToUpdate, t }) => {
+    // --- 3. Derived Variables ---
+
     /**
      * Tab Type Identifiers
      *
@@ -37,6 +39,8 @@ export const TabsComponent = ({ page, formData, setFormData, setSelected, fieldT
      * to determine which side the animated slider should highlight.
      */
     const currentValue = formData[fieldToUpdate];
+
+    // --- 5. Event Handlers & Functions ---
 
     /**
      * Type Change Handler
@@ -70,6 +74,8 @@ export const TabsComponent = ({ page, formData, setFormData, setSelected, fieldT
             setSelected(newDefault);
         }
     };
+
+    // --- 6. Render ---
 
     return (
         <div className="flex items-center justify-center w-full bg-primary-100 p-1.5 rounded-2xl relative overflow-hidden">

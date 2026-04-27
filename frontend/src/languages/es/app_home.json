@@ -16,7 +16,9 @@
             "tabs": {
                 "day": "Día",
                 "project": "Proyecto"
-            }
+            },
+            "buttonNext": "Siguiente tarjeta",
+            "buttonLast": "Última tarjeta"
         },
         "ai": {
             "title": "¿Qué que saber desea conocer?"

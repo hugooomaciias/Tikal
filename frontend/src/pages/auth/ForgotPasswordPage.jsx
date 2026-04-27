@@ -1,19 +1,22 @@
 /** React & Third-Party Libraries */
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-
-/** Language */
 import { useTranslation } from "react-i18next";
 
-/** Components */
-import { FormForgotPasswordComponent } from "../../components/auth/FormForgotPasswordComponent.jsx";
-import { LanguagePickerComponent } from "../../components/landing/LanguagePickerComponent.jsx";
+/** Contexts, Hooks & Services */
+// (None)
 
-/** Assets & Icons */
+/** Components & Layouts */
+import { FormForgotPasswordComponent } from "../../components/auth/FormForgotPasswordComponent.jsx";
+
+/** Icons */
 import { IconCircleXFilled } from "@tabler/icons-react";
 
+/** Assets, Utils & Constants */
+import logoHeader from "../../assets/tikal/logoHeader_1.svg";
+
 /**
- * Forgot Password Page Layout
+ * Forgot Password Page Component
  *
  * This component renders the dedicated view for the account recovery flow.
  * Unlike the login/register pages, this layout is specifically designed to
@@ -24,6 +27,8 @@ import { IconCircleXFilled } from "@tabler/icons-react";
  * @returns {JSX.Element} The rendered forgot password page layout.
  */
 export const ForgotPasswordPage = () => {
+    // --- 1. Hooks & Contexts ---
+
     /**
      * Translation Hook
      *
@@ -32,11 +37,12 @@ export const ForgotPasswordPage = () => {
      */
     const { t } = useTranslation("auth");
 
+    // --- 2. Local State ---
+
     /**
      * API Error State
      *
      * Stores the error message returned by the backend to display an alert.
-     * @type {[string, function]}
      */
     const [apiError, setApiError] = useState("");
 
@@ -45,9 +51,10 @@ export const ForgotPasswordPage = () => {
      *
      * Controls the visibility of the error popup for animation purposes.
      * When true, the popup scales in and becomes fully opaque.
-     * @type {[boolean, function]}
      */
     const [isVisible, setIsVisible] = useState(false);
+
+    // --- 4. Side Effects ---
 
     /**
      * Popup Auto-Hide Effect
@@ -68,6 +75,8 @@ export const ForgotPasswordPage = () => {
         }
     }, [apiError]);
 
+    // --- 5. Event Handlers & Functions ---
+
     /**
      * Closes the Error Popup
      *
@@ -84,9 +93,11 @@ export const ForgotPasswordPage = () => {
         }, 300);
     };
 
+    // --- 6. Render ---
+
     return (
         <div className="min-h-screen flex items-center justify-center bg-primary p-0 md:p-4">
-            {/* API Error Alert */}
+            {/* API Error Alert Modal */}
             {apiError && (
                 <div
                     className={`absolute top-10 md:top-40 h-16 w-[89%] md:w-1/4 flex items-center justify-center gap-3 p-4 bg-primary border-2 border-tertiary-200 text-tertiary-200 shadow-xl rounded-lg transition-all duration-300 animate-fade-in-up z-50
@@ -106,7 +117,7 @@ export const ForgotPasswordPage = () => {
                         to="/"
                         className="text-primary-300 font-semibold cursor-pointer transition-colors duration-300"
                     >
-                        <img className="h-10 w-auto" src="/public/logoHeader_1.svg" alt="Logo Tikal" />
+                        <img className="h-10 w-auto" src={logoHeader} alt="Logo Tikal" />
                     </Link>
 
                     <h1 className="text-primary-300 text-3xl text-center font-bold">
@@ -114,7 +125,7 @@ export const ForgotPasswordPage = () => {
                     </h1>
                 </div>
 
-                {/* Forgot Password Form */}
+                {/* Forgot Password Form Integration */}
                 <FormForgotPasswordComponent apiError={apiError} setApiError={setApiError} t={t} />
             </div>
         </div>

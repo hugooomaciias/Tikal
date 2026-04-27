@@ -1,20 +1,23 @@
-/** Components */
-import { FormContactComponent } from "./FormContactComponent.jsx";
-
-/** Language */
+/** React & Third-Party Libraries */
+import React from "react";
 import { useTranslation, Trans } from "react-i18next";
 
+/** Components & Layouts */
+import { FormContactComponent } from "./FormContactComponent.jsx";
+
 /**
- * Contact Support Section Layout
+ * Contact Support Section Layout Component
  *
- * This component serves as the structural wrapper for the Contact section.
- * It implements a responsive split-view layout that combines the brand's
- * customer service philosophy with the functional input mechanism.
+ * This component serves as the structural wrapper for the Contact section on the landing page.
+ * It implements a responsive split-view layout that combines the brand's customer service
+ * philosophy with the functional input mechanism (the contact form).
  *
  * @component
- * @returns {JSX.Element} The visual layout of the contact section.
+ * @returns {JSX.Element} The rendered visual layout of the contact section.
  */
 export const ContactComponent = () => {
+    // --- 1. Hooks & Contexts ---
+
     /**
      * Translation Hook
      *
@@ -23,8 +26,11 @@ export const ContactComponent = () => {
      */
     const { t } = useTranslation("landing");
 
+    // --- 6. Render ---
+
     return (
         <div className="w-full max-w-6xl mx-auto flex items-center justify-items-center p-12 md:p-8 mt-28 md:m-28">
+            {/* Contact Content Container */}
             <div className="text-primary-300 text-center">
                 {/* Section Title */}
                 <h1 className="text-4xl md:text-5xl font-bold mb-4 md:mb-10 leading-tight">

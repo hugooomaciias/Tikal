@@ -8,7 +8,27 @@
     },
     "widgets": {
         "solar_chart": {
-            "title": "Solar chart"
+            "title": "Solar chart",
+            "most_recurring": "Most recurring list",
+            "filters": {
+                "time": {
+                    "title": "Time filter",
+                    "daily": "Daily",
+                    "weekly": "Weekly",
+                    "monthly": "Monthly",
+                    "global": "Global",
+                    "custom": {
+                        "title": "Custom range",
+                        "startDate": "From",
+                        "endDate": "To",
+                        "apply": "Apply range"
+                    }
+                },
+                "levels": {
+                    "title": "Filter projects",
+                    "apply": "Apply changes"
+                }
+            }
         },
         "effectiveness_chart": {
             "title": "Effectiveness chart",
@@ -18,13 +38,17 @@
             },
             "tabs": {
                 "axisX": {
-                    "weekly": "Weekly",
-                    "monthly": "Monthly"
+                    "weekly": "Wkly.",
+                    "monthly": "Mth."
                 },
                 "axisY": {
-                    "concentration": "Conc",
-                    "profitability": "Prof"
+                    "concentration": "Conc.",
+                    "profitability": "Prof."
                 }
+            },
+            "tooltip": {
+                "concentration": "Concentration",
+                "profitability": "Profitability"
             }
         },
         "time_goal": {

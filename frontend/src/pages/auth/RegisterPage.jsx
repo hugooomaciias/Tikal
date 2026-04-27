@@ -1,15 +1,19 @@
 /** React & Third-Party Libraries */
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
-
-/** Language */
 import { useTranslation } from "react-i18next";
 
-/** Components */
+/** Contexts, Hooks & Services */
+// (None)
+
+/** Components & Layouts */
 import { FormRegisterComponent } from "../../components/auth/FormRegisterComponent.jsx";
 
-/** Assets & Icons */
+/** Icons */
 import { IconCircleXFilled } from "@tabler/icons-react";
+
+/** Assets, Utils & Constants */
+import logoHeader from "../../assets/tikal/logoHeader_1.svg";
 
 /**
  * Registration Page Layout
@@ -24,6 +28,8 @@ import { IconCircleXFilled } from "@tabler/icons-react";
  * @returns {JSX.Element} The rendered registration page layout.
  */
 export const RegisterPage = () => {
+    // --- 1. Hooks & Contexts ---
+
     /**
      * Translation Hook
      *
@@ -40,20 +46,12 @@ export const RegisterPage = () => {
      */
     const location = useLocation();
 
-    /**
-     * Selected Plan State Evaluation
-     *
-     * Derives the plan explicitly requested by the user, defaulting to
-     * "GRATUITO" if none was provided.
-     * @type {string}
-     */
-    const plan = location.state?.plan || "GRATUITO";
+    // --- 2. Local State ---
 
     /**
      * API Error State
      *
      * Stores the error message returned by the backend to display an alert.
-     * @type {[string, function]}
      */
     const [apiError, setApiError] = useState("");
 
@@ -62,9 +60,20 @@ export const RegisterPage = () => {
      *
      * Controls the visibility of the error popup for animation purposes.
      * When true, the popup scales in and becomes fully opaque.
-     * @type {[boolean, function]}
      */
     const [isVisible, setIsVisible] = useState(false);
+
+    // --- 3. Derived Variables ---
+
+    /**
+     * Selected Plan
+     *
+     * Derives the plan explicitly requested by the user, defaulting to
+     * "GRATUITO" if none was provided in the routing state.
+     */
+    const plan = location.state?.plan || "GRATUITO";
+
+    // --- 4. Side Effects ---
 
     /**
      * Popup Auto-Hide Effect
@@ -85,6 +94,8 @@ export const RegisterPage = () => {
         }
     }, [apiError]);
 
+    // --- 5. Event Handlers & Functions ---
+
     /**
      * Closes the Error Popup
      *
@@ -93,17 +104,19 @@ export const RegisterPage = () => {
      *
      * @function
      */
-    const closePopup = () => {
+    function closePopup() {
         setIsVisible(false);
 
         setTimeout(() => {
             setApiError("");
         }, 300);
-    };
+    }
+
+    // --- 6. Render ---
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-primary p-0 md:p-4">
-            {/* API Error Alert */}
+            {/* API Error Alert Modal */}
             {apiError && (
                 <div
                     className={`absolute top-10 md:top-16 h-16 w-[89%] md:w-1/4 bg-primary border-2 border-tertiary-200 text-tertiary-200 px-4 py-3 rounded-lg flex items-center justify-center gap-3 shadow-xl transition-all duration-300 animate-fade-in-up z-50
@@ -123,14 +136,14 @@ export const RegisterPage = () => {
                         to="/"
                         className="text-primary-300 font-semibold cursor-pointer transition-colors duration-300"
                     >
-                        <img className="h-10 w-auto" src="/public/logoHeader_1.svg" alt="Logo Tikal" />
+                        <img className="h-10 w-auto" src={logoHeader} alt="Logo Tikal" />
                     </Link>
 
                     <h1 className="text-primary-300 text-3xl text-center font-bold">{t("auth.register.title")}</h1>
                 </div>
 
                 <div className="flex flex-1 flex-col justify-center">
-                    {/* Registration Form */}
+                    {/* Primary Registration Form Integration */}
                     <FormRegisterComponent apiError={apiError} setApiError={setApiError} plan={plan} t={t} />
 
                     {/* Footer Section: Link to Login */}
@@ -139,7 +152,7 @@ export const RegisterPage = () => {
                             {t("auth.register.footer.text")}
                             <Link
                                 to="/login"
-                                className="text-primary-600 font-semibold transition-colors hover:text-primary-700"
+                                className="text-primary-600 font-semibold transition-colors hover:text-primary-700 ml-1"
                             >
                                 {t("auth.register.footer.link")}
                             </Link>

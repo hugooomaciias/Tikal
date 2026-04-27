@@ -1,9 +1,9 @@
 /** React & Third-Party Libraries */
-import { useContext } from 'react'
-import { Navigate, Outlet } from 'react-router-dom'
+import React, { useContext } from "react";
+import { Navigate, Outlet } from "react-router-dom";
 
-/** Components */
-import { AuthContext } from '../../context/AuthContext'
+/** Contexts, Hooks & Services */
+import { AuthContext } from "../../context/AuthContext";
 
 /**
  * Public Route Component
@@ -14,16 +14,19 @@ import { AuthContext } from '../../context/AuthContext'
  * loading screen (which subsequently routes to the dashboard).
  *
  * @component
- * @returns {JSX.Element} Either the requested child route (Outlet) or a
- * navigation redirection.
+ * @returns {JSX.Element} Either the requested child route (Outlet) or a navigation redirection.
  */
 export const PublicRoute = () => {
+    // --- 1. Hooks & Contexts ---
+
     /**
      * Authentication Context
      *
      * Extracts the user's authentication status to determine routing permission.
      */
     const { isAuthenticated } = useContext(AuthContext);
+
+    // --- 6. Render ---
 
     /**
      * Redirect Authenticated Users

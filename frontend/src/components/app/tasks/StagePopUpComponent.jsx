@@ -1,15 +1,15 @@
 /** React & Third-Party Libraries */
 import { useState } from "react";
 
-/** Components */
+/** Components & Layouts */
 import { TabsComponent } from "../common/popups/TabsComponent.jsx";
 import { DatePickerComponent } from "../common/popups/DatepickerComponent.jsx";
 import { PickerComponent } from "../common/popups/PickerComponent.jsx";
 
-/** Assets & Icons */
-import { IconCircleXFilled, IconNote, IconCalendarWeekFilled } from "@tabler/icons-react";
+/** Icons */
+import { IconCircleXFilled, IconNote } from "@tabler/icons-react";
 
-/** Constants */
+/** Assets, Utils & Constants */
 import { PHASE_COLOURS } from "../../../constants/phase_colours.js";
 
 /**
@@ -21,28 +21,22 @@ import { PHASE_COLOURS } from "../../../constants/phase_colours.js";
  *
  * @component
  * @param {Object} props - The component props.
- * @param {Function} props.onClose - Function to close the modal.
- * @param {Object|null} props.initialData - Initial data for editing an existing stage/sublist.
- * @param {Function} props.t - Translation function from i18next.
+ * @param {Function} props.onClose - Callback function triggered to close the modal.
+ * @param {Object|null} props.initialData - Initial data injected when editing an existing stage/sublist.
+ * @param {Function} props.t - Translation function from i18next for multi-language support.
  * @returns {JSX.Element} The rendered modal component.
  */
 export const StagePopUpComponent = ({ onClose, initialData, t }) => {
-    /**
-     * Edit Mode Flag
-     *
-     * Determines if the component is in edit mode based on the presence
-     * of initial data.
-     */
-    const isEditing = Boolean(initialData);
+    // --- 2. Local State ---
 
     /**
      * Selected Colour State
      *
      * Stores the currently selected colour for the stage or sublist.
-     * Initializes with the stage's colour if editing, or a default colour.
+     * Initializes with the provided stage colour if editing, otherwise defaults to the first available colour.
      */
     const [selectedColour, setSelectedColour] = useState(() => {
-        if (isEditing) {
+        if (initialData) {
             return PHASE_COLOURS.find((colour) => colour.id === initialData.colour) || PHASE_COLOURS[0];
         }
         return PHASE_COLOURS[0];
@@ -51,36 +45,50 @@ export const StagePopUpComponent = ({ onClose, initialData, t }) => {
     /**
      * Deadline Toggle State
      *
-     * Manages whether the user wants to insert the deadline date to the calendar.
+     * Manages the visual toggle switch indicating whether the user wants to attach a deadline date.
      */
     const [insertDeadline, setInsertDeadline] = useState(() => {
-        return Boolean(isEditing && initialData.date);
+        return Boolean(initialData && initialData.date);
     });
 
     /**
-     * Form Input State
+     * Form Data State
      *
-     * Manages the controlled inputs for the stage/sublist form.
+     * Manages the controlled input values for the stage/sublist metadata (type, name, date, description).
      */
     const [formData, setFormData] = useState({
         type: "stage",
-        stage: isEditing ? initialData.title : "",
-        date: isEditing && initialData.date ? initialData.date : "",
-        note: isEditing ? initialData.note : "",
+        stage: initialData ? initialData.title : "",
+        date: initialData && initialData.date ? initialData.date : "",
+        note: initialData ? initialData.note : "",
     });
 
     /**
      * Validation Error State
      *
-     * Stores specific error messages for each field to be displayed in the UI.
+     * Stores field-specific error messages displayed under the inputs when validation fails.
      */
     const [errors, setErrors] = useState({});
+
+    // --- 3. Derived Variables ---
+
+    /**
+     * Edit Mode Flag
+     *
+     * Determines if the component is in edit mode based on the presence of initial data.
+     * Used dynamically throughout the render cycle to swap between "Create" and "Edit" labels.
+     */
+    const isEditing = Boolean(initialData);
+
+    // --- 4. Side Effects ---
+
+    // --- 5. Event Handlers & Functions ---
 
     /**
      * Form Validation Logic
      *
      * Performs client-side checks to ensure all required fields,
-     * such as the stage or sublist name, are properly filled out.
+     * such as the stage or sublist name, are properly filled out before submission.
      *
      * @returns {boolean} True if the form is valid, false otherwise.
      */
@@ -88,7 +96,6 @@ export const StagePopUpComponent = ({ onClose, initialData, t }) => {
         let tempErrors = {};
         let isValid = true;
 
-        // Validate Name
         if (!formData.stage.trim()) {
             tempErrors.stage = t("stages.popup.error");
             isValid = false;
@@ -103,10 +110,10 @@ export const StagePopUpComponent = ({ onClose, initialData, t }) => {
      * Input Change Handler
      *
      * Updates the specific field in the state object while preserving
-     * other values. Also, if a field has an error, typing in it
-     * immediately clears the visual error state to improve UX.
+     * other values. Instantly clears any existing visual errors for the active field to improve UX.
      *
-     * @param {React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>} e - The change event.
+     * @param {React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>} e - The native DOM change event.
+     * @returns {void}
      */
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -128,9 +135,10 @@ export const StagePopUpComponent = ({ onClose, initialData, t }) => {
      * Form Submission Handler
      *
      * Orchestrates the submission process: validates the user's input,
-     * processes the stage/sublist creation logic, and safely closes the modal.
+     * resets the temporary data, and cleanly closes the modal.
      *
      * @param {React.FormEvent} e - The form submission event.
+     * @returns {void}
      */
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -142,13 +150,71 @@ export const StagePopUpComponent = ({ onClose, initialData, t }) => {
     };
 
     /**
+     * Close Modal Handler
+     *
+     * Triggers the parent's callback to dismiss the popup modal.
+     *
+     * @returns {void}
+     */
+    const handleClose = () => {
+        onClose();
+    };
+
+    /**
+     * Stop Propagation Handler
+     *
+     * Prevents click events from bubbling up to the backdrop, avoiding accidental closures.
+     *
+     * @param {React.MouseEvent} e - The mouse click event.
+     * @returns {void}
+     */
+    const handleStopPropagation = (e) => {
+        e.stopPropagation();
+    };
+
+    /**
+     * Colour Change Handler
+     *
+     * Updates the selected colour state when a new colour is chosen.
+     *
+     * @param {Object} newColourObj - The newly selected colour object.
+     * @returns {void}
+     */
+    const handleColourChange = (newColourObj) => {
+        setSelectedColour(newColourObj);
+    };
+
+    /**
+     * Date Change Handler
+     *
+     * Updates the date field within the form data state.
+     *
+     * @param {Date|null} date - The newly selected date or null if cleared.
+     * @returns {void}
+     */
+    const handleDateChange = (date) => {
+        setFormData((prev) => ({ ...prev, date }));
+    };
+
+    /**
+     * Toggle Deadline Handler
+     *
+     * Toggles the user's preference for adding a deadline.
+     *
+     * @returns {void}
+     */
+    const handleToggleDeadline = () => {
+        setInsertDeadline((prev) => !prev);
+    };
+
+    /**
      * Dynamic Input Styling Helper
      *
-     * Computes the Tailwind classes for input fields based on their current
-     * validation state.
+     * Computes the Tailwind CSS classes for form fields based on their current
+     * validation and error states.
      *
-     * @param {string} fieldName - The name of the field to check.
-     * @returns {string} The computed CSS class string.
+     * @param {string} fieldName - The unique identifier name of the field to check.
+     * @returns {string} The fully computed CSS class string.
      */
     const getInputClass = (fieldName) => {
         const baseInputClass = "input input-textarea-primary peer";
@@ -160,18 +226,19 @@ export const StagePopUpComponent = ({ onClose, initialData, t }) => {
         return `${baseClass} ${errors[fieldName] ? errorClass : ""}`;
     };
 
+    // --- 6. Render ---
+
     return (
-        /* Modal Overlay */
         <div
             className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm"
-            onClick={() => onClose()}
+            onClick={handleClose}
         >
-            {/* Modal Container */}
+            {/* Modal Content Container */}
             <div
                 className="relative w-[90%] max-w-md shadow-2xl flex flex-col gap-6 bg-primary-50 rounded-[2.5rem] p-8 animate-fade-in-up"
-                onClick={(e) => e.stopPropagation()}
+                onClick={handleStopPropagation}
             >
-                {/* Header: Title and Close Button */}
+                {/* Header: Dynamic Title and Close Action */}
                 <div className="flex items-center justify-between">
                     <span className="text-2xl font-bold text-quaternary-700">
                         {isEditing
@@ -185,15 +252,15 @@ export const StagePopUpComponent = ({ onClose, initialData, t }) => {
 
                     <button
                         className="text-primary-500/70 hover:text-primary-500 transition-colors"
-                        onClick={() => onClose()}
+                        onClick={handleClose}
                     >
                         <IconCircleXFilled className="h-8 w-8" />
                     </button>
                 </div>
 
-                {/* Main Form */}
+                {/* Main Submission Form */}
                 <form onSubmit={handleSubmit} className="flex flex-col gap-6" noValidate>
-                    {/* Type Selection Toggle (Stage / Sublist) */}
+                    {/* Type Selection Tabs */}
                     <TabsComponent
                         page={"Stage"}
                         formData={formData}
@@ -203,18 +270,17 @@ export const StagePopUpComponent = ({ onClose, initialData, t }) => {
                         t={t}
                     />
 
+                    {/* Colour Picker and Name Input Row */}
                     <div className="flex items-center gap-3">
-                        {/* Colour Picker */}
+                        {/* Stage/Sublist Colour Picker */}
                         <PickerComponent
                             items={PHASE_COLOURS}
                             selectedItem={selectedColour}
                             pickerType="colour"
-                            onChange={(newColourObj) => {
-                                setSelectedColour(newColourObj);
-                            }}
+                            onChange={handleColourChange}
                         />
 
-                        {/* Single Row: Name of Stage/Sublist */}
+                        {/* Name Input Field */}
                         <div className="relative w-full">
                             <input
                                 type="text"
@@ -232,6 +298,7 @@ export const StagePopUpComponent = ({ onClose, initialData, t }) => {
                                     : t("stages.popup.name.sublist")}
                             </label>
 
+                            {/* Validation Error Message */}
                             {errors.stage && (
                                 <span className="absolute -bottom-5 left-0 text-tertiary-200 text-xs font-semibold">
                                     {errors.stage}
@@ -240,28 +307,25 @@ export const StagePopUpComponent = ({ onClose, initialData, t }) => {
                         </div>
                     </div>
 
+                    {/* Deadline Section */}
                     <div className="flex flex-col gap-3">
-                        {/* Calendar Date Input */}
+                        {/* Datepicker Overlay */}
                         <div className="transition-all duration-300">
                             <DatePickerComponent
                                 value={formData.date}
-                                onChange={(date) => {
-                                    setFormData((prev) => ({ ...prev, date: date }));
-                                }}
+                                onChange={handleDateChange}
                                 className={getInputClass("date")}
                                 label={t("stages.popup.deadline")}
                             />
                         </div>
 
-                        {/* Custom Deadline Toggle Switch */}
+                        {/* Deadline Toggle Switch */}
                         <div className="flex items-center justify-between px-2">
                             <span className="text-primary-500 text-sm font-bold">{t("stages.popup.add_deadline")}</span>
 
                             <button
                                 type="button"
-                                onClick={() => {
-                                    setInsertDeadline(!insertDeadline);
-                                }}
+                                onClick={handleToggleDeadline}
                                 className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-300 focus:outline-none ${
                                     insertDeadline ? "bg-primary-400" : "bg-primary-100"
                                 }`}
@@ -275,7 +339,7 @@ export const StagePopUpComponent = ({ onClose, initialData, t }) => {
                         </div>
                     </div>
 
-                    {/* Textarea: Note */}
+                    {/* Description Textarea */}
                     <div className="relative w-full">
                         <textarea
                             id="note"
@@ -297,7 +361,7 @@ export const StagePopUpComponent = ({ onClose, initialData, t }) => {
                         </div>
                     </div>
 
-                    {/* Submit Button */}
+                    {/* Form Submit Button */}
                     <button type="submit" className="btn btn-primary md:min-w-1/2 mx-auto">
                         <span>
                             {isEditing

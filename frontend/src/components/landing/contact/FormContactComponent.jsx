@@ -1,8 +1,8 @@
 /** React & Third-Party Libraries */
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import emailjs from "@emailjs/browser";
 
-/** Assets & Icons */
+/** Icons */
 import {
     IconUser,
     IconMail,
@@ -26,6 +26,8 @@ import {
  * @returns {JSX.Element} The interactive form element with dynamic styling.
  */
 export const FormContactComponent = ({ t }) => {
+    // --- 2. Local State ---
+
     /**
      * Form Input State
      *
@@ -46,20 +48,33 @@ export const FormContactComponent = ({ t }) => {
     const [errors, setErrors] = useState({});
 
     /**
-     * UI Feedback State
+     * Success Notification State
      *
-     * These booleans control the visibility of success/error notifications and
-     * the active loading state of the submission button.
+     * Controls the visibility of the success notification on the submit button.
      */
     const [showSuccess, setShowSuccess] = useState(false);
+
+    /**
+     * Error Notification State
+     *
+     * Controls the visibility of the error notification on the submit button.
+     */
     const [showEmailError, setShowEmailError] = useState(false);
+
+    /**
+     * Loading State
+     *
+     * Tracks the active sending state to disable the button and show a loader.
+     */
     const [isSending, setIsSending] = useState(false);
+
+    // --- 4. Side Effects ---
 
     /**
      * Notification Auto-dismissal Effect
      *
      * Automatically clears success or error status messages after a predefined
-     * timeout to maintain a clean user interface.
+     * timeout (4 seconds) to maintain a clean user interface.
      */
     useEffect(() => {
         if (showSuccess || showEmailError) {
@@ -69,11 +84,14 @@ export const FormContactComponent = ({ t }) => {
         }
     }, [showSuccess, showEmailError]);
 
+    // --- 5. Event Handlers & Functions ---
+
     /**
      * Form Validation Logic
      *
      * Performs client-side checks for required fields and validates the email
      * format using a strict Regex pattern.
+     *
      * @returns {boolean} True if the form is valid, false otherwise.
      */
     const validateForm = () => {
@@ -111,6 +129,7 @@ export const FormContactComponent = ({ t }) => {
      * Updates the specific field in the state object while preserving
      * other values. Also, if a field has an error, typing in it
      * immediately clears the visual error state to improve UX.
+     *
      * @param {React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>} e - The change event.
      */
     const handleChange = (e) => {
@@ -134,6 +153,7 @@ export const FormContactComponent = ({ t }) => {
      *
      * Orchestrates the submission process: validates data, triggers the loading
      * state, sends the data via EmailJS, and handles the response.
+     *
      * @param {React.FormEvent} e - The form submission event.
      */
     const handleSubmit = (e) => {
@@ -172,10 +192,11 @@ export const FormContactComponent = ({ t }) => {
     };
 
     /**
-     * Dynamic Input Styling Helper
+     * Input Style Generator
      *
      * Computes the Tailwind classes for input fields based on their current
      * validation state.
+     *
      * @param {string} fieldName - The name of the field to check.
      * @returns {string} The computed CSS class string.
      */
@@ -191,10 +212,11 @@ export const FormContactComponent = ({ t }) => {
     };
 
     /**
-     * Dynamic Icon Styling Helper
+     * Icon Style Generator
      *
      * Determines the color and styling of input icons based on error presence
      * or user interaction.
+     *
      * @param {string} fieldName - The name of the field associated with the icon.
      * @returns {string} The computed CSS class string for the icon container.
      */
@@ -207,10 +229,11 @@ export const FormContactComponent = ({ t }) => {
     };
 
     /**
-     * Dynamic Button Styling Helper
+     * Button Style Generator
      *
      * Generates the button's class list to reflect its current state: sending,
      * success, error, or idle.
+     *
      * @returns {string} The computed CSS class string for the submit button.
      */
     const getButtonClass = () => {
@@ -222,6 +245,8 @@ export const FormContactComponent = ({ t }) => {
 
         return `${base}`;
     };
+
+    // --- 6. Render ---
 
     return (
         <form onSubmit={handleSubmit} className="flex flex-col items-center justify-center gap-6" noValidate>

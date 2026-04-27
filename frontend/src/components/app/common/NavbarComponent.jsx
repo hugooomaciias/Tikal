@@ -1,11 +1,12 @@
 /** React & Third-Party Libraries */
-import { useState, useContext, useEffect } from "react";
+import { useState, useContext } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
-/** Components */
+/** Contexts, Hooks & Services */
 import { AuthContext } from "../../../context/AuthContext.jsx";
 
-/** Assets & Icons */
+/** Icons */
 import {
     IconHome,
     IconListFilled,
@@ -15,8 +16,8 @@ import {
     IconUsersGroup,
 } from "@tabler/icons-react";
 
-/** Language */
-import { useTranslation } from "react-i18next";
+/** Assets, Utils & Constants */
+import logoNavbar from "../../../assets/tikal/logoHeader_2.svg";
 
 /**
  * Icon Component Map
@@ -25,12 +26,12 @@ import { useTranslation } from "react-i18next";
  * Declared outside the component to prevent unnecessary object recreation during re-renders.
  */
 const ICON_MAP = {
-    HomeIcon: IconHome,
-    ListIcon: IconListFilled,
-    CalendarIcon: IconCalendarWeekFilled,
-    ChartBarIcon: IconChartBar,
-    TempleIcon: IconPyramid,
-    GroupIcon: IconUsersGroup,
+    IconHome,
+    IconListFilled,
+    IconCalendarWeekFilled,
+    IconChartBar,
+    IconPyramid,
+    IconUsersGroup,
 };
 
 /**
@@ -41,9 +42,13 @@ const ICON_MAP = {
  * and user session controls. On mobile, it acts as a compact horizontal bottom bar.
  *
  * @component
- * @returns {JSX.Element} The rendered navigation bar component.
+ * @param {Object} props - The component props.
+ * @param {Object} props.data - The user profile data object used to display name and information.
+ * @returns {JSX.Element|null} The rendered navigation bar component, or null if user data is missing.
  */
 export const NavbarComponent = ({ data }) => {
+    // --- 1. Hooks & Contexts ---
+
     /**
      * Translation Hook
      *
@@ -75,6 +80,8 @@ export const NavbarComponent = ({ data }) => {
      */
     const location = useLocation();
 
+    // --- 2. Local State ---
+
     /**
      * Sidebar Expanded State
      *
@@ -83,13 +90,7 @@ export const NavbarComponent = ({ data }) => {
      */
     const [isExpanded, setIsExpanded] = useState(false);
 
-    /**
-     * Active Tab State
-     *
-     * Stores the title of the currently selected navigation tab to apply
-     * active styling to the corresponding link.
-     */
-    const [activeTab, setActiveTab] = useState("");
+    // --- 3. Derived Variables ---
 
     /**
      * Navigation Options
@@ -98,33 +99,30 @@ export const NavbarComponent = ({ data }) => {
      * Includes their localized titles and corresponding icon keys.
      */
     const navbarOptions = [
-        { icon: "HomeIcon", title: t("navbar.home"), to: "/home" },
-        { icon: "ListIcon", title: t("navbar.tasks"), to: "/tasks" },
-        { icon: "CalendarIcon", title: t("navbar.calendar"), to: "/calendar" },
-        { icon: "ChartBarIcon", title: t("navbar.statistics"), to: "/statistics" },
-        { icon: "TempleIcon", title: t("navbar.temple_mode"), to: "/home" },
-        { icon: "GroupIcon", title: t("navbar.groups"), to: "/home" },
+        { icon: "IconHome", title: t("navbar.home"), to: "/home" },
+        { icon: "IconListFilled", title: t("navbar.tasks"), to: "/tasks" },
+        { icon: "IconCalendarWeekFilled", title: t("navbar.calendar"), to: "/calendar" },
+        { icon: "IconChartBar", title: t("navbar.statistics"), to: "/statistics" },
+        { icon: "IconPyramid", title: t("navbar.temple_mode"), to: "/home" },
+        { icon: "IconUsersGroup", title: t("navbar.groups"), to: "/home" },
     ];
 
     /**
-     * Active Tab Sync Effect
+     * Current Navigation Option
      *
-     * Synchronizes the active tab visual state with the current browser URL.
-     * This ensures the navbar always highlights the correct item even if navigating
-     * via browser history or external redirects.
+     * Resolves the navigation configuration object that corresponds to the active browser URL.
      */
-    useEffect(() => {
-        const currentOption = navbarOptions.find((option) => option.to === location.pathname);
+    const currentOption = navbarOptions.find((option) => option.to === location.pathname);
 
-        if (currentOption) {
-            setActiveTab(currentOption.title);
-        } else {
-            setActiveTab("");
-        }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [location.pathname]);
+    /**
+     * Active Tab Title
+     *
+     * Derives the title of the currently selected navigation tab to apply
+     * active styling to the corresponding link. Evaluated entirely from the URL state.
+     */
+    const activeTab = currentOption ? currentOption.title : "";
 
-    if (!data) return null;
+    // --- 5. Event Handlers & Functions ---
 
     /**
      * Logout Handler
@@ -133,6 +131,7 @@ export const NavbarComponent = ({ data }) => {
      * and redirects the user back to the login page. Logs an error if it fails.
      *
      * @async
+     * @returns {Promise<void>}
      */
     const handleLogout = async () => {
         try {
@@ -147,47 +146,66 @@ export const NavbarComponent = ({ data }) => {
      * Toggle Sidebar Handler
      *
      * Expands or collapses the desktop sidebar interface.
+     *
+     * @returns {void}
      */
-    const toggleSidebar = () => {
+    const handleToggleSidebar = () => {
         setIsExpanded(!isExpanded);
     };
+
+    // --- 6. Render ---
+
+    if (!data) return null;
 
     return (
         <aside
             className={`flex bg-primary-300 text-primary shadow-2xl transition-all duration-[300ms] shrink-0 z-50 flex-col p-5 justify-between rounded-[3rem] h-full max-md:order-last max-md:flex-row max-md:w-full max-md:h-[72px] max-md:p-2 max-md:rounded-[2rem] max-md:items-center max-md:justify-around ${isExpanded ? "w-72" : "w-[104px]"}`}
         >
-            {/* Logo Section */}
+            {/* Top Logo Container */}
             <div
                 className={`hidden h-10 w-auto md:flex items-center gap-12 cursor-pointer ${isExpanded ? "justify-between" : "justify-center"}`}
-                onClick={toggleSidebar}
+                onClick={handleToggleSidebar}
             >
+                {/* Brand Logo Image */}
                 <img
                     className="h-10 w-auto opacity-90 hover:opacity-100 transition-opacity"
-                    src="/public/logoHeader_2.svg"
+                    src={logoNavbar}
                     alt="Logo Tikal"
                 />
 
-                {/* Conditional rendering of the expanded logo text */}
+                {/* Expanded Brand Name */}
                 {isExpanded && <span className="text-primary-50 text-3xl font-bold tracking-[0.3em]">TIKAL</span>}
             </div>
 
-            {/* Navigation Links */}
+            {/* Navigation Links Container */}
             <nav
                 className={`w-full flex flex-row md:flex-col justify-center gap-8 ${isExpanded ? "items-start" : "items-center"}`}
             >
+                {/* Dynamic Options List */}
                 {navbarOptions.map((option, index) => {
+                    /**
+                     * Resolved Icon Component
+                     *
+                     * Dynamically resolves the required React icon for the current navigation option.
+                     */
                     const IconComponent = ICON_MAP[option.icon];
+
+                    /**
+                     * Active State Flag
+                     *
+                     * Boolean flag determining if the current option corresponds to the active tab.
+                     */
                     const isActive = activeTab === option.title;
 
                     return (
                         <Link
                             key={index}
                             to={option.to}
-                            onClick={() => setActiveTab(option.title)}
                             className={`flex items-center gap-6 transition-all duration-200 ${isActive ? "text-primary-50" : "text-primary-500 hover:text-primary-200"}`}
                         >
                             <IconComponent className="h-8 w-8" />
 
+                            {/* Expanded Label Text */}
                             {isExpanded && (
                                 <span className="text-2xl font-light tracking-[0.05em] whitespace-nowrap">
                                     {option.title}
@@ -211,7 +229,7 @@ export const NavbarComponent = ({ data }) => {
                     />
                 </div>
 
-                {/* User Information and Actions (Visible only on desktop when expanded) */}
+                {/* User Information and Actions */}
                 {isExpanded && (
                     <div className="flex flex-col ml-4 overflow-hidden">
                         <span className="text-primary-600 text-lg font-medium whitespace-nowrap">{data.name}</span>
@@ -227,5 +245,3 @@ export const NavbarComponent = ({ data }) => {
         </aside>
     );
 };
-
-export default NavbarComponent;

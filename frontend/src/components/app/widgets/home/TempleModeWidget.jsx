@@ -1,6 +1,7 @@
-/** Assets & Icons */
-import { IconPlayerPlayFilled } from "@tabler/icons-react";
+/** React & Third-Party Libraries */
+import React from "react";
 
+/** Assets, Utils & Constants */
 const RANK_OPTIONS = {
     1: {
         name: "text-primary-50/80",
@@ -29,35 +30,61 @@ const RANK_OPTIONS = {
 };
 
 /**
- * Time Tracker Widget
+ * Temple Mode Widget Component
  *
- * This component renders a widget for tracking time spent on specific tasks.
- * It displays the current task name, associated project, logged time,
- * and controls (play/stop) to manage the timer.
+ * This component renders a stylistic widget representing the user's current rank or level
+ * within the "Temple Mode" gamified focus system. It displays the rank title, the default
+ * focus session minutes, a progress bar towards the next rank, and a masked icon representing the rank.
  *
  * @component
  * @param {Object} props - The component props.
- * @param {string} [props.className] - Additional CSS classes applied to the rootc  element for custom styling.
- * @returns {JSX.Element} The rendered time tracker widget.
+ * @param {Object} props.props - The data object containing rank details.
+ * @param {number} props.props.rank - The numeric level of the current rank (1-4).
+ * @param {string} props.props.rankTitle - The display name of the current rank.
+ * @param {number} props.props.defaultFocusSessionMinutes - Default minutes for a focus session at this rank.
+ * @param {number} props.props.rankPercentage - The completion percentage towards the next rank.
+ * @returns {JSX.Element|null} The rendered temple mode widget, or null if no props are provided.
  */
 export const TempleModeWidget = ({ props }) => {
-    const rank = props.rank;
+    // --- 3. Derived Variables ---
+
+    /**
+     * Current Rank
+     *
+     * Extracts the numeric rank from the props, defaulting to 1 if not provided.
+     */
+    const rank = props?.rank || 1;
+
+    /**
+     * Rank Options Configuration
+     *
+     * Retrieves the specific styling and configuration options (colors, text classes)
+     * corresponding to the user's current rank, falling back to rank 1.
+     */
     const rank_options = RANK_OPTIONS[rank] || RANK_OPTIONS[1];
+
+    // --- 6. Render ---
 
     if (!props) return null;
 
     return (
         <div className="h-full w-full flex flex-col justify-end gap-3">
-            <p className={`${rank_options.name} font-passero font-semibold tracking-[0.4em] uppercase`}>Nombre Rango</p>
+            {/* Rank Title */}
+            <p className={`${rank_options.name} font-passero font-semibold tracking-[0.4em] uppercase`}>
+                {props.rankTitle}
+            </p>
+
+            {/* Content Row */}
             <div className="flex items-center gap-6">
-                {/* Visualización de Tiempo */}
+                {/* Time Display & Progress Bar */}
                 <div className="flex-1 flex flex-col">
-                    <div className="flex items-baseline gap-1">
+                    <div className="flex items-baseline gap-2">
                         <span className="text-5xl font-black text-quaternary-50 tracking-tighter">
                             {props.defaultFocusSessionMinutes}
                         </span>
                         <span className="text-2xl font-light text-quaternary-200">min</span>
                     </div>
+                    {/* Progress Bar Container */}
                     <div className={`h-1.5 w-full ${rank_options.secondary} rounded-full mt-2 overflow-hidden`}>
                         <div
                             className={`h-full ${rank_options.primary} transition-all duration-500 ease-out`}
@@ -66,7 +93,7 @@ export const TempleModeWidget = ({ props }) => {
                     </div>
                 </div>
 
-                {/* Divisor "Maya" (Patrón de puntos/líneas) */}
+                {/* Maya Divider (Dots/Lines Pattern) */}
                 <div className="flex flex-col gap-[6px]">
                     {[...Array(4)].map((_, i) => (
                         <div
@@ -76,15 +103,15 @@ export const TempleModeWidget = ({ props }) => {
                     ))}
                 </div>
 
-                {/* Botón de Acción Principal */}
+                {/* Masked Rank Icon Container */}
                 <div
                     className={`w-20 h-20 rounded-2xl bg-gradient-to-br from-quaternary-700 to-quaternary-900 border-2 border-quaternary-500/50 flex items-center justify-center p-2 group transition-all ${rank_options.border}`}
                 >
                     <div
                         className={`w-full h-full bg-quaternary-200`}
                         style={{
-                            maskImage: 'url("/icons/rank2Icon.svg")',
-                            WebkitMaskImage: 'url("/icons/rank2Icon.svg")',
+                            maskImage: 'url("src/assets/temple-mode/aprendiz-maya.svg")',
+                            WebkitMaskImage: 'url("src/assets/temple-mode/aprendiz-maya.svg")',
                             maskRepeat: "no-repeat",
                             WebkitMaskRepeat: "no-repeat",
                             maskSize: "contain",
@@ -98,5 +125,3 @@ export const TempleModeWidget = ({ props }) => {
         </div>
     );
 };
-
-export default TempleModeWidget;

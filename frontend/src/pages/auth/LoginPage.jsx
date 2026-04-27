@@ -1,17 +1,20 @@
 /** React & Third-Party Libraries */
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { GoogleLogin } from "@react-oauth/google";
-
-/** Language */
 import { useTranslation } from "react-i18next";
 
-/** Components */
+/** Contexts, Hooks & Services */
 import { useAuth } from "../../hooks/useAuth";
+
+/** Components & Layouts */
 import { FormLoginComponent } from "../../components/auth/FormLoginComponent.jsx";
 
-/** Assets & Icons */
+/** Icons */
 import { IconBrandGoogleFilled, IconCircleXFilled } from "@tabler/icons-react";
+
+/** Assets, Utils & Constants */
+import logoHeader from "../../assets/tikal/logoHeader_1.svg";
 
 /**
  * Login Page Layout
@@ -26,6 +29,8 @@ import { IconBrandGoogleFilled, IconCircleXFilled } from "@tabler/icons-react";
  * @returns {JSX.Element} The rendered login page layout.
  */
 export const LoginPage = () => {
+    // --- 1. Hooks & Contexts ---
+
     /**
      * Translation Hook
      *
@@ -35,33 +40,73 @@ export const LoginPage = () => {
     const { t } = useTranslation("auth");
 
     /**
-     * Hook for programmatic navigation.
+     * Navigation Hook
+     *
+     * Enables programmatic routing after successful authentication events.
      */
     const navigate = useNavigate();
+
+    /**
+     * Authentication Hook
+     *
+     * Provides the 'googleLogin' function to communicate with the Auth Context/API.
+     */
+    const { googleLogin } = useAuth();
+
+    // --- 2. Local State ---
 
     /**
      * API Error State
      *
      * Stores the error message returned by the backend to display an alert.
-     * @type {[string, function]}
      */
     const [apiError, setApiError] = useState("");
-
-    /**
-     * Authentication Hook
-     *
-     * Provides the 'login' function to communicate with the Auth Context/API.
-     */
-    const { googleLogin } = useAuth();
 
     /**
      * Popup Visibility State
      *
      * Controls the visibility of the error popup for animation purposes.
      * When true, the popup scales in and becomes fully opaque.
-     * @type {[boolean, function]}
      */
     const [isVisible, setIsVisible] = useState(false);
+
+    // --- 3. Derived Variables ---
+
+    /**
+     * Icon Component Map
+     *
+     * Maps string identifiers to their corresponding React icon components.
+     * Used dynamically when rendering the sign-in options below.
+     */
+    const iconMap = {
+        GoogleIcon: IconBrandGoogleFilled,
+    };
+
+    /**
+     * Provider Component Map
+     *
+     * Maps string identifiers to their corresponding OAuth provider components
+     * or context logic functions. Used for dynamically rendering the right handler
+     * within the social login buttons below.
+     */
+    const loginMap = {
+        Google: GoogleLogin,
+    };
+
+    /**
+     * Social Sign-in Options
+     *
+     * Configuration array for rendering social login buttons.
+     */
+    const signInOptions = [
+        {
+            title: "Google",
+            icon: "GoogleIcon",
+            action: handleGoogleLogin,
+        },
+    ];
+
+    // --- 4. Side Effects ---
 
     /**
      * Popup Auto-Hide Effect
@@ -82,21 +127,7 @@ export const LoginPage = () => {
         }
     }, [apiError]);
 
-    /**
-     * Closes the Error Popup
-     *
-     * Triggers the exit animation by setting `isVisible` to false, and then
-     * clears the `apiError` message after the animation duration (300ms).
-     *
-     * @function
-     */
-    const closePopup = () => {
-        setIsVisible(false);
-
-        setTimeout(() => {
-            setApiError("");
-        }, 300);
-    };
+    // --- 5. Event Handlers & Functions ---
 
     /**
      * Google Login Handler
@@ -109,55 +140,36 @@ export const LoginPage = () => {
      * @function
      * @param {Object} credentialResponse - The response object from Google Login popup.
      */
-    const handleGoogleLogin = async (credentialResponse) => {
+    async function handleGoogleLogin(credentialResponse) {
         try {
             await googleLogin(credentialResponse.credential);
             navigate("/loading");
         } catch (error) {
             setApiError(error.message);
         }
-    };
+    }
 
     /**
-     * Icon Component Map
+     * Closes the Error Popup
      *
-     * Maps string identifiers to their corresponding React icon components.
-     * Used dynamically when rendering the sign-in options below.
-     * @type {Object<string, React.FC>}
+     * Triggers the exit animation by setting `isVisible` to false, and then
+     * clears the `apiError` message after the animation duration (300ms).
+     *
+     * @function
      */
-    const iconMap = {
-        GoogleIcon: IconBrandGoogleFilled,
-    };
+    function closePopup() {
+        setIsVisible(false);
 
-    /**
-     * Provider Component Map
-     *
-     * Maps string identifiers to their corresponding OAuth provider components
-     * or context logic functions. Used for dynamically rendering the right handler
-     * within the social login buttons below.
-     * @type {Object<string, React.FC>}
-     */
-    const loginMap = {
-        Google: GoogleLogin,
-    };
+        setTimeout(() => {
+            setApiError("");
+        }, 300);
+    }
 
-    /**
-     * Social Sign-in Options
-     *
-     * Configuration array for rendering social login buttons.
-     * @type {Array<Object>}
-     */
-    const signInOptions = [
-        {
-            title: "Google",
-            icon: "GoogleIcon",
-            action: handleGoogleLogin,
-        },
-    ];
+    // --- 6. Render ---
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-primary p-0 md:p-4">
-            {/* API Error Alert */}
+            {/* API Error Alert Modal */}
             {apiError && (
                 <div
                     className={`absolute top-10 md:top-16 h-16 w-[89%] md:w-1/4 bg-primary border-2 border-tertiary-200 text-tertiary-200 px-4 py-3 rounded-lg flex items-center justify-center gap-3 shadow-xl transition-all duration-300 animate-fade-in-up z-50
@@ -177,17 +189,17 @@ export const LoginPage = () => {
                         to="/"
                         className="text-primary-300 font-semibold cursor-pointer transition-colors duration-300"
                     >
-                        <img className="h-10 w-auto" src="/public/logoHeader_1.svg" alt="Logo Tikal" />
+                        <img className="h-10 w-auto" src={logoHeader} alt="Logo Tikal" />
                     </Link>
 
                     <h1 className="text-primary-300 text-3xl text-center font-bold">{t("auth.login.title")}</h1>
                 </div>
 
                 <div className="flex-1 flex flex-col justify-center">
-                    {/* Login Form */}
+                    {/* Primary Login Form Integration */}
                     <FormLoginComponent apiError={apiError} setApiError={setApiError} t={t} />
 
-                    {/* Forgot Password */}
+                    {/* Alternative Sign-In Divider */}
                     <div className="relative w-full flex items-center justify-center p-8">
                         <div className="absolute w-full border-primary border-t-[3px]"></div>
 
@@ -196,30 +208,29 @@ export const LoginPage = () => {
                         </span>
                     </div>
 
-                    {/* SignIn options buttons */}
+                    {/* Dynamic Social SignIn Options List */}
                     <div className="flex justify-center gap-4">
                         {signInOptions.map((option, index) => {
                             const IconComponent = iconMap[option.icon];
                             const LoginComponent = loginMap[option.title];
 
                             return (
-                                <div className="relative btn-primary h-12 w-12 rounded-full md:opacity-80 hover:opacity-100 transition-all duration-300 shadow-md bg-white overflow-hidden">
-                                    <div
-                                        key={index}
-                                        className="absolute inset-0 flex items-center justify-center pointer-events-none"
-                                    >
+                                <div
+                                    key={index}
+                                    className="relative btn-primary h-12 w-12 rounded-full md:opacity-80 hover:opacity-100 transition-all duration-300 shadow-md bg-white overflow-hidden"
+                                >
+                                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                                         <IconComponent />
                                     </div>
 
                                     <div className="absolute inset-0 opacity-0 z-10 flex items-center justify-center transform scale-[1.5]">
                                         <LoginComponent
-                                            type="button"
+                                            type="icon"
                                             title={option.title}
                                             onSuccess={option.action}
-                                            type="icon"
                                             shape="circle"
                                             size="large"
-                                        ></LoginComponent>
+                                        />
                                     </div>
                                 </div>
                             );
@@ -233,7 +244,7 @@ export const LoginPage = () => {
                             <Link
                                 to="/register"
                                 state={{ plan: "GRATUITO" }}
-                                className="text-primary-600 font-semibold transition-colors hover:text-primary-700"
+                                className="text-primary-600 font-semibold transition-colors hover:text-primary-700 ml-1"
                             >
                                 {t("auth.login.footer.link")}
                             </Link>

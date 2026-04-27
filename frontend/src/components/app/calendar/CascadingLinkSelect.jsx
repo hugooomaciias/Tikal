@@ -1,4 +1,4 @@
-/** React & Third-Party Libraries */
+/** React */
 import { useState, useRef, useEffect } from "react";
 
 /**
@@ -19,10 +19,22 @@ import { useState, useRef, useEffect } from "react";
  * @returns {JSX.Element} The rendered cascading select component.
  */
 export const CascadingLinkSelect = ({ options, currentLinkId, onSelect, error, inputClass, t }) => {
+    // --- 1. Hooks & Contexts ---
+
+    /**
+     * Component DOM Reference
+     *
+     * Reference to the main component container, used to detect clicks outside
+     * for auto-closing the dropdown.
+     */
+    const linkSelectorRef = useRef(null);
+
+    // --- 2. Local State ---
+
     /**
      * Dropdown Open State
      *
-     * Controls whether the cascading selector dropdown is visible.
+     * Tracks whether the cascading selector dropdown is currently visible.
      */
     const [isOpen, setIsOpen] = useState(false);
 
@@ -46,25 +58,19 @@ export const CascadingLinkSelect = ({ options, currentLinkId, onSelect, error, i
         task: "",
     });
 
-    /**
-     * Component DOM Reference
-     *
-     * Reference to the main component container, used to detect clicks outside
-     * for auto-closing the dropdown.
-     */
-    const linkSelectorRef = useRef(null);
+    // --- 3. Derived Variables ---
 
     /**
      * Current Selected Item Look-up
      *
-     * Finds the full item object from the options array based on the `currentLinkId`.
+     * Finds the full item object from the options array based on the `currentLinkId` prop.
      */
     const currentSelectedItem = options.find((opt) => opt.id === currentLinkId);
 
     /**
      * Filtered Options
      *
-     * Dynamically computed list of options available based on the current active tab and cascading path.
+     * Dynamically computes the list of options available based on the current active tab and overall cascading path.
      */
     const filteredOptions = options.filter((opt) => {
         if (activeLinkTab === "project") return opt.type === "project";
@@ -73,9 +79,7 @@ export const CascadingLinkSelect = ({ options, currentLinkId, onSelect, error, i
         return false;
     });
 
-    // ==========================================
-    // 2. EFFECTS
-    // ==========================================
+    // --- 4. Side Effects ---
 
     /**
      * Click Outside Handler Effect
@@ -97,6 +101,8 @@ export const CascadingLinkSelect = ({ options, currentLinkId, onSelect, error, i
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, [isOpen]);
 
+    // --- 5. Event Handlers & Functions ---
+
     /**
      * Selection Handler
      *
@@ -105,6 +111,7 @@ export const CascadingLinkSelect = ({ options, currentLinkId, onSelect, error, i
      * Triggers the `onSelect` prop to notify the parent component of the selection.
      *
      * @param {Object} option - The option selected by the user.
+     * @returns {void}
      */
     const handleCascadingSelection = (option) => {
         if (option.type === "project") {
@@ -133,9 +140,10 @@ export const CascadingLinkSelect = ({ options, currentLinkId, onSelect, error, i
         return "w-[calc(100%-12px)]";
     };
 
+    // --- 6. Render ---
     return (
         <div ref={linkSelectorRef} className="relative inline-block text-left shrink-0 w-full">
-            {/* Input Display Field */}
+            {/* Input Display Field & Label */}
             <input
                 type="text"
                 id="linkId"
@@ -228,7 +236,7 @@ export const CascadingLinkSelect = ({ options, currentLinkId, onSelect, error, i
                             );
                         })
                     ) : (
-                        <p className="text-xs text-center text-primary/70 py-3">No hay opciones en este nivel</p>
+                        <p className="text-xs text-center text-primary/70 py-3">{t("popup.linked.no_options")}</p>
                     )}
                 </div>
 

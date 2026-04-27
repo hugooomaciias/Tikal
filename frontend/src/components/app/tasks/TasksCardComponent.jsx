@@ -1,15 +1,11 @@
 /** React & Third-Party Libraries */
 import { useState, useEffect } from "react";
-import tailwindConfig from "../../../../tailwind.config.js";
-import resolveConfig from "tailwindcss/resolveConfig";
 
-/** Components */
+/** Components & Layouts */
 import { TaskPopUpComponent } from "./TaskPopUpComponent.jsx";
+import { ScrollingText } from "../common/ScrollingText";
 
-/** Constants */
-import { PHASE_COLOURS } from "../../../constants/phase_colours.js";
-
-/** Assets & Icons */
+/** Icons */
 import {
     IconSearch,
     IconCircleXFilled,
@@ -18,8 +14,20 @@ import {
     IconCirclePlusFilled,
     IconPlayerPlayFilled,
     IconPencilFilled,
+    IconCircleChevronLeftFilled,
 } from "@tabler/icons-react";
 
+/** Assets, Utils & Constants */
+import tailwindConfig from "../../../../tailwind.config.js";
+import resolveConfig from "tailwindcss/resolveConfig";
+import { PHASE_COLOURS } from "../../../constants/phase_colours.js";
+
+/**
+ * Tailwind Configuration Resolver
+ *
+ * Resolves the Tailwind configuration to extract the defined color palette,
+ * ensuring the color constants match the application's global design tokens.
+ */
 const fullConfig = resolveConfig(tailwindConfig);
 const tailwindColors = fullConfig.theme.colors;
 
@@ -32,59 +40,122 @@ const tailwindColors = fullConfig.theme.colors;
  *
  * @component
  * @param {Object} props - The component props.
+ * @param {Array} props.data - Array of task data objects.
+ * @param {string} props.stageColor - The ID/hex of the current stage color.
+ * @param {boolean} props.isCompletedFilter - Flag indicating if completed tasks are shown.
+ * @param {Function} props.handleBackNavigation - Callback for mobile back button.
  * @param {Function} props.t - Translation function from i18next.
- * @returns {JSX.Element} The rendered tasks card.
+ * @returns {JSX.Element|null} The rendered tasks card.
  */
-export const TasksCardComponent = ({ data, stageColor, isCompletedFilter, t }) => {
+export const TasksCardComponent = ({ data, stageColor, isCompletedFilter, handleBackNavigation, t }) => {
+    // --- 2. Local State ---
+
+    /**
+     * Local Tasks State
+     *
+     * Tracks the internal list of tasks, allowing optimistic UI updates for completion toggling.
+     * Synced with incoming prop data when it changes.
+     */
     const [localTasks, setLocalTasks] = useState(data);
 
     /**
      * Active Task State
      *
-     * Stores the title of the currently highlighted task row, driving
-     * the expanded subtask view UI.
+     * Tracks the ID of the currently highlighted task row, driving the expanded subtask view UI.
      */
     const [activeTaskId, setActiveTaskId] = useState(null);
 
     /**
      * Search Modal State
      *
-     * Toggles the visibility of the search input for filtering tasks.
+     * Tracks the visibility of the search input for filtering tasks.
      */
     const [isTaskSearchOpen, setIsTaskSearchOpen] = useState(false);
 
     /**
      * Search Query State
      *
-     * Stores the current text used to filter the tasks list.
+     * Tracks the current text used to filter the tasks list.
      */
     const [taskSearchQuery, setTaskSearchQuery] = useState("");
 
     /**
      * Edit Task State
      *
-     * Stores the task object to be edited, or 'new' if creating a new task.
+     * Tracks the task object to be edited, or 'new' if creating a new task.
      * Controls the visibility and mode of the TaskPopUpComponent.
      */
     const [taskToEdit, setTaskToEdit] = useState(null);
 
+    /**
+     * Open Tooltip State
+     *
+     * Tracks the ID of the task whose note tooltip is currently expanded on mobile devices.
+     */
+    const [openTooltipId, setOpenTooltipId] = useState(null);
+
+    // --- 3. Derived Variables ---
+
+    /**
+     * Stage Theme Color
+     *
+     * Computes the hexadecimal color value associated with the current stage.
+     * Defaults to the primary theme color if the specific stage color is not found.
+     */
+    const foundColor = PHASE_COLOURS.find((c) => c.id === stageColor);
+    const color = foundColor ? foundColor.hex : tailwindColors.primary["DEFAULT"];
+
+    /**
+     * Filtered Tasks Array
+     *
+     * Computes the subset of tasks that match the active search query and the completion filter.
+     */
     const filteredTasks = localTasks.filter((task) => {
         const matchesSearch = task.name.toLowerCase().includes(taskSearchQuery.toLowerCase());
         const matchesStatus = isCompletedFilter ? task : !task.isCompleted;
         return matchesSearch && matchesStatus;
     });
 
+    // --- 4. Side Effects ---
+
+    /**
+     * Tooltip Auto-Close Effect
+     *
+     * Triggers a timer to automatically close an opened tooltip after 4 seconds to improve UX.
+     */
+    useEffect(() => {
+        let timeoutId;
+
+        if (openTooltipId !== null) {
+            timeoutId = setTimeout(() => {
+                setOpenTooltipId(null);
+            }, 4000);
+        }
+
+        return () => {
+            if (timeoutId) clearTimeout(timeoutId);
+        };
+    }, [openTooltipId]);
+
+    /**
+     * Props Synchronization Effect
+     *
+     * Triggers a state update to keep the local tasks list in sync with the external data prop.
+     */
     useEffect(() => {
         setLocalTasks(data);
     }, [data]);
 
+    // --- 5. Event Handlers & Functions ---
+
     /**
      * Task Completion Toggle Handler
      *
-     * Specifically inverts the boolean 'completed' value for the target
-     * task ID without mutating other list items.
+     * Triggers an update to the boolean 'completed' value for the target
+     * task ID in the local state, enabling optimistic UI updates.
      *
      * @param {number} taskId - The ID of the task to toggle.
+     * @returns {void}
      */
     const toggleTaskCompletion = (taskId) => {
         setLocalTasks((prev) =>
@@ -92,36 +163,157 @@ export const TasksCardComponent = ({ data, stageColor, isCompletedFilter, t }) =
         );
     };
 
-    const foundColor = PHASE_COLOURS.find((c) => c.id === stageColor);
-    const color = foundColor ? foundColor.hex : tailwindColors.primary["DEFAULT"];
+    /**
+     * Search Toggle Handler
+     *
+     * Triggers the visibility state of the search input bar and clears the query if closing.
+     *
+     * @returns {void}
+     */
+    const handleSearchToggle = () => {
+        setIsTaskSearchOpen(!isTaskSearchOpen);
+        if (isTaskSearchOpen) setTaskSearchQuery("");
+    };
+
+    /**
+     * Search Query Change Handler
+     *
+     * Triggers an update to the task search query state based on user input.
+     *
+     * @param {React.ChangeEvent<HTMLInputElement>} e - The native change event.
+     * @returns {void}
+     */
+    const handleSearchChange = (e) => {
+        setTaskSearchQuery(e.target.value);
+    };
+
+    /**
+     * Task Completion Toggle Factory
+     *
+     * Computes a specific handler function to toggle the completion status of a given task.
+     *
+     * @param {string|number} taskId - The ID of the task.
+     * @returns {Function} Event handler.
+     */
+    const handleToggleCompletion = (taskId) => () => {
+        toggleTaskCompletion(taskId);
+    };
+
+    /**
+     * Active Task Toggle Factory
+     *
+     * Computes a specific handler for toggling the expanded subtask view of a given row.
+     *
+     * @param {string|number} taskId - The ID of the clicked task.
+     * @param {boolean} isActive - Whether the task is currently the active one.
+     * @returns {Function} Event handler.
+     */
+    const handleActiveTaskToggle = (taskId, isActive) => () => {
+        setActiveTaskId(isActive ? null : taskId);
+    };
+
+    /**
+     * Tooltip Toggle Factory
+     *
+     * Computes a specific handler for toggling the visibility of a task's description tooltip.
+     *
+     * @param {string|number} taskId - The ID of the clicked task.
+     * @param {boolean} isTooltipOpen - Whether the tooltip is currently open.
+     * @returns {Function} Event handler.
+     */
+    const handleTooltipToggle = (taskId, isTooltipOpen) => (e) => {
+        e.stopPropagation();
+        setOpenTooltipId(isTooltipOpen ? null : taskId);
+    };
+
+    /**
+     * Button Mouse Enter Handler
+     *
+     * Triggers dynamic inline style updates on hover for action buttons, using the stage theme color.
+     *
+     * @param {React.MouseEvent<HTMLDivElement>} e - The mouse event.
+     * @returns {void}
+     */
+    const handleButtonMouseEnter = (e) => {
+        e.currentTarget.style.backgroundColor = color;
+        e.currentTarget.style.color = tailwindColors.primary["DEFAULT"];
+    };
+
+    /**
+     * Button Mouse Leave Handler
+     *
+     * Triggers dynamic inline style restoration on mouse leave for action buttons.
+     *
+     * @param {React.MouseEvent<HTMLDivElement>} e - The mouse event.
+     * @returns {void}
+     */
+    const handleButtonMouseLeave = (e) => {
+        e.currentTarget.style.backgroundColor = `${color}10`;
+        e.currentTarget.style.color = color;
+    };
+
+    /**
+     * Edit Task Factory
+     *
+     * Computes a specific handler to launch the task popup initialized with a selected task's data.
+     *
+     * @param {Object} task - The task object to edit.
+     * @returns {Function} Event handler.
+     */
+    const handleEditTask = (task) => () => {
+        setTaskToEdit(task);
+    };
+
+    /**
+     * Create Task Handler
+     *
+     * Triggers the task popup modal in creation mode (using 'new' as identifier).
+     *
+     * @returns {void}
+     */
+    const handleCreateTask = () => {
+        setTaskToEdit("new");
+    };
+
+    /**
+     * Close PopUp Handler
+     *
+     * Triggers the closure of the task creation/editing popup modal.
+     *
+     * @returns {void}
+     */
+    const handleClosePopUp = () => {
+        setTaskToEdit(null);
+    };
+
+    // --- 6. Render ---
 
     if (!data || !Array.isArray(data)) return null;
 
     return (
-        <div className="h-full flex-1 flex flex-col items-end justify-between p-6 bg-primary rounded-[2.5rem]">
+        <>
+            {/* Main Content Layout */}
             <div className="h-full w-full flex flex-col items-center gap-4">
+                {/* Header Section: Title & Search Bar */}
                 <div className="h-10 w-full flex items-center justify-between text-quaternary-700">
                     {!isTaskSearchOpen && <span className="text-2xl font-bold">{t("tasks.title")}</span>}
 
+                    {/* Expanding Search Input Container */}
                     <div
                         className={`flex items-center justify-end transition-all duration-500 ease-in-out rounded-full ${isTaskSearchOpen ? "w-full bg-primary-50 px-3 py-1.5 shadow-inner" : "w-fit bg-transparent p-0"}`}
                     >
-                        {/* Expanding Search Input */}
                         <input
                             type="text"
                             placeholder={t("tasks.search")}
                             value={taskSearchQuery}
-                            onChange={(e) => setTaskSearchQuery(e.target.value)}
+                            onChange={handleSearchChange}
                             autoFocus={isTaskSearchOpen}
                             className={`bg-transparent outline-none text-primary-600 transition-all duration-500 ease-in-out ${isTaskSearchOpen ? "w-full opacity-100 ml-2" : "w-0 opacity-0"}`}
                         />
 
                         <button
                             className="flex-shrink-0 cursor-pointer hover:text-quaternary-900 transition-colors"
-                            onClick={() => {
-                                setIsTaskSearchOpen(!isTaskSearchOpen);
-                                if (isTaskSearchOpen) setTaskSearchQuery("");
-                            }}
+                            onClick={handleSearchToggle}
                         >
                             {isTaskSearchOpen ? (
                                 <IconCircleXFilled className="w-6 h-6 text-primary-200" />
@@ -132,55 +324,91 @@ export const TasksCardComponent = ({ data, stageColor, isCompletedFilter, t }) =
                     </div>
                 </div>
 
+                {/* Tasks List Container */}
                 <div className="h-fit w-full flex flex-col gap-3">
                     {filteredTasks.length > 0 ? (
-                        filteredTasks.map((tasks) => {
-                            const isActive = activeTaskId === tasks.id;
-                            const hasNote = tasks.description && tasks.description !== "";
-                            const hasSubtasks = tasks.numberOfSubTask > 0;
+                        filteredTasks.map((task) => {
+                            /** Indicates if the current task row is expanded. */
+                            const isActive = activeTaskId === task.id;
+                            /** Indicates if the task has an attached description. */
+                            const hasNote = task.description && task.description !== "";
+                            /** Indicates if the task contains subtasks. */
+                            const hasSubtasks = task.numberOfSubTask > 0;
+                            /** Indicates if the tooltip for this specific task is open. */
+                            const isTooltipOpen = openTooltipId === task.id;
 
                             return (
                                 <div
-                                    key={tasks.id}
-                                    className={`h-fit w-full flex items-start justify-between ${hasSubtasks && isActive ? "bg-primary-200 py-3" : "bg-transparent"} ${tasks.isCompleted ? "opacity-40" : "opacity-100"} px-3 rounded-3xl`}
+                                    key={task.id}
+                                    className={`relative ${isTooltipOpen ? "z-50" : "z-10 hover:z-40"} h-fit w-full flex flex-col ${hasSubtasks && isActive ? "bg-primary-200 py-3" : "bg-transparent"} ${task.isCompleted ? "opacity-40" : "opacity-100"} px-3 rounded-3xl transition-all duration-300`}
                                 >
-                                    <div className="w-full flex-1 flex gap-4">
+                                    {/* Individual Task Card */}
+                                    {/* Task Row (Check, Title, Actions) */}
+                                    <div className="w-full flex flex-1 gap-4 min-w-0">
+                                        {/* Completion Checkbox Button */}
                                         <button
-                                            onClick={() => toggleTaskCompletion(tasks.id)}
+                                            onClick={handleToggleCompletion(task.id)}
                                             className={`h-7 w-7 flex items-center justify-center p-[0.20rem] ${hasSubtasks && isActive ? "" : "mt-1"} rounded-full`}
                                             style={{
                                                 backgroundColor: color,
                                             }}
                                         >
                                             <IconCircleCheckFilled
-                                                className={`w-full h-full text-primary ${tasks.isCompleted ? "" : "opacity-0"} z-50`}
+                                                className={`h-full text-primary ${task.isCompleted ? "" : "opacity-0"} z-50`}
                                             />
                                         </button>
 
-                                        {/* Task Title & Interaction */}
+                                        {/* Task Title & Metadata */}
                                         <div
-                                            className="flex-1 flex flex-col cursor-pointer overflow-hidden"
-                                            onClick={() => setActiveTaskId(isActive ? null : tasks.id)}
+                                            className="flex-1 flex flex-col cursor-pointer min-w-0"
+                                            onClick={handleActiveTaskToggle(task.id, isActive)}
                                         >
-                                            <span
-                                                className={`text-xl truncate ${hasSubtasks && isActive ? "text-primary" : "text-quaternary-700"}`}
+                                            <div
+                                                className={`min-w-0 w-full text-xl text-quaternary-700 ${hasSubtasks && isActive ? "text-primary" : "text-quaternary-700"}`}
                                             >
-                                                {tasks.name}
-                                            </span>
+                                                <ScrollingText text={task.name} />
+                                            </div>
 
                                             {(!isActive || (isActive && !hasSubtasks)) && (
                                                 <div className="flex items-center gap-2 text-xs text-quaternary-400">
+                                                    {/* Task Subtasks & Note Info */}
                                                     <span>
-                                                        {tasks.numberOfSubTask || t("tasks.no_subtasks")}{" "}
+                                                        {task.numberOfSubTask || t("tasks.no_subtasks")}{" "}
                                                         {t("tasks.subtasks")}
                                                     </span>
-                                                    {hasNote && <IconNote className="h-3 w-3" />}
+
+                                                    {hasNote && (
+                                                        <div
+                                                            className="relative group flex items-center justify-center shrink-0"
+                                                            onClick={handleTooltipToggle(task.id, isTooltipOpen)}
+                                                        >
+                                                            {/* Description Tooltip Icon */}
+                                                            <IconNote
+                                                                className={`h-4 w-4 transition-colors duration-200 text-quaternary-400 ${
+                                                                    isActive ? "md:text-primary" : ""
+                                                                }`}
+                                                            />
+
+                                                            {/* Expanded Tooltip Content */}
+                                                            <div
+                                                                className={`absolute z-50 w-48 p-2 text-sm font-medium text-primary bg-quaternary-700 rounded-lg shadow-lg pointer-events-none transition-all
+                                                                    right-auto left-1/2 -translate-x-1/2 top-auto bottom-full translate-y-0 mr-0 mb-2
+                                                                    ${isTooltipOpen ? "block" : "hidden md:group-hover:block"}
+                                                                `}
+                                                            >
+                                                                {task.description}
+
+                                                                <div className="absolute left-1/2 -translate-x-1/2 top-full w-0 h-0 border-x-8 border-x-transparent border-t-8 border-t-quaternary-700"></div>
+                                                            </div>
+                                                        </div>
+                                                    )}
                                                 </div>
                                             )}
                                         </div>
 
-                                        {/* Action Buttons */}
+                                        {/* Row Action Buttons */}
                                         <div className="flex items-center gap-2">
+                                            {/* Play Action Button */}
                                             <div
                                                 className="p-1.5 rounded-full transition-all cursor-pointer"
                                                 style={{
@@ -188,36 +416,25 @@ export const TasksCardComponent = ({ data, stageColor, isCompletedFilter, t }) =
                                                     color: color,
                                                     border: `2px solid ${color}`,
                                                 }}
-                                                onMouseEnter={(e) => {
-                                                    e.currentTarget.style.backgroundColor = color;
-                                                    e.currentTarget.style.color = tailwindColors.primary["DEFAULT"];
-                                                }}
-                                                onMouseLeave={(e) => {
-                                                    e.currentTarget.style.backgroundColor = `${color}10`;
-                                                    e.currentTarget.style.color = color;
-                                                }}
+                                                onMouseEnter={handleButtonMouseEnter}
+                                                onMouseLeave={handleButtonMouseLeave}
                                             >
                                                 <IconPlayerPlayFilled
                                                     className="w-4 h-4"
                                                     style={{ color: "inherit" }}
                                                 />
                                             </div>
+                                            {/* Edit Action Button */}
                                             <div
-                                                onClick={() => setTaskToEdit(tasks)}
+                                                onClick={handleEditTask(task)}
                                                 className="p-1.5 rounded-full transition-all cursor-pointer"
                                                 style={{
                                                     backgroundColor: `${color}10`,
                                                     color: color,
                                                     border: `2px solid ${color}`,
                                                 }}
-                                                onMouseEnter={(e) => {
-                                                    e.currentTarget.style.backgroundColor = color;
-                                                    e.currentTarget.style.color = tailwindColors.primary["DEFAULT"];
-                                                }}
-                                                onMouseLeave={(e) => {
-                                                    e.currentTarget.style.backgroundColor = `${color}10`;
-                                                    e.currentTarget.style.color = color;
-                                                }}
+                                                onMouseEnter={handleButtonMouseEnter}
+                                                onMouseLeave={handleButtonMouseLeave}
                                             >
                                                 <IconPencilFilled className="w-4 h-4" style={{ color: "inherit" }} />
                                             </div>
@@ -227,7 +444,7 @@ export const TasksCardComponent = ({ data, stageColor, isCompletedFilter, t }) =
                                     {/* Subtasks Expanded View */}
                                     {isActive && hasSubtasks && (
                                         <div className="w-full mt-4 pl-11 flex flex-col gap-2 border-l-2 border-primary-300 ml-3">
-                                            {tasks.subtasks.map((sub, idx) => (
+                                            {task.subtasks.map((sub, idx) => (
                                                 <div
                                                     key={idx}
                                                     className="flex items-center justify-between text-sm text-primary/80"
@@ -240,7 +457,7 @@ export const TasksCardComponent = ({ data, stageColor, isCompletedFilter, t }) =
                                             ))}
                                             {hasNote && (
                                                 <div className="mt-2 p-3 bg-white/50 rounded-xl text-xs text-quaternary-600 italic">
-                                                    {tasks.description}
+                                                    {task.description}
                                                 </div>
                                             )}
                                         </div>
@@ -256,19 +473,29 @@ export const TasksCardComponent = ({ data, stageColor, isCompletedFilter, t }) =
                 </div>
             </div>
 
-            {/* Create Task Button */}
-            <button onClick={() => setTaskToEdit("new")}>
-                <IconCirclePlusFilled className="h-10 w-10 text-primary-200/70 hover:text-primary-200" />
-            </button>
+            {/* Bottom Actions: Back Navigation & Create Task */}
+            <div className="w-full flex items-center justify-between md:justify-end">
+                <button
+                    onClick={handleBackNavigation}
+                    className="md:hidden flex items-center gap-1 bg-primary-200 rounded-full pr-2 text-primary"
+                >
+                    <IconCircleChevronLeftFilled className="h-9 w-9 " />
+                    <span className="font-semibold">Fases</span>
+                </button>
+
+                <button onClick={handleCreateTask}>
+                    <IconCirclePlusFilled className="h-10 w-10 text-primary-200 md:text-primary-200/70 md:hover:text-primary-200" />
+                </button>
+            </div>
 
             {/* Create/Edit Task PopUp Modal */}
             {taskToEdit && (
                 <TaskPopUpComponent
-                    onClose={() => setTaskToEdit(null)}
+                    onClose={handleClosePopUp}
                     initialData={taskToEdit === "new" ? null : taskToEdit}
                     t={t}
                 />
             )}
-        </div>
+        </>
     );
 };

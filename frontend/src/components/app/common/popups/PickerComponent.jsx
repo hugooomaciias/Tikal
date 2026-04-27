@@ -1,6 +1,9 @@
 /** React & Third-Party Libraries */
 import { useState, useRef, useEffect } from "react";
 
+/** Assets, Utils & Constants */
+import { PHASE_COLOURS } from "../../../../constants/phase_colours.js";
+
 /**
  * Reusable Picker Component
  *
@@ -17,26 +20,35 @@ import { useState, useRef, useEffect } from "react";
  * @returns {JSX.Element} The rendered picker component.
  */
 export const PickerComponent = ({ items, selectedItem, onChange, disabled = false, pickerType = "colour" }) => {
-    /**
-     * Menu Visibility State
-     *
-     * Controls whether the dropdown grid is currently open and visible.
-     */
-    const [isOpen, setIsOpen] = useState(false);
+    // --- 1. Hooks & Contexts ---
 
     /**
-     * Component Reference
+     * Dropdown Container Reference
      *
-     * Local reference to the main container div, used to detect clicks outside
-     * of the component to automatically close the dropdown.
+     * Creates a mutable ref object attached to the main component wrapper.
+     * This is strictly used by the outside click detector to define the boundary
+     * of the dropdown and determine if a click originated outside of it.
      */
     const pickerRef = useRef(null);
 
+    // --- 2. Local State ---
+
     /**
-     * Outside Click Detector Engine
+     * Dropdown Visibility Indicator
      *
-     * Effect hook to attach and detach event listeners for detecting clicks outside
-     * the component. Optimized to only listen when the menu is actively open.
+     * Tracks the current visual state of the popup grid menu (open/closed).
+     * Used to conditionally render the dropdown overlay and attach global event listeners.
+     */
+    const [isOpen, setIsOpen] = useState(false);
+
+    // --- 4. Side Effects ---
+
+    /**
+     * Outside Click Listener
+     *
+     * Attaches a global `mousedown` event listener to the document whenever the dropdown is open and not disabled.
+     * Evaluates click targets against the `pickerRef` boundary, automatically closing the menu if the click occurs outside.
+     * Cleans up the listener on unmount or when dependencies change to prevent memory leaks.
      */
     useEffect(() => {
         const handleClickOutside = (event) => {
@@ -54,27 +66,32 @@ export const PickerComponent = ({ items, selectedItem, onChange, disabled = fals
         };
     }, [isOpen, disabled]);
 
+    // --- 5. Event Handlers & Functions ---
+
     /**
-     * Toggle Menu State
+     * Dropdown Toggle Handler
      *
-     * Handles opening and closing the dropdown menu.
+     * Reverses the current visibility state of the dropdown menu.
+     * Triggered by user interaction with the main component button.
      */
     const toggleMenu = () => {
         setIsOpen((prev) => !prev);
     };
 
     /**
-     * Selection Handler
+     * Item Selection Handler
      *
-     * Processes the user's selection from the grid, lifting the newly selected item
-     * to the parent component and closing the menu.
+     * Executes the parent-provided `onChange` callback with the newly selected item,
+     * and subsequently closes the dropdown menu to finalize the interaction.
      *
-     * @param {Object} item - The selected item object.
+     * @param {Object} item - The selected object from the picker grid.
      */
     const handleSelection = (item) => {
         onChange(item);
         setIsOpen(false);
     };
+
+    // --- 6. Render ---
 
     return (
         <div ref={pickerRef} className="relative shrink-0">
@@ -91,7 +108,7 @@ export const PickerComponent = ({ items, selectedItem, onChange, disabled = fals
                 {pickerType === "colour" ? (
                     <div
                         className="w-7 h-7 rounded-full transition-all transform shadow-inner"
-                        style={{ backgroundColor: selectedItem?.hex || "#ccc" }}
+                        style={{ backgroundColor: selectedItem?.hex || PHASE_COLOURS[0].hex }}
                     ></div>
                 ) : (
                     selectedItem?.component && <selectedItem.component className="w-7 h-7" />

@@ -1,14 +1,16 @@
 /** React & Third-Party Libraries */
 import { DatePicker, registerLocale } from "react-datepicker";
-import es from "date-fns/locale/es";
-import en from "date-fns/locale/en-GB";
 import "react-datepicker/dist/react-datepicker.css";
+
+/** Contexts, Hooks & Services */
+import { useTranslation } from "react-i18next";
 
 /** Icons */
 import { IconCalendarWeekFilled } from "@tabler/icons-react";
 
-/** Language */
-import { useTranslation } from "react-i18next";
+/** Assets, Utils & Constants */
+import es from "date-fns/locale/es";
+import en from "date-fns/locale/en-GB";
 
 /** Global Configuration */
 registerLocale("es", es);
@@ -29,12 +31,16 @@ registerLocale("en", en);
  * @returns {JSX.Element} The rendered date picker component.
  */
 export const DatePickerComponent = ({ value, onChange, className, label }) => {
+    // --- 1. Hooks & Contexts ---
+
     /**
      * Translation Hook
      *
      * Provides access to the current i18n instance to evaluate active language state.
      */
     const { i18n } = useTranslation();
+
+    // --- 3. Derived Variables ---
 
     /**
      * Selected Date Object
@@ -52,6 +58,8 @@ export const DatePickerComponent = ({ value, onChange, className, label }) => {
      */
     const currentLocale = i18n.language && i18n.language.startsWith("es") ? "es" : "en";
 
+    // --- 5. Event Handlers & Functions ---
+
     /**
      * Date Change Handler
      *
@@ -63,6 +71,8 @@ export const DatePickerComponent = ({ value, onChange, className, label }) => {
     const handleDateChange = (date) => {
         onChange(date ? date.toISOString() : "");
     };
+
+    // --- 6. Render ---
 
     return (
         <div className="main-datepicker-theme relative w-full flex flex-col group">

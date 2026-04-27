@@ -1,11 +1,10 @@
 /** React & Third-Party Libraries */
+import React from "react";
 import { Link } from "react-router-dom";
-
-/** Assets & Icons */
-import { IconUser, IconUsersGroup, IconCheck, IconX } from "@tabler/icons-react";
-
-/** Language */
 import { useTranslation } from "react-i18next";
+
+/** Icons */
+import { IconUser, IconUsersGroup, IconCheck, IconX } from "@tabler/icons-react";
 
 /**
  * Plans & Pricing Section Component
@@ -15,10 +14,11 @@ import { useTranslation } from "react-i18next";
  * respective features.
  *
  * @component
- * @returns {JSX.Element} The rendered plans section with a responsive grid
- * layout.
+ * @returns {JSX.Element} The rendered plans section with a responsive grid layout.
  */
 export const PlansComponent = () => {
+    // --- 1. Hooks & Contexts ---
+
     /**
      * Translation Hook
      *
@@ -26,6 +26,8 @@ export const PlansComponent = () => {
      * landing page namespace.
      */
     const { t } = useTranslation("landing");
+
+    // --- 3. Derived Variables ---
 
     /**
      * Color Theme Configuration
@@ -98,6 +100,8 @@ export const PlansComponent = () => {
             action: "/payment",
         },
     ];
+
+    // --- 6. Render ---
 
     return (
         <div className="w-full max-w-6xl mx-auto flex items-center justify-items-center p-12 md:p-8 mt-28 md:m-28">

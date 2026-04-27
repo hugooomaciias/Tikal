@@ -85,6 +85,11 @@
             },
             "name": "Task name",
             "time_unit_info": "Desired time unit to count this task",
+            "time_unit_options": {
+                "hours": "hours",
+                "minutes": "minutes",
+                "days": "days"
+            },
             "tabs": {
                 "details": "Details",
                 "subtasks": "Subtasks"

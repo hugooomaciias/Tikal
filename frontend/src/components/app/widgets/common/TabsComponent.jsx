@@ -1,33 +1,59 @@
-import { useState } from "react";
+/** React & Third-Party Libraries */
+import React, { useState } from "react";
 
-/** Constants */
-import { PROJECTS_ICONS } from "../../../../constants/projects_icons.js";
-import { PHASE_COLOURS } from "../../../../constants/phase_colours.js";
-
-import { IconTarget, IconCoin } from "@tabler/icons-react";
+/** Icons */
+import {
+    IconLayoutKanbanFilled,
+    IconTarget,
+    IconCoin,
+    IconCalendarWeekFilled,
+    IconCalendarMonthFilled,
+} from "@tabler/icons-react";
 
 /**
  * Reusable Tabs Component
  *
- * A segmented control/tab switcher used in popups to toggle between two distinct modes.
- * It visually animates between the two states and updates the parent form data accordingly.
+ * A segmented control/tab switcher used in widgets to toggle between two distinct modes or views.
+ * It visually animates between the two states and can act either as a controlled or uncontrolled component.
  *
  * @component
  * @param {Object} props - The component props.
- * @param {string} props.page - The context or page where the tabs are used ("Project", "Stage", "Tasks", or default).
- * @param {Object} props.formData - The current form data state from the parent.
- * @param {Function} props.setFormData - Function to update the parent's form data state.
- * @param {Function} props.setSelected - Function to update the currently selected icon/color in the parent.
- * @param {string} props.fieldToUpdate - The key in `formData` that the tabs govern.
- * @param {Function} props.t - The i18n translation function.
- * @returns {JSX.Element} The rendered tabs component.
+ * @param {string} props.widget - Contextual identifier for the widget ("Task", "Comparison", "Calendar", "EffectivenessX", "EffectivenessY").
+ * @param {Object|Array} [props.props=[]] - Extra configuration props, used specifically for "Comparison" widget labels (`week`, `month`).
+ * @param {string} [props.value] - The currently selected tab value (if used as a controlled component).
+ * @param {Function} [props.onChange] - Callback fired when a tab is clicked.
+ * @param {Function} props.t - Internationalization function for translating strings.
+ * @returns {JSX.Element}
  */
 export const TabsComponent = ({ widget, props = [], value, onChange, t }) => {
+    // --- 2. Local State ---
+
     /**
-     * Tab Type Identifiers
+     * Internal Tab State
      *
-     * Computes the underlying data string representation for the left (first)
-     * and right (second) tabs based on the contextual `page` prop.
+     * Tracks the selected tab when the component is used in an uncontrolled manner
+     * (i.e., when no `value` prop is provided by the parent). It initializes using the
+     * left tab type calculation logic.
+     */
+    const [internalValue, setInternalValue] = useState(() => {
+        return widget === "Calendar"
+            ? "event"
+            : widget === "Task"
+              ? "day"
+              : widget === "EffectivenessX"
+                ? "weekly"
+                : widget === "EffectivenessY"
+                  ? "concentration"
+                  : "this_week";
+    });
+
+    // --- 3. Derived Variables ---
+
+    /**
+     * First Tab Identifier
+     *
+     * Computes the underlying data string representation for the left (first) tab
+     * based on the contextual `widget` prop.
      */
     const firstTabType =
         widget === "Calendar"
@@ -39,6 +65,13 @@ export const TabsComponent = ({ widget, props = [], value, onChange, t }) => {
                 : widget === "EffectivenessY"
                   ? "concentration"
                   : "this_week";
+
+    /**
+     * Second Tab Identifier
+     *
+     * Computes the underlying data string representation for the right (second) tab
+     * based on the contextual `widget` prop.
+     */
     const secondTabType =
         widget === "Calendar"
             ? "project"
@@ -51,58 +84,118 @@ export const TabsComponent = ({ widget, props = [], value, onChange, t }) => {
                   : "this_month";
 
     /**
-     * Current Selection State
+     * Current Active Value
      *
-     * Retrieves the currently active tab value directly from the parent's form data
-     * to determine which side the animated slider should highlight.
+     * Resolves the currently active tab by prioritizing the controlled `value` prop
+     * over the `internalValue` state.
      */
-    const [internalValue, setInternalValue] = useState(firstTabType);
     const currentValue = value !== undefined ? value : internalValue;
 
+    // --- 5. Event Handlers & Functions ---
+
+    /**
+     * Handle Tab Selection
+     *
+     * Updates the internal state (if uncontrolled) and triggers the parent `onChange` callback.
+     *
+     * @param {string} tabValue - The data value associated with the clicked tab.
+     */
     const handleTabClick = (tabValue) => {
         if (value === undefined) {
-            setInternalValue(tabValue); // Usamos el estado interno si no hay prop
+            setInternalValue(tabValue);
         }
 
         if (onChange) {
-            onChange(tabValue); // Le avisamos al padre (el gráfico) del cambio
+            onChange(tabValue);
         }
     };
 
+    /**
+     * Render First Tab Content
+     *
+     * Determines and returns the appropriate label or icon-text combination
+     * for the first tab based on the `widget` context.
+     *
+     * @returns {string|JSX.Element} The visual content of the first tab.
+     */
     const renderFirstTabContent = () => {
-        if (widget === "Calendar") return t("widgets.calendar.tabs.event");
         if (widget === "Task") return t("widgets.tasks.tabs.day");
-        if (widget === "EffectivenessX") return t("widgets.effectiveness_chart.tabs.axisX.weekly");
         if (widget === "Comparison") return props.week;
+
+        if (widget === "Calendar") {
+            return (
+                <div className="flex items-center gap-1.5 justify-center">
+                    <IconLayoutKanbanFilled className="h-5 w-5 md:hidden -rotate-90" stroke={2.5} />
+                    <span className="hidden md:block">{t("widgets.calendar.tabs.event")}</span>
+                </div>
+            );
+        }
+
+        if (widget === "EffectivenessX") {
+            return (
+                <div className="flex items-center gap-1.5 justify-center">
+                    <IconCalendarWeekFilled className="h-5 w-5 md:hidden" stroke={2.5} />
+                    <span className="hidden md:block">{t("widgets.effectiveness_chart.tabs.axisX.weekly")}</span>
+                </div>
+            );
+        }
+
         return (
             <div className="flex items-center gap-1.5 justify-center">
-                <IconTarget className="h-4 w-4" stroke={2.5} />
-                <span>{t("widgets.effectiveness_chart.tabs.axisY.concentration")}</span>
+                <IconTarget className="h-5 w-5 md:hidden" stroke={2.5} />
+                <span className="hidden md:block">{t("widgets.effectiveness_chart.tabs.axisY.concentration")}</span>
             </div>
         );
     };
 
+    /**
+     * Render Second Tab Content
+     *
+     * Determines and returns the appropriate label or icon-text combination
+     * for the second tab based on the `widget` context.
+     *
+     * @returns {string|JSX.Element} The visual content of the second tab.
+     */
     const renderSecondTabContent = () => {
-        if (widget === "Calendar") return t("widgets.calendar.tabs.project");
         if (widget === "Task") return t("widgets.tasks.tabs.project");
-        if (widget === "EffectivenessX") return t("widgets.effectiveness_chart.tabs.axisX.monthly");
         if (widget === "Comparison") return props.month;
+
+        if (widget === "Calendar") {
+            return (
+                <div className="flex items-center gap-1.5 justify-center">
+                    <IconLayoutKanbanFilled className="h-5 w-5 md:hidden" stroke={2.5} />
+                    <span className="hidden md:block">{t("widgets.calendar.tabs.project")}</span>
+                </div>
+            );
+        }
+
+        if (widget === "EffectivenessX") {
+            return (
+                <div className="flex items-center gap-1.5 justify-center">
+                    <IconCalendarMonthFilled className="h-5 w-5 md:hidden" stroke={2.5} />
+                    <span className="hidden md:block">{t("widgets.effectiveness_chart.tabs.axisX.monthly")}</span>
+                </div>
+            );
+        }
+
         return (
             <div className="flex items-center gap-1.5 justify-center">
-                <IconCoin className="h-4 w-4" stroke={2.5} />
-                <span>{t("widgets.effectiveness_chart.tabs.axisY.profitability")}</span>
+                <IconCoin className="h-5 w-5 md:hidden" stroke={2.5} />
+                <span className="hidden md:block">{t("widgets.effectiveness_chart.tabs.axisY.profitability")}</span>
             </div>
         );
     };
+
+    // --- 6. Render ---
 
     return (
         <div className="inline-grid grid-cols-2 items-center justify-center bg-primary-100 rounded-full relative overflow-hidden px-1">
-            {/* Animated Background Indicator */}
+            {/* Animated Slider Background */}
             <div
                 className={`absolute top-1 bottom-1 w-[calc(50%-6px)] bg-primary rounded-full shadow-sm transition-all duration-300 ease-out z-0 ${currentValue === firstTabType ? "left-1.5" : "left-[calc(50%+1.5px)]"}`}
             ></div>
 
-            {/* Left / First Tab Button */}
+            {/* Left Tab Button */}
             <button
                 type="button"
                 onClick={() => handleTabClick(firstTabType)}
@@ -111,7 +204,7 @@ export const TabsComponent = ({ widget, props = [], value, onChange, t }) => {
                 {renderFirstTabContent()}
             </button>
 
-            {/* Right / Second Tab Button */}
+            {/* Right Tab Button */}
             <button
                 type="button"
                 onClick={() => handleTabClick(secondTabType)}

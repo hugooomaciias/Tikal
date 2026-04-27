@@ -1,8 +1,12 @@
 /** React & Third-Party Libraries */
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { Responsive, WidthProvider } from "react-grid-layout/legacy";
+import { useTranslation } from "react-i18next";
 
-/** Components */
+/** Contexts, Hooks & Services */
+import { useMain } from "../../hooks/useMain.js";
+
+/** Components & Layouts */
 import { NavbarComponent } from "../../components/app/common/NavbarComponent.jsx";
 import { HeaderComponent } from "../../components/app/common/HeaderComponent.jsx";
 import { MainDataHeaderComponent } from "../../components/app/common/MainDataHeaderComponent.jsx";
@@ -12,17 +16,13 @@ import { ConcentrationHeatmapWidget } from "../../components/app/widgets/statist
 import { EffectivenessChartWidget } from "../../components/app/widgets/statistics/EffectivenessChartWidget.jsx";
 import { ComparisonWidget } from "../../components/app/widgets/statistics/ComparisonWidget.jsx";
 import { SolarChartWidget } from "../../components/app/widgets/statistics/SolarChart/SolarChartWidget.jsx";
-import { useMain } from "../../hooks/useMain.js";
 
-/** Assets & Icons */
+/** Icons */
 import { IconCircleXFilled } from "@tabler/icons-react";
 
-/** Styles */
+/** Assets, Utils & Constants */
 import "react-grid-layout/css/styles.css";
 import "react-resizable/css/styles.css";
-
-/** Language */
-import { useTranslation } from "react-i18next";
 
 /** Setup & Configurations */
 const ResponsiveGridLayout = WidthProvider(Responsive);
@@ -68,16 +68,24 @@ const WIDGET_CONFIG = {
 };
 
 /**
- * Main Application Dashboard Component
+ * Statistics Page Component
  *
- * This component acts as the primary layout wrapper for the authenticated area.
- * It manages the responsive grid layout where widgets are dynamically rendered,
- * moved, and removed.
+ * This component acts as the primary layout wrapper for the user's statistics dashboard.
+ * It manages the responsive grid layout where data visualization widgets are dynamically
+ * rendered, moved, and removed.
  *
  * @component
- * @returns {JSX.Element} The rendered dashboard layout.
+ * @returns {JSX.Element|null} The rendered statistics dashboard, or null if data is not loaded.
  */
 export const StatisticsPage = () => {
+    // --- 1. Hooks & Contexts ---
+
+    /**
+     * Main Context Hook
+     *
+     * Extracts global application state regarding user profile data, layout coordinates,
+     * statistics datasets, and loading status.
+     */
     const {
         getUserProfile,
         getStatisticsGeneralInformation,
@@ -89,10 +97,12 @@ export const StatisticsPage = () => {
     /**
      * Translation Hook
      *
-     * Provides the 't' function to localize strings specifically for the
-     * statistics namespace.
+     * Provides access to the i18n instance specifically scoped to the "app_statistics"
+     * namespace to localize header text content dynamically.
      */
     const { t } = useTranslation("app_statistics");
+
+    // --- 2. Local State ---
 
     /**
      * Edit Mode State
@@ -113,14 +123,36 @@ export const StatisticsPage = () => {
     /**
      * Widget Layout State
      *
-     * Maintains the active list of widgets rendered on the dashboard, including
-     * their identifier, component type, and spatial grid coordinates.
+     * Maintains the local collection of active widgets, allowing them to be dynamically
+     * repositioned or removed during edit mode.
      */
     const [widgets, setWidgets] = useState([]);
 
+    // --- 3. Derived Variables ---
+
+    /**
+     * User Profile Data
+     *
+     * Fetches the current user's profile configuration from the global context.
+     */
     const userProfile = getUserProfile();
+
+    /**
+     * General Statistics Information
+     *
+     * Retrieves the high-level statistics configuration and metadata from the context.
+     */
     const statisticsGeneralInformation = getStatisticsGeneralInformation();
 
+    // --- 4. Side Effects ---
+
+    /**
+     * Widget Data Synchronization Effect
+     *
+     * Hydrates the local `widgets` state with layout and data mappings provided by
+     * the context once the data is fully loaded. Re-runs to translate widget titles
+     * when the language changes.
+     */
     useEffect(() => {
         if (isDataLoaded) {
             const layout = getStatisticsLayout();
@@ -155,11 +187,9 @@ export const StatisticsPage = () => {
 
             setWidgets(mappedWidgets);
         }
-    }, [isDataLoaded, t, getStatisticsWidgetsData()]);
+    }, [isDataLoaded, t, getStatisticsWidgetsData, getStatisticsLayout]);
 
-    if (!isDataLoaded || widgets.length === 0) {
-        return null;
-    }
+    // --- 5. Event Handlers & Functions ---
 
     /**
      * Layout Change Handler
@@ -208,15 +238,21 @@ export const StatisticsPage = () => {
         setWidgets(widgets.filter((widget) => widget.id !== idToRemove));
     };
 
+    // --- 6. Render ---
+
+    if (!isDataLoaded || widgets.length === 0) {
+        return null;
+    }
+
     return (
-        <div className="flex flex-col md:flex-row h-[100dvh] bg-gradient-to-t from-primary-30 to-primary-300 md:bg-gradient-to-r md:from-primary-50 md:to-primary-300 p-2 md:p-4 gap-4 md:gap-8 overflow-hidden">
-            {/* Vertical Navbar */}
+        <div className="flex flex-col md:flex-row h-[100dvh] bg-gradient-to-t md:bg-gradient-to-r from-primary-50 to-primary-300 p-2 md:p-4 gap-4 md:gap-8 overflow-hidden">
+            {/* Vertical Navbar Layer */}
             <NavbarComponent data={userProfile} />
 
             {/* Main Content Area */}
-            <section className="flex-1 flex flex-col gap-6 w-full h-full overflow-hidden">
-                <div className="flex flex-col gap-4">
-                    {/* Header */}
+            <section className="flex-1 flex flex-col gap-4 md:gap-6 w-full h-full overflow-hidden">
+                <div className="flex flex-col gap-2 md:gap-4">
+                    {/* Interactive Header Action Menu */}
                     <HeaderComponent
                         page={t("statistics_title")}
                         get1={isEditing}
@@ -226,10 +262,11 @@ export const StatisticsPage = () => {
                         t={t}
                     />
 
+                    {/* High-level Statistics Summary Hero */}
                     <MainDataHeaderComponent data={statisticsGeneralInformation} />
                 </div>
 
-                {/* Dashboard Area */}
+                {/* Dashboard Responsive Grid Area */}
                 <div className="flex-1 overflow-y-auto custom-scrollbar">
                     <ResponsiveGridLayout
                         className="layout"
@@ -240,9 +277,12 @@ export const StatisticsPage = () => {
                         isDraggable={isEditing}
                         isResizable={isEditing}
                         onLayoutChange={handleLayoutChange}
+                        margin={[10, 10]}
+                        containerPadding={[0, 0]}
                     >
                         {widgets.map((widget) => (
                             <div key={widget.id} data-grid={widget.grid} className="relative group h-full">
+                                {/* Edit Mode Controls Overlay */}
                                 {isEditing && (
                                     <button
                                         onMouseDown={(e) => e.stopPropagation()}
@@ -254,9 +294,10 @@ export const StatisticsPage = () => {
                                     </button>
                                 )}
 
+                                {/* Drag Handle Overlay */}
                                 {isEditing && <div className="absolute inset-0 z-40 cursor-move rounded-3xl" />}
 
-                                {/* Render the correct widget component based on the 'type' property */}
+                                {/* Dynamic Widget Injection Component */}
                                 <BaseWidget
                                     t={t}
                                     title={widget.config.title}

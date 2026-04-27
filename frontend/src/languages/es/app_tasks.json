@@ -85,6 +85,11 @@
             },
             "name": "Nombre de la tarea",
             "time_unit_info": "Unidad de tiempo deseada con la que contabilizar esta tarea",
+            "time_unit_options": {
+                "hours": "horas",
+                "minutes": "minutos",
+                "days": "días"
+            },
             "tabs": {
                 "details": "Detalles",
                 "subtasks": "Subtareas"

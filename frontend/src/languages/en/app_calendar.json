@@ -17,6 +17,7 @@
             "projects": "Projects",
             "stages": "Stages",
             "tasks": "Tasks",
+            "no_options": "No options in this level",
             "button_message": {
                 "confirm": "Confirm",
                 "cancel": "Close"

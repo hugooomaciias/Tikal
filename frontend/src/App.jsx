@@ -1,12 +1,13 @@
 /** React & Third-Party Libraries */
+import React from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 
-/** Contexts */
+/** Contexts, Hooks & Services */
 import { AuthProvider } from "./context/AuthContext";
 import { MainProvider } from "./context/MainContext";
 import { TimeTrackerProvider } from "./context/TimeTrackerContext";
 
-/** Components */
+/** Components & Layouts */
 import { ProtectedRoute } from "./components/security/ProtectedRoute.jsx";
 import { PublicRoute } from "./components/security/PublicRoute.jsx";
 import { LandingPage } from "./pages/landing/LandingPage";
@@ -20,7 +21,7 @@ import { TasksPage } from "./pages/app/TasksPage";
 import { CalendarPage } from "./pages/app/CalendarPage";
 import { StatisticsPage } from "./pages/app/StatisticsPage";
 
-/** Languages */
+/** Assets, Utils & Constants */
 import "./i18n";
 
 /**
@@ -38,6 +39,8 @@ import "./i18n";
  * @returns {JSX.Element} The rendered React Router application.
  */
 function App() {
+    // --- 6. Render ---
+
     return (
         <Router>
             <AuthProvider>

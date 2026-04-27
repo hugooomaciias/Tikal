@@ -1,17 +1,55 @@
-/** React & Third-Party Libraries */
-import { useNavigate } from 'react-router-dom'
-import { createContext, useState, useEffect } from 'react'
+/** React & Context */
+import { createContext, useState, useEffect } from "react";
 
-/** Components */
-import { API_BASE_URL } from '../constants/api.js'
+/** Routing & Navigation */
+import { useNavigate } from "react-router-dom";
+
+/** Config, Constants & Utils */
+import { API_BASE_URL } from "../constants/api.js";
 
 // eslint-disable-next-line react-refresh/only-export-components
-export const AuthContext = createContext()
+export const AuthContext = createContext();
+
+/**
+ * Private Helper: Handle API Calls
+ *
+ * Encapsulates the repetitive boilerplate for fetch requests, including
+ * setting JSON headers, stringifying the payload, and safely parsing
+ * the response. It automatically throws an error if the response is not OK.
+ *
+ * @async
+ * @function
+ * @param {string} endpoint - The API endpoint to call (e.g., '/auth/login').
+ * @param {string} method - The HTTP method (e.g., 'POST').
+ * @param {Object} [payload] - Optional JSON body payload.
+ * @param {Object} [customHeaders] - Optional headers to override defaults.
+ * @returns {Promise<Object>} The parsed JSON response data.
+ * @throws {Error} Throws an error containing the backend message if the response is not OK.
+ */
+const apiCall = async (endpoint, method, payload = null, customHeaders = {}) => {
+    const headers = { "Content-Type": "application/json", ...customHeaders };
+    const options = { method, headers };
+
+    if (payload) {
+        options.body = JSON.stringify(payload);
+    }
+
+    const response = await fetch(`${API_BASE_URL}${endpoint}`, options);
+    const text = await response.text();
+    const data = text ? JSON.parse(text) : {};
+
+    if (!response.ok) {
+        throw new Error(data.message || "Ocurrió un error en la solicitud");
+    }
+
+    return data;
+};
+
 /**
  * Authentication Provider Component
  *
- * Manages the user state, handles login, registration, logout, and securely
- * fetches and refreshes JWT access tokens upon application load.
+ * Manages the global user state, handles login, registration, logout, and securely
+ * fetches and refreshes JWT access tokens upon application load and during runtime.
  *
  * @component
  * @param {Object} props - The component props.
@@ -19,387 +57,306 @@ export const AuthContext = createContext()
  * @returns {JSX.Element} The authentication context provider.
  */
 export const AuthProvider = ({ children }) => {
-	/**
-	 * User State
-	 *
-	 * Stores the currently authenticated user's information.
-	 */
-	const [user, setUser] = useState(null)
+    // --- 1. Context State ---
 
-	/**
-	 * Authentication State
-	 *
-	 * Flag indicating whether there is an active valid session.
-	 */
-	const [isAuthenticated, setIsAuthenticated] = useState(false)
+    /**
+     * User State
+     *
+     * Stores the currently authenticated user's information.
+     */
+    const [user, setUser] = useState(null);
 
-	/**
-	 * Loading State
-	 *
-	 * Indicates if the application is currently verifying the stored token
-	 * on initial load. Usually prevents the main app from rendering until finished.
-	 */
-	const [isLoading, setIsLoading] = useState(true)
+    /**
+     * Authentication State
+     *
+     * Flag indicating whether there is an active valid session.
+     */
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-	const navigate = useNavigate()
+    /**
+     * Loading State
+     *
+     * Indicates if the application is currently verifying the stored token
+     * on initial load. Usually prevents the main app from rendering until finished.
+     */
+    const [isLoading, setIsLoading] = useState(true);
 
-	/**
-	 * Initial Authentication Check Effect
-	 *
-	 * Runs once when the AuthProvider mounts. Checks `localStorage` for an `accessToken`.
-	 * If present, it securely decodes it, checking the expiration time (`exp`).
-	 * If expired, it automatically attempts to use the `refreshToken` to acquire
-	 * a new access token before marking the user as authenticated.
-	 */
-	useEffect(() => {
-		const checkAuth = async () => {
-			const token = localStorage.getItem('accessToken')
+    /**
+     * Navigation Hook
+     *
+     * Used to redirect users when their session expires or during authentication flows.
+     */
+    const navigate = useNavigate();
 
-			if (! token) {
-				setIsLoading(false)
-                return
-			}
+    // --- 2. Initialization & Effects ---
 
-			try {
-				const base64Url = token.split('.')[1]
-				const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/')
-				const jsonPayload = decodeURIComponent(
-					atob(base64)
-						.split('')
-						.map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
-						.join('')
-				)
+    /**
+     * Initial Authentication Check Effect
+     *
+     * Runs once when the AuthProvider mounts. Checks `localStorage` for an `accessToken`.
+     * If present, it securely decodes it, checking the expiration time (`exp`).
+     * If expired, it automatically attempts to use the `refreshToken` to acquire
+     * a new access token via the API before marking the user as authenticated.
+     */
+    useEffect(() => {
+        const checkAuth = async () => {
+            const token = localStorage.getItem("accessToken");
 
-				const decoded = JSON.parse(jsonPayload)
-				
-				const isExpired = decoded.exp && (decoded.exp * 1000 < Date.now())
+            if (!token) {
+                setIsLoading(false);
+                return;
+            }
 
-				if (isExpired) {
-					const refreshToken = localStorage.getItem('refreshToken')
+            try {
+                const base64Url = token.split(".")[1];
+                const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+                const jsonPayload = decodeURIComponent(
+                    atob(base64)
+                        .split("")
+                        .map((c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
+                        .join(""),
+                );
 
-					if (refreshToken) {
-						const response = await fetch(`${API_BASE_URL}/auth/refresh`, {
-							method: 'POST',
-							headers: { 'Authorization': `Bearer ${refreshToken}` }
-						})
+                const decoded = JSON.parse(jsonPayload);
+                const isExpired = decoded.exp && decoded.exp * 1000 < Date.now();
 
-						const text = await response.text()
-						const data = text ? JSON.parse(text) : {}
+                if (isExpired) {
+                    const refreshToken = localStorage.getItem("refreshToken");
 
-						if (response.ok) {
-							localStorage.setItem('accessToken', data.access_token)
-							localStorage.setItem('refreshToken', data.refresh_token)
+                    if (refreshToken) {
+                        try {
+                            const data = await apiCall("/auth/refresh", "POST", null, {
+                                Authorization: `Bearer ${refreshToken}`,
+                            });
 
-							setUser({ identifier: decoded.sub })
-							setIsAuthenticated(true)
+                            localStorage.setItem("accessToken", data.access_token);
+                            localStorage.setItem("refreshToken", data.refresh_token);
 
-						} else {
-							localStorage.removeItem('accessToken')
-							localStorage.removeItem('refreshToken')
-							setIsAuthenticated(false)
+                            setUser({ identifier: decoded.sub });
+                            setIsAuthenticated(true);
+                        } catch (refreshError) {
+                            localStorage.removeItem("accessToken");
+                            localStorage.removeItem("refreshToken");
+                            setIsAuthenticated(false);
 
-							navigate('/login', {
-								state: { setApiError: 'La sesión ha expirado. Por favor, inicia sesión de nuevo' }
-							})
-						}
-					}
+                            navigate("/login", {
+                                state: { setApiError: "La sesión ha expirado. Por favor, inicia sesión de nuevo" },
+                            });
+                        }
+                    }
+                } else {
+                    setUser({ identifier: decoded.sub });
+                    setIsAuthenticated(true);
+                }
+            } catch (error) {
+                console.error("Error validando la sesión", error);
 
-				} else {
-					setUser({ identifier: decoded.sub })
-					setIsAuthenticated(true)
-				}
+                localStorage.removeItem("accessToken");
+                localStorage.removeItem("refreshToken");
+                setIsAuthenticated(false);
+            } finally {
+                setIsLoading(false);
+            }
+        };
 
-			} catch (error) {
-				console.error('Error validando la sesión', error)
+        checkAuth();
+    }, [navigate]);
 
-				localStorage.removeItem('accessToken')
-				localStorage.removeItem('refreshToken')
-				setIsAuthenticated(false)
+    // --- 3. API & Action Methods ---
 
-			} finally {
-				setIsLoading(false)
-			}
-		}
+    /**
+     * Executes the login flow.
+     *
+     * Sends credentials to the backend. On success, securely saves the newly
+     * acquired access and refresh tokens in `localStorage` and updates context state.
+     *
+     * @async
+     * @function
+     * @param {Object} userData - User credentials.
+     * @param {string} userData.identifier - The username or email of the user.
+     * @param {string} userData.password - The password of the user.
+     * @throws {Error} Throws an error if the login request fails.
+     * @returns {Promise<void>}
+     */
+    const login = async (userData) => {
+        setIsLoading(true);
 
-		checkAuth()
-	}, [])
+        try {
+            const data = await apiCall("/auth/login", "POST", userData);
 
-	/**
-	 * Executes the login flow.
-	 *
-	 * Sends credentials to the backend. On success, securely saves the newly
-	 * acquired access and refresh tokens in `localStorage` and updates context state.
-	 *
-	 * @async
-	 * @function
-	 * @param {Object} userData - User credentials.
-	 * @param {string} userData.identifier - The username or email of the user.
-	 * @param {string} userData.password - The password of the user.
-	 * @throws {Error} Throws an error if the login request fails.
-	 */
-	const login = async (userData) => {
-		setIsLoading(true)
+            localStorage.setItem("accessToken", data.access_token);
+            localStorage.setItem("refreshToken", data.refresh_token);
 
-		try {
-			const response = await fetch(`${API_BASE_URL}/auth/login`, {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify(userData)
-			})
+            setUser({ identifier: userData.identifier });
+            setIsAuthenticated(true);
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
-			const text = await response.text()
-            const data = text ? JSON.parse(text) : {}
+    /**
+     * Executes the registration flow.
+     *
+     * Formats the user data, creates the account via the backend API, and then
+     * directly logs the user in by saving the issued tokens and updating state.
+     *
+     * @async
+     * @function
+     * @param {Object} userData - New user details.
+     * @param {string} userData.username - The chosen username.
+     * @param {string} userData.email - The chosen email address.
+     * @param {string} userData.password - The chosen password.
+     * @param {string} [userData.plan] - Optional selected subscription plan.
+     * @throws {Error} Throws an error if the registration request fails.
+     * @returns {Promise<void>}
+     */
+    const register = async (userData) => {
+        setIsLoading(true);
 
-			if (response.ok) {
-				localStorage.setItem('accessToken', data.access_token)
-				localStorage.setItem('refreshToken', data.refresh_token)
-
-				setUser({ identifier: userData.identifier })
-				setIsAuthenticated(true)
-			} else {
-				throw new Error(data.message || 'Error en el login')
-			}
-
-		} catch (error) {
-			console.error('Login error', error)
-			throw error
-			
-		} finally {
-			setIsLoading(false)
-		}
-	}
-
-	/**
-	 * Executes the registration flow.
-	 *
-	 * Formats the user data, creates the account via the backend API, and then
-	 * directly logs the user in by saving the issued tokens and updating state.
-	 *
-	 * @async
-	 * @function
-	 * @param {Object} userData - New user details.
-	 * @param {string} userData.username - The chosen username.
-	 * @param {string} userData.email - The chosen email address.
-	 * @param {string} userData.password - The chosen password.
-	 * @throws {Error} Throws an error if the registration request fails.
-	 */
-	const register = async (userData) => {
-		setIsLoading(true)
-		
-		try {
+        try {
             const registerPayload = {
                 name: userData.username,
                 email: userData.email,
                 password: userData.password,
-                subscriptionPlan: userData.plan || "GRATUITO"
-            }
+                subscriptionPlan: userData.plan || "GRATUITO",
+            };
 
-			const response = await fetch(`${API_BASE_URL}/auth/register`, {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify(registerPayload)
-			})
+            const data = await apiCall("/auth/register", "POST", registerPayload);
 
-			const text = await response.text();
-			const data = text ? JSON.parse(text) : {};
+            localStorage.setItem("accessToken", data.access_token);
+            localStorage.setItem("refreshToken", data.refresh_token);
 
-			if (response.ok) {
-				localStorage.setItem('accessToken', data.access_token)
-                localStorage.setItem('refreshToken', data.refresh_token)
+            setUser({ identifier: userData.email });
+            setIsAuthenticated(true);
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
-                setUser({ identifier: userData.email })
-                setIsAuthenticated(true)
-			} else {
-				throw new Error(data.message)
-			}
+    /**
+     * Executes the logout flow.
+     *
+     * Invalidates the refresh token on the backend, clears local state, and
+     * removes authentication tokens from `localStorage`.
+     *
+     * @async
+     * @function
+     * @throws {Error} Throws an error if the server invalidation fails.
+     * @returns {Promise<void>}
+     */
+    const logout = async () => {
+        await apiCall("/auth/logout", "POST", { refresh_token: localStorage.getItem("refreshToken") });
 
-		} catch (error) {
-			console.error('Register error', error)
-			throw error
+        setUser(null);
+        setIsAuthenticated(false);
 
-		} finally {
-			setIsLoading(false)
-		}
-	}
+        localStorage.removeItem("accessToken");
+        localStorage.removeItem("refreshToken");
+    };
 
-	/**
-	 * Executes the logout flow.
-	 *
-	 * Clears local state and removes authentication tokens from `localStorage`.
-	 *
-	 * @function
-	 */
-	const logout = async () => {
-		try {
-			const response = await fetch(`${API_BASE_URL}/auth/logout`, {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({"refresh_token": localStorage.getItem('refreshToken')})
-			})
+    /**
+     * Initiates the password recovery flow.
+     *
+     * Sends the user's email to the backend to request a password reset OTP.
+     *
+     * @async
+     * @function
+     * @param {string} email - The email address of the user requesting the reset.
+     * @throws {Error} Throws an error if the request fails.
+     * @returns {Promise<void>}
+     */
+    const forgotPassword = async (email) => {
+        await apiCall("/auth/forgot-password", "POST", { email });
+    };
 
-			if (! response.ok) {
-				throw new Error('Error al cerrar sesión')
-			}
+    /**
+     * Verifies the password reset OTP.
+     *
+     * Sends the provided OTP code and user email to the backend for validation.
+     *
+     * @async
+     * @function
+     * @param {Object} userData - OTP verification details.
+     * @param {string} userData.email - The user's email address.
+     * @param {string} userData.otpCode - The 6-digit OTP code sent to the user.
+     * @throws {Error} Throws an error if the OTP validation fails.
+     * @returns {Promise<void>}
+     */
+    const verifyOTP = async (userData) => {
+        const verifyOTPPayload = {
+            email: userData.email,
+            otpCode: userData.otpCode,
+        };
 
-			setUser(null)
-			setIsAuthenticated(false)
+        await apiCall("/auth/verify-otp", "POST", verifyOTPPayload);
+    };
 
-			localStorage.removeItem('accessToken')
-			localStorage.removeItem('refreshToken')
-		} catch (error) {
-			console.error('Logout error', error)
-			throw error
-		}
-	}
+    /**
+     * Executes the password reset confirm flow.
+     *
+     * Sends the validated OTP, email, and the new password to the backend
+     * to successfully complete the password reset process.
+     *
+     * @async
+     * @function
+     * @param {Object} userData - Reset password details.
+     * @param {string} userData.email - The user's email address.
+     * @param {string} userData.otpCode - The validated 6-digit OTP code.
+     * @param {string} userData.password - The user's new password.
+     * @throws {Error} Throws an error if the password reset fails.
+     * @returns {Promise<void>}
+     */
+    const resetPassword = async (userData) => {
+        const resetPasswordPayload = {
+            email: userData.email,
+            otpCode: userData.otpCode,
+            newPassword: userData.password,
+        };
 
-	/**
-	 * Initiates the password recovery flow.
-	 *
-	 * Sends the user's email to the backend to request a password reset OTP.
-	 *
-	 * @async
-	 * @function
-	 * @param {string} userData - The email address of the user requesting the reset.
-	 * @throws {Error} Throws an error if the request fails.
-	 */
-	const forgotPassword = async (userData) => {
-		try {
-			const response = await fetch(`${API_BASE_URL}/auth/forgot-password`, {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({"email": userData})
-			})
+        await apiCall("/auth/reset-password", "POST", resetPasswordPayload);
+    };
 
-			if (! response.ok) {
-				throw new Error('Error al enviar el correo de recuperación')
-			}
+    /**
+     * Executes the Google Login flow.
+     *
+     * Sends the Google-provided ID token to the backend for verification and authentication.
+     * On success, securely saves the newly acquired JWT access and refresh tokens in
+     * `localStorage` and updates the context state.
+     *
+     * @async
+     * @function
+     * @param {string} googleIdToken - The ID token provided by Google OAuth.
+     * @throws {Error} Throws an error if the Google login request fails.
+     * @returns {Promise<void>}
+     */
+    const googleLogin = async (googleIdToken) => {
+        const data = await apiCall("/auth/google", "POST", { idToken: googleIdToken });
 
-		} catch (error) {
-			console.error('Forgot password error', error)
-			throw error
-		}
-	}
+        localStorage.setItem("accessToken", data.access_token);
+        localStorage.setItem("refreshToken", data.refresh_token);
 
-	/**
-	 * Verifies the password reset OTP.
-	 *
-	 * Sends the provided OTP code and user email to the backend for validation.
-	 *
-	 * @async
-	 * @function
-	 * @param {Object} userData - OTP verification details.
-	 * @param {string} userData.email - The user's email address.
-	 * @param {string} userData.otpCode - The 6-digit OTP code sent to the user.
-	 * @throws {Error} Throws an error if the OTP validation fails.
-	 */
-	const verifyOTP = async (userData) => {
-		try {
-			const verifyOTPPayload = {
-				email: userData.email,
-				otpCode: userData.otpCode
-			}
+        setUser({ identifier: data.email });
+        setIsAuthenticated(true);
+    };
 
-			const response = await fetch(`${API_BASE_URL}/auth/verify-otp`, {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify(verifyOTPPayload)
-			})
+    // --- 4. Context Provider ---
 
-			const text = await response.text();
-
-			if (! response.ok) {
-				const data = text ? JSON.parse(text) : {};
-
-				throw new Error(data.message)
-			}
-		} catch (error) {
-			console.error('Verify OTP error', error)
-			throw error
-		}
-	}
-
-	/**
-	 * Executes the password reset confirm flow.
-	 *
-	 * Sends the validated OTP, email, and the new password to the backend
-	 * to successfully complete the password reset process.
-	 *
-	 * @async
-	 * @function
-	 * @param {Object} userData - Reset password details.
-	 * @param {string} userData.email - The user's email address.
-	 * @param {string} userData.otpCode - The validated 6-digit OTP code.
-	 * @param {string} userData.password - The user's new password.
-	 * @throws {Error} Throws an error if the password reset fails.
-	 */
-	const resetPassword = async (userData) => {
-		try {
-			const resetPasswordPayload = {
-				email: userData.email,
-				otpCode: userData.otpCode,
-				newPassword: userData.password
-			}
-
-			const response = await fetch(`${API_BASE_URL}/auth/reset-password`, {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify(resetPasswordPayload)
-			})
-
-			if (! response.ok) {
-				throw new Error('Error al restablecer la contraseña')
-			}
-
-		} catch (error) {
-			console.error('Reset password error', error)
-			throw error
-		}
-	}
-
-	/**
-	 * Executes the Google Login flow.
-	 *
-	 * Sends the Google-provided ID token to the backend for verification and authentication.
-	 * On success, securely saves the newly acquired JWT access and refresh tokens in
-	 * `localStorage` and updates the context state.
-	 *
-	 * @async
-	 * @function
-	 * @param {string} googleIdToken - The ID token provided by Google OAuth.
-	 * @throws {Error} Throws an error if the Google login request fails.
-	 */
-	const googleLogin = async (googleIdToken) => {
-		try {
-			const response = await fetch(`${API_BASE_URL}/auth/google`, {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({"idToken": googleIdToken})
-			})
-
-			const text = await response.text()
-            const data = text ? JSON.parse(text) : {}
-
-			if (response.ok) {
-				localStorage.setItem('accessToken', data.access_token)
-				localStorage.setItem('refreshToken', data.refresh_token)
-
-				setUser({ identifier: data.email })
-				setIsAuthenticated(true)
-			} else {
-				throw new Error(data.message || 'Error en el login con Google')
-			}
-
-		} catch (error) {
-			console.error('Google login error', error)
-			throw error
-		}
-	}
-
-	return (
-		<AuthContext.Provider
-			value={{ user, isAuthenticated, isLoading, login, register, logout, forgotPassword, verifyOTP, resetPassword, googleLogin }}
-		>
-			{children}
-		</AuthContext.Provider>
-	)
-}
+    return (
+        <AuthContext.Provider
+            value={{
+                user,
+                isAuthenticated,
+                isLoading,
+                login,
+                register,
+                logout,
+                forgotPassword,
+                verifyOTP,
+                resetPassword,
+                googleLogin,
+            }}
+        >
+            {children}
+        </AuthContext.Provider>
+    );
+};

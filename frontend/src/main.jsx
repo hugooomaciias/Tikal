@@ -1,13 +1,13 @@
 /** React & Third-Party Libraries */
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
-import { GoogleOAuthProvider } from '@react-oauth/google'
+import { StrictMode } from "react";
+import { createRoot } from "react-dom/client";
+import { GoogleOAuthProvider } from "@react-oauth/google";
 
-/** Styles */
-import './index.css'
+/** Components & Layouts */
+import App from "./App.jsx";
 
-/** Components */
-import App from './App.jsx'
+/** Assets, Utils & Constants */
+import "./index.css";
 
 /**
  * Application Entry Point
@@ -20,10 +20,14 @@ import App from './App.jsx'
  * - `GoogleOAuthProvider` to configure Google authentication services
  *   using the provided client ID across the entire application.
  */
-createRoot(document.getElementById('root')).render(
-	<StrictMode>
-		<GoogleOAuthProvider clientId="739659559082-e76k38nsvls9208ti7c2999bb1ac7v29.apps.googleusercontent.com">
-			<App />
-		</GoogleOAuthProvider>
-  </StrictMode>,
-)
+
+// --- 6. Render ---
+createRoot(document.getElementById("root")).render(
+    <StrictMode>
+        {/* Global Authentication Provider Layer */}
+        <GoogleOAuthProvider clientId="739659559082-e76k38nsvls9208ti7c2999bb1ac7v29.apps.googleusercontent.com">
+            {/* Application Root Router Container */}
+            <App />
+        </GoogleOAuthProvider>
+    </StrictMode>,
+);

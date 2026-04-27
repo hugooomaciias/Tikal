@@ -16,7 +16,9 @@
             "tabs": {
                 "day": "Day",
                 "project": "Project"
-            }
+            },
+            "buttonNext": "Next card",
+            "buttonLast": "Last card"
         },
         "ai": {
             "title": "What would you like to know?"

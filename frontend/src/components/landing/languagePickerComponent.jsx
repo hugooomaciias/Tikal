@@ -1,11 +1,9 @@
 /** React & Third-Party Libraries */
-import { useState, useRef, useEffect } from "react";
-
-/** Assets & Icons */
-import { IconWorld } from "@tabler/icons-react";
-
-/** Language */
+import React, { useState, useRef, useEffect } from "react";
 import { useTranslation } from "react-i18next";
+
+/** Icons */
+import { IconWorld } from "@tabler/icons-react";
 
 /**
  * Language Picker Component
@@ -22,6 +20,8 @@ import { useTranslation } from "react-i18next";
  * @returns {JSX.Element} The floating language selection widget.
  */
 export const LanguagePickerComponent = ({ btnBgColour, btnTextColour, langSection }) => {
+    // --- 1. Hooks & Contexts ---
+
     /**
      * Translation Hook
      *
@@ -30,23 +30,28 @@ export const LanguagePickerComponent = ({ btnBgColour, btnTextColour, langSectio
     const { i18n } = useTranslation();
 
     /**
-     * Menu Visibility State
-     *
-     * Controls the open/closed state of the language selection dropdown.
-     */
-    const [isLangMenuOpen, setIsLangMenuOpen] = useState(false);
-
-    /**
      * Click Outside Reference
      *
      * Captures the DOM element of the widget to detect external clicks.
      */
     const langMenuRef = useRef(null);
 
+    // --- 2. Local State ---
+
     /**
-     * Outside Click Detector Engine
+     * Menu Visibility State
      *
-     * Effect hook to handle clicks outside the respective dropdown components to close them.
+     * Controls the open/closed state of the language selection dropdown.
+     */
+    const [isLangMenuOpen, setIsLangMenuOpen] = useState(false);
+
+    // --- 4. Side Effects ---
+
+    /**
+     * Outside Click Detector Effect
+     *
+     * Registers a global mousedown listener to automatically close the
+     * language menu when the user clicks outside its container.
      */
     useEffect(() => {
         const handleClickOutside = (event) => {
@@ -62,13 +67,16 @@ export const LanguagePickerComponent = ({ btnBgColour, btnTextColour, langSectio
         };
     }, []);
 
+    // --- 5. Event Handlers & Functions ---
+
     /**
-     * Helper function to define language option classes dynamically.
-     * Ensures contrast against the dynamically changing dropdown background.
+     * Language Option Class Generator
      *
-     * @function
+     * Computes dynamic Tailwind CSS classes for the language options, ensuring
+     * correct contrast against the varying dropdown backgrounds.
+     *
      * @param {string} lang - The language code (e.g., "es", "en").
-     * @returns {string} Tailwind CSS class string.
+     * @returns {string} The computed Tailwind CSS class string.
      */
     const getLangOptionClasses = (lang) => {
         const isSelected = i18n.language === lang;
@@ -97,11 +105,14 @@ export const LanguagePickerComponent = ({ btnBgColour, btnTextColour, langSectio
      * Language Change Handler
      *
      * Instructs the i18n engine to switch the current locale context.
+     *
      * @param {string} lang - The new language code to apply safely context-wide.
      */
     const changeLanguage = (lang) => {
         i18n.changeLanguage(lang);
     };
+
+    // --- 6. Render ---
 
     return (
         <div ref={langMenuRef} className="fixed bottom-6 left-6 z-50">

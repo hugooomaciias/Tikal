@@ -130,6 +130,7 @@ export const CalendarWidget = ({ props, setCustomActions }) => {
                         <IconChevronRight className="h-6 w-6 cursor-pointer" />
                     </button>
                 </div>
+
                 <TabsComponent widget="Calendar" t={t} />
             </div>
         );
