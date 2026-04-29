@@ -12,6 +12,4 @@ public class TimeTrackerWidgetData implements WidgetData {
     private String subtaskName;
     private String parentColor;
     private String projectLogoIcon;
-
-    private Integer accumulatedSeconds;
 }

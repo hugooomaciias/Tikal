@@ -8,7 +8,7 @@ import java.time.LocalDate;
 @Data
 @Builder
 public class TimeGoalWidgetData implements WidgetData {
-    private Integer currentMinutes;
+    private String currentMinutes;
     private Integer goalMinutes;
 
     private Double completionPercentage;

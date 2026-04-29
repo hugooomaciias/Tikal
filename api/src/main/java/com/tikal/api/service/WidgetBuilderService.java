@@ -99,7 +99,6 @@ public class WidgetBuilderService {
                     .taskId(0)
                     .taskName("Bienvenido a Tikal")
                     .subtaskName("Registra tu primera tarea")
-                    .accumulatedSeconds(0)
                     .build();
         }
 
@@ -122,16 +121,12 @@ public class WidgetBuilderService {
             }
         }
 
-        int totalMinutes = targetTask.getTotalLoggedMinutes() != null ? targetTask.getTotalLoggedMinutes() : 0;
-        Integer accumulatedSeconds = totalMinutes * 60;
-
         return TimeTrackerWidgetData.builder()
                 .taskId(targetTask.getId())
                 .taskName(parentName)
                 .subtaskName(subtaskName)
                 .parentColor(parentColor)
                 .projectLogoIcon(projectLogo)
-                .accumulatedSeconds(accumulatedSeconds)
                 .build();
     }
 
@@ -175,6 +170,12 @@ public class WidgetBuilderService {
         // pending and completed tasks from the last 4 days.
         LocalDateTime daysAgo = LocalDateTime.now().minusDays(4);
         List<Task> sampleTasks = taskRepository.findMainTasksPendingOrCompletedSince(userId, daysAgo);
+
+        // Sort by: 1. Uncompleted, 2. Completed. Within each group, by deadline in ascending order.
+        sampleTasks.sort(Comparator
+                .comparing(Task::getIsCompleted)
+                .thenComparing(Task::getDeadline, Comparator.nullsLast(Comparator.naturalOrder()))
+        );
 
         List<Task> pendingTasks = sampleTasks.stream().filter(t -> !t.getIsCompleted()).collect(Collectors.toList());
         List<Task> completedTasks = sampleTasks.stream().filter(Task::getIsCompleted).toList();
@@ -799,6 +800,7 @@ public class WidgetBuilderService {
 
         Integer currentMinutesWrapper = timeLogRepository.getTotalMinutesBetweenDates(userId, startDateTime, endDateTime);
         int currentMinutes = currentMinutesWrapper != null ? currentMinutesWrapper : 0;
+        String currentMinutesSubtitle = DateUtils.formatMinutes(currentMinutes);
         int goalHours = settings.getHoursGoal() != null ? settings.getHoursGoal() : 40;
         int goalMinutes = goalHours * 60;
         double completionPercentage = 0.0;
@@ -815,7 +817,7 @@ public class WidgetBuilderService {
         String subtitle = DateUtils.formatDateRange(startDate, endDate, true);
 
         return TimeGoalWidgetData.builder()
-                .currentMinutes(currentMinutes)
+                .currentMinutes(currentMinutesSubtitle)
                 .goalMinutes(goalMinutes)
                 .completionPercentage(completionPercentage)
                 .startDate(startDate)
