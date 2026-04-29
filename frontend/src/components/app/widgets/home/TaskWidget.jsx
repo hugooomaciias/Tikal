@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 
 /** Contexts, Hooks & Services */
-import { useTimeTracker } from "../../../../hooks/useTimeTracker";
+import { useTimeLog } from "../../../../hooks/useTimeLog.js";
 import { useTranslation } from "react-i18next";
 
 /** Components & Layouts */
@@ -59,7 +59,7 @@ export const TaskWidget = ({ props }) => {
      *
      * Accesses the global time tracking state and methods to play, stop, and set active tasks.
      */
-    const { isActive, taskId, taskName, playTimer, stopTimer, setActiveTask } = useTimeTracker();
+    const { isActive, taskId, taskName, playTimer, stopTimer, setActiveTask } = useTimeLog();
 
     // --- 2. Local State ---
 
@@ -201,7 +201,8 @@ export const TaskWidget = ({ props }) => {
             return;
         } else {
             const IconComponent = getIconComponent(task.logo);
-            setActiveTask(task.taskId, task.color, IconComponent, task.name, "Nueva Tarea");
+
+            setActiveTask(null, null, task.taskId, task.color, IconComponent, task.name, "");
         }
     };
 

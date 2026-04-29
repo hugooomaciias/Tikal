@@ -46,6 +46,7 @@ const WIDGET_CONFIG = {
         subtitle: "22-28 Sept, 2025",
         actions: false,
         textColor: "text-quaternary-700",
+        isResizable: false,
     },
     concentrationHeatmapWidget: {
         component: ConcentrationHeatmapWidget,
@@ -168,7 +169,14 @@ export const StatisticsPage = () => {
 
                     return {
                         id: item.i,
-                        grid: { x: item.x, y: item.y, w: item.w, h: item.h },
+                        grid: {
+                            x: item.x,
+                            y: item.y,
+                            w: item.w,
+                            h: item.h,
+                            isResizable: configBase.isResizable !== false,
+                            isDraggable: configBase.isDraggable !== false,
+                        },
                         config: {
                             title: configBase.titleKey.includes(".") ? t(configBase.titleKey) : configBase.titleKey,
                             subtitle: widgetData?.subtitle,
@@ -216,6 +224,8 @@ export const StatisticsPage = () => {
                                 y: updatedLayout.y,
                                 w: updatedLayout.w,
                                 h: updatedLayout.h,
+                                isResizable: widget.grid.isResizable,
+                                isDraggable: widget.grid.isDraggable,
                             },
                         };
                     }
@@ -278,42 +288,46 @@ export const StatisticsPage = () => {
                         isResizable={isEditing}
                         onLayoutChange={handleLayoutChange}
                         margin={[10, 10]}
-                        containerPadding={[0, 0]}
+                        containerPadding={[9, 9]}
                     >
-                        {widgets.map((widget) => (
-                            <div key={widget.id} data-grid={widget.grid} className="relative group h-full">
-                                {/* Edit Mode Controls Overlay */}
-                                {isEditing && (
-                                    <button
-                                        onMouseDown={(e) => e.stopPropagation()}
-                                        onClick={() => removeWidget(widget.id)}
-                                        title="Eliminar widget"
-                                        className="absolute z-50 -top-2 -right-2 w-8 h-8 bg-primary rounded-full flex items-center justify-center transition-all duration-300"
-                                    >
-                                        <IconCircleXFilled className="w-full h-full text-tertiary-200/70 hover:text-tertiary-200" />
-                                    </button>
-                                )}
+                        {widgets.map((widget) => {
+                            const isStaticWidget = !widget.grid.isDraggable && !widget.grid.isResizable;
 
-                                {/* Drag Handle Overlay */}
-                                {isEditing && <div className="absolute inset-0 z-40 cursor-move rounded-3xl" />}
-
-                                {/* Dynamic Widget Injection Component */}
-                                <BaseWidget
-                                    t={t}
-                                    title={widget.config.title}
-                                    subtitle={widget.config.subtitle}
-                                    bgColor={widget.config.bgColor}
-                                    textColor={widget.config.textColor}
-                                    actions={widget.config.actions}
-                                    pageLink={widget.config.pageLink}
-                                    className={`transition-all duration-300 ${isEditing ? "opacity-60 border-dashed border-[3px] border-primary-50 cursor-move" : "opacity-100"}`}
-                                >
-                                    {widget.config.content && (
-                                        <widget.config.content.component props={widget.config.content.props} />
+                            return (
+                                <div key={widget.id} data-grid={widget.grid} className="relative group h-full">
+                                    {/* Edit Mode Controls Overlay */}
+                                    {isEditing && !isStaticWidget && (
+                                        <button
+                                            onMouseDown={(e) => e.stopPropagation()}
+                                            onClick={() => removeWidget(widget.id)}
+                                            title="Eliminar widget"
+                                            className="absolute z-50 -top-2 -right-2 w-8 h-8 bg-primary rounded-full flex items-center justify-center transition-all duration-300"
+                                        >
+                                            <IconCircleXFilled className="w-full h-full text-tertiary-200/70 hover:text-tertiary-200" />
+                                        </button>
                                     )}
-                                </BaseWidget>
-                            </div>
-                        ))}
+
+                                    {/* Drag Handle Overlay */}
+                                    {isEditing && <div className="absolute inset-0 z-40 cursor-move rounded-3xl" />}
+
+                                    {/* Dynamic Widget Injection Component */}
+                                    <BaseWidget
+                                        t={t}
+                                        title={widget.config.title}
+                                        subtitle={widget.config.subtitle}
+                                        bgColor={widget.config.bgColor}
+                                        textColor={widget.config.textColor}
+                                        actions={widget.config.actions}
+                                        pageLink={widget.config.pageLink}
+                                        className={`transition-all duration-300 ${isEditing && !isStaticWidget ? "opacity-60 border-dashed border-[3px] border-primary-50 cursor-move" : "opacity-100"}`}
+                                    >
+                                        {widget.config.content && (
+                                            <widget.config.content.component props={widget.config.content.props} />
+                                        )}
+                                    </BaseWidget>
+                                </div>
+                            );
+                        })}
                     </ResponsiveGridLayout>
                 </div>
             </section>

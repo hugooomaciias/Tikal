@@ -2,7 +2,7 @@
 import { useContext } from "react";
 
 /** Contexts, Hooks & Services */
-import { TimeTrackerContext } from "../context/TimeTrackerContext.jsx";
+import { TimeLogContext } from "../context/TimeLogContext.jsx";
 
 /**
  * Custom Time Tracker Hook
@@ -15,16 +15,16 @@ import { TimeTrackerContext } from "../context/TimeTrackerContext.jsx";
  * @returns {Object} The current context value from TimeTrackerProvider.
  * @throws {Error} If called from a component not wrapped in a `<TimeTrackerProvider>`.
  */
-export const useTimeTracker = () => {
+export const useTimeLog = () => {
     /**
      * Time Tracker Context Instance
      *
-     * Retrieves the current time tracker state from the nearest TimeTrackerContext Provider.
+     * Retrieves the current time tracker state from the nearest TimeLogContext Provider.
      */
-    const context = useContext(TimeTrackerContext);
+    const context = useContext(TimeLogContext);
 
     if (context === undefined) {
-        throw new Error("useTimeTracker must be used within a TimeTrackerProvider");
+        throw new Error("useTimeLog must be used within a TimeLogProvider");
     }
 
     return context;

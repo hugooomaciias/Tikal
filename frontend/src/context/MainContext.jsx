@@ -249,6 +249,7 @@ export const MainProvider = ({ children }) => {
                 getStatisticsLayout,
                 getStatisticsWidgetsData,
                 isDataLoaded: !!rawDashboardData,
+                refreshData: initialSync,
             }}
         >
             {children}

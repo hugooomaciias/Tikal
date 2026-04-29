@@ -115,5 +115,11 @@
             },
             "error": "Por favor, introduce un nombre de tarea"
         }
+    },
+    "confirm_time_log": {
+        "title": "Registrar tarea",
+        "description": "¿A qué le has dedicado tiempo exactamente durante este último bloque en la siguiente tarea?",
+        "placeholder": "Descripción de la actividad realizada",
+        "button": "Guardar registro"
     }
 }

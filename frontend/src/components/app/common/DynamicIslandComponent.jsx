@@ -2,7 +2,7 @@
 import { useState, useEffect, useRef } from "react";
 
 /** Contexts, Hooks & Services */
-import { useTimeTracker } from "../../../hooks/useTimeTracker";
+import { useTimeLog } from "../../../hooks/useTimeLog.js";
 
 /** Components & Layouts */
 import { ScrollingText } from "../common/ScrollingText";
@@ -51,7 +51,7 @@ export const DynamicIslandComponent = () => {
         toggleTimer,
         stopTimer,
         getParsedTime,
-    } = useTimeTracker();
+    } = useTimeLog();
 
     /**
      * Long Press Timeout Reference

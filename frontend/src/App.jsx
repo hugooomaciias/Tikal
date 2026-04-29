@@ -5,7 +5,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-d
 /** Contexts, Hooks & Services */
 import { AuthProvider } from "./context/AuthContext";
 import { MainProvider } from "./context/MainContext";
-import { TimeTrackerProvider } from "./context/TimeTrackerContext";
+import { TimeLogProvider } from "./context/TimeLogContext";
 
 /** Components & Layouts */
 import { ProtectedRoute } from "./components/security/ProtectedRoute.jsx";
@@ -63,7 +63,7 @@ function App() {
                         <Route path="/loading" element={<LoadingPage />} />
 
                         {/* Protected App Routes */}
-                        <Route element={<TimeTrackerProvider />}>
+                        <Route element={<TimeLogProvider />}>
                             <Route
                                 path="/home"
                                 element={

@@ -2,10 +2,10 @@
 import React from "react";
 
 /** Contexts, Hooks & Services */
-import { useTimeTracker } from "../../../../hooks/useTimeTracker";
+import { useTimeLog } from "../../../../hooks/useTimeLog.js";
 
 /** Components & Layouts */
-import { ScrollingText } from "../../common/ScrollingText";
+import { ScrollingText } from "../../common/ScrollingText.jsx";
 
 /** Icons */
 import { IconDatabase, IconPlayerPlayFilled, IconPlayerPauseFilled, IconPlayerStopFilled } from "@tabler/icons-react";
@@ -44,7 +44,7 @@ export const TimeTrackerWidget = () => {
      * to interact with the global time tracker.
      */
     const { isActive, secs, toggleTimer, stopTimer, getParsedTime, activeColorId, taskName, subtaskName, projectIcon } =
-        useTimeTracker();
+        useTimeLog();
 
     // --- 3. Derived Variables ---
 
@@ -78,7 +78,7 @@ export const TimeTrackerWidget = () => {
     const foundColor = PHASE_COLOURS.find((c) => c.id === activeColorId);
     const colors = foundColor
         ? { dark: foundColor.hex, light: foundColor.light }
-        : { dark: tailwindColors.primary[600], light: tailwindColors.primary["DEFAULT"] };
+        : { dark: tailwindColors.primary[600], light: tailwindColors.primary.DEFAULT };
 
     /**
      * Parsed Time

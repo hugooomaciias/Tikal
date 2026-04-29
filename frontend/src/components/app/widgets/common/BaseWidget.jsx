@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 /** Contexts, Hooks & Services */
-import { useTimeTracker } from "../../../../hooks/useTimeTracker";
+import { useTimeLog } from "../../../../hooks/useTimeLog.js";
 
 /** Icons */
 import { IconCircleArrowUpRight } from "@tabler/icons-react";
@@ -72,7 +72,7 @@ export const BaseWidget = ({
      * Provides access to the global time tracking state, including the currently active
      * phase color ID.
      */
-    const trackerContext = useTimeTracker();
+    const timeLogContext = useTimeLog();
 
     // --- 2. Local State ---
 
@@ -90,7 +90,7 @@ export const BaseWidget = ({
      *
      * Extracts the active color ID from the time tracker context if available.
      */
-    const activeColorId = trackerContext?.activeColorId || null;
+    const activeColorId = timeLogContext?.activeColorId || null;
 
     /**
      * Children With Injected Props

@@ -115,5 +115,11 @@
             },
             "error": "Please enter a task name"
         }
+    },
+    "confirm_time_log": {
+        "title": "Log time",
+        "description": "What exactly did you spend time on during this last block in the following task?",
+        "placeholder": "Description of the activity performed",
+        "button": "Save log"
     }
 }

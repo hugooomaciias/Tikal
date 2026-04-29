@@ -5,7 +5,7 @@ import { useTranslation } from "react-i18next";
 import resolveConfig from "tailwindcss/resolveConfig";
 
 /** Contexts, Hooks & Services */
-import { TimeTrackerContext } from "../../context/TimeTrackerContext";
+import { TimeLogContext } from "../../context/TimeLogContext";
 
 /** Components & Layouts */
 import { BaseWidget } from "../../components/app/widgets/common/BaseWidget";
@@ -126,7 +126,7 @@ export const HeroComponent = () => {
             <div className="hidden md:flex flex-row items-center justify-center w-full select-none pl-10 md:pl-20 relative">
                 <div className="absolute inset-0 z-50 cursor-default"></div>
 
-                <TimeTrackerContext.Provider value={mockTimeTrackerData}>
+                <TimeLogContext.Provider value={mockTimeTrackerData}>
                     {/* Primary Widget showcase (Time Tracker) */}
                     <div className="w-[70%] h-[280px] shadow-xl rounded-[2.5rem] mb-32 shrink-0 animate-float">
                         <BaseWidget
@@ -154,7 +154,7 @@ export const HeroComponent = () => {
                             <SolarChartWidget props={mockSolarData} />
                         </BaseWidget>
                     </div>
-                </TimeTrackerContext.Provider>
+                </TimeLogContext.Provider>
             </div>
         </div>
     );
