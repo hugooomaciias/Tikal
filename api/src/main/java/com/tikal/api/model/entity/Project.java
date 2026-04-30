@@ -5,6 +5,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * This class represents the Project entity, acting as the top-level container in
@@ -47,6 +49,10 @@ public class Project {
     /* --- Time spent specifically in Temple Mode (in minutes) --- */
     @Column(name = "temple_logged_minutes", columnDefinition = "INT DEFAULT 0")
     private Integer templeLoggedMinutes = 0;
+
+    /* --- Stage relation ==> If a Project is deleted, all its stages are deleted. Lazy loaded. --- */
+    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<Stage> stages = new ArrayList<>();
 
     /* --- User relation ==> Many projects can belong to the same User --- */
     @ManyToOne(optional = true)

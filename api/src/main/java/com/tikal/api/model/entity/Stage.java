@@ -1,10 +1,14 @@
 package com.tikal.api.model.entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * This class represents the Stage entity within the application's work
@@ -15,6 +19,8 @@ import java.time.LocalDateTime;
  * tasks together
  */
 @Data
+@Builder
+@AllArgsConstructor
 @NoArgsConstructor
 @Entity
 @Table(name = "stages")
@@ -46,6 +52,10 @@ public class Stage {
     /* --- Time spent specifically in Temple Mode (in minutes) --- */
     @Column(name = "temple_logged_minutes", columnDefinition = "INT DEFAULT 0")
     private Integer templeLoggedMinutes = 0;
+
+    /* --- Task relation ==> If a Stage is deleted, all its tasks are deleted. Lazy loaded. --- */
+    @OneToMany(mappedBy = "stage", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<Task> tasks = new ArrayList<>();
 
     /* --- Project relation ==> Many stages can belong to the same Project --- */
     @ManyToOne(optional = false)
