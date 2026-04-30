@@ -33,6 +33,7 @@ const WIDGET_CONFIG = {
         titleKey: "widgets.weekly_progress.title",
         pageLink: "/statistics",
         textColor: "text-quaternary-700",
+        borderColor: "border-primary-500",
         isResizable: false,
     },
     timeTrackerWidget: {
@@ -53,6 +54,7 @@ const WIDGET_CONFIG = {
         titleKey: "widgets.tasks.title",
         pageLink: "/tasks",
         textColor: "text-quaternary-700",
+        borderColor: "border-primary-500",
     },
     AIMainWidget: {
         component: AIWidget,
@@ -69,6 +71,7 @@ const WIDGET_CONFIG = {
         titleKey: "widgets.calendar.title",
         pageLink: "/calendar",
         textColor: "text-quaternary-700",
+        borderColor: "border-primary-500",
     },
 };
 
@@ -165,21 +168,26 @@ export const HomePage = () => {
 
                     const widgetData = allWidgetsData[item.i];
 
+                    const isResizable = configBase.isResizable === false ? false : undefined;
+                    const isDraggable = configBase.isDraggable === false ? false : undefined;
+
                     return {
                         id: item.i,
                         grid: {
+                            i: item.i,
                             x: item.x,
                             y: item.y,
                             w: item.w,
                             h: item.h,
-                            isResizable: configBase.isResizable !== false,
-                            isDraggable: configBase.isDraggable !== false,
+                            isResizable: isResizable,
+                            isDraggable: isDraggable,
                         },
                         config: {
                             title: configBase.titleKey.includes(".") ? t(configBase.titleKey) : configBase.titleKey,
                             subtitle: widgetData?.subtitle,
                             bgColor: configBase.bgColor,
                             textColor: configBase.textColor,
+                            borderColor: configBase.borderColor,
                             actions: configBase.actions ?? true,
                             pageLink: configBase.pageLink,
                             content: {
@@ -218,6 +226,7 @@ export const HomePage = () => {
                         return {
                             ...widget,
                             grid: {
+                                i: widget.id,
                                 x: updatedLayout.x,
                                 y: updatedLayout.y,
                                 w: updatedLayout.w,
@@ -270,9 +279,16 @@ export const HomePage = () => {
                 />
 
                 {/* Dashboard Responsive Grid Area */}
-                <div className="flex-1 overflow-y-auto custom-scrollbar">
+                <div className={`flex-1 overflow-y-auto custom-scrollbar ${isEditing ? "pb-32" : ""}`}>
                     <ResponsiveGridLayout
                         className="layout"
+                        layouts={{
+                            lg: widgets.map((w) => w.grid),
+                            md: widgets.map((w) => w.grid),
+                            sm: widgets.map((w) => w.grid),
+                            xs: widgets.map((w) => w.grid),
+                            xxs: widgets.map((w) => w.grid),
+                        }}
                         rowHeight={256}
                         compactType="vertical"
                         breakpoints={{ lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0 }}
@@ -284,12 +300,15 @@ export const HomePage = () => {
                         containerPadding={[9, 9]}
                     >
                         {widgets.map((widget) => {
-                            const isStaticWidget = !widget.grid.isDraggable && !widget.grid.isResizable;
+                            const allowsDrag = widget.grid.isDraggable !== false;
+                            const allowsResize = widget.grid.isResizable !== false;
+
+                            const isModifiable = isEditing && (allowsDrag || allowsResize);
 
                             return (
-                                <div key={widget.id} data-grid={widget.grid} className="relative group h-full">
+                                <div key={widget.id} className="relative group h-full">
                                     {/* Edit Mode Controls Overlay */}
-                                    {isEditing && !isStaticWidget && (
+                                    {isModifiable && (
                                         <button
                                             onMouseDown={(e) => e.stopPropagation()}
                                             onClick={() => removeWidget(widget.id)}
@@ -301,7 +320,9 @@ export const HomePage = () => {
                                     )}
 
                                     {/* Drag Handle Overlay */}
-                                    {isEditing && <div className="absolute inset-0 z-40 cursor-move rounded-3xl" />}
+                                    {isEditing && allowsDrag && (
+                                        <div className="absolute inset-0 z-40 cursor-move rounded-3xl" />
+                                    )}
 
                                     {/* Dynamic Widget Injection Component */}
                                     <BaseWidget
@@ -312,7 +333,7 @@ export const HomePage = () => {
                                         textColor={widget.config.textColor}
                                         actions={widget.config.actions}
                                         pageLink={widget.config.pageLink}
-                                        className={`transition-all duration-300 ${isEditing && !isStaticWidget ? "opacity-60 border-dashed border-[3px] border-primary-50 cursor-move" : "opacity-100"}`}
+                                        className={`transition-all duration-300 ${isModifiable ? `opacity-60 border-dashed border-[3px] ${widget.config.borderColor ? widget.config.borderColor : "border-primary-50"} cursor-move` : "opacity-100"}`}
                                     >
                                         {widget.config.content && (
                                             <widget.config.content.component props={widget.config.content.props} />

@@ -198,7 +198,7 @@ export const FilterComponent = ({
                                             : "bg-primary border-2 border-primary hover:bg-primary-50 hover:border-primary-50 text-quaternary-700 rounded-xl"
                                     }`}
                                 >
-                                    {t("widgets.solar_chart.filters.time.custom")}
+                                    {t("widgets.solar_chart.filters.time.custom.title")}
                                 </button>
 
                                 {/* Custom Date Pickers */}

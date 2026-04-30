@@ -128,7 +128,7 @@ export const SolarChartWidget = ({ props }) => {
      *
      * Sorts the data slices in descending order based on the minutes dedicated.
      */
-    const sortedSlices = [...slices].sort((a, b) => b.minutesDedicated - a.minutesDedicated);
+    const sortedSlices = [...slices].sort((a, b) => b.percentage - a.percentage);
 
     /**
      * Most Recurring Name
@@ -146,8 +146,9 @@ export const SolarChartWidget = ({ props }) => {
     const chartData = sortedSlices.map((slice, index) => ({
         id: slice.sliceId.toString(),
         label: slice.sliceName,
-        minutes: slice.minutesDedicated,
-        iconString: slice.logoOrColor,
+        minutes: slice.timeDedicated,
+        basePercentage: slice.percentage,
+        iconString: slice.logoOrColour,
         color: SOLAR_PALETTE[index % SOLAR_PALETTE.length],
     }));
 
@@ -164,7 +165,7 @@ export const SolarChartWidget = ({ props }) => {
      * Computes the total sum of minutes across all currently visible slices
      * to calculate proportional percentages.
      */
-    const totalVisibleMinutes = visibleSlicesBase.reduce((sum, slice) => sum + slice.minutes, 0);
+    const totalVisiblePercentage = visibleSlicesBase.reduce((sum, slice) => sum + slice.basePercentage, 0);
 
     /**
      * Visible Chart Data
@@ -173,7 +174,7 @@ export const SolarChartWidget = ({ props }) => {
      */
     const visibleChartData = visibleSlicesBase.map((slice) => ({
         ...slice,
-        value: totalVisibleMinutes > 0 ? Math.round((slice.minutes / totalVisibleMinutes) * 100) : 0,
+        value: totalVisiblePercentage > 0 ? Math.round((slice.basePercentage / totalVisiblePercentage) * 100) : 0,
     }));
 
     /**
@@ -344,7 +345,7 @@ export const SolarChartWidget = ({ props }) => {
                                 <div className="h-full flex flex-col items-start justify-between">
                                     <span className="text-xs text-quaternary-700 text-nowrap">{datum.data.label}</span>
                                     <span className="text-base font-bold text-quaternary-700">
-                                        {datum.data.minutes} min
+                                        {datum.data.minutes}
                                     </span>
                                 </div>
                             </div>

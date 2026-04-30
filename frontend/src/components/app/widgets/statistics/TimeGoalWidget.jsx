@@ -55,20 +55,6 @@ export const TimeGoalWidget = ({ props }) => {
     const completionPercentage = props?.completionPercentage || 0;
 
     /**
-     * Current Hours (Formatted)
-     *
-     * Computes the whole number of hours spent for UI display.
-     */
-    const currentH = Math.floor(currentMinutes / 60);
-
-    /**
-     * Current Remaining Minutes (Formatted)
-     *
-     * Computes the remainder of minutes after full hours are extracted.
-     */
-    const currentM = currentMinutes % 60;
-
-    /**
      * Goal Hours (Formatted)
      *
      * Computes the whole number of hours in the goal for UI display.
@@ -122,10 +108,8 @@ export const TimeGoalWidget = ({ props }) => {
 
             {/* Central Overlay Text Content */}
             <div className="absolute inset-0 flex flex-col items-center justify-end gap-1 text-quaternary-700 mb-2">
-                <span className="text-4xl font-bold leading-none">
-                    {currentH}h {currentM}m
-                </span>
-                <span className="text-xl font-medium">de {goalH}h</span>
+                <span className="text-4xl font-bold leading-none">{currentMinutes}</span>
+                <span className="text-xl font-medium">de {goalH} h</span>
             </div>
         </div>
     );
