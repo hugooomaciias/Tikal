@@ -76,6 +76,6 @@ public class Task {
     private Task parentTask;
 
     /* --- Two-way relationship to save parent and children in one go --- */
-    @OneToMany(mappedBy = "parentTask", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "parentTask", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Task> subtasks = new ArrayList<>();
 }
