@@ -106,7 +106,7 @@
 }
 
 .alt-datepicker-theme .react-datepicker__day--highlighted {
-    @apply bg-primary-100 text-primary-600 font-bold rounded-none m-0 px-[1.17rem] !important;
+    @apply bg-primary-500 text-primary font-bold rounded-none m-0 px-[1.17rem] !important;
 }
 
 .alt-datepicker-theme .react-datepicker__day--highlighted:first-of-type {
@@ -117,10 +117,12 @@
     @apply rounded-r-full !important;
 }
 
-.alt-datepicker-theme .react-datepicker__day--selected .custom-event-dot {
+.alt-datepicker-theme .react-datepicker__day--selected .custom-event-dot,
+.alt-datepicker-theme .react-datepicker__day--highlighted .custom-event-dot {
     @apply bg-primary-50 !important;
 }
 
-.alt-datepicker-theme .react-datepicker__day--selected .custom-event-dot-more {
+.alt-datepicker-theme .react-datepicker__day--selected .custom-event-dot-more,
+.alt-datepicker-theme .react-datepicker__day--highlighted .custom-event-dot-more {
     @apply border-primary-50 !important;
 }

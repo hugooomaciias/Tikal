@@ -94,7 +94,7 @@ export const HomePage = () => {
      * Extracts global application state regarding user profile data, layout coordinates,
      * widget datasets, and loading status.
      */
-    const { getUserProfile, getHomeGeneralInformation, getHomeLayout, getHomeWidgetsData, isDataLoaded } = useMain();
+    const { getHomeGeneralInformation, getHomeLayout, getHomeWidgetsData, getCalendarEvents, isDataLoaded } = useMain();
 
     /**
      * Translation Hook
@@ -133,13 +133,6 @@ export const HomePage = () => {
     // --- 3. Derived Variables ---
 
     /**
-     * User Profile Data
-     *
-     * Fetches the current user's profile configuration from the global context.
-     */
-    const userProfile = getUserProfile();
-
-    /**
      * General Home Information
      *
      * Retrieves the high-level dashboard configuration and metadata from the context.
@@ -159,6 +152,7 @@ export const HomePage = () => {
         if (isDataLoaded) {
             const layout = getHomeLayout();
             const allWidgetsData = getHomeWidgetsData();
+            const calendarEvents = getCalendarEvents();
 
             const mappedWidgets = layout
                 .map((item) => {
@@ -166,7 +160,14 @@ export const HomePage = () => {
 
                     if (!configBase) return null;
 
-                    const widgetData = allWidgetsData[item.i];
+                    let widgetData = allWidgetsData[item.i];
+
+                    if (item.i === "calendarWidget") {
+                        widgetData = {
+                            ...widgetData,
+                            events: calendarEvents,
+                        };
+                    }
 
                     const isResizable = configBase.isResizable === false ? false : undefined;
                     const isDraggable = configBase.isDraggable === false ? false : undefined;
@@ -201,7 +202,7 @@ export const HomePage = () => {
 
             setWidgets(mappedWidgets);
         }
-    }, [isDataLoaded, t, getHomeWidgetsData, getHomeLayout]);
+    }, [isDataLoaded, t, getHomeWidgetsData, getHomeLayout, getCalendarEvents]);
 
     // --- 5. Event Handlers & Functions ---
 
@@ -264,7 +265,7 @@ export const HomePage = () => {
     return (
         <div className="flex flex-col md:flex-row h-[100dvh] bg-gradient-to-t md:bg-gradient-to-r from-primary-50 to-primary-300 p-2 md:p-4 gap-4 md:gap-8 overflow-hidden">
             {/* Vertical Navbar */}
-            <NavbarComponent data={userProfile} />
+            <NavbarComponent />
 
             {/* Main Content Area */}
             <section className="flex-1 flex flex-col gap-6 w-full h-full overflow-hidden">

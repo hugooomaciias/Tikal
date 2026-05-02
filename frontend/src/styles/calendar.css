@@ -92,7 +92,7 @@
 }
 
 .main-calendar-theme .fc-daygrid-day-frame {
-    @apply flex flex-col absolute inset-0 overflow-hidden !important;
+    @apply h-full w-full flex flex-col overflow-hidden !important;
 }
 
 .main-calendar-theme .fc-daygrid-day-top {
@@ -172,7 +172,7 @@
 
 /* Celdas de la lista (quitar bordes internos excesivos) */
 .main-calendar-theme .fc-list-event td {
-    @apply border-none py-3 !important;
+    @apply border-none py-4 align-middle !important;
 }
 
 /* El punto de color del evento */
@@ -182,7 +182,7 @@
 
 /* Texto del título del evento */
 .main-calendar-theme .fc-list-event-title {
-    @apply text-sm font-bold text-quaternary-700 !important;
+    @apply pr-2 text-sm font-bold text-quaternary-700 !important;
 }
 
 /* Texto de la hora del evento */

@@ -1,10 +1,11 @@
 /** React & Third-Party Libraries */
-import { useState, useContext } from "react";
+import { useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
 /** Contexts, Hooks & Services */
-import { AuthContext } from "../../../context/AuthContext.jsx";
+import { useMain } from "../../../hooks/useMain.js";
+import { useAuth } from "../../../hooks/useAuth.js";
 
 /** Icons */
 import {
@@ -46,7 +47,7 @@ const ICON_MAP = {
  * @param {Object} props.data - The user profile data object used to display name and information.
  * @returns {JSX.Element|null} The rendered navigation bar component, or null if user data is missing.
  */
-export const NavbarComponent = ({ data }) => {
+export const NavbarComponent = () => {
     // --- 1. Hooks & Contexts ---
 
     /**
@@ -58,11 +59,18 @@ export const NavbarComponent = ({ data }) => {
     const { t } = useTranslation("app_common");
 
     /**
+     * Main Context Hook
+     *
+     * Extracts global application state regarding user profile data and loading status.
+     */
+    const { getUserProfile } = useMain();
+
+    /**
      * Authentication Context
      *
      * Provides the 'logout' function to allow the user to properly end their session.
      */
-    const { logout } = useContext(AuthContext);
+    const { logout } = useAuth();
 
     /**
      * Programmatic Navigation Hook
@@ -122,6 +130,13 @@ export const NavbarComponent = ({ data }) => {
      */
     const activeTab = currentOption ? currentOption.title : "";
 
+    /**
+     * General Home Information
+     *
+     * Retrieves the high-level dashboard configuration and metadata from the context.
+     */
+    const userProfile = getUserProfile();
+
     // --- 5. Event Handlers & Functions ---
 
     /**
@@ -155,7 +170,7 @@ export const NavbarComponent = ({ data }) => {
 
     // --- 6. Render ---
 
-    if (!data) return null;
+    if (!userProfile) return null;
 
     return (
         <aside
@@ -232,7 +247,9 @@ export const NavbarComponent = ({ data }) => {
                 {/* User Information and Actions */}
                 {isExpanded && (
                     <div className="flex flex-col ml-4 overflow-hidden">
-                        <span className="text-primary-600 text-lg font-medium whitespace-nowrap">{data.name}</span>
+                        <span className="text-primary-600 text-lg font-medium whitespace-nowrap">
+                            {userProfile.name}
+                        </span>
                         <span
                             onClick={handleLogout}
                             className="text-primary-600 cursor-pointer whitespace-nowrap hover:underline"

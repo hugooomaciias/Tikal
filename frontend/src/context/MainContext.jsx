@@ -163,30 +163,6 @@ export const MainProvider = ({ children }) => {
     }, [rawDashboardData]);
 
     /**
-     * Get Tasks Data
-     *
-     * Retrieves the comprehensive list of tasks from the synced dashboard data.
-     *
-     * @function
-     * @returns {Object|null} The tasks data object, or null if not loaded.
-     */
-    const getTasksData = useCallback(() => {
-        return rawDashboardData?.tasks || null;
-    }, [rawDashboardData]);
-
-    /**
-     * Get Statistics General Information
-     *
-     * Retrieves the general information intended for the statistics dashboard view.
-     *
-     * @function
-     * @returns {Object|null} The statistics general information object, or null if not loaded.
-     */
-    const getStatisticsGeneralInformation = useCallback(() => {
-        return rawDashboardData?.statisticsGeneralInformation || null;
-    }, [rawDashboardData]);
-
-    /**
      * Get Home Layout Settings
      *
      * Retrieves the personalized layout configuration for the user's home dashboard.
@@ -208,6 +184,30 @@ export const MainProvider = ({ children }) => {
      */
     const getHomeWidgetsData = useCallback(() => {
         return rawDashboardData?.homeWidgetsData || null;
+    }, [rawDashboardData]);
+
+    /**
+     * Get Tasks Data
+     *
+     * Retrieves the comprehensive list of tasks from the synced dashboard data.
+     *
+     * @function
+     * @returns {Object|null} The tasks data object, or null if not loaded.
+     */
+    const getTasksData = useCallback(() => {
+        return rawDashboardData?.tasks || null;
+    }, [rawDashboardData]);
+
+    /**
+     * Get Statistics General Information
+     *
+     * Retrieves the general information intended for the statistics dashboard view.
+     *
+     * @function
+     * @returns {Object|null} The statistics general information object, or null if not loaded.
+     */
+    const getStatisticsGeneralInformation = useCallback(() => {
+        return rawDashboardData?.statisticsGeneralInformation || null;
     }, [rawDashboardData]);
 
     /**
@@ -234,6 +234,10 @@ export const MainProvider = ({ children }) => {
         return rawDashboardData?.statisticsWidgetsData || null;
     }, [rawDashboardData]);
 
+    const getCalendarEvents = useCallback(() => {
+        return rawDashboardData?.calendarEvents || null;
+    }, [rawDashboardData]);
+
     // --- 4. Context Provider ---
 
     return (
@@ -242,12 +246,13 @@ export const MainProvider = ({ children }) => {
                 initialSync,
                 getUserProfile,
                 getHomeGeneralInformation,
-                getTasksData,
-                getStatisticsGeneralInformation,
                 getHomeLayout,
                 getHomeWidgetsData,
+                getTasksData,
+                getStatisticsGeneralInformation,
                 getStatisticsLayout,
                 getStatisticsWidgetsData,
+                getCalendarEvents,
                 isDataLoaded: !!rawDashboardData,
                 refreshData: initialSync,
             }}

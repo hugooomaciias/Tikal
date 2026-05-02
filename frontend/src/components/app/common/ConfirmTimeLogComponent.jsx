@@ -44,7 +44,7 @@ export const ConfirmTimeLogComponent = ({
      * Provides access to the i18n instance scoped to the "app_tasks"
      * namespace for localized text content within the modal.
      */
-    const { t } = useTranslation("app_tasks");
+    const { t } = useTranslation("app_common");
 
     // --- 3. Derived Variables ---
 
@@ -56,22 +56,8 @@ export const ConfirmTimeLogComponent = ({
      */
     const color = PHASE_COLOURS.find((c) => c.id === colorId) || PHASE_COLOURS[0];
 
-    // --- 5. Event Handlers & Functions ---
-
-    /**
-     * Stop Propagation Handler
-     *
-     * Prevents click events from bubbling up to the backdrop, avoiding accidental closures
-     * when the user interacts with the modal content.
-     *
-     * @param {React.MouseEvent} e - The mouse click event.
-     * @returns {void}
-     */
-    const handleStopPropagation = (e) => {
-        e.stopPropagation();
-    };
-
     // --- 6. Render ---
+
     return (
         <>
             {showStopModal && (
@@ -83,7 +69,9 @@ export const ConfirmTimeLogComponent = ({
                     {/* Modal Content Container */}
                     <div
                         className="relative w-[90%] max-w-md shadow-2xl flex flex-col gap-6 bg-primary-50 rounded-[2.5rem] p-8 animate-fade-in-up"
-                        onClick={handleStopPropagation}
+                        onClick={(e) => {
+                            e.stopPropagation();
+                        }}
                     >
                         <div className="flex flex-col gap-2">
                             {/* Header: Dynamic Title and Close Action */}

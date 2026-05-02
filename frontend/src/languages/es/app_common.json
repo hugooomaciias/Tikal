@@ -7,5 +7,24 @@
         "temple_mode": "Modo templo",
         "groups": "Grupos",
         "logout": "Cerrar sesión"
+    },
+    "confirm_time_log": {
+        "title": "Registrar actividad",
+        "description": "¿A qué le has dedicado tiempo exactamente durante este último bloque en la siguiente tarea?",
+        "placeholder": "Descripción de la actividad realizada",
+        "button": "Guardar registro"
+    },
+    "context_menu": {
+        "rename": "Renombrar",
+        "edit": "Editar",
+        "delete": {
+            "name": "Eliminar",
+            "modal": {
+                "title": "Eliminar evento",
+                "description": "¿Estás seguro de que deseas eliminar este evento?",
+                "cancel": "Cancelar",
+                "delete": "Eliminar"
+            }
+        }
     }
 }

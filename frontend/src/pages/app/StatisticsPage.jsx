@@ -89,13 +89,7 @@ export const StatisticsPage = () => {
      * Extracts global application state regarding user profile data, layout coordinates,
      * statistics datasets, and loading status.
      */
-    const {
-        getUserProfile,
-        getStatisticsGeneralInformation,
-        getStatisticsLayout,
-        getStatisticsWidgetsData,
-        isDataLoaded,
-    } = useMain();
+    const { getStatisticsGeneralInformation, getStatisticsLayout, getStatisticsWidgetsData, isDataLoaded } = useMain();
 
     /**
      * Translation Hook
@@ -132,13 +126,6 @@ export const StatisticsPage = () => {
     const [widgets, setWidgets] = useState([]);
 
     // --- 3. Derived Variables ---
-
-    /**
-     * User Profile Data
-     *
-     * Fetches the current user's profile configuration from the global context.
-     */
-    const userProfile = getUserProfile();
 
     /**
      * General Statistics Information
@@ -264,7 +251,7 @@ export const StatisticsPage = () => {
     return (
         <div className="flex flex-col md:flex-row h-[100dvh] bg-gradient-to-t md:bg-gradient-to-r from-primary-50 to-primary-300 p-2 md:p-4 gap-4 md:gap-8 overflow-hidden">
             {/* Vertical Navbar Layer */}
-            <NavbarComponent data={userProfile} />
+            <NavbarComponent />
 
             {/* Main Content Area */}
             <section className="flex-1 flex flex-col gap-4 md:gap-6 w-full h-full overflow-hidden">
