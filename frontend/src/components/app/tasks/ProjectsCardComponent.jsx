@@ -1,9 +1,17 @@
 /** React & Third-Party Libraries */
 import { useState, useEffect } from "react";
 
+/** Contexts, Hooks & Services */
+import { useContextMenu } from "../../../hooks/useContextMenu.js";
+import { useProject } from "../../../hooks/useProject.js";
+
 /** Components & Layouts */
 import { ProjectPopUpComponent } from "./ProjectPopUpComponent.jsx";
 import { ScrollingText } from "../common/ScrollingText";
+import { ContextMenuComponent } from "../common/ContextMenuComponent.jsx";
+import { RenameComponent } from "../common/RenameComponent.jsx";
+import { DeleteComponent } from "../common/DeleteComponent.jsx";
+import { SwipeableEntityItemComponent } from "./common/SwipeableEntityItemComponent.jsx";
 
 /** Icons */
 import { IconBook, IconSearch, IconCircleXFilled, IconNote, IconCirclePlusFilled } from "@tabler/icons-react";
@@ -26,8 +34,22 @@ import { PROJECTS_ICONS } from "../../../constants/projects_icons";
  * @param {Function} props.t - Translation function from i18next.
  * @returns {JSX.Element|null} The rendered projects card, or null if data is invalid.
  */
-export const ProjectsCardComponent = ({ data, selectedId, onSelect, t }) => {
+export const ProjectsCardComponent = ({
+    data,
+    selectedId,
+    onSelect,
+    onProjectCreated,
+    onProjectUpdated,
+    onProjectDeleted,
+    t,
+}) => {
     // --- 2. Local State ---
+
+    const { remove, update } = useProject();
+
+    const { contextMenuRef, contextMenuState, contextMenuActions } = useContextMenu((data) => {
+        setProjectToEdit(data);
+    });
 
     /**
      * Search Modal State
@@ -92,6 +114,30 @@ export const ProjectsCardComponent = ({ data, selectedId, onSelect, t }) => {
 
     // --- 5. Event Handlers & Functions ---
 
+    const handleDeleteProject = async (id) => {
+        try {
+            await remove(id);
+
+            if (onProjectDeleted) {
+                onProjectDeleted(id);
+            }
+        } catch (error) {
+            console.error("Error al borrar el proyecto:", error);
+        }
+    };
+
+    const handleUpdateProject = async (id, data) => {
+        try {
+            const updatedProject = await update(id, data);
+
+            if (onProjectUpdated) {
+                onProjectUpdated(updatedProject);
+            }
+        } catch (error) {
+            console.error("Error al actualizar el proyecto:", error);
+        }
+    };
+
     /**
      * Search Toggle Handler
      *
@@ -142,6 +188,9 @@ export const ProjectsCardComponent = ({ data, selectedId, onSelect, t }) => {
      */
     const handleClosePopUp = () => {
         setProjectToEdit(null);
+
+        contextMenuActions.setEntityToRename(null);
+        contextMenuActions.setEntityToDelete(null);
     };
 
     /**
@@ -164,7 +213,7 @@ export const ProjectsCardComponent = ({ data, selectedId, onSelect, t }) => {
     return (
         <>
             {/* Top Section: Header & Project List */}
-            <div className="h-full w-full flex flex-col items-center gap-4">
+            <div className="h-full w-full flex flex-col items-center gap-4 overflow-hidden">
                 {/* Header: Title and Search Area */}
                 <div className="h-10 w-full flex items-center justify-between text-quaternary-700">
                     {!isProjectSearchOpen && <span className="text-2xl font-bold">{t("projects.title")}</span>}
@@ -197,7 +246,7 @@ export const ProjectsCardComponent = ({ data, selectedId, onSelect, t }) => {
                 </div>
 
                 {/* Projects List Container */}
-                <div className="h-fit w-full flex flex-col gap-3">
+                <div className="h-fit w-full flex flex-1 flex-col gap-3 pr-3 overflow-y-auto custom-scrollbar">
                     {filteredProjects.length > 0 ? (
                         filteredProjects.map((project) => {
                             const IconComponent = getIconComponent(project.logo);
@@ -206,62 +255,68 @@ export const ProjectsCardComponent = ({ data, selectedId, onSelect, t }) => {
                             const isTooltipOpen = openTooltipId === project.id;
 
                             return (
-                                <div
+                                <SwipeableEntityItemComponent
                                     key={project.id}
-                                    onClick={() => onSelect(project.id)}
-                                    onDoubleClick={() => setProjectToEdit(project)}
-                                    className={`w-full flex items-center justify-between text-primary rounded-[2rem] transition-all duration-200 cursor-pointer bg-transparent ${
-                                        isActive ? "md:bg-primary-200 md:pr-5" : ""
-                                    }`}
+                                    entity={project}
+                                    contextMenuActions={contextMenuActions}
                                 >
-                                    {/* Project Icon and Title Section */}
                                     <div
-                                        className={`flex-1 min-w-0 flex items-center gap-3 ${isActive ? "md:gap-0" : ""} transition-all duration-300`}
+                                        onClick={() => onSelect(project.id)}
+                                        onDoubleClick={() => setProjectToEdit(project)}
+                                        onContextMenu={(e) => contextMenuActions.handleContextMenu(e, project)}
+                                        className={`w-full flex items-center justify-between text-primary rounded-[2rem] transition-all duration-200 cursor-pointer bg-transparent ${
+                                            isActive ? "md:bg-primary-200 md:pr-5" : ""
+                                        }`}
                                     >
-                                        <div className="h-fit w-fit bg-primary-200 p-3 rounded-full shrink-0">
-                                            <IconComponent className="h-7 w-7" />
-                                        </div>
-
+                                        {/* Project Icon and Title Section */}
                                         <div
-                                            className={`min-w-0 w-full text-xl text-quaternary-700 ${
-                                                isActive ? "md:text-primary" : ""
-                                            }`}
+                                            className={`flex-1 min-w-0 flex items-center gap-3 ${isActive ? "md:gap-0" : ""} transition-all duration-300`}
                                         >
-                                            <ScrollingText text={project.name} />
-                                        </div>
-                                    </div>
+                                            <div className="h-fit w-fit bg-primary-200 p-3 rounded-full shrink-0">
+                                                <IconComponent className="h-7 w-7" />
+                                            </div>
 
-                                    {/* Note Tooltip Indicator */}
-                                    {hasNote && (
-                                        <div
-                                            className="relative group flex items-center justify-center shrink-0 ml-3"
-                                            onClick={(e) => handleToggleTooltip(e, project.id, isTooltipOpen)}
-                                        >
-                                            <IconNote
-                                                className={`h-5 w-5 transition-colors duration-200 text-quaternary-700 ${
+                                            <div
+                                                className={`min-w-0 w-full text-xl text-quaternary-700 ${
                                                     isActive ? "md:text-primary" : ""
                                                 }`}
-                                            />
-
-                                            {/* Tooltip Content Container */}
-                                            <div
-                                                className={`absolute z-50 w-48 p-2 text-sm font-medium text-primary bg-quaternary-700 rounded-lg shadow-lg pointer-events-none transition-all
-                                                right-full top-1/2 -translate-y-1/2 mr-3
-                                                md:right-auto md:left-1/2 md:-translate-x-1/2 md:top-auto md:bottom-full md:translate-y-0 md:mr-0 md:mb-2
-                                                ${isTooltipOpen ? "block" : "hidden md:group-hover:block"}
-                                            `}
                                             >
-                                                {project.description}
-
-                                                {/* Mobile Tooltip Arrow (Points Right) */}
-                                                <div className="absolute md:hidden left-full top-1/2 -translate-y-1/2 w-0 h-0 border-y-8 border-y-transparent border-l-8 border-l-quaternary-700"></div>
-
-                                                {/* Desktop Tooltip Arrow (Points Down) */}
-                                                <div className="hidden md:block absolute left-1/2 -translate-x-1/2 top-full w-0 h-0 border-x-8 border-x-transparent border-t-8 border-t-quaternary-700"></div>
+                                                <ScrollingText text={project.name} />
                                             </div>
                                         </div>
-                                    )}
-                                </div>
+
+                                        {/* Note Tooltip Indicator */}
+                                        {hasNote && (
+                                            <div
+                                                className="relative group flex items-center justify-center shrink-0 ml-3"
+                                                onClick={(e) => handleToggleTooltip(e, project.id, isTooltipOpen)}
+                                            >
+                                                <IconNote
+                                                    className={`h-5 w-5 transition-colors duration-200 text-quaternary-700 ${
+                                                        isActive ? "md:text-primary" : ""
+                                                    }`}
+                                                />
+
+                                                {/* Tooltip Content Container */}
+                                                <div
+                                                    className={`absolute z-50 w-48 p-2 text-sm font-medium text-primary bg-quaternary-700 rounded-lg shadow-lg pointer-events-none transition-all
+                                                    right-full top-1/2 -translate-y-1/2 mr-3
+                                                    md:right-auto md:left-1/2 md:-translate-x-1/2 md:top-auto md:bottom-full md:translate-y-0 md:mr-0 md:mb-2
+                                                    ${isTooltipOpen ? "block" : "hidden md:group-hover:block"}
+                                                `}
+                                                >
+                                                    {project.description}
+
+                                                    {/* Mobile Tooltip Arrow (Points Right) */}
+                                                    <div className="absolute md:hidden left-full top-1/2 -translate-y-1/2 w-0 h-0 border-y-8 border-y-transparent border-l-8 border-l-quaternary-700"></div>
+
+                                                    {/* Desktop Tooltip Arrow (Points Down) */}
+                                                    <div className="hidden md:block absolute left-1/2 -translate-x-1/2 top-full w-0 h-0 border-x-8 border-x-transparent border-t-8 border-t-quaternary-700"></div>
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+                                </SwipeableEntityItemComponent>
                             );
                         })
                     ) : (
@@ -273,16 +328,45 @@ export const ProjectsCardComponent = ({ data, selectedId, onSelect, t }) => {
             </div>
 
             {/* Create Project Button */}
-            <button onClick={handleCreateNewProject}>
-                <IconCirclePlusFilled className="h-10 w-10 text-primary-200/70 hover:text-primary-200" />
-            </button>
+            <div className="shrink-0 w-full flex justify-end">
+                <button onClick={handleCreateNewProject}>
+                    <IconCirclePlusFilled className="h-10 w-10 text-primary-200/70 hover:text-primary-200" />
+                </button>
+            </div>
 
             {/* Create/Edit Project PopUp Modal */}
             {projectToEdit && (
                 <ProjectPopUpComponent
                     onClose={handleClosePopUp}
                     initialData={projectToEdit === "new" ? null : projectToEdit}
+                    onProjectCreated={onProjectCreated}
+                    onProjectUpdated={onProjectUpdated}
                     t={t}
+                />
+            )}
+
+            {contextMenuState.contextMenu.visible && (
+                <ContextMenuComponent
+                    contextMenuRef={contextMenuRef}
+                    contextMenuState={contextMenuState}
+                    contextMenuActions={contextMenuActions}
+                />
+            )}
+
+            {contextMenuState.entityToRename && (
+                <RenameComponent
+                    onClose={() => contextMenuActions.setEntityToRename(null)}
+                    data={contextMenuState.entityToRename}
+                    onRename={handleUpdateProject}
+                    t={t}
+                />
+            )}
+
+            {contextMenuState.entityToDelete && (
+                <DeleteComponent
+                    onClose={() => contextMenuActions.setEntityToDelete(null)}
+                    data={contextMenuState.entityToDelete}
+                    onDelete={handleDeleteProject}
                 />
             )}
         </>

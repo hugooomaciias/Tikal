@@ -10,11 +10,11 @@ export const useContextMenu = (handleEventClick) => {
         visible: false,
         x: 0,
         y: 0,
-        eventData: null,
+        data: null,
     });
 
-    const [eventToRename, setEventToRename] = useState(null);
-    const [eventToDelete, setEventToDelete] = useState(null);
+    const [entityToRename, setEntityToRename] = useState(null);
+    const [entityToDelete, setEntityToDelete] = useState(null);
 
     /**
      * Outside Click Listener
@@ -43,6 +43,32 @@ export const useContextMenu = (handleEventClick) => {
         };
     }, [contextMenu.visible]);
 
+    const getNormalizedEntityData = (rawEventData) => {
+        if (!rawEventData) return null;
+
+        const isFromCalendar = Boolean(rawEventData.event);
+        const entity = isFromCalendar ? rawEventData.event : rawEventData;
+
+        const entityTitle = entity.title || entity.name || "";
+
+        let entityColor = "";
+        let entityLogo = isFromCalendar ? entity.extendedProps.logo : entity.logo;
+
+        if (entity.extendedProps && entity.extendedProps.color) {
+            entityColor = entity.extendedProps.color;
+        } else if (entity.colour) {
+            entityColor = entity.colour;
+        }
+
+        return {
+            id: entity.id,
+            title: entityTitle,
+            color: entityColor,
+            logo: entityLogo,
+            originalEntity: entity,
+        };
+    };
+
     const handleContextMenu = useCallback((e, eventObj) => {
         e.preventDefault();
         e.stopPropagation();
@@ -51,74 +77,71 @@ export const useContextMenu = (handleEventClick) => {
             visible: true,
             x: e.clientX,
             y: e.clientY,
-            eventData: eventObj,
+            data: eventObj,
         });
     }, []);
 
     const closeContextMenu = useCallback(() => {
-        setContextMenu({ visible: false, x: 0, y: 0, eventData: null });
+        setContextMenu({ visible: false, x: 0, y: 0, data: null });
     }, []);
 
-    const handleActionRename = useCallback(() => {
-        if (contextMenu.eventData) {
-            // Extraemos los datos de forma segura (igual que en handleEventClick)
-            const isFromCalendar = Boolean(contextMenu.eventData.event);
-            const event = isFromCalendar ? contextMenu.eventData.event : contextMenu.eventData;
+    const handleActionRename = useCallback(
+        (entityOverride) => {
+            const isEvent = entityOverride && typeof entityOverride.stopPropagation === "function";
+            const targetData = !isEvent && entityOverride ? entityOverride : contextMenu.data;
 
-            let colorObj = PHASE_COLOURS[0];
-            if (event.extendedProps && event.extendedProps.color) {
-                colorObj = event.extendedProps.color;
+            const normalizedData = getNormalizedEntityData(targetData);
+
+            if (normalizedData) {
+                setEntityToRename(normalizedData);
             }
 
-            // Seteamos el evento para el modal de renombrar
-            setEventToRename({
-                id: event.id,
-                title: event.title,
-                color: colorObj,
-            });
-        }
+            closeContextMenu();
+        },
+        [contextMenu.data, closeContextMenu],
+    );
 
-        closeContextMenu();
-    }, [contextMenu.eventData, closeContextMenu]);
+    const handleActionEdit = useCallback(
+        (entityOverride) => {
+            const isEvent = entityOverride && typeof entityOverride.stopPropagation === "function";
+            const targetData = !isEvent && entityOverride ? entityOverride : contextMenu.data;
 
-    const handleActionEdit = useCallback(() => {
-        if (contextMenu.eventData) {
-            handleEventClick(contextMenu.eventData);
-        }
-
-        closeContextMenu();
-    }, [contextMenu.eventData, handleEventClick, closeContextMenu]);
-
-    const handleActionDelete = useCallback(() => {
-        if (contextMenu.eventData) {
-            const isFromCalendar = Boolean(contextMenu.eventData.event);
-            const event = isFromCalendar ? contextMenu.eventData.event : contextMenu.eventData;
-
-            let colorObj = PHASE_COLOURS[0];
-            if (event.extendedProps && event.extendedProps.color) {
-                colorObj = event.extendedProps.color;
+            if (targetData) {
+                handleEventClick(targetData);
             }
 
-            setEventToDelete({
-                id: event.id,
-                title: event.title,
-                color: colorObj,
-            });
-        }
-        closeContextMenu();
-    }, [contextMenu.eventData, closeContextMenu]);
+            closeContextMenu();
+        },
+        [contextMenu.data, handleEventClick, closeContextMenu],
+    );
+
+    const handleActionDelete = useCallback(
+        (entityOverride) => {
+            const isEvent = entityOverride && typeof entityOverride.stopPropagation === "function";
+            const targetData = !isEvent && entityOverride ? entityOverride : contextMenu.data;
+
+            const normalizedData = getNormalizedEntityData(targetData);
+
+            if (normalizedData) {
+                setEntityToDelete(normalizedData);
+            }
+
+            closeContextMenu();
+        },
+        [contextMenu.data, closeContextMenu],
+    );
 
     return {
         contextMenuRef,
         contextMenuState: {
             contextMenu,
-            eventToRename,
-            eventToDelete,
+            entityToRename,
+            entityToDelete,
         },
         contextMenuActions: {
             setContextMenu,
-            setEventToRename,
-            setEventToDelete,
+            setEntityToRename,
+            setEntityToDelete,
             handleContextMenu,
             closeContextMenu,
             handleActionRename,

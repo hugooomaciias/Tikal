@@ -27,6 +27,13 @@
             "add_deadline": "¿Añadir fecha límite al calendario?",
             "description": "Escribe una nota aclarativa",
             "button": {
+                "loading": {
+                    "new": {
+                        "project": "Creando proyecto",
+                        "list": "Creando lista"
+                    },
+                    "edit": "Guardando cambios"
+                },
                 "new": {
                     "project": "Crear proyecto",
                     "list": "Crear lista"
@@ -63,6 +70,13 @@
             "add_deadline": "¿Añadir fecha límite al calendario?",
             "description": "Escribe una nota aclarativa",
             "button": {
+                "loading": {
+                    "new": {
+                        "stage": "Creando fase",
+                        "sublist": "Creando sublista"
+                    },
+                    "edit": "Guardando cambios"
+                },
                 "new": {
                     "stage": "Crear fase",
                     "sublist": "Crear sublista"

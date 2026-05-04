@@ -7,6 +7,21 @@ import { useTranslation } from "react-i18next";
 /** Icons */
 import { IconCircleXFilled, IconAlertTriangle } from "@tabler/icons-react";
 
+/** Config, Constants & Utils */
+import { PROJECTS_ICONS } from "../../../constants/projects_icons.js";
+import { PHASE_COLOURS } from "../../../constants/phase_colours.js";
+import tailwindConfig from "../../../../tailwind.config.js";
+import resolveConfig from "tailwindcss/resolveConfig";
+
+/**
+ * Tailwind Configuration Resolver
+ *
+ * Resolves the Tailwind configuration to extract the defined color palette,
+ * ensuring the color constants match the application's global design tokens.
+ */
+const fullConfig = resolveConfig(tailwindConfig);
+const tailwindColors = fullConfig.theme.colors;
+
 /**
  * Delete Modal Component
  *
@@ -17,11 +32,11 @@ import { IconCircleXFilled, IconAlertTriangle } from "@tabler/icons-react";
  * @component
  * @param {Object} props - The component props.
  * @param {Function} props.onClose - Callback function triggered to close the modal.
- * @param {Object} props.eventData - Data object containing the target event's details (id, title, color).
+ * @param {Object} props.data - Data object containing the target event's details (id, title, color).
  * @param {Function} props.onDelete - Callback function triggered to confirm and execute the deletion.
  * @returns {JSX.Element} The rendered deletion confirmation modal.
  */
-export const DeleteComponent = ({ onClose, eventData, onDelete }) => {
+export const DeleteComponent = ({ onClose, data, onDelete }) => {
     // --- 1. Hooks & Contexts ---
 
     /**
@@ -44,10 +59,14 @@ export const DeleteComponent = ({ onClose, eventData, onDelete }) => {
      */
     const handleDelete = () => {
         if (onDelete) {
-            onDelete(eventData.id);
+            onDelete(data.id);
         }
+
         onClose();
     };
+
+    const logo = PROJECTS_ICONS.find((i) => i.id === data.logo) || PROJECTS_ICONS[0];
+    const color = PHASE_COLOURS.find((c) => c.id === data.color);
 
     // --- 6. Render ---
 
@@ -74,10 +93,11 @@ export const DeleteComponent = ({ onClose, eventData, onDelete }) => {
 
                 {/* Target Event Info Banner */}
                 <div
-                    className="flex items-center justify-center py-3 px-4 rounded-xl text-primary shadow-sm"
-                    style={{ backgroundColor: eventData?.color?.hex || "#ccc" }}
+                    className="w-full flex items-center justify-center gap-3 py-3 px-4 mt-4 rounded-xl text-primary shadow-sm"
+                    style={{ backgroundColor: color?.hex || tailwindColors.primary[500] }}
                 >
-                    <span className="font-bold text-center truncate w-full">{eventData?.title}</span>
+                    <logo.component className="w-5 h-5" />
+                    <span className="font-bold">{data?.title}</span>
                 </div>
 
                 {/* Action Buttons: Cancel & Confirm */}

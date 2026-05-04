@@ -189,10 +189,10 @@ export const CalendarPage = () => {
                 />
             )}
 
-            {contextMenuState.eventToRename && (
+            {contextMenuState.entityToRename && (
                 <RenameComponent
-                    onClose={() => contextMenuActions.setEventToRename(null)}
-                    eventData={contextMenuState.eventToRename}
+                    onClose={() => contextMenuActions.setEntityToRename(null)}
+                    eventData={contextMenuState.entityToRename}
                     onRename={(id, newTitle) => {
                         console.log("Guardar nuevo nombre:", newTitle, "para el evento:", id);
                     }}
@@ -200,10 +200,10 @@ export const CalendarPage = () => {
                 />
             )}
 
-            {contextMenuState.eventToDelete && (
+            {contextMenuState.entityToDelete && (
                 <DeleteComponent
-                    onClose={() => contextMenuActions.setEventToDelete(null)}
-                    eventData={contextMenuState.eventToDelete}
+                    onClose={() => contextMenuActions.setEntityToDelete(null)}
+                    eventData={contextMenuState.entityToDelete}
                     onDelete={(id) => {
                         console.log("Eliminando el evento con ID:", id);
                     }}

@@ -1,13 +1,16 @@
 /** React & Third-Party Libraries */
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 /** Components & Layouts */
 import { TabsComponent } from "../common/popups/TabsComponent.jsx";
 import { DatePickerComponent } from "../common/popups/DatepickerComponent.jsx";
 import { PickerComponent } from "../common/popups/PickerComponent.jsx";
 
+/** Contexts, Hooks & Services */
+import { useStage } from "../../../hooks/useStage.js";
+
 /** Icons */
-import { IconCircleXFilled, IconNote } from "@tabler/icons-react";
+import { IconCircleXFilled, IconNote, IconLoader } from "@tabler/icons-react";
 
 /** Assets, Utils & Constants */
 import { PHASE_COLOURS } from "../../../constants/phase_colours.js";
@@ -26,7 +29,16 @@ import { PHASE_COLOURS } from "../../../constants/phase_colours.js";
  * @param {Function} props.t - Translation function from i18next for multi-language support.
  * @returns {JSX.Element} The rendered modal component.
  */
-export const StagePopUpComponent = ({ onClose, initialData, t }) => {
+export const StagePopUpComponent = ({ onClose, initialData, projectId, onStageCreated, onStageUpdated, t }) => {
+    // --- 1. Hooks & Contexts ---
+
+    /**
+     * Main Context Hook
+     *
+     * Extracts global application state regarding user profile data and loading status.
+     */
+    const { create, update } = useStage();
+
     // --- 2. Local State ---
 
     /**
@@ -58,9 +70,9 @@ export const StagePopUpComponent = ({ onClose, initialData, t }) => {
      */
     const [formData, setFormData] = useState({
         type: "stage",
-        stage: initialData ? initialData.title : "",
-        date: initialData && initialData.date ? initialData.date : "",
-        note: initialData ? initialData.note : "",
+        stage: initialData ? initialData.name : "",
+        date: initialData && initialData.deadline ? initialData.deadline : "",
+        note: initialData ? initialData.description : "",
     });
 
     /**
@@ -69,6 +81,17 @@ export const StagePopUpComponent = ({ onClose, initialData, t }) => {
      * Stores field-specific error messages displayed under the inputs when validation fails.
      */
     const [errors, setErrors] = useState({});
+
+    const [isLoading, setIsLoading] = useState(false);
+    const [apiError, setApiError] = useState("");
+
+    /**
+     * Popup Visibility State
+     *
+     * Controls the visibility of the error popup for animation purposes.
+     * When true, the popup scales in and becomes fully opaque.
+     */
+    const [isVisible, setIsVisible] = useState(false);
 
     // --- 3. Derived Variables ---
 
@@ -81,6 +104,25 @@ export const StagePopUpComponent = ({ onClose, initialData, t }) => {
     const isEditing = Boolean(initialData);
 
     // --- 4. Side Effects ---
+
+    /**
+     * Popup Auto-Hide Effect
+     *
+     * Monitors the `apiError` state. When an error is present, it displays
+     * the popup and sets a timeout to automatically close it after 5 seconds.
+     * It cleans up the timeout if the component unmounts or if the error changes.
+     */
+    useEffect(() => {
+        if (apiError) {
+            setIsVisible(true);
+
+            const timer = setTimeout(() => {
+                handleClose();
+            }, 5000);
+
+            return () => clearTimeout(timer);
+        }
+    }, [apiError]);
 
     // --- 5. Event Handlers & Functions ---
 
@@ -140,12 +182,46 @@ export const StagePopUpComponent = ({ onClose, initialData, t }) => {
      * @param {React.FormEvent} e - The form submission event.
      * @returns {void}
      */
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
+        setApiError("");
 
         if (validateForm()) {
-            setFormData({ stage: "", note: "" });
-            onClose();
+            setIsLoading(true);
+
+            try {
+                const stagePayload = {
+                    projectId: projectId,
+                    name: formData.stage,
+                    description: formData.note,
+                    deadline: formData.date,
+                    colour: selectedColour.id,
+                };
+
+                if (isEditing) {
+                    const updatedStage = await update(initialData.id, stagePayload);
+
+                    if (onStageUpdated) {
+                        onStageUpdated(updatedStage);
+                    }
+
+                    handleClose();
+                } else {
+                    const newStage = await create(stagePayload);
+
+                    setFormData({ type: "stage", stage: "", date: "", note: "" });
+
+                    if (onStageCreated) {
+                        onStageCreated(newStage);
+                    }
+
+                    handleClose();
+                }
+            } catch (error) {
+                setApiError(error.message || "Ocurrió un error al crear la fase.");
+            } finally {
+                setIsLoading(false);
+            }
         }
     };
 
@@ -157,19 +233,13 @@ export const StagePopUpComponent = ({ onClose, initialData, t }) => {
      * @returns {void}
      */
     const handleClose = () => {
-        onClose();
-    };
+        setIsVisible(false);
 
-    /**
-     * Stop Propagation Handler
-     *
-     * Prevents click events from bubbling up to the backdrop, avoiding accidental closures.
-     *
-     * @param {React.MouseEvent} e - The mouse click event.
-     * @returns {void}
-     */
-    const handleStopPropagation = (e) => {
-        e.stopPropagation();
+        setTimeout(() => {
+            setApiError("");
+        }, 300);
+
+        onClose();
     };
 
     /**
@@ -233,10 +303,24 @@ export const StagePopUpComponent = ({ onClose, initialData, t }) => {
             className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm"
             onClick={handleClose}
         >
+            {/* API Error Alert Modal */}
+            {apiError && (
+                <div
+                    className={`absolute top-10 md:top-16 h-16 w-[89%] md:w-1/4 bg-primary border-2 border-tertiary-200 text-tertiary-200 px-4 py-3 rounded-lg flex items-center justify-center gap-3 shadow-xl transition-all duration-300 animate-fade-in-up z-50
+                                ${isVisible ? "opacity-100 scale-100" : "opacity-0 scale-95 pointer-events-none"}`}
+                    role="alert"
+                >
+                    <IconCircleXFilled className="h-6 w-6" />
+                    <span className="block sm:inline font-medium text-center">{apiError}</span>
+                </div>
+            )}
+
             {/* Modal Content Container */}
             <div
                 className="relative w-[90%] max-w-md shadow-2xl flex flex-col gap-6 bg-primary-50 rounded-[2.5rem] p-8 animate-fade-in-up"
-                onClick={handleStopPropagation}
+                onClick={(e) => {
+                    e.stopPropagation();
+                }}
             >
                 {/* Header: Dynamic Title and Close Action */}
                 <div className="flex items-center justify-between">
@@ -362,14 +446,22 @@ export const StagePopUpComponent = ({ onClose, initialData, t }) => {
                     </div>
 
                     {/* Form Submit Button */}
-                    <button type="submit" className="btn btn-primary md:min-w-1/2 mx-auto">
+                    <button type="submit" className="btn btn-primary md:min-w-1/2 mx-auto flex items-center gap-4">
                         <span>
-                            {isEditing
-                                ? t("stages.popup.button.edit")
-                                : formData.type === "stage"
-                                  ? t("stages.popup.button.new.stage")
-                                  : t("stages.popup.button.new.sublist")}
+                            {isLoading
+                                ? isEditing
+                                    ? t("stages.popup.button.loading.edit")
+                                    : formData.type === "stage"
+                                      ? t("stages.popup.button.loading.new.stage")
+                                      : t("stages.popup.button.loading.new.sublist")
+                                : isEditing
+                                  ? t("stages.popup.button.edit")
+                                  : formData.type === "stage"
+                                    ? t("stages.popup.button.new.stage")
+                                    : t("stages.popup.button.new.sublist")}
                         </span>
+
+                        {isLoading && <IconLoader className="h-6 w-6 text-primary animate-spin" />}
                     </button>
                 </form>
             </div>

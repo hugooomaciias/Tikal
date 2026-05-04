@@ -1,9 +1,17 @@
 /** React & Third-Party Libraries */
 import { useState, useEffect } from "react";
 
+/** Contexts, Hooks & Services */
+import { useContextMenu } from "../../../hooks/useContextMenu.js";
+import { useStage } from "../../../hooks/useStage.js";
+
 /** Components & Layouts */
 import { StagePopUpComponent } from "./StagePopUpComponent.jsx";
 import { ScrollingText } from "../common/ScrollingText";
+import { ContextMenuComponent } from "../common/ContextMenuComponent.jsx";
+import { RenameComponent } from "../common/RenameComponent.jsx";
+import { DeleteComponent } from "../common/DeleteComponent.jsx";
+import { SwipeableEntityItemComponent } from "./common/SwipeableEntityItemComponent.jsx";
 
 /** Icons */
 import {
@@ -44,8 +52,24 @@ const tailwindColors = fullConfig.theme.colors;
  * @param {Function} props.t - Translation function from i18next.
  * @returns {JSX.Element|null} The rendered stages card, or null if data is invalid.
  */
-export const StagesCardComponent = ({ data, selectedId, onSelect, handleBackNavigation, t }) => {
+export const StagesCardComponent = ({
+    data,
+    projectId,
+    selectedId,
+    onSelect,
+    handleBackNavigation,
+    onStageCreated,
+    onStageUpdated,
+    onStageDeleted,
+    t,
+}) => {
     // --- 2. Local State ---
+
+    const { remove, update } = useStage();
+
+    const { contextMenuRef, contextMenuState, contextMenuActions } = useContextMenu((data) => {
+        setStageToEdit(data);
+    });
 
     /**
      * Search Modal State
@@ -110,6 +134,30 @@ export const StagesCardComponent = ({ data, selectedId, onSelect, handleBackNavi
 
     // --- 5. Event Handlers & Functions ---
 
+    const handleDeleteStage = async (id) => {
+        try {
+            await remove(id);
+
+            if (onStageDeleted) {
+                onStageDeleted(id);
+            }
+        } catch (error) {
+            console.error("Error al borrar el proyecto:", error);
+        }
+    };
+
+    const handleUpdateStage = async (id, data) => {
+        try {
+            const updatedStage = await update(id, data);
+
+            if (onStageUpdated) {
+                onStageUpdated(updatedStage);
+            }
+        } catch (error) {
+            console.error("Error al actualizar el proyecto:", error);
+        }
+    };
+
     /**
      * Search Toggle Handler
      *
@@ -160,6 +208,9 @@ export const StagesCardComponent = ({ data, selectedId, onSelect, handleBackNavi
      */
     const handleClosePopUp = () => {
         setStageToEdit(null);
+
+        contextMenuActions.setEntityToRename(null);
+        contextMenuActions.setEntityToDelete(null);
     };
 
     // --- 6. Render ---
@@ -169,7 +220,7 @@ export const StagesCardComponent = ({ data, selectedId, onSelect, handleBackNavi
     return (
         <>
             {/* Top Section: Header & Stage List */}
-            <div className="h-full w-full flex flex-col items-center gap-4">
+            <div className="h-full w-full flex flex-col items-center gap-4 overflow-hidden">
                 {/* Header: Title and Search Area */}
                 <div className="h-10 w-full flex items-center justify-between text-quaternary-700">
                     {!isStageSearchOpen && <span className="text-2xl font-bold">{t("stages.title")}</span>}
@@ -202,7 +253,7 @@ export const StagesCardComponent = ({ data, selectedId, onSelect, handleBackNavi
                 </div>
 
                 {/* Stages List Container */}
-                <div className="h-fit w-full flex flex-col gap-3">
+                <div className="h-fit w-full flex flex-1 flex-col gap-3 overflow-y-auto custom-scrollbar">
                     {filteredStages.length > 0 ? (
                         filteredStages.map((stage) => {
                             const isActive = selectedId === stage.id;
@@ -212,63 +263,70 @@ export const StagesCardComponent = ({ data, selectedId, onSelect, handleBackNavi
                             const isTooltipOpen = openTooltipId === stage.id;
 
                             return (
-                                <div
+                                <SwipeableEntityItemComponent
                                     key={stage.id}
-                                    onClick={() => onSelect(stage.id)}
-                                    onDoubleClick={() => setStageToEdit(stage)}
-                                    style={{ "--stage-color": color }}
-                                    className={`flex items-center justify-between bg-transparent p-3 rounded-full transition-all duration-200 cursor-pointer ${
-                                        isActive ? "md:bg-[var(--stage-color)]" : ""
-                                    }`}
+                                    entity={stage}
+                                    contextMenuActions={contextMenuActions}
                                 >
-                                    {/* Stage Color Dot & Title Section */}
-                                    <div className="flex items-center gap-4">
-                                        <div
-                                            className={`h-6 w-6 p-3 rounded-full bg-[var(--stage-color)] ${
-                                                isActive ? "md:bg-primary" : ""
-                                            }`}
-                                        ></div>
+                                    <div
+                                        key={stage.id}
+                                        onClick={() => onSelect(stage.id)}
+                                        onDoubleClick={() => setStageToEdit(stage)}
+                                        onContextMenu={(e) => contextMenuActions.handleContextMenu(e, stage)}
+                                        style={{ "--stage-color": color }}
+                                        className={`flex items-center justify-between bg-transparent p-3 rounded-full transition-all duration-200 cursor-pointer ${
+                                            isActive ? "md:bg-[var(--stage-color)]" : ""
+                                        }`}
+                                    >
+                                        {/* Stage Color Dot & Title Section */}
+                                        <div className="flex items-center gap-4">
+                                            <div
+                                                className={`h-6 w-6 p-3 rounded-full bg-[var(--stage-color)] ${
+                                                    isActive ? "md:bg-primary" : ""
+                                                }`}
+                                            ></div>
 
-                                        <div
-                                            className={`min-w-0 w-full text-xl text-quaternary-700 ${
-                                                isActive ? "md:text-primary" : ""
-                                            }`}
-                                        >
-                                            <ScrollingText text={stage.name} />
-                                        </div>
-                                    </div>
-
-                                    {/* Stage Note Tooltip Indicator */}
-                                    {hasNote && (
-                                        <div
-                                            className="relative group flex items-center justify-center shrink-0 ml-3"
-                                            onClick={(e) => handleToggleTooltip(e, stage.id, isTooltipOpen)}
-                                        >
-                                            <IconNote
-                                                className={`h-5 w-5 transition-colors duration-200 text-quaternary-700 ${
+                                            <div
+                                                className={`min-w-0 w-full text-xl text-quaternary-700 ${
                                                     isActive ? "md:text-primary" : ""
                                                 }`}
-                                            />
-
-                                            {/* Tooltip Content Container */}
-                                            <div
-                                                className={`absolute z-50 w-48 p-2 text-sm font-medium text-primary bg-quaternary-700 rounded-lg shadow-lg pointer-events-none transition-all
-                                                right-full top-1/2 -translate-y-1/2 mr-3
-                                                md:right-auto md:left-1/2 md:-translate-x-1/2 md:top-auto md:bottom-full md:translate-y-0 md:mr-0 md:mb-2
-                                                ${isTooltipOpen ? "block" : "hidden md:group-hover:block"}
-                                            `}
                                             >
-                                                {stage.description}
-
-                                                {/* Mobile Tooltip Arrow (Points Right) */}
-                                                <div className="absolute md:hidden left-full top-1/2 -translate-y-1/2 w-0 h-0 border-y-8 border-y-transparent border-l-8 border-l-quaternary-700"></div>
-
-                                                {/* Desktop Tooltip Arrow (Points Down) */}
-                                                <div className="hidden md:block absolute left-1/2 -translate-x-1/2 top-full w-0 h-0 border-x-8 border-x-transparent border-t-8 border-t-quaternary-700"></div>
+                                                <ScrollingText text={stage.name} />
                                             </div>
                                         </div>
-                                    )}
-                                </div>
+
+                                        {/* Stage Note Tooltip Indicator */}
+                                        {hasNote && (
+                                            <div
+                                                className="relative group flex items-center justify-center shrink-0 ml-3"
+                                                onClick={(e) => handleToggleTooltip(e, stage.id, isTooltipOpen)}
+                                            >
+                                                <IconNote
+                                                    className={`h-5 w-5 transition-colors duration-200 text-quaternary-700 ${
+                                                        isActive ? "md:text-primary" : ""
+                                                    }`}
+                                                />
+
+                                                {/* Tooltip Content Container */}
+                                                <div
+                                                    className={`absolute z-50 w-48 p-2 text-sm font-medium text-primary bg-quaternary-700 rounded-lg shadow-lg pointer-events-none transition-all
+                                                    right-full top-1/2 -translate-y-1/2 mr-3
+                                                    md:right-auto md:left-1/2 md:-translate-x-1/2 md:top-auto md:bottom-full md:translate-y-0 md:mr-0 md:mb-2
+                                                    ${isTooltipOpen ? "block" : "hidden md:group-hover:block"}
+                                                `}
+                                                >
+                                                    {stage.description}
+
+                                                    {/* Mobile Tooltip Arrow (Points Right) */}
+                                                    <div className="absolute md:hidden left-full top-1/2 -translate-y-1/2 w-0 h-0 border-y-8 border-y-transparent border-l-8 border-l-quaternary-700"></div>
+
+                                                    {/* Desktop Tooltip Arrow (Points Down) */}
+                                                    <div className="hidden md:block absolute left-1/2 -translate-x-1/2 top-full w-0 h-0 border-x-8 border-x-transparent border-t-8 border-t-quaternary-700"></div>
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+                                </SwipeableEntityItemComponent>
                             );
                         })
                     ) : (
@@ -291,9 +349,11 @@ export const StagesCardComponent = ({ data, selectedId, onSelect, handleBackNavi
                 </button>
 
                 {/* Create Stage Button */}
-                <button onClick={handleCreateNewStage}>
-                    <IconCirclePlusFilled className="h-10 w-10 text-primary-200 md:text-primary-200/70 md:hover:text-primary-200" />
-                </button>
+                <div className="shrink-0 w-full flex justify-end">
+                    <button onClick={handleCreateNewStage}>
+                        <IconCirclePlusFilled className="h-10 w-10 text-primary-200 md:text-primary-200/70 md:hover:text-primary-200" />
+                    </button>
+                </div>
             </div>
 
             {/* Create/Edit Stage PopUp Modal */}
@@ -301,7 +361,35 @@ export const StagesCardComponent = ({ data, selectedId, onSelect, handleBackNavi
                 <StagePopUpComponent
                     onClose={handleClosePopUp}
                     initialData={stageToEdit === "new" ? null : stageToEdit}
+                    projectId={projectId}
+                    onStageCreated={onStageCreated}
+                    onStageUpdated={onStageUpdated}
                     t={t}
+                />
+            )}
+
+            {contextMenuState.contextMenu.visible && (
+                <ContextMenuComponent
+                    contextMenuRef={contextMenuRef}
+                    contextMenuState={contextMenuState}
+                    contextMenuActions={contextMenuActions}
+                />
+            )}
+
+            {contextMenuState.entityToRename && (
+                <RenameComponent
+                    onClose={() => contextMenuActions.setEntityToRename(null)}
+                    data={contextMenuState.entityToRename}
+                    onRename={handleUpdateStage}
+                    t={t}
+                />
+            )}
+
+            {contextMenuState.entityToDelete && (
+                <DeleteComponent
+                    onClose={() => contextMenuActions.setEntityToDelete(null)}
+                    data={contextMenuState.entityToDelete}
+                    onDelete={handleDeleteStage}
                 />
             )}
         </>

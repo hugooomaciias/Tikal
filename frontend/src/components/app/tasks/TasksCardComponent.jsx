@@ -293,7 +293,7 @@ export const TasksCardComponent = ({ data, stageColor, isCompletedFilter, handle
     return (
         <>
             {/* Main Content Layout */}
-            <div className="h-full w-full flex flex-col items-center gap-4">
+            <div className="h-full w-full flex flex-col items-center gap-4 overflow-hidden">
                 {/* Header Section: Title & Search Bar */}
                 <div className="h-10 w-full flex items-center justify-between text-quaternary-700">
                     {!isTaskSearchOpen && <span className="text-2xl font-bold">{t("tasks.title")}</span>}
@@ -325,7 +325,7 @@ export const TasksCardComponent = ({ data, stageColor, isCompletedFilter, handle
                 </div>
 
                 {/* Tasks List Container */}
-                <div className="h-fit w-full flex flex-col gap-3">
+                <div className="h-fit w-full flex flex-1 flex-col gap-3 overflow-y-auto custom-scrollbar">
                     {filteredTasks.length > 0 ? (
                         filteredTasks.map((task) => {
                             /** Indicates if the current task row is expanded. */
@@ -483,9 +483,11 @@ export const TasksCardComponent = ({ data, stageColor, isCompletedFilter, handle
                     <span className="font-semibold">Fases</span>
                 </button>
 
-                <button onClick={handleCreateTask}>
-                    <IconCirclePlusFilled className="h-10 w-10 text-primary-200 md:text-primary-200/70 md:hover:text-primary-200" />
-                </button>
+                <div className="shrink-0 w-full flex justify-end">
+                    <button onClick={handleCreateTask}>
+                        <IconCirclePlusFilled className="h-10 w-10 text-primary-200 md:text-primary-200/70 md:hover:text-primary-200" />
+                    </button>
+                </div>
             </div>
 
             {/* Create/Edit Task PopUp Modal */}

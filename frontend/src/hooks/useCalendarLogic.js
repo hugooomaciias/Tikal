@@ -66,7 +66,7 @@ export const useCalendarLogic = (getCalendarEvents, getTasksData) => {
         return backendEvents.map((event) => {
             const color = PHASE_COLOURS.find((c) => c.id === event.color) || PHASE_COLOURS[0];
             const eventDate = event.startDate ? event.startDate.split("T")[0] : "";
-
+            console.log(event);
             return {
                 id: event.id.toString(),
                 title: event.title,

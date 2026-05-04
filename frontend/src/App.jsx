@@ -6,6 +6,8 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-d
 import { AuthProvider } from "./context/AuthContext";
 import { MainProvider } from "./context/MainContext";
 import { TimeLogProvider } from "./context/TimeLogContext";
+import { ProjectProvider } from "./context/ProjectContext.jsx";
+import { StageProvider } from "./context/StageContext.jsx";
 
 /** Components & Layouts */
 import { ProtectedRoute } from "./components/security/ProtectedRoute.jsx";
@@ -73,14 +75,18 @@ function App() {
                                 }
                             />
 
-                            <Route
-                                path="/tasks"
-                                element={
-                                    <ProtectedRoute>
-                                        <TasksPage />
-                                    </ProtectedRoute>
-                                }
-                            />
+                            <Route element={<ProjectProvider />}>
+                                <Route element={<StageProvider />}>
+                                    <Route
+                                        path="/tasks"
+                                        element={
+                                            <ProtectedRoute>
+                                                <TasksPage />
+                                            </ProtectedRoute>
+                                        }
+                                    />
+                                </Route>
+                            </Route>
 
                             <Route
                                 path="/calendar"

@@ -5,6 +5,10 @@
  * and the alternative theme behaviors.
  */
 
+.react-datepicker-popper.main-datepicker-theme {
+    @apply z-[1000] !important;
+}
+
 .main-datepicker-theme .react-datepicker {
     @apply font-onest bg-primary-500 rounded-2xl overflow-hidden !important;
 }

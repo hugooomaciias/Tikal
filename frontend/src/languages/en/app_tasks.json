@@ -27,6 +27,13 @@
             "add_deadline": "Add deadline to calendar?",
             "description": "Write a clarifying note",
             "button": {
+                "loading": {
+                    "new": {
+                        "project": "Creating project",
+                        "list": "Creating list"
+                    },
+                    "edit": "Saving changes"
+                },
                 "new": {
                     "project": "Create project",
                     "list": "Create list"
@@ -63,6 +70,13 @@
             "add_deadline": "Add deadline to calendar?",
             "description": "Write a clarifying note",
             "button": {
+                "loading": {
+                    "new": {
+                        "stage": "Creating stage",
+                        "sublist": "Creating sublist"
+                    },
+                    "edit": "Saving changes"
+                },
                 "new": {
                     "stage": "Create stage",
                     "sublist": "Create sublist"

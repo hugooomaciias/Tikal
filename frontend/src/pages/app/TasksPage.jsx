@@ -86,6 +86,8 @@ export const TasksPage = () => {
      */
     const [mobileView, setMobileView] = useState("projects");
 
+    const [localTasksData, setLocalTasksData] = useState([]);
+
     // --- 3. Derived Variables ---
 
     /**
@@ -100,7 +102,7 @@ export const TasksPage = () => {
      *
      * Computes the active project object from the full dataset based on the current ID.
      */
-    const selectedProject = tasksData?.find((p) => p.id === selectedProjectId);
+    const selectedProject = localTasksData?.find((p) => p.id === selectedProjectId);
 
     /**
      * Selected Stage Entity
@@ -110,6 +112,12 @@ export const TasksPage = () => {
     const selectedStage = selectedProject?.stages?.find((s) => s.id === selectedStageId);
 
     // --- 4. Side Effects ---
+
+    useEffect(() => {
+        if (isDataLoaded) {
+            setLocalTasksData(getTasksData() || []);
+        }
+    }, [isDataLoaded, getTasksData]);
 
     /**
      * Initial Data Selection Effect
@@ -177,6 +185,111 @@ export const TasksPage = () => {
         }
     };
 
+    const handleProjectCreated = (newProject) => {
+        const formattedProject = {
+            ...newProject,
+            stages: [],
+            logo: newProject.logoUrl || newProject.logo,
+        };
+
+        setLocalTasksData((prev) => [...prev, formattedProject]);
+
+        setSelectedProjectId(formattedProject.id);
+        setSelectedStageId(null);
+        setMobileView("stages");
+    };
+
+    const handleProjectUpdated = (updatedProject) => {
+        setLocalTasksData((prev) =>
+            prev.map((project) => {
+                if (project.id === updatedProject.id) {
+                    return {
+                        ...updatedProject,
+                        stages: project.stages,
+                        logo: updatedProject.logoUrl || updatedProject.logo,
+                    };
+                }
+                return project;
+            }),
+        );
+    };
+
+    const handleProjectDeleted = (deletedId) => {
+        setLocalTasksData((prev) => prev.filter((project) => project.id !== deletedId));
+
+        if (selectedProjectId === deletedId) {
+            setSelectedProjectId(null);
+            setSelectedStageId(null);
+        }
+    };
+
+    const handleStageCreated = (newStage) => {
+        const formattedStage = {
+            ...newStage,
+            tasks: [],
+        };
+
+        setLocalTasksData((prev) =>
+            prev.map((project) => {
+                if (project.id === selectedProjectId) {
+                    return {
+                        ...project,
+                        stages: [...(project.stages || []), formattedStage],
+                    };
+                }
+
+                return project;
+            }),
+        );
+
+        setSelectedStageId(formattedStage.id);
+        setMobileView("tasks");
+    };
+
+    const handleStageUpdated = (updatedStage) => {
+        setLocalTasksData((prev) =>
+            prev.map((project) => {
+                if (project.id === selectedProjectId) {
+                    return {
+                        ...project,
+                        stages: project.stages.map((stage) => {
+                            if (stage.id === updatedStage.id) {
+                                return {
+                                    ...updatedStage,
+                                    tasks: stage.tasks,
+                                    colour: updatedStage.color || updatedStage.colour,
+                                };
+                            }
+
+                            return stage;
+                        }),
+                    };
+                }
+
+                return project;
+            }),
+        );
+    };
+
+    const handleStageDeleted = (deletedId) => {
+        setLocalTasksData((prev) =>
+            prev.map((project) => {
+                if (project.id === selectedProjectId) {
+                    return {
+                        ...project,
+                        stages: project.stages.filter((stage) => stage.id !== deletedId),
+                    };
+                }
+
+                return project;
+            }),
+        );
+
+        if (selectedStageId === deletedId) {
+            setSelectedStageId(null);
+        }
+    };
+
     // --- 6. Render ---
 
     if (!isDataLoaded) {
@@ -197,12 +310,15 @@ export const TasksPage = () => {
                 <div className="flex-1 flex flex-col md:flex-row gap-4 overflow-hidden relative">
                     {/* Projects Column */}
                     <div
-                        className={`${mobileView === "projects" ? "flex" : "hidden"} h-full w-full md:w-1/4 md:flex flex-col items-end justify-between p-6 bg-primary rounded-[2.5rem]`}
+                        className={`${mobileView === "projects" ? "flex" : "hidden"} h-full w-full md:w-1/4 md:flex flex-col items-end justify-between p-6 pr-3 bg-primary rounded-[2.5rem]`}
                     >
                         <ProjectsCardComponent
-                            data={tasksData}
+                            data={localTasksData}
                             selectedId={selectedProjectId}
                             onSelect={handleProjectSelect}
+                            onProjectCreated={handleProjectCreated}
+                            onProjectUpdated={handleProjectUpdated}
+                            onProjectDeleted={handleProjectDeleted}
                             t={t}
                         />
                     </div>
@@ -213,10 +329,13 @@ export const TasksPage = () => {
                     >
                         <StagesCardComponent
                             data={selectedProject ? selectedProject.stages : []}
+                            projectId={selectedProjectId}
                             selectedId={selectedStageId}
                             onSelect={handleStageSelect}
                             handleBackNavigation={handleBackNavigation}
-                            mobileView={mobileView}
+                            onStageCreated={handleStageCreated}
+                            onStageUpdated={handleStageUpdated}
+                            onStageDeleted={handleStageDeleted}
                             t={t}
                         />
                     </div>
@@ -229,7 +348,6 @@ export const TasksPage = () => {
                             data={selectedStage ? selectedStage.tasks : []}
                             stageColor={selectedStage?.colour || tailwindColors.primary[500]}
                             isCompletedFilter={isCompleted}
-                            mobileView={mobileView}
                             handleBackNavigation={handleBackNavigation}
                             t={t}
                         />

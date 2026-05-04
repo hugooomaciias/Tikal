@@ -1,21 +1,37 @@
 import React, { useState } from "react";
 import { IconCircleXFilled, IconWriting } from "@tabler/icons-react";
 
-export const RenameComponent = ({ onClose, eventData, onRename }) => {
-    // Inicializamos el input con el título actual del evento
+/** Config, Constants & Utils */
+import { PROJECTS_ICONS } from "../../../constants/projects_icons.js";
+import { PHASE_COLOURS } from "../../../constants/phase_colours.js";
+import tailwindConfig from "../../../../tailwind.config.js";
+import resolveConfig from "tailwindcss/resolveConfig";
+
+/**
+ * Tailwind Configuration Resolver
+ *
+ * Resolves the Tailwind configuration to extract the defined color palette,
+ * ensuring the color constants match the application's global design tokens.
+ */
+const fullConfig = resolveConfig(tailwindConfig);
+const tailwindColors = fullConfig.theme.colors;
+
+export const RenameComponent = ({ onClose, data, onRename }) => {
     const [newName, setNewName] = useState("");
 
     const handleSubmit = (e) => {
         e.preventDefault();
         if (newName.trim() === "") return;
 
-        // Aquí llamas a la función que actualice tu backend / estado global
         if (onRename) {
-            onRename(eventData.id, newName);
+            onRename(data.id, { name: newName });
         }
 
-        onClose(); // Cerramos el modal tras guardar
+        onClose();
     };
+
+    const logo = PROJECTS_ICONS.find((i) => i.id === data.logo) || PROJECTS_ICONS[0];
+    const color = PHASE_COLOURS.find((c) => c.id === data.color);
 
     return (
         /* Modal Overlay Container */
@@ -44,10 +60,11 @@ export const RenameComponent = ({ onClose, eventData, onRename }) => {
 
                     {/* Banner del Evento Actual */}
                     <div
-                        className="flex items-center justify-center py-3 px-4 mt-4 rounded-xl text-primary shadow-sm"
-                        style={{ backgroundColor: eventData?.color?.hex || "#ccc" }}
+                        className="w-full flex items-center justify-center gap-3 py-3 px-4 mt-4 rounded-xl text-primary shadow-sm"
+                        style={{ backgroundColor: color?.hex || tailwindColors.primary[500] }}
                     >
-                        <span className="font-bold text-center truncate w-full">{eventData?.title}</span>
+                        <logo.component className="w-5 h-5" />
+                        <span className="font-bold">{data?.title}</span>
                     </div>
                 </div>
 
