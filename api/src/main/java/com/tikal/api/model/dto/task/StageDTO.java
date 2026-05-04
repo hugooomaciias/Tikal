@@ -19,4 +19,6 @@ public class StageDTO {
     private LocalDateTime deadline;
     private Integer totalLoggedMinutes;
     private Integer templeLoggedMinutes;
+    private String logo;
+    private Boolean addToCalendar;
 }

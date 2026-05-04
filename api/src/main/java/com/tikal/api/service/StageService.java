@@ -31,6 +31,16 @@ public class StageService {
         return stages.stream().map(this::toDto).toList();
     }
 
+    public List<StageDTO> getStagesByProject(Integer projectId) {
+        User user = userService.getAuthenticatedUser();
+        if (!projectRepository.existsById(projectId)) {
+            throw new RuntimeException("Debe de existir el proyecto por el que se quieren listar las fases");
+        }
+        List<Stage> stages = stageRepository.findByUserIdAndProjectId(user.getId(), projectId);
+
+        return stages.stream().map(this::toDto).toList();
+    }
+
     @Transactional
     public StageDTO createStage(StageRequest request) {
         User user = userService.getAuthenticatedUser();
@@ -110,6 +120,7 @@ public class StageService {
                 .deadline(stage.getDeadline())
                 .templeLoggedMinutes(stage.getTempleLoggedMinutes())
                 .totalLoggedMinutes(stage.getTotalLoggedMinutes())
+                .logo(stage.getProject().getLogoUrl())
                 .build();
     }
 }

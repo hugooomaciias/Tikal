@@ -13,5 +13,6 @@ public class UpdateProjectRequest {
     private String name;
     private String description;
     private LocalDateTime deadline;
-    private String logoUrl;
+    private String logo;
+    private Boolean addToCalendar;
 }

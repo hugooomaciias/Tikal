@@ -28,6 +28,22 @@ public class ProjectService {
     private final UserService userService;
     private final TeamMemberRepository teamMemberRepository;
 
+    public List<Project> getMyProjects() {
+        User currentUser = userService.getAuthenticatedUser();
+
+        return projectRepository.findByUserOwner_Id(currentUser.getId());
+    }
+
+    public List<ProjectDTO> getMyTeamsProjects() {
+        User currentUser = userService.getAuthenticatedUser();
+
+        List<Project> proyectos = projectRepository.findProjectsByUserId(currentUser.getId());
+
+        return proyectos.stream()
+                .map(this::mapToDTO)
+                .collect(Collectors.toList());
+    }
+
     @Transactional
     public ProjectDTO createProject(CreateProjectRequest request) {
         User currentUser = userService.getAuthenticatedUser();
@@ -36,7 +52,7 @@ public class ProjectService {
         project.setName(request.getName());
         project.setDescription(request.getDescription());
         project.setDeadline(request.getDeadline());
-        project.setLogoUrl(request.getLogoUrl());
+        project.setLogoUrl(request.getLogo());
         project.setUserOwner(currentUser);
         project.setIsGroupBased(request.getIsGroupBased() != null ? request.getIsGroupBased() : false);
 
@@ -56,12 +72,6 @@ public class ProjectService {
         Project savedProject = projectRepository.save(project);
 
         return mapToDTO(savedProject);
-    }
-
-    public List<Project> getMyProjects() {
-        User currentUser = userService.getAuthenticatedUser();
-
-        return projectRepository.findByUserOwner_Id(currentUser.getId());
     }
 
     @Transactional
@@ -87,16 +97,6 @@ public class ProjectService {
         projectRepository.delete(project);
     }
 
-    public List<ProjectDTO> getMyTeamsProjects() {
-        User currentUser = userService.getAuthenticatedUser();
-
-        List<Project> proyectos = projectRepository.findProjectsByUserId(currentUser.getId());
-
-        return proyectos.stream()
-                .map(this::mapToDTO)
-                .collect(Collectors.toList());
-    }
-
     @Transactional
     public ProjectDTO updateProject(Integer projectId, UpdateProjectRequest request) {
         User currentUser = userService.getAuthenticatedUser();
@@ -120,8 +120,8 @@ public class ProjectService {
         if (request.getName() != null && !request.getName().isBlank()) {
             project.setName(request.getName());
         }
-        if (request.getLogoUrl() != null) {
-            project.setLogoUrl(request.getLogoUrl());
+        if (request.getLogo() != null) {
+            project.setLogoUrl(request.getLogo());
         }
 
         project.setDeadline(request.getDeadline());
@@ -135,7 +135,7 @@ public class ProjectService {
                 .id(project.getId())
                 .name(project.getName())
                 .description(project.getDescription())
-                .logoUrl(project.getLogoUrl())
+                .logo(project.getLogoUrl())
                 .isGroupBased(project.getIsGroupBased())
                 .teamId(project.getTeam() != null ? project.getTeam().getId() : null)
                 .teamName(project.getTeam() != null ? project.getTeam().getName() : null)

@@ -22,6 +22,11 @@ public class StageController {
         return ResponseEntity.ok(stageService.getMyStages());
     }
 
+    @GetMapping("/by_project/{id}")
+    public ResponseEntity<List<StageDTO>> getStagesByProject(@PathVariable("id") Integer projectId) {
+        return ResponseEntity.ok(stageService.getStagesByProject(projectId));
+    }
+
     @PostMapping
     public ResponseEntity<StageDTO> createStage(@RequestBody StageRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(stageService.createStage(request));

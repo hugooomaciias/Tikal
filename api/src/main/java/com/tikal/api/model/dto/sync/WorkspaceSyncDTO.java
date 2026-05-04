@@ -88,6 +88,8 @@ public class WorkspaceSyncDTO {
     @Builder
     public static class CalendarEventSyncDTO {
         private Integer id;
+        private String logo;
+        private String linkedEntity;
         private String title;
         private String description;
         private LocalDateTime startDate;

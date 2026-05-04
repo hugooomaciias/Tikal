@@ -18,6 +18,7 @@ public class CreateTaskRequest {
     private Integer estimatedTime;
     private BigDecimal estimatedProfit;
     private LocalDateTime deadline;
+    private Boolean addToCalendar;
 
     @NotNull
     private Integer stageId;

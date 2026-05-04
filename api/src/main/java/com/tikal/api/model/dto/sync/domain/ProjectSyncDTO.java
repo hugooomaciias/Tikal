@@ -14,5 +14,6 @@ public class ProjectSyncDTO {
     private String logo;
     private String description;
     private LocalDateTime deadline;
+    private Boolean addToCalendar;
     private List<StageSyncDTO> stages;
 }

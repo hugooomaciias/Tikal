@@ -1,6 +1,5 @@
 package com.tikal.api.model.dto.sync.domain;
 
-import com.tikal.api.model.dto.sync.WorkspaceSyncDTO;
 import lombok.Builder;
 import lombok.Data;
 
@@ -15,5 +14,7 @@ public class StageSyncDTO {
     private String description;
     private String colour;
     private LocalDateTime deadline;
+    private String logo;
+    private Boolean addToCalendar;
     private List<TaskSyncDTO> tasks;
 }

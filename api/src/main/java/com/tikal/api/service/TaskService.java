@@ -171,6 +171,8 @@ public class TaskService {
                 .deadline(task.getDeadline())
                 .totalLoggedMinutes(task.getTotalLoggedMinutes())
                 .templeLoggedMinutes(task.getTempleLoggedMinutes())
+                .colour(task.getStage().getColour())
+                .logo(task.getStage().getProject().getLogoUrl())
                 .subtasks(subtasks)
                 .subtasksCount(count)
                 .build();

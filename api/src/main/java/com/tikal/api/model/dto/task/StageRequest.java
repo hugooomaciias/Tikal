@@ -17,4 +17,5 @@ public class StageRequest {
     private String colour;
     private LocalDateTime deadline;
     private Integer projectId;
+    private Boolean addToCalendar;
 }
