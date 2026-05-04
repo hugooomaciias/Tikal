@@ -18,5 +18,8 @@ public class TaskSyncDTO {
     private LocalDateTime deadline;
     private Boolean isCompleted;
     private Integer numberOfSubTask;
+    private String logo;
+    private String colour;
+    private Boolean addToCalendar;
     private List<SubtaskSyncDTO> subtasks;
 }

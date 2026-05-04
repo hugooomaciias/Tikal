@@ -212,17 +212,37 @@ public class DashboardService {
 
         // Map entity to DTO
         return eventsInWindow.stream().map(event -> {
-            // Color logic
+            // Linked entity logic
             String eventColor = event.getCustomColour();
+            String eventLogo = null;
+            String idLinkedEntity = null;
+
+            // Color and logo logic (visual part)
+            if (event.getProject() != null && event.getProject().getId() != null) {
+                eventLogo = event.getProject().getLogoUrl();
+            }
             if (eventColor == null && event.getStage() != null) {
                 eventColor = event.getStage().getColour();
             }
             if (eventColor == null) {
-                eventColor = "#6A98F0";
+                eventColor = "g2";
+            }
+
+            // Linked entity id logic
+            if (event.getProject() != null && event.getProject().getId() != null) {
+                idLinkedEntity = "p_" + event.getProject().getId();
+            }
+            if (event.getStage() != null && event.getStage().getId() != null) {
+                idLinkedEntity = "f_" + event.getStage().getId();
+            }
+            if (event.getTask() != null && event.getTask().getId() != null) {
+                idLinkedEntity = "t_" + event.getTask().getId();
             }
 
             return WorkspaceSyncDTO.CalendarEventSyncDTO.builder()
                     .id(event.getId())
+                    .logo(eventLogo)
+                    .linkedEntity(idLinkedEntity)
                     .title(event.getName())
                     .description(event.getDescription())
                     .startDate(event.getInitDateTime())
@@ -345,21 +365,25 @@ public class DashboardService {
                                                  Map<Integer, List<Task>> subtaskByParent) {
         List<Task> myTasks = mainTaskByStage.getOrDefault(stage.getId(), Collections.emptyList());
 
+        String colour = stage.getColour();
+        String logo = stage.getProject().getLogoUrl();
+
         List<TaskSyncDTO> taskDTOs = myTasks.stream()
-                .map(task -> mapTaskToTaskSyncDTO(task, subtaskByParent))
+                .map(task -> mapTaskToTaskSyncDTO(logo, colour, task, subtaskByParent))
                 .collect(Collectors.toList());
 
         return StageSyncDTO.builder()
                 .id(stage.getId())
                 .name(stage.getName())
                 .description(stage.getDescription())
-                .colour(stage.getColour())
+                .colour(colour)
                 .deadline(stage.getDeadline())
+                .logo(logo)
                 .tasks(taskDTOs)
                 .build();
     }
 
-    private TaskSyncDTO mapTaskToTaskSyncDTO(Task task, Map<Integer, List<Task>> subtaskByParent) {
+    private TaskSyncDTO mapTaskToTaskSyncDTO(String logo, String colour, Task task, Map<Integer, List<Task>> subtaskByParent) {
 
         List<Task> mySubtasks = subtaskByParent.getOrDefault(task.getId(), Collections.emptyList());
 
@@ -375,6 +399,8 @@ public class DashboardService {
                 .estimatedProfit(task.getEstimatedProfit())
                 .deadline(task.getDeadline())
                 .isCompleted(task.getIsCompleted())
+                .colour(colour)
+                .logo(logo)
                 .numberOfSubTask(subtaskSyncDTOS.size())
                 .subtasks(subtaskSyncDTOS)
                 .build();

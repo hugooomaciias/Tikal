@@ -19,4 +19,9 @@ public interface StageRepository extends JpaRepository<Stage, Integer> {
     @Query("SELECT s FROM Stage s " +
             "WHERE s.project.userOwner.id = :userId")
     List<Stage> findByUserId(Integer userId);
+
+    @Query("SELECT s FROM Stage s " +
+            "WHERE s.project.userOwner.id = :userId " +
+            "AND s.project.id = :projectId")
+    List<Stage> findByUserIdAndProjectId(Integer id, Integer projectId);
 }

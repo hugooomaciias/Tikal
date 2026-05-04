@@ -25,5 +25,8 @@ public class TaskDTO {
     private Integer totalLoggedMinutes;
     private Integer templeLoggedMinutes;
     private Integer subtasksCount;
+    private String colour;
+    private String logo;
+    private Boolean addToCalendar;
     private List<TaskDTO> subtasks;
 }

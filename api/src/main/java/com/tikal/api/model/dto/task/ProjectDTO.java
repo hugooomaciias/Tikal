@@ -13,8 +13,9 @@ public class ProjectDTO {
     private String name;
     private String description;
     private LocalDateTime deadline;
-    private String logoUrl;
+    private String logo;
     private Boolean isGroupBased;
     private Integer teamId;
     private String teamName;
+    private Boolean addToCalendar;
 }
