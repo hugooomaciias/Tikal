@@ -50,10 +50,6 @@ public class Project {
     @Column(name = "temple_logged_minutes", columnDefinition = "INT DEFAULT 0")
     private Integer templeLoggedMinutes = 0;
 
-    /* --- Stage relation ==> If a Project is deleted, all its stages are deleted. Lazy loaded. --- */
-    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<Stage> stages = new ArrayList<>();
-
     /* --- User relation ==> Many projects can belong to the same User --- */
     @ManyToOne(optional = true)
     @JoinColumn(name = "user_owner_id")
@@ -61,6 +57,14 @@ public class Project {
 
     /* --- Team relation ==> Many projects can belong to the same Team --- */
     @ManyToOne(optional = true)
-    @JoinColumn(name = "team_id") 
+    @JoinColumn(name = "team_id")
     private Team team;
+
+    /* --- Stage relation ==> If a Project is deleted, all its stages are deleted. Lazy loaded. --- */
+    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<Stage> stages = new ArrayList<>();
+
+    /* --- Calendar Events relation ==> If a Project is deleted, all its linked events are deleted --- */
+    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<CalendarEvent> calendarEvents = new ArrayList<>();
 }

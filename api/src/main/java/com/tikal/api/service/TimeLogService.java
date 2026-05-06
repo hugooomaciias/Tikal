@@ -53,18 +53,33 @@ public class TimeLogService {
         User user = userService.getAuthenticatedUser();
         timeLog.setUser(user);
 
+        if (request.getProjectId() == null && request.getStageId() == null && request.getTaskId() != null) {
+            throw new RuntimeException("Un time log debe de tener siempre un proyecto, fase o tarea adjunto");
+        }
+
         if (request.getProjectId() != null) {
             Project project = projectRepository.findById(request.getProjectId())
                     .orElseThrow(() -> new RuntimeException("Project not found with id: " + request.getProjectId()));
             timeLog.setProject(project);
-        } else if (request.getStageId() != null) {
+        }
+
+        if (request.getProjectId() == null && request.getStageId() != null) {
             Stage stage = stageRepository.findById(request.getStageId())
                     .orElseThrow(() -> new RuntimeException("Stage not found with id: " + request.getStageId()));
             timeLog.setStage(stage);
             Project project = projectRepository.findById(stage.getProject().getId())
                     .orElseThrow(() -> new RuntimeException("Project not found with id: " + request.getProjectId()));
             timeLog.setProject(project);
-        } else if (request.getTaskId() != null) {
+        } else if (request.getStageId() != null) {
+            Stage stage = stageRepository.findById(request.getStageId())
+                    .orElseThrow(() -> new RuntimeException("Stage not found with id: " + request.getStageId()));
+            if (request.getProjectId().equals(stage.getProject().getId())) {
+                throw new RuntimeException("La fase adjunta debe de pertenecer al proyecto adjunto");
+            }
+            timeLog.setStage(stage);
+        }
+
+        if (request.getProjectId() == null && request.getStageId() == null && request.getTaskId() != null) {
             Task task = taskRepository.findById(request.getTaskId())
                     .orElseThrow(() -> new RuntimeException("Task not found with id: " + request.getTaskId()));
             timeLog.setTask(task);
@@ -76,8 +91,43 @@ public class TimeLogService {
             Project project = projectRepository.findById(stage.getProject().getId())
                     .orElseThrow(() -> new RuntimeException("Project not found with id: " + request.getProjectId()));
             timeLog.setProject(project);
-        } else {
-            throw new RuntimeException("Un time log debe de tener siempre un proyecto, fase o tarea adjunto");
+        } else if (request.getTaskId() != null) {
+            if (request.getProjectId() != null && request.getStageId() != null) {
+                Task task = taskRepository.findById(request.getTaskId())
+                        .orElseThrow(() -> new RuntimeException("Task not found with id: " + request.getTaskId()));
+
+                if (request.getStageId().equals(task.getStage().getId())) {
+                    throw new RuntimeException("La tarea adjunta debe de pertenecer a la fase adjunta");
+                }
+
+                if (request.getProjectId().equals(task.getStage().getProject().getId())) {
+                    throw new RuntimeException("La tarea adjunta debe de pertenecer al proyecto adjunto");
+                }
+
+                timeLog.setTask(task);
+            } else if (request.getProjectId() != null) {
+                Task task = taskRepository.findById(request.getTaskId())
+                        .orElseThrow(() -> new RuntimeException("Task not found with id: " + request.getTaskId()));
+
+                if (request.getProjectId().equals(task.getStage().getProject().getId())) {
+                    throw new RuntimeException("La tarea adjunta debe de pertenecer al proyecto adjunto");
+                }
+                timeLog.setTask(task);
+
+                Stage stage = stageRepository.findById(task.getStage().getId())
+                        .orElseThrow(() -> new RuntimeException("Stage not found with id: " + request.getStageId()));
+                timeLog.setStage(stage);
+            } else {
+                Task task = taskRepository.findById(request.getTaskId())
+                        .orElseThrow(() -> new RuntimeException("Task not found with id: " + request.getTaskId()));
+
+                if (request.getStageId().equals(task.getStage().getId())) {
+                    throw new RuntimeException("La tarea adjunta debe de pertenecer a la fase adjunta");
+                }
+                Project project = projectRepository.findById(task.getStage().getProject().getId())
+                        .orElseThrow(() -> new RuntimeException("Project not found with id: " + request.getProjectId()));
+                timeLog.setProject(project);
+            }
         }
 
         TimeLog savedTimeLog = timeLogRepository.save(timeLog);

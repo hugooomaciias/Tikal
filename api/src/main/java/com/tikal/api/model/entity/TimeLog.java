@@ -41,6 +41,10 @@ public class TimeLog {
     @Column(name = "activity_description")
     private String activityDescription;
 
+    /* --- Indicate whether this log has already been closed (Stop) or is still pending (Play/Pause) --- */
+    @Column(name = "is_completed", columnDefinition = "TINYINT(1) DEFAULT 0")
+    private Boolean isCompleted = false;
+
     /* --- User relation ==> Many time logs can be recorded by the same User --- */
     @ManyToOne(optional = false)
     @JoinColumn(name = "user_id", nullable = false)

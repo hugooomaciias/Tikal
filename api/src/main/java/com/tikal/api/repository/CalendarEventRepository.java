@@ -2,6 +2,9 @@ package com.tikal.api.repository;
 
 import java.util.List;
 import java.time.LocalDateTime;
+import java.util.Optional;
+
+import com.tikal.api.model.entity.enumerated.EventType;
 import org.springframework.stereotype.Repository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -36,4 +39,22 @@ public interface CalendarEventRepository extends JpaRepository<CalendarEvent, In
             @Param("userId") Integer userId,
             @Param("startDate") LocalDateTime startDate,
             @Param("endDate") LocalDateTime endDate);
+
+    /* --- To check whether a project already has a DEADLINE event --- */
+    Optional<CalendarEvent> findByProjectIdAndEventTypeAndStageIsNullAndTaskIsNull(Integer id, EventType eventType);
+
+    /* --- Obtain all events which are linked to one of the projects from the list --- */
+    List<CalendarEvent> findByProjectIdInAndEventTypeAndStageIsNullAndTaskIsNull(List<Integer> projectIds, EventType eventType);
+
+    /* --- To check whether a stage already has a DEADLINE event --- */
+    Optional<CalendarEvent> findByStageIdAndEventTypeAndTaskIsNull(Integer id, EventType eventType);
+
+    /* --- Obtain all events which are linked to one of the stage from the list --- */
+    List<CalendarEvent> findByStageIdInAndEventTypeAndTaskIsNull(List<Integer> stagesIds, EventType eventType);
+
+    /* --- To check whether a task already has a DEADLINE event --- */
+    Optional<CalendarEvent> findByTaskIdAndEventType(Integer id, EventType eventType);
+
+    /* --- Obtain all events which are linked to one of the tasks from the list --- */
+    List<CalendarEvent> findByTaskIdInAndEventType(List<Integer> mainTaskIds, EventType eventType);
 }

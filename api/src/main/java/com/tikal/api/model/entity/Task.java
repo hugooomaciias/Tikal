@@ -36,6 +36,10 @@ public class Task {
     @Column(name = "estimated_time")
     private Integer estimatedTime;
 
+    /* --- Preferred units in which the estimated time for this task will be displayed --- */
+    @Column(name = "time_unit")
+    private Character timeUnit = 'm';
+
     /* --- Task completion status (true = completed, false = pending) --- */
     @Column(name = "is_completed", nullable = false)
     private Boolean isCompleted = false;
@@ -78,4 +82,8 @@ public class Task {
     /* --- Two-way relationship to save parent and children in one go --- */
     @OneToMany(mappedBy = "parentTask", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Task> subtasks = new ArrayList<>();
+
+    /* --- Calendar Events relation ==> If a Task is deleted, all its linked events are deleted --- */
+    @OneToMany(mappedBy = "task", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<CalendarEvent> calendarEvents = new ArrayList<>();
 }

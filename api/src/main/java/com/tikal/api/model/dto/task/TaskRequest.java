@@ -11,11 +11,12 @@ import java.util.List;
 
 @Data
 @Builder
-public class CreateTaskRequest {
+public class TaskRequest {
     @NotBlank
     private String name;
     private String description;
     private Integer estimatedTime;
+    private Character timeUnit;
     private BigDecimal estimatedProfit;
     private LocalDateTime deadline;
     private Boolean addToCalendar;
@@ -23,5 +24,13 @@ public class CreateTaskRequest {
     @NotNull
     private Integer stageId;
 
-    private List<CreateSubtaskRequest> subtasks;
+    private List<SubtaskRequest> subtasks;
+
+    @Data
+    @Builder
+    public static class SubtaskRequest {
+        private Integer id;
+        @NotBlank
+        private String name;
+    }
 }

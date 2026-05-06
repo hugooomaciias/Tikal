@@ -18,6 +18,7 @@ public class TaskDTO {
     private String name;
     private String description;
     private Integer estimatedTime;
+    private Character timeUnit;
     private Boolean isCompleted;
     private LocalDateTime completionDate;
     private BigDecimal estimatedProfit;

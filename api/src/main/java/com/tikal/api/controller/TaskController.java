@@ -1,8 +1,7 @@
 package com.tikal.api.controller;
 
-import com.tikal.api.model.dto.task.CreateTaskRequest;
+import com.tikal.api.model.dto.task.TaskRequest;
 import com.tikal.api.model.dto.task.TaskDTO;
-import com.tikal.api.model.dto.task.UpdateTaskRequest;
 import com.tikal.api.service.TaskService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -23,13 +22,8 @@ public class TaskController {
         return ResponseEntity.ok(taskService.getTasksByStage(stageId));
     }
 
-    @GetMapping("/subtask/{parentId}")
-    public ResponseEntity<List<TaskDTO>> getSubtask(@PathVariable Integer parentId) {
-        return ResponseEntity.ok(taskService.getSubtask(parentId));
-    }
-
     @PostMapping
-    public ResponseEntity<TaskDTO> createTask(@RequestBody CreateTaskRequest request) {
+    public ResponseEntity<TaskDTO> createTask(@RequestBody TaskRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(taskService.createTask(request));
     }
 
@@ -42,7 +36,12 @@ public class TaskController {
     @PatchMapping("/{id}")
     public ResponseEntity<TaskDTO> updateTask(
             @PathVariable Integer id,
-            @RequestBody UpdateTaskRequest request) {
+            @RequestBody TaskRequest request) {
         return ResponseEntity.ok(taskService.updateTask(id, request));
+    }
+
+    @PatchMapping("/{id}/toggle-status")
+    public ResponseEntity<TaskDTO> toggleTaskStatus(@PathVariable("id") Integer id) {
+        return ResponseEntity.ok(taskService.toggleTaskStatus(id));
     }
 }

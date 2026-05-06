@@ -24,4 +24,7 @@ public interface StageRepository extends JpaRepository<Stage, Integer> {
             "WHERE s.project.userOwner.id = :userId " +
             "AND s.project.id = :projectId")
     List<Stage> findByUserIdAndProjectId(Integer id, Integer projectId);
+
+    /* --- Obtain the stages with this projectId --- */
+    List<Stage> findByProjectId(Integer projectId);
 }

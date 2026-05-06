@@ -22,11 +22,7 @@ public class ProjectController {
 
     @GetMapping
     public ResponseEntity<List<ProjectDTO>> getMyProjects() {
-        List<Project> projectList = projectService.getMyProjects();
-
-        return ResponseEntity.ok(projectList.stream()
-                .map(projectService::mapToDTO)
-                .collect(Collectors.toList()));
+        return ResponseEntity.ok(projectService.getMyProjects());
     }
 
     @PostMapping
