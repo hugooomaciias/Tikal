@@ -1,5 +1,6 @@
 package com.tikal.api.model.entity;
 
+import com.tikal.api.model.entity.enumerated.EventType;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -30,11 +31,11 @@ public class CalendarEvent {
     private String description;
 
     /* --- Inital time of the event --- */
-    @Column(name = "init_date_time", nullable = false, updatable = false, columnDefinition = "DATETIME")
+    @Column(name = "init_date_time", nullable = false, columnDefinition = "DATETIME")
     private LocalDateTime initDateTime;
 
     /* --- End time of the event --- */
-    @Column(name = "end_date_time", nullable = false, updatable = false, columnDefinition = "DATETIME")
+    @Column(name = "end_date_time", nullable = false, columnDefinition = "DATETIME")
     private LocalDateTime endDateTime;
 
     /* --- If you want to activate the time tracker automatically, this is 'True' --- */
@@ -44,6 +45,14 @@ public class CalendarEvent {
     /* --- Colour of the event in case of don't have any task associated --- */
     @Column(name = "custom_colour", length = 7)
     private String customColour;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "event_type", nullable = false)
+    private EventType eventType = EventType.GENERAL;
+
+    /* --- Security flag for the automatic tracker --- */
+    @Column(name = "is_tracker_processed", columnDefinition = "TINYINT(1) DEFAULT 0")
+    private Boolean isTrackerProcessed = false;
 
     /* --- User relation ==> Many events can belong to the same User --- */
     @ManyToOne(optional = false)

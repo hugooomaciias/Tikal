@@ -11,9 +11,9 @@ import java.time.LocalDateTime;
 public class SubtaskSyncDTO {
     private Integer id;
     private String name;
-    private String description;
-    private Integer estimatedTime;
-    private BigDecimal estimatedProfit;
-    private LocalDateTime deadline;
+    // private String description;
+    // private Integer estimatedTime;
+    // private BigDecimal estimatedProfit;
+    // private LocalDateTime deadline;
     private Boolean isCompleted;
 }

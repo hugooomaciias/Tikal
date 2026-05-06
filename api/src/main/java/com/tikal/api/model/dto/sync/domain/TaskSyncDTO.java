@@ -14,6 +14,7 @@ public class TaskSyncDTO {
     private String name;
     private String description;
     private Integer estimatedTime;
+    private Character timeUnit;
     private BigDecimal estimatedProfit;
     private LocalDateTime deadline;
     private Boolean isCompleted;

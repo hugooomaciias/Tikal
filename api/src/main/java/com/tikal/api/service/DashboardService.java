@@ -8,7 +8,9 @@ import com.tikal.api.model.dto.sync.domain.StageSyncDTO;
 import com.tikal.api.model.dto.sync.domain.SubtaskSyncDTO;
 import com.tikal.api.model.dto.sync.domain.TaskSyncDTO;
 import com.tikal.api.model.dto.sync.widgets.*;
+import com.tikal.api.model.dto.task.ProjectDTO;
 import com.tikal.api.model.entity.*;
+import com.tikal.api.model.entity.enumerated.EventType;
 import com.tikal.api.model.entity.enumerated.TimeRangeSetting;
 import com.tikal.api.model.entity.metadata.LayoutsDashboardMetadata;
 import com.tikal.api.repository.*;
@@ -173,16 +175,43 @@ public class DashboardService {
     }
 
     private List<ProjectSyncDTO> buildProjectsList(Integer userId) {
-        List<Project> projects = projectService.getMyProjects();
+        // 1. PROJECTS
+        List<ProjectDTO> projects = projectService.getMyProjects();
         if (projects.isEmpty()) return Collections.emptyList();
 
-        List<Integer> projectIds = projects.stream().map(Project::getId).toList();
+        List<Integer> projectIds = projects.stream().map(ProjectDTO::getId).toList();
 
+        // 2. STAGES
         List<Stage> allStages = stageRepository.findByProject_IdIn(projectIds);
         List<Integer> stagesIds = allStages.stream().map(Stage::getId).toList();
 
-        List<Task> allTasks = stagesIds.isEmpty() ? Collections.emptyList() : taskRepository.findByStage_IdIn(stagesIds);
+        // -> SEARCH THE DEADLINES OF THE STAGES
+        List<CalendarEvent> stageDeadlines = stagesIds.isEmpty() ? Collections.emptyList() :
+                calendarEventRepository.findByStageIdInAndEventTypeAndTaskIsNull(stagesIds, EventType.DEADLINE);
 
+        Set<Integer> stagesWithDeadline = stageDeadlines.stream()
+                .filter(event -> event.getStage() != null)
+                .map(event -> event.getStage().getId())
+                .collect(Collectors.toSet());
+
+        // 3. TASKS
+        List<Task> allTasks = stagesIds.isEmpty() ? Collections.emptyList() :
+                taskRepository.findByStage_IdIn(stagesIds);
+
+        // -> SEARCH THE DEADLINES OF THE MAIN TASKS (not subtasks)
+        List<Integer> mainTaskIds = allTasks.stream()
+                .filter(task -> task.getParentTask() == null)
+                .map(Task::getId).toList();
+
+        List<CalendarEvent> taskDeadlines = mainTaskIds.isEmpty() ? Collections.emptyList() :
+                calendarEventRepository.findByTaskIdInAndEventType(mainTaskIds, EventType.DEADLINE);
+
+        Set<Integer> tasksWithDeadline = taskDeadlines.stream()
+                .filter(event -> event.getTask() != null)
+                .map(event -> event.getTask().getId())
+                .collect(Collectors.toSet());
+
+        // 4. MEMORIAL GROUPS (O(1) y O(N))
         Map<Integer, List<Stage>> stagesByProject = allStages.stream()
                 .collect(Collectors.groupingBy(stage -> stage.getProject().getId()));
 
@@ -194,8 +223,11 @@ public class DashboardService {
                 .filter(task -> task.getParentTask() != null)
                 .collect(Collectors.groupingBy(task -> task.getParentTask().getId()));
 
+        // 5. WE MAP BY PASSING THE MEMORY SETS
         return projects.stream()
-                .map(project -> mapProjectToProjectSyncDTO(project, stagesByProject, mainTaskByStage, subtaskByParent))
+                .map(project -> mapProjectToProjectSyncDTO(
+                        project, stagesByProject, mainTaskByStage, subtaskByParent,
+                        stagesWithDeadline, tasksWithDeadline))
                 .collect(Collectors.toList());
     }
 
@@ -340,36 +372,45 @@ public class DashboardService {
     // ==========================================
     //      MAP TO DTO METHODS
     // ==========================================
-    private ProjectSyncDTO mapProjectToProjectSyncDTO (Project project,
+    private ProjectSyncDTO mapProjectToProjectSyncDTO (ProjectDTO project,
                                                        Map<Integer, List<Stage>> stagesByProject,
                                                        Map<Integer, List<Task>> mainTaskByStage,
-                                                       Map<Integer, List<Task>> subtaskByParent) {
+                                                       Map<Integer, List<Task>> subtaskByParent,
+                                                       Set<Integer> stagesWithDeadline,
+                                                       Set<Integer> tasksWithDeadline) {
+
         List<Stage> myStages = stagesByProject.getOrDefault(project.getId(), Collections.emptyList());
 
         List<StageSyncDTO> stageDTOs = myStages.stream()
-                .map(stage -> mapStageToStageSyncDTO(stage, mainTaskByStage, subtaskByParent))
+                .map(stage -> mapStageToStageSyncDTO(
+                        stage, mainTaskByStage, subtaskByParent,
+                        stagesWithDeadline, tasksWithDeadline))
                 .collect(Collectors.toList());
 
         return ProjectSyncDTO.builder()
                 .id(project.getId())
                 .name(project.getName())
-                .logo(project.getLogoUrl())
+                .logo(project.getLogo())
                 .description(project.getDescription())
                 .deadline(project.getDeadline())
+                .addToCalendar(project.getAddToCalendar())
                 .stages(stageDTOs)
                 .build();
     }
 
     private StageSyncDTO mapStageToStageSyncDTO (Stage stage,
                                                  Map<Integer, List<Task>> mainTaskByStage,
-                                                 Map<Integer, List<Task>> subtaskByParent) {
+                                                 Map<Integer, List<Task>> subtaskByParent,
+                                                 Set<Integer> stagesWithDeadline,
+                                                 Set<Integer> tasksWithDeadline) {
+
         List<Task> myTasks = mainTaskByStage.getOrDefault(stage.getId(), Collections.emptyList());
 
         String colour = stage.getColour();
         String logo = stage.getProject().getLogoUrl();
 
         List<TaskSyncDTO> taskDTOs = myTasks.stream()
-                .map(task -> mapTaskToTaskSyncDTO(logo, colour, task, subtaskByParent))
+                .map(task -> mapTaskToTaskSyncDTO(logo, colour, task, subtaskByParent, tasksWithDeadline))
                 .collect(Collectors.toList());
 
         return StageSyncDTO.builder()
@@ -378,12 +419,15 @@ public class DashboardService {
                 .description(stage.getDescription())
                 .colour(colour)
                 .deadline(stage.getDeadline())
+                .addToCalendar(stagesWithDeadline.contains(stage.getId()))
                 .logo(logo)
                 .tasks(taskDTOs)
                 .build();
     }
 
-    private TaskSyncDTO mapTaskToTaskSyncDTO(String logo, String colour, Task task, Map<Integer, List<Task>> subtaskByParent) {
+    private TaskSyncDTO mapTaskToTaskSyncDTO(String logo, String colour, Task task,
+                                             Map<Integer, List<Task>> subtaskByParent,
+                                             Set<Integer> tasksWithDeadline) {
 
         List<Task> mySubtasks = subtaskByParent.getOrDefault(task.getId(), Collections.emptyList());
 
@@ -396,9 +440,11 @@ public class DashboardService {
                 .name(task.getName())
                 .description(task.getDescription())
                 .estimatedTime(task.getEstimatedTime())
+                .timeUnit(task.getTimeUnit())
                 .estimatedProfit(task.getEstimatedProfit())
                 .deadline(task.getDeadline())
                 .isCompleted(task.getIsCompleted())
+                .addToCalendar(tasksWithDeadline.contains(task.getId()))
                 .colour(colour)
                 .logo(logo)
                 .numberOfSubTask(subtaskSyncDTOS.size())
@@ -410,10 +456,6 @@ public class DashboardService {
         return SubtaskSyncDTO.builder()
                 .id(task.getId())
                 .name(task.getName())
-                .description(task.getDescription())
-                .estimatedTime(task.getEstimatedTime())
-                .estimatedProfit(task.getEstimatedProfit())
-                .deadline(task.getDeadline())
                 .isCompleted(task.getIsCompleted())
                 .build();
     }
