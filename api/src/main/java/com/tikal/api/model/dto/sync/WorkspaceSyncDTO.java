@@ -94,7 +94,7 @@ public class WorkspaceSyncDTO {
         private String description;
         private LocalDateTime startDate;
         private LocalDateTime endDate;
-        private String color;
+        private String colour;
     }
 
     // ==========================================

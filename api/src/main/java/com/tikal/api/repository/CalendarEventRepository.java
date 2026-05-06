@@ -57,4 +57,7 @@ public interface CalendarEventRepository extends JpaRepository<CalendarEvent, In
 
     /* --- Obtain all events which are linked to one of the tasks from the list --- */
     List<CalendarEvent> findByTaskIdInAndEventType(List<Integer> mainTaskIds, EventType eventType);
+
+    /* --- Obtain all events of a user and filtered between two dates --- */
+    List<CalendarEvent> findByUserIdAndInitDateTimeGreaterThanEqualAndEndDateTimeLessThanEqual(Integer id, LocalDateTime start, LocalDateTime end);
 }
