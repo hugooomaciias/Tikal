@@ -279,7 +279,7 @@ public class DashboardService {
                     .description(event.getDescription())
                     .startDate(event.getInitDateTime())
                     .endDate(event.getEndDateTime())
-                    .color(eventColor)
+                    .colour(eventColor)
                     .build();
 
         }).collect(Collectors.toList());

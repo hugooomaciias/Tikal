@@ -126,7 +126,7 @@ public class WidgetBuilderService {
                 .taskName(parentName)
                 .subtaskName(subtaskName)
                 .parentColor(parentColor)
-                .projectLogoIcon(projectLogo)
+                .logo(projectLogo)
                 .build();
     }
 

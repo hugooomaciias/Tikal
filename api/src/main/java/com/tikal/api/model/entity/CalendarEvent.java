@@ -30,7 +30,7 @@ public class CalendarEvent {
     @Column(columnDefinition = "TEXT")
     private String description;
 
-    /* --- Inital time of the event --- */
+    /* --- Init time of the event --- */
     @Column(name = "init_date_time", nullable = false, columnDefinition = "DATETIME")
     private LocalDateTime initDateTime;
 

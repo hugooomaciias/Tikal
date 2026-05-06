@@ -11,5 +11,5 @@ public class TimeTrackerWidgetData implements WidgetData {
     private String taskName;
     private String subtaskName;
     private String parentColor;
-    private String projectLogoIcon;
+    private String logo;
 }

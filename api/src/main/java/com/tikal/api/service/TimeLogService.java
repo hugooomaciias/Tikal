@@ -5,6 +5,7 @@ import com.tikal.api.model.dto.TimeLogRequest;
 import com.tikal.api.model.entity.*;
 import com.tikal.api.repository.*;
 import com.tikal.api.utils.DateUtils;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -39,6 +40,7 @@ public class TimeLogService {
         return timeLogs.stream().map(this::toDto).toList();
     }
 
+    @Transactional
     public TimeLogDTO create(TimeLogRequest request) {
         TimeLog timeLog = new TimeLog();
 
@@ -49,87 +51,61 @@ public class TimeLogService {
         timeLog.setIsTempleMode(request.getIsTempleMode() != null ? request.getIsTempleMode() : false);
         timeLog.setActivityDescription(request.getActivityDescription());
 
-        // Set relationships
+        // Set user
         User user = userService.getAuthenticatedUser();
         timeLog.setUser(user);
 
-        if (request.getProjectId() == null && request.getStageId() == null && request.getTaskId() != null) {
-            throw new RuntimeException("Un time log debe de tener siempre un proyecto, fase o tarea adjunto");
+        // All the linked entities can't be null
+        if (request.getTaskId() == null && request.getStageId() == null && request.getProjectId() == null) {
+            throw new RuntimeException("Un time log debe tener siempre un proyecto, fase o tarea adjunto.");
         }
 
-        if (request.getProjectId() != null) {
-            Project project = projectRepository.findById(request.getProjectId())
-                    .orElseThrow(() -> new RuntimeException("Project not found with id: " + request.getProjectId()));
-            timeLog.setProject(project);
-        }
-
-        if (request.getProjectId() == null && request.getStageId() != null) {
-            Stage stage = stageRepository.findById(request.getStageId())
-                    .orElseThrow(() -> new RuntimeException("Stage not found with id: " + request.getStageId()));
-            timeLog.setStage(stage);
-            Project project = projectRepository.findById(stage.getProject().getId())
-                    .orElseThrow(() -> new RuntimeException("Project not found with id: " + request.getProjectId()));
-            timeLog.setProject(project);
-        } else if (request.getStageId() != null) {
-            Stage stage = stageRepository.findById(request.getStageId())
-                    .orElseThrow(() -> new RuntimeException("Stage not found with id: " + request.getStageId()));
-            if (request.getProjectId().equals(stage.getProject().getId())) {
-                throw new RuntimeException("La fase adjunta debe de pertenecer al proyecto adjunto");
-            }
-            timeLog.setStage(stage);
-        }
-
-        if (request.getProjectId() == null && request.getStageId() == null && request.getTaskId() != null) {
+        if (request.getTaskId() != null) {
+            // Comes with tasks
             Task task = taskRepository.findById(request.getTaskId())
-                    .orElseThrow(() -> new RuntimeException("Task not found with id: " + request.getTaskId()));
-            timeLog.setTask(task);
+                    .orElseThrow(() -> new RuntimeException("Tarea no encontrada con id: " + request.getTaskId()));
 
-            Stage stage = stageRepository.findById(task.getStage().getId())
-                    .orElseThrow(() -> new RuntimeException("Stage not found with id: " + request.getStageId()));
-            timeLog.setStage(stage);
+            Stage taskStage = task.getStage();
+            Project taskProject = taskStage.getProject();
 
-            Project project = projectRepository.findById(stage.getProject().getId())
-                    .orElseThrow(() -> new RuntimeException("Project not found with id: " + request.getProjectId()));
-            timeLog.setProject(project);
-        } else if (request.getTaskId() != null) {
-            if (request.getProjectId() != null && request.getStageId() != null) {
-                Task task = taskRepository.findById(request.getTaskId())
-                        .orElseThrow(() -> new RuntimeException("Task not found with id: " + request.getTaskId()));
-
-                if (request.getStageId().equals(task.getStage().getId())) {
-                    throw new RuntimeException("La tarea adjunta debe de pertenecer a la fase adjunta");
-                }
-
-                if (request.getProjectId().equals(task.getStage().getProject().getId())) {
-                    throw new RuntimeException("La tarea adjunta debe de pertenecer al proyecto adjunto");
-                }
-
-                timeLog.setTask(task);
-            } else if (request.getProjectId() != null) {
-                Task task = taskRepository.findById(request.getTaskId())
-                        .orElseThrow(() -> new RuntimeException("Task not found with id: " + request.getTaskId()));
-
-                if (request.getProjectId().equals(task.getStage().getProject().getId())) {
-                    throw new RuntimeException("La tarea adjunta debe de pertenecer al proyecto adjunto");
-                }
-                timeLog.setTask(task);
-
-                Stage stage = stageRepository.findById(task.getStage().getId())
-                        .orElseThrow(() -> new RuntimeException("Stage not found with id: " + request.getStageId()));
-                timeLog.setStage(stage);
-            } else {
-                Task task = taskRepository.findById(request.getTaskId())
-                        .orElseThrow(() -> new RuntimeException("Task not found with id: " + request.getTaskId()));
-
-                if (request.getStageId().equals(task.getStage().getId())) {
-                    throw new RuntimeException("La tarea adjunta debe de pertenecer a la fase adjunta");
-                }
-                Project project = projectRepository.findById(task.getStage().getProject().getId())
-                        .orElseThrow(() -> new RuntimeException("Project not found with id: " + request.getProjectId()));
-                timeLog.setProject(project);
+            // Validamos que el frontend no nos intente engañar con IDs cruzados
+            if (request.getStageId() != null && !request.getStageId().equals(taskStage.getId())) {
+                throw new RuntimeException("La tarea no pertenece a la fase enviada.");
             }
+            if (request.getProjectId() != null && !request.getProjectId().equals(taskProject.getId())) {
+                throw new RuntimeException("La tarea no pertenece al proyecto enviado.");
+            }
+
+            // We save the three levels
+            timeLog.setTask(task);
+            timeLog.setStage(taskStage);
+            timeLog.setProject(taskProject);
+
+        } else if (request.getStageId() != null) {
+            // Comes with stage but without task
+            Stage stage = stageRepository.findById(request.getStageId())
+                    .orElseThrow(() -> new RuntimeException("Fase no encontrada con id: " + request.getStageId()));
+
+            Project stageProject = stage.getProject();
+
+            if (request.getProjectId() != null && !request.getProjectId().equals(stageProject.getId())) {
+                throw new RuntimeException("La fase no pertenece al proyecto enviado.");
+            }
+
+            // We save both levels
+            timeLog.setStage(stage);
+            timeLog.setProject(stageProject);
+
+        } else if (request.getProjectId() != null) {
+            // Only the project comes
+            Project project = projectRepository.findById(request.getProjectId())
+                    .orElseThrow(() -> new RuntimeException("Proyecto no encontrado con id: " + request.getProjectId()));
+
+            // We save this only level
+            timeLog.setProject(project);
         }
 
+        // Save and map it
         TimeLog savedTimeLog = timeLogRepository.save(timeLog);
         return toDto(savedTimeLog);
     }
