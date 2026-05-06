@@ -1,5 +1,6 @@
 package com.tikal.api.model.dto.task;
 
+import com.tikal.api.model.entity.enumerated.ProjectType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -15,4 +16,5 @@ public class UpdateProjectRequest {
     private LocalDateTime deadline;
     private String logo;
     private Boolean addToCalendar;
+    private ProjectType type;
 }

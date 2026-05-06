@@ -394,6 +394,7 @@ public class DashboardService {
                 .description(project.getDescription())
                 .deadline(project.getDeadline())
                 .addToCalendar(project.getAddToCalendar())
+                .type(project.getType())
                 .stages(stageDTOs)
                 .build();
     }
@@ -420,6 +421,7 @@ public class DashboardService {
                 .colour(colour)
                 .deadline(stage.getDeadline())
                 .addToCalendar(stagesWithDeadline.contains(stage.getId()))
+                .type(stage.getProject().getProjectType())
                 .logo(logo)
                 .tasks(taskDTOs)
                 .build();

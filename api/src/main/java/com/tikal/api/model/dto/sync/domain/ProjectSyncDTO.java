@@ -1,5 +1,6 @@
 package com.tikal.api.model.dto.sync.domain;
 
+import com.tikal.api.model.entity.enumerated.ProjectType;
 import lombok.Builder;
 import lombok.Data;
 
@@ -15,5 +16,6 @@ public class ProjectSyncDTO {
     private LocalDateTime deadline;
     private String logo;
     private Boolean addToCalendar;
+    private ProjectType type;
     private List<StageSyncDTO> stages;
 }

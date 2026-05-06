@@ -219,6 +219,7 @@ public class StageService {
                 .totalLoggedMinutes(stage.getTotalLoggedMinutes())
                 .logo(stage.getProject().getLogoUrl())
                 .addToCalendar(addToCalendar)
+                .type(stage.getProject().getProjectType())
                 .build();
     }
 }

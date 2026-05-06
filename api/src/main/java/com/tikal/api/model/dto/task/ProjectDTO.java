@@ -1,6 +1,7 @@
 package com.tikal.api.model.dto.task;
 
 
+import com.tikal.api.model.entity.enumerated.ProjectType;
 import lombok.Builder;
 import lombok.Data;
 
@@ -18,4 +19,5 @@ public class ProjectDTO {
     private Integer teamId;
     private String teamName;
     private Boolean addToCalendar;
+    private ProjectType type;
 }

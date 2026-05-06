@@ -73,6 +73,9 @@ public class ProjectService {
         project.setLogoUrl(request.getLogo());
         project.setUserOwner(currentUser);
         project.setIsGroupBased(request.getIsGroupBased() != null ? request.getIsGroupBased() : false);
+        if (request.getType() != null) {
+            project.setProjectType(request.getType());
+        }
 
         // Team validation for admins
         if (project.getIsGroupBased()) {
@@ -152,6 +155,9 @@ public class ProjectService {
         }
         if (request.getLogo() != null) {
             project.setLogoUrl(request.getLogo());
+        }
+        if (request.getType() != null) {
+            project.setProjectType(request.getType());
         }
         project.setDeadline(request.getDeadline());
         project.setDescription(request.getDescription());
@@ -233,6 +239,7 @@ public class ProjectService {
                 .teamId(project.getTeam() != null ? project.getTeam().getId() : null)
                 .teamName(project.getTeam() != null ? project.getTeam().getName() : null)
                 .addToCalendar(addToCalendar)
+                .type(project.getProjectType())
                 .build();
     }
 }
