@@ -1,5 +1,6 @@
 /** React & Third-Party Libraries */
 import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 
 /** Contexts, Hooks & Services */
 import { useContextMenu } from "../../../hooks/useContextMenu.js";
@@ -163,9 +164,36 @@ export const ProjectsCardComponent = ({
      * @param {boolean} isTooltipOpen - Whether the tooltip is currently open.
      * @returns {void}
      */
-    const handleToggleTooltip = (e, projectId, isTooltipOpen) => {
+    const handleToggleTooltip = (e, project, isTooltipOpen) => {
         e.stopPropagation();
-        setOpenTooltipId(isTooltipOpen ? null : projectId);
+        const rect = e.currentTarget.getBoundingClientRect();
+
+        if (isTooltipOpen) {
+            setOpenTooltipId(null);
+        } else {
+            setOpenTooltipId({
+                id: project.id,
+                description: project.description,
+                rect: rect,
+            });
+        }
+    };
+
+    const handleMouseEnterTooltip = (e, project) => {
+        if (window.innerWidth >= 768) {
+            const rect = e.currentTarget.getBoundingClientRect();
+            setOpenTooltipId({
+                id: project.id,
+                description: project.description,
+                rect: rect,
+            });
+        }
+    };
+
+    const handleMouseLeaveTooltip = () => {
+        if (window.innerWidth >= 768) {
+            setOpenTooltipId(null);
+        }
     };
 
     /**
@@ -253,6 +281,7 @@ export const ProjectsCardComponent = ({
                             const isActive = selectedId === project.id;
                             const hasNote = project.description && project.description !== "";
                             const isTooltipOpen = openTooltipId === project.id;
+                            const isBeingEdited = String(contextMenuState.activeEntityId) === String(project.id);
 
                             return (
                                 <SwipeableEntityItemComponent
@@ -266,7 +295,7 @@ export const ProjectsCardComponent = ({
                                         onContextMenu={(e) => contextMenuActions.handleContextMenu(e, project)}
                                         className={`w-full flex items-center justify-between text-primary rounded-[2rem] transition-all duration-200 cursor-pointer bg-transparent ${
                                             isActive ? "md:bg-primary-200 md:pr-5" : ""
-                                        }`}
+                                        } ${isBeingEdited ? "bg-quaternary-50/60" : "bg-transparent"}`}
                                     >
                                         {/* Project Icon and Title Section */}
                                         <div
@@ -289,30 +318,21 @@ export const ProjectsCardComponent = ({
                                         {hasNote && (
                                             <div
                                                 className="relative group flex items-center justify-center shrink-0 ml-3"
-                                                onClick={(e) => handleToggleTooltip(e, project.id, isTooltipOpen)}
+                                                onMouseEnter={(e) => handleMouseEnterTooltip(e, project)}
+                                                onMouseLeave={handleMouseLeaveTooltip}
+                                                onClick={(e) => {
+                                                    if (window.innerWidth < 768) {
+                                                        handleToggleTooltip(e, project, isTooltipOpen);
+                                                    } else {
+                                                        e.stopPropagation();
+                                                    }
+                                                }}
                                             >
                                                 <IconNote
                                                     className={`h-5 w-5 transition-colors duration-200 text-quaternary-700 ${
                                                         isActive ? "md:text-primary" : ""
                                                     }`}
                                                 />
-
-                                                {/* Tooltip Content Container */}
-                                                <div
-                                                    className={`absolute z-50 w-48 p-2 text-sm font-medium text-primary bg-quaternary-700 rounded-lg shadow-lg pointer-events-none transition-all
-                                                    right-full top-1/2 -translate-y-1/2 mr-3
-                                                    md:right-auto md:left-1/2 md:-translate-x-1/2 md:top-auto md:bottom-full md:translate-y-0 md:mr-0 md:mb-2
-                                                    ${isTooltipOpen ? "block" : "hidden md:group-hover:block"}
-                                                `}
-                                                >
-                                                    {project.description}
-
-                                                    {/* Mobile Tooltip Arrow (Points Right) */}
-                                                    <div className="absolute md:hidden left-full top-1/2 -translate-y-1/2 w-0 h-0 border-y-8 border-y-transparent border-l-8 border-l-quaternary-700"></div>
-
-                                                    {/* Desktop Tooltip Arrow (Points Down) */}
-                                                    <div className="hidden md:block absolute left-1/2 -translate-x-1/2 top-full w-0 h-0 border-x-8 border-x-transparent border-t-8 border-t-quaternary-700"></div>
-                                                </div>
                                             </div>
                                         )}
                                     </div>
@@ -369,6 +389,25 @@ export const ProjectsCardComponent = ({
                     onDelete={handleDeleteProject}
                 />
             )}
+
+            {openTooltipId &&
+                typeof document !== "undefined" &&
+                createPortal(
+                    <div
+                        className="fixed z-[9999] w-48 p-2 text-sm font-medium text-primary bg-quaternary-700 rounded-lg shadow-xl pointer-events-none transition-all animate-fade-in-up"
+                        style={{
+                            top: openTooltipId.rect.top - 8,
+                            left: openTooltipId.rect.left + openTooltipId.rect.width / 2,
+                            transform: "translate(-50%, -100%)",
+                        }}
+                    >
+                        {openTooltipId.description}
+
+                        {/* Flecha inferior del tooltip */}
+                        <div className="absolute left-1/2 -translate-x-1/2 top-full w-0 h-0 border-x-8 border-x-transparent border-t-8 border-t-quaternary-700"></div>
+                    </div>,
+                    document.body,
+                )}
         </>
     );
 };

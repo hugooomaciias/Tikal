@@ -49,7 +49,7 @@ export const ProjectPopUpComponent = ({ onClose, initialData, onProjectCreated, 
      */
     const [selectedIcon, setSelectedIcon] = useState(() => {
         if (initialData) {
-            const iconId = initialData.logo || initialData.logoUrl;
+            const iconId = initialData.logo;
             return PROJECTS_ICONS.find((icon) => icon.id === iconId) || PROJECTS_ICONS[0];
         }
         return PROJECTS_ICONS.find((icon) => icon.id === "IconPresentation");
@@ -72,7 +72,7 @@ export const ProjectPopUpComponent = ({ onClose, initialData, onProjectCreated, 
     const [formData, setFormData] = useState({
         type: "project",
         project: initialData ? initialData.name : "",
-        date: initialData && initialData.deadline ? initialData.deadline : "",
+        date: initialData && initialData.deadline ? new Date(initialData.deadline) : null,
         note: initialData ? initialData.description : "",
     });
 
@@ -191,11 +191,18 @@ export const ProjectPopUpComponent = ({ onClose, initialData, onProjectCreated, 
             setIsLoading(true);
 
             try {
+                let finalDeadline = null;
+                if (formData.date) {
+                    const dateCopy = new Date(formData.date);
+                    dateCopy.setHours(2, 0, 0, 0);
+                    finalDeadline = dateCopy.toISOString();
+                }
+
                 const projectPayload = {
                     name: formData.project,
                     description: formData.note,
-                    deadline: formData.date,
-                    logoUrl: selectedIcon.id,
+                    deadline: finalDeadline,
+                    logo: selectedIcon.id,
                 };
 
                 if (isEditing) {

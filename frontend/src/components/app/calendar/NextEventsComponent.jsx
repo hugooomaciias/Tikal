@@ -1,6 +1,9 @@
 /** Contexts, Hooks & Services */
 import i18n from "../../../i18n.js";
 
+/** Config, Constants & Utils */
+import { PROJECTS_ICONS } from "../../../constants/projects_icons.js";
+
 /**
  * Next Events Component
  *
@@ -117,24 +120,35 @@ export const NextEventsComponent = ({ groupedEvents, handleEventClick, handleCon
 
                         {/* Grouped Events List */}
                         <div className="flex flex-col gap-2 pl-4 border-l-2 border-primary-50 ml-1">
-                            {group.events.map((event) => (
-                                <div
-                                    key={event.id}
-                                    onClick={() => onEventClick(event)}
-                                    onContextMenu={(e) => onEventContextMenu(e, event)}
-                                    className="flex flex-col p-3 rounded-xl shadow-sm cursor-pointer"
-                                    style={{
-                                        backgroundColor: `${event.backgroundColor}15`,
-                                        borderLeft: `4px solid ${event.borderColor}`,
-                                    }}
-                                >
-                                    {/* Event Details */}
-                                    <span className="text-xs font-bold text-quaternary-700">{event.title}</span>
-                                    <span className="text-xs font-medium text-quaternary-500 mt-1">
-                                        {formatTimeDisplay(event)}
-                                    </span>
-                                </div>
-                            ))}
+                            {group.events.map((event) => {
+                                const LogoComponent = event.extendedProps.logo
+                                    ? PROJECTS_ICONS.find((i) => i.id === event.extendedProps.logo) || PROJECTS_ICONS[0]
+                                    : null;
+
+                                return (
+                                    <div
+                                        key={event.id}
+                                        onClick={() => onEventClick(event)}
+                                        onContextMenu={(e) => onEventContextMenu(e, event)}
+                                        className="flex flex-col p-3 rounded-xl shadow-sm cursor-pointer"
+                                        style={{
+                                            backgroundColor: `${event.backgroundColor}15`,
+                                            borderLeft: `4px solid ${event.borderColor}`,
+                                        }}
+                                    >
+                                        {/* Event Details */}
+                                        <div className="flex items-center gap-2 text-quaternary-700">
+                                            {event.extendedProps.logo && (
+                                                <LogoComponent.component className="w-5 h-5" />
+                                            )}
+                                            <span className="text-xs font-bold">{event.title}</span>
+                                        </div>
+                                        <span className="text-xs font-medium text-quaternary-500 mt-1">
+                                            {formatTimeDisplay(event)}
+                                        </span>
+                                    </div>
+                                );
+                            })}
                         </div>
                     </div>
                 ))

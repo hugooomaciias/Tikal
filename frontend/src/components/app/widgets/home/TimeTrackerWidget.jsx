@@ -11,9 +11,9 @@ import { ScrollingText } from "../../common/ScrollingText.jsx";
 import { IconDatabase, IconPlayerPlayFilled, IconPlayerPauseFilled, IconPlayerStopFilled } from "@tabler/icons-react";
 
 /** Assets, Utils & Constants */
+import { PHASE_COLOURS } from "../../../../constants/phase_colours";
 import tailwindConfig from "../../../../../tailwind.config.js";
 import resolveConfig from "tailwindcss/resolveConfig";
-import { PHASE_COLOURS } from "../../../../constants/phase_colours";
 
 /**
  * Tailwind Configuration Resolver

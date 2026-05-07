@@ -65,11 +65,11 @@ export const renderCustomDayContents = (dayOfMonth, date, eventsColorMap) => {
             {totalEvents > 0 && (
                 <div className="absolute bottom-[4px] flex gap-[2px]">
                     {/* Render Dot List */}
-                    {displayColors.map((color, index) => (
+                    {displayColors.map((colour, index) => (
                         <div
                             key={index}
                             className="custom-event-dot w-[4px] h-[4px] rounded-full transition-colors"
-                            style={{ backgroundColor: color.hex }}
+                            style={{ backgroundColor: colour.hex }}
                         />
                     ))}
                     {/* Overflow State Indicator */}
@@ -112,7 +112,7 @@ export const renderEventContent = (eventInfo, handleContextMenu) => {
     /**
      * Context Menu Click Handler
      *
-     * Prevents the click event from bubbling up to parent containers and opens 
+     * Prevents the click event from bubbling up to parent containers and opens
      * the context menu with the current event's information.
      *
      * @param {React.MouseEvent} e - The React mouse click event.
@@ -123,6 +123,8 @@ export const renderEventContent = (eventInfo, handleContextMenu) => {
             handleContextMenu(e, eventInfo);
         }
     };
+
+    const colour = event.extendedProps.color;
 
     // --- 6. Render ---
 
@@ -135,10 +137,7 @@ export const renderEventContent = (eventInfo, handleContextMenu) => {
         return (
             <div className="flex items-center w-full overflow-hidden px-1 h-full">
                 {/* Event Color Indicator */}
-                <div
-                    className="w-2 h-2 rounded-full mr-1.5 shrink-0"
-                    style={{ backgroundColor: event.backgroundColor }}
-                />
+                <div className="w-2 h-2 rounded-full mr-1.5 shrink-0" style={{ backgroundColor: colour.hex }} />
 
                 {/* Event Title */}
                 <ScrollingText text={event.title} className="text-xs font-semibold leading-tight text-quaternary-700" />
@@ -153,7 +152,7 @@ export const renderEventContent = (eventInfo, handleContextMenu) => {
      */
     if (view.type === "timeGridWeek") {
         return (
-            <div className="flex flex-col items-start w-full overflow-hidden p-1 h-full">
+            <div className="flex flex-col items-start w-full overflow-hidden p-1 h-full" style={{ color: colour.text }}>
                 {/* Event Time Header */}
                 {timeText && <div className="text-[10px] font-medium opacity-80 mb-0.5">{timeText}</div>}
 
@@ -180,7 +179,10 @@ export const renderEventContent = (eventInfo, handleContextMenu) => {
      */
     if (view.type === "timeGridDay") {
         return (
-            <div className="flex flex-col items-start w-full overflow-hidden p-2 h-full gap-1">
+            <div
+                className="flex flex-col items-start w-full overflow-hidden p-2 h-full gap-1"
+                style={{ color: colour.text }}
+            >
                 {/* Event Time Header Wrapper */}
                 <div className="flex items-center justify-between w-full">
                     {timeText && <span className="text-xs font-bold opacity-90">{timeText}</span>}
@@ -210,10 +212,7 @@ export const renderEventContent = (eventInfo, handleContextMenu) => {
             <span className="text-xs font-bold leading-tight">{event.title}</span>
 
             {/* Context Menu Trigger Icon */}
-            <IconDotsVerticalFilled
-                onClick={onContextMenuClick}
-                className="h-4 w-4"
-            />
+            <IconDotsVerticalFilled onClick={onContextMenuClick} className="h-4 w-4" />
         </div>
     );
 };

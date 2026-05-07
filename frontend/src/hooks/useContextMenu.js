@@ -52,7 +52,7 @@ export const useContextMenu = (handleEventClick) => {
         const entityTitle = entity.title || entity.name || "";
 
         let entityColor = "";
-        let entityLogo = isFromCalendar ? entity.extendedProps.logo : entity.logo;
+        let entityLogo = entity.extendedProps ? entity.extendedProps.logo : entity.logo;
 
         if (entity.extendedProps && entity.extendedProps.color) {
             entityColor = entity.extendedProps.color;
@@ -137,6 +137,7 @@ export const useContextMenu = (handleEventClick) => {
             contextMenu,
             entityToRename,
             entityToDelete,
+            activeEntityId: contextMenu.data?.id || null,
         },
         contextMenuActions: {
             setContextMenu,

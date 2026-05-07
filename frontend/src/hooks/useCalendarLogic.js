@@ -64,21 +64,22 @@ export const useCalendarLogic = (getCalendarEvents, getTasksData) => {
         const backendEvents = getCalendarEvents();
 
         return backendEvents.map((event) => {
-            const color = PHASE_COLOURS.find((c) => c.id === event.color) || PHASE_COLOURS[0];
+            const colour = PHASE_COLOURS.find((c) => c.id === event.color) || PHASE_COLOURS[0];
             const eventDate = event.startDate ? event.startDate.split("T")[0] : "";
-            console.log(event);
+
             return {
                 id: event.id.toString(),
                 title: event.title,
                 extendedProps: {
                     description: event.description,
                     eventDate: eventDate,
-                    color: color,
+                    color: colour,
+                    logo: event.logo || "",
                 },
                 start: event.startDate,
                 end: event.endDate,
-                backgroundColor: color?.hex || tailwindColors.primary[500],
-                borderColor: color?.hex || tailwindColors.primary[500],
+                backgroundColor: colour?.hex || tailwindColors.primary[500],
+                borderColor: colour?.hex || tailwindColors.primary[500],
             };
         });
     }, [getCalendarEvents]);

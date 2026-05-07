@@ -65,7 +65,9 @@ export const DeleteComponent = ({ onClose, data, onDelete }) => {
         onClose();
     };
 
-    const logo = PROJECTS_ICONS.find((i) => i.id === data.logo) || PROJECTS_ICONS[0];
+    const logo = data.logo ? PROJECTS_ICONS.find((i) => i.id === data.logo) || PROJECTS_ICONS[0] : null;
+    const LogoComponent = logo ? logo.component : null;
+
     const color = PHASE_COLOURS.find((c) => c.id === data.color);
 
     // --- 6. Render ---
@@ -96,7 +98,7 @@ export const DeleteComponent = ({ onClose, data, onDelete }) => {
                     className="w-full flex items-center justify-center gap-3 py-3 px-4 mt-4 rounded-xl text-primary shadow-sm"
                     style={{ backgroundColor: color?.hex || tailwindColors.primary[500] }}
                 >
-                    <logo.component className="w-5 h-5" />
+                    {LogoComponent && <LogoComponent className="w-5 h-5" />}
                     <span className="font-bold">{data?.title}</span>
                 </div>
 

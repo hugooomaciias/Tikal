@@ -77,7 +77,7 @@ export const HeaderComponent = ({ page, get1, get2, set1, set2, t }) => {
                 {page === t("statistics_title") && (
                     <button
                         type="button"
-                        className={`relative flex items-center justify-center overflow-hidden h-12 rounded-full shadow-md transition-all duration-300 ease-in-out ${
+                        className={`relative hidden md:flex items-center justify-center overflow-hidden h-12 rounded-full shadow-md transition-all duration-300 ease-in-out ${
                             get1
                                 ? "bg-primary-600 text-primary w-[96px]"
                                 : "bg-primary text-primary-600 hover:bg-primary-600 hover:text-primary w-12"

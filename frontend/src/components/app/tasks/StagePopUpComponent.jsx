@@ -71,7 +71,7 @@ export const StagePopUpComponent = ({ onClose, initialData, projectId, onStageCr
     const [formData, setFormData] = useState({
         type: "stage",
         stage: initialData ? initialData.name : "",
-        date: initialData && initialData.deadline ? initialData.deadline : "",
+        date: initialData && initialData.deadline ? new Date(initialData.deadline) : null,
         note: initialData ? initialData.description : "",
     });
 
@@ -190,11 +190,18 @@ export const StagePopUpComponent = ({ onClose, initialData, projectId, onStageCr
             setIsLoading(true);
 
             try {
+                let finalDeadline = null;
+                if (formData.date) {
+                    const dateCopy = new Date(formData.date);
+                    dateCopy.setHours(2, 0, 0, 0);
+                    finalDeadline = dateCopy.toISOString();
+                }
+
                 const stagePayload = {
                     projectId: projectId,
                     name: formData.stage,
                     description: formData.note,
-                    deadline: formData.date,
+                    deadline: finalDeadline,
                     colour: selectedColour.id,
                 };
 

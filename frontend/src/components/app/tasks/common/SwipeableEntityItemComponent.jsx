@@ -65,7 +65,7 @@ export const SwipeableEntityItemComponent = ({ entity, contextMenuActions, child
     };
 
     return (
-        <div className="relative w-full overflow-hidden rounded-[2rem] touch-pan-y shrink-0">
+        <div className={`relative w-full rounded-[2rem] touch-pan-y shrink-0 ${offset !== 0 ? "overflow-hidden" : ""}`}>
             {/* CAPA DE FONDO: Botones de Acción */}
             <div
                 className={`absolute inset-0 flex justify-between items-center w-full h-full bg-primary-300 transition-opacity duration-75 ${

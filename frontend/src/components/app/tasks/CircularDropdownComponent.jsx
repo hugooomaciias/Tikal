@@ -17,7 +17,7 @@ import { useState, useRef, useEffect } from "react";
  * @param {Function} props.onChange - Callback fired when a new option is selected.
  * @returns {JSX.Element} The rendered circular dropdown component.
  */
-export const CircularDropdownComponent = ({ value, defaultIcon, tooltip, options, onChange }) => {
+export const CircularDropdownComponent = ({ value, defaultIcon, tooltip, options, onChange, disabled }) => {
     // --- 1. Hooks & Contexts ---
 
     /**
@@ -79,6 +79,7 @@ export const CircularDropdownComponent = ({ value, defaultIcon, tooltip, options
      * @returns {void}
      */
     const handleToggleMenu = () => {
+        if (disabled) return;
         setIsOpen(!isOpen);
     };
 
@@ -103,16 +104,24 @@ export const CircularDropdownComponent = ({ value, defaultIcon, tooltip, options
             <button
                 type="button"
                 onClick={handleToggleMenu}
-                className="relative group h-[52px] w-[52px] flex items-center justify-center bg-primary text-primary-500 font-medium text-lg rounded-full shadow-sm hover:bg-primary-400 hover:text-primary transition-all duration-200"
+                disabled={disabled}
+                className={`relative group h-[52px] w-[52px] flex items-center justify-center font-medium text-lg rounded-full shadow-sm transition-all duration-200 
+                ${
+                    disabled
+                        ? "bg-primary text-primary-300 cursor-not-allowed opacity-60"
+                        : "bg-primary text-primary-500 hover:bg-primary-400 hover:text-primary active:scale-95"
+                }`}
             >
                 {/* Active Value or Fallback Icon */}
                 {value ? value : defaultIcon}
 
                 {/* Hover Tooltip Container */}
-                <div className="absolute right-full top-1/2 -translate-y-1/2 mr-2 mt-2 hidden min-w-44 w-fit p-2 bg-primary-500 text-primary text-center text-sm font-medium rounded-lg shadow-lg group-hover:block z-50 pointer-events-none">
-                    {tooltip}
-                    <div className="absolute left-full top-1/3 -translate-y-1/2 w-0 h-0 border-y-8 border-y-transparent border-l-8 border-l-primary-500"></div>
-                </div>
+                {!disabled && (
+                    <div className="absolute right-full top-1/2 -translate-y-1/2 mr-2 mt-2 hidden min-w-44 w-fit p-2 bg-primary-500 text-primary text-center text-sm font-medium rounded-lg shadow-lg group-hover:block z-50 pointer-events-none">
+                        {tooltip}
+                        <div className="absolute left-full top-1/3 -translate-y-1/2 w-0 h-0 border-y-8 border-y-transparent border-l-8 border-l-primary-500"></div>
+                    </div>
+                )}
             </button>
 
             {/* Dropdown Options List Container */}

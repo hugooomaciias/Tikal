@@ -1,5 +1,8 @@
 /** React & Third-Party Libraries */
-import { useState } from "react";
+import { useState, useEffect } from "react";
+
+/** Contexts, Hooks & Services */
+import { useTask } from "../../../hooks/useTask.js";
 
 /** Components & Layouts */
 import { CircularDropdownComponent } from "./CircularDropdownComponent.jsx";
@@ -14,6 +17,7 @@ import {
     IconTrash,
     IconInfoCircleFilled,
     IconStopwatch,
+    IconLoader,
 } from "@tabler/icons-react";
 
 /**
@@ -28,11 +32,38 @@ import {
  * @param {Object} props - The component props.
  * @param {Function} props.onClose - Callback function triggered to close the modal.
  * @param {Object|null} props.initialData - Initial data injected when editing an existing task/subtask.
+ * @param {Function} props.onCreateTask - Callback function triggered when a new task is created.
+ * @param {Function} props.onUpdateTask - Callback function triggered when an existing task is updated.
  * @param {Function} props.t - Translation function from i18next for multi-language support.
  * @returns {JSX.Element} The rendered modal component.
  */
-export const TaskPopUpComponent = ({ onClose, initialData, t }) => {
+export const TaskPopUpComponent = ({ onClose, initialData, stageId, onTaskCreated, onTaskUpdated, t }) => {
+    // --- 1. Hooks & Contexts ---
+
+    /**
+     * Main Context Hook
+     *
+     * Extracts global application state regarding user profile data and loading status.
+     */
+    const { create, update } = useTask();
+
     // --- 2. Local State ---
+
+    const inverseParseTime = (totalMinutes) => {
+        if (totalMinutes == null || totalMinutes === 0) return "";
+
+        const mins = initialData.estimatedTime;
+        const unit = initialData.timeUnit || "m";
+
+        if (unit === "d") return String(Math.floor(mins / 1440));
+        if (unit === "h") {
+            const h = Math.floor(mins / 60);
+            const m = mins % 60;
+            return m > 0 ? `${h}:${String(m).padStart(2, "0")}` : String(h);
+        }
+
+        return String(mins);
+    };
 
     /**
      * Form Data State
@@ -41,11 +72,15 @@ export const TaskPopUpComponent = ({ onClose, initialData, t }) => {
      */
     const [formData, setFormData] = useState({
         view: "details",
-        task: initialData ? initialData.title : "",
-        time: initialData && initialData.time ? initialData.time.replace(/[^\d.]/g, "") : "",
-        profit: initialData && initialData.profit ? initialData.profit.replace(/[^\d.]/g, "") : "",
-        subtasks: initialData && initialData.subtasks ? initialData.subtasks : [""],
-        note: initialData && initialData.note ? initialData.note : "",
+        task: initialData?.name || "",
+        time: initialData?.estimatedTime != null ? inverseParseTime(initialData.estimatedTime) : "",
+        profit: initialData?.estimatedProfit != null ? String(initialData.estimatedProfit).replace(".", ",") : "",
+        subtasks:
+            initialData?.subtasks?.length > 0
+                ? initialData.subtasks.map((sub) => ({ id: sub.id, name: sub.name }))
+                : [{ id: null, name: "" }],
+        note: initialData?.description || "",
+        date: initialData?.deadline ? new Date(initialData.deadline) : null,
     });
 
     /**
@@ -62,7 +97,7 @@ export const TaskPopUpComponent = ({ onClose, initialData, t }) => {
      * Initializes based on existing time data if available.
      */
     const [timeUnit, setTimeUnit] = useState(() => {
-        return initialData && initialData.time ? initialData.time.replace(/[\d.\s]/g, "") : "";
+        return initialData && initialData.timeUnit ? initialData.timeUnit.replace(/[\d.\s]/g, "") : "";
     });
 
     /**
@@ -92,6 +127,17 @@ export const TaskPopUpComponent = ({ onClose, initialData, t }) => {
      */
     const [focusedInput, setFocusedInput] = useState(null);
 
+    const [isLoading, setIsLoading] = useState(false);
+    const [apiError, setApiError] = useState("");
+
+    /**
+     * Popup Visibility State
+     *
+     * Controls the visibility of the error popup for animation purposes.
+     * When true, the popup scales in and becomes fully opaque.
+     */
+    const [isVisible, setIsVisible] = useState(false);
+
     // --- 3. Derived Variables ---
 
     /**
@@ -101,6 +147,27 @@ export const TaskPopUpComponent = ({ onClose, initialData, t }) => {
      * Used dynamically throughout the render cycle to swap between creation and editing UI states.
      */
     const isEditing = Boolean(initialData);
+
+    // --- 4. Side Effects ---
+
+    /**
+     * Popup Auto-Hide Effect
+     *
+     * Monitors the `apiError` state. When an error is present, it displays
+     * the popup and sets a timeout to automatically close it after 5 seconds.
+     * It cleans up the timeout if the component unmounts or if the error changes.
+     */
+    useEffect(() => {
+        if (apiError) {
+            setIsVisible(true);
+
+            const timer = setTimeout(() => {
+                handleClose();
+            }, 5000);
+
+            return () => clearTimeout(timer);
+        }
+    }, [apiError]);
 
     // --- 5. Event Handlers & Functions ---
 
@@ -125,6 +192,7 @@ export const TaskPopUpComponent = ({ onClose, initialData, t }) => {
                 if (currentDigits && newUnit === "h" && currentDigits.length > 2) {
                     newValue = currentDigits.slice(0, -2) + ":" + currentDigits.slice(-2);
                 }
+
                 return { ...prev, time: newValue };
             });
         }
@@ -211,48 +279,6 @@ export const TaskPopUpComponent = ({ onClose, initialData, t }) => {
     };
 
     /**
-     * Subtask Content Handler
-     *
-     * Triggers an update to the value of a specific entry within a dynamic array field in the form data.
-     *
-     * @param {string} field - The target array field name.
-     * @param {number} index - The index of the subtask being modified.
-     * @param {string} value - The new string content.
-     * @returns {void}
-     */
-    const handleArrayChange = (field, index, value) => {
-        const newArray = [...formData[field]];
-        newArray[index] = value;
-        setFormData((prev) => ({ ...prev, [field]: newArray }));
-    };
-
-    /**
-     * Subtask Addition Handler
-     *
-     * Triggers the insertion of a new, empty entry to the specified array field in the form data.
-     *
-     * @param {string} field - The target array field name.
-     * @returns {void}
-     */
-    const addArrayField = (field) => {
-        setFormData((prev) => ({ ...prev, [field]: [...prev[field], ""] }));
-    };
-
-    /**
-     * Subtask Removal Handler
-     *
-     * Triggers the deletion of a specific entry from an array field by its index.
-     *
-     * @param {string} field - The target array field name.
-     * @param {number} index - The index of the subtask to remove.
-     * @returns {void}
-     */
-    const removeArrayField = (field, index) => {
-        const newArray = formData[field].filter((_, i) => i !== index);
-        setFormData((prev) => ({ ...prev, [field]: newArray }));
-    };
-
-    /**
      * Form Validation Logic
      *
      * Computes client-side validation to ensure all required fields are properly filled
@@ -299,6 +325,35 @@ export const TaskPopUpComponent = ({ onClose, initialData, t }) => {
         }
     };
 
+    const parseTime = (val) => {
+        if (!val) return 0;
+
+        let totalMinutes = 0;
+        const numericValue = String(val).replace(/[^\d:]/g, "");
+
+        switch (timeUnit) {
+            case "d":
+                totalMinutes = parseInt(numericValue, 10) * 1440;
+                break;
+
+            case "h":
+                if (numericValue.includes(":")) {
+                    const [hours, minutes] = numericValue.split(":").map(Number);
+                    totalMinutes = hours * 60 + (minutes || 0);
+                } else {
+                    totalMinutes = parseInt(numericValue, 10) * 60;
+                }
+                break;
+
+            case "m":
+            default:
+                totalMinutes = parseInt(numericValue, 10);
+                break;
+        }
+
+        return isNaN(totalMinutes) ? 0 : totalMinutes;
+    };
+
     /**
      * Form Submission Handler
      *
@@ -307,12 +362,75 @@ export const TaskPopUpComponent = ({ onClose, initialData, t }) => {
      * @param {React.FormEvent} e - The form submission event.
      * @returns {void}
      */
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
+        setApiError("");
 
         if (validateForm()) {
-            setFormData({ task: "", note: "" });
-            onClose();
+            setIsLoading(true);
+
+            try {
+                let finalDeadline = null;
+                if (formData.date) {
+                    const dateCopy = new Date(formData.date);
+                    dateCopy.setHours(2, 0, 0, 0);
+                    finalDeadline = dateCopy.toISOString();
+                }
+                const parseProfit = (val) => {
+                    if (!val) return 0;
+                    return parseFloat(String(val).replace(/\./g, "").replace(",", "."));
+                };
+
+                const subtasksPayload = formData.subtasks
+                    .filter((s) => s.name.trim() !== "")
+                    .map((s) => ({
+                        id: s.id,
+                        name: s.name,
+                    }));
+
+                const taskPayload = {
+                    name: formData.task,
+                    description: formData.note,
+                    estimatedTime: parseTime(formData.time),
+                    estimatedProfit: parseProfit(formData.profit),
+                    deadline: finalDeadline,
+                    stageId: stageId,
+                    subtasks: subtasksPayload,
+                    timeUnit: timeUnit,
+                };
+
+                if (isEditing) {
+                    const updatedTask = await update(initialData.id, taskPayload);
+
+                    if (onTaskUpdated) {
+                        onTaskUpdated(updatedTask);
+                    }
+
+                    handleClose();
+                } else {
+                    const newTask = await create(taskPayload);
+
+                    setFormData({
+                        view: "details",
+                        task: "",
+                        date: "",
+                        note: "",
+                        time: "",
+                        profit: "",
+                        subtasks: [""],
+                    });
+
+                    if (onTaskCreated) {
+                        onTaskCreated(newTask);
+                    }
+
+                    handleClose();
+                }
+            } catch (error) {
+                setApiError(error.message || "Ocurrió un error al crear la tarea.");
+            } finally {
+                setIsLoading(false);
+            }
         }
     };
 
@@ -416,7 +534,9 @@ export const TaskPopUpComponent = ({ onClose, initialData, t }) => {
      * @returns {Function} Event handler for the input.
      */
     const handleSubtaskChange = (index) => (e) => {
-        handleArrayChange("subtasks", index, e.target.value);
+        const newSubtasks = [...formData.subtasks];
+        newSubtasks[index].name = e.target.value;
+        setFormData((prev) => ({ ...prev, subtasks: newSubtasks }));
     };
 
     /**
@@ -427,7 +547,10 @@ export const TaskPopUpComponent = ({ onClose, initialData, t }) => {
      * @returns {void}
      */
     const handleAddSubtask = () => {
-        addArrayField("subtasks");
+        setFormData((prev) => ({
+            ...prev,
+            subtasks: [...prev.subtasks, { id: null, name: "" }],
+        }));
     };
 
     /**
@@ -439,7 +562,8 @@ export const TaskPopUpComponent = ({ onClose, initialData, t }) => {
      * @returns {Function} Event handler for the button.
      */
     const handleRemoveSubtask = (index) => () => {
-        removeArrayField("subtasks", index);
+        const newSubtasks = formData.subtasks.filter((_, i) => i !== index);
+        setFormData((prev) => ({ ...prev, subtasks: newSubtasks }));
     };
 
     /**
@@ -467,9 +591,21 @@ export const TaskPopUpComponent = ({ onClose, initialData, t }) => {
             className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm"
             onClick={handleClose}
         >
+            {/* API Error Alert Modal */}
+            {apiError && (
+                <div
+                    className={`absolute top-10 md:top-16 h-16 w-[89%] md:w-1/4 bg-primary border-2 border-tertiary-200 text-tertiary-200 px-4 py-3 rounded-lg flex items-center justify-center gap-3 shadow-xl transition-all duration-300 animate-fade-in-up z-50
+                                ${isVisible ? "opacity-100 scale-100" : "opacity-0 scale-95 pointer-events-none"}`}
+                    role="alert"
+                >
+                    <IconCircleXFilled className="h-6 w-6" />
+                    <span className="block sm:inline font-medium text-center">{apiError}</span>
+                </div>
+            )}
+
             {/* Modal Content Container */}
             <div
-                className="relative w-[90%] max-w-md max-h-[91vh] shadow-2xl flex flex-col gap-6 bg-primary-50 rounded-[2.5rem] p-8 animate-fade-in-up overflow-hidden"
+                className="relative w-[90%] max-w-md max-h-[91vh] md:max-h-[95vh] shadow-2xl flex flex-col gap-6 bg-primary-50 rounded-[2.5rem] p-8 animate-fade-in-up overflow-y-auto"
                 onClick={handleStopPropagation}
             >
                 {/* Header: Dynamic Title and Close Action */}
@@ -485,298 +621,248 @@ export const TaskPopUpComponent = ({ onClose, initialData, t }) => {
                         <IconCircleXFilled className="h-8 w-8" />
                     </button>
                 </div>
-
-                <div className="flex-1 overflow-y-auto custom-scrollbar pr-3 -mr-3">
-                    {/* Main Submission Form */}
-                    <form onSubmit={handleSubmit} className="flex flex-col gap-6" noValidate>
-                        {/* Task Name and Time Unit Dropdown Row */}
-                        <div className="flex items-center gap-3">
-                            <div className="relative w-full">
-                                <input
-                                    type="text"
-                                    id="task"
-                                    name="task"
-                                    placeholder=" "
-                                    value={formData.task}
-                                    onChange={handleChange}
-                                    className={getInputClass("task")}
-                                />
-
-                                <label htmlFor="task" className="input-label input-textarea-label-primary">
-                                    {t("tasks.popup.name")}
-                                </label>
-
-                                {/* Validation Error Message */}
-                                {errors.task && (
-                                    <span className="absolute -bottom-5 left-0 text-tertiary-200 text-xs font-semibold">
-                                        {errors.task}
-                                    </span>
-                                )}
-                            </div>
-
-                            {/* Time Unit Selector Component */}
-                            <CircularDropdownComponent
-                                value={timeUnit}
-                                defaultIcon={<IconStopwatch className="w-7 h-7" />}
-                                tooltip={t("tasks.popup.time_unit_info")}
-                                onChange={handleTimeUnitChange}
-                                options={[
-                                    { value: "h", label: t("tasks.popup.time_unit_options.hours") },
-                                    { value: "m", label: t("tasks.popup.time_unit_options.minutes") },
-                                    { value: "d", label: t("tasks.popup.time_unit_options.days") },
-                                ]}
+                {/* Main Submission Form */}
+                <form onSubmit={handleSubmit} className="flex flex-col gap-6" noValidate>
+                    {/* Task Name and Time Unit Dropdown Row */}
+                    <div className="flex items-center gap-3">
+                        <div className="relative w-full">
+                            <input
+                                type="text"
+                                id="task"
+                                name="task"
+                                placeholder=" "
+                                value={formData.task}
+                                onChange={handleChange}
+                                className={getInputClass("task")}
                             />
+
+                            <label htmlFor="task" className="input-label input-textarea-label-primary">
+                                {t("tasks.popup.name")}
+                            </label>
+
+                            {/* Validation Error Message */}
+                            {errors.task && (
+                                <span className="absolute -bottom-5 left-0 text-tertiary-200 text-xs font-semibold">
+                                    {errors.task}
+                                </span>
+                            )}
                         </div>
 
-                        {/* View Selection Tabs (Details / Subtasks) */}
-                        <TabsComponent
-                            page={"Tasks"}
-                            formData={formData}
-                            setFormData={setFormData}
-                            setSelected={null}
-                            fieldToUpdate={"view"}
-                            t={t}
+                        {/* Time Unit Selector Component */}
+                        <CircularDropdownComponent
+                            disabled={isEditing}
+                            value={timeUnit}
+                            defaultIcon={<IconStopwatch className="w-7 h-7" />}
+                            tooltip={t("tasks.popup.time_unit_info")}
+                            onChange={handleTimeUnitChange}
+                            options={[
+                                { value: "h", label: t("tasks.popup.time_unit_options.hours") },
+                                { value: "m", label: t("tasks.popup.time_unit_options.minutes") },
+                                { value: "d", label: t("tasks.popup.time_unit_options.days") },
+                            ]}
                         />
+                    </div>
 
-                        {/* Details View Content */}
-                        {formData.view === "details" && (
-                            <>
-                                {/* Time Input Section */}
-                                <div className="flex items-center gap-2 w-full">
-                                    <div className="relative flex-1">
-                                        <input
-                                            type="text"
-                                            id="time"
-                                            name="time"
-                                            placeholder={
-                                                focusedInput === "time" ? (timeUnit === "h" ? "0:00" : "0") : " "
-                                            }
-                                            min={0}
-                                            value={formData.time}
-                                            required
-                                            onChange={handleTimeChange}
-                                            onFocus={handleFocusTime}
-                                            onBlur={handleBlurInput}
-                                            className={getInputClass("time")}
-                                        />
+                    {/* View Selection Tabs (Details / Subtasks) */}
+                    <TabsComponent
+                        page={"Tasks"}
+                        formData={formData}
+                        setFormData={setFormData}
+                        setSelected={null}
+                        fieldToUpdate={"view"}
+                        t={t}
+                    />
 
-                                        <label htmlFor="time" className="input-label input-textarea-label-primary">
-                                            {t("tasks.popup.details.time")}
-                                        </label>
-                                    </div>
+                    {/* Details View Content */}
+                    {formData.view === "details" && (
+                        <>
+                            {/* Time Input Section */}
+                            <div className="flex items-center gap-2 w-full">
+                                <div className="relative flex-1">
+                                    <input
+                                        type="text"
+                                        id="time"
+                                        name="time"
+                                        placeholder={focusedInput === "time" ? (timeUnit === "h" ? "0:00" : "0") : " "}
+                                        min={0}
+                                        value={formData.time}
+                                        required
+                                        onChange={handleTimeChange}
+                                        onFocus={handleFocusTime}
+                                        onBlur={handleBlurInput}
+                                        className={getInputClass("time")}
+                                    />
 
-                                    {/* Time Info Tooltip Icon */}
-                                    <div className="relative group flex items-center justify-center cursor-pointer">
-                                        <IconInfoCircleFilled className="group w-5 h-5 text-primary-500/70 hover:text-primary-500 transition-colors duration-200" />
-
-                                        <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 hidden min-w-44 w-fit p-2 bg-primary-500 text-primary text-center text-sm font-medium rounded-lg shadow-lg group-hover:block z-50 pointer-events-none">
-                                            {t("tasks.popup.details.time_info")}
-                                            <div className="absolute left-1/2 -translate-x-1/2 top-full w-0 h-0 border-x-8 border-x-transparent border-t-8 border-t-primary-500"></div>
-                                        </div>
-                                    </div>
+                                    <label htmlFor="time" className="input-label input-textarea-label-primary">
+                                        {t("tasks.popup.details.time")}
+                                    </label>
                                 </div>
 
-                                {/* Profit Input Section */}
-                                <div className="flex items-center gap-2 w-full">
-                                    <div className="relative flex-1">
-                                        <input
-                                            type="text"
-                                            id="profit"
-                                            name="profit"
-                                            placeholder={focusedInput === "profit" ? "0,00" : " "}
-                                            min={0}
-                                            value={formData.profit}
-                                            onChange={handleProfitChange}
-                                            onFocus={handleFocusProfit}
-                                            onBlur={handleBlurInput}
-                                            required
-                                            className={getInputClass("profit")}
-                                        />
+                                {/* Time Info Tooltip Icon */}
+                                <div className="relative group flex items-center justify-center cursor-pointer">
+                                    <IconInfoCircleFilled className="group w-5 h-5 text-primary-500/70 hover:text-primary-500 transition-colors duration-200" />
 
-                                        <label htmlFor="profit" className="input-label input-textarea-label-primary">
-                                            {t("tasks.popup.details.profit")}
-                                        </label>
-                                    </div>
-
-                                    {/* Profit Info Tooltip Icon */}
-                                    <div className="relative group flex items-center justify-center cursor-pointer">
-                                        <IconInfoCircleFilled className="group w-5 h-5 text-primary-500/70 hover:text-primary-500 transition-colors duration-200" />
-
-                                        <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 hidden min-w-44 w-fit p-2 bg-primary-500 text-primary text-center text-sm font-medium rounded-lg shadow-lg group-hover:block z-50 pointer-events-none">
-                                            {t("tasks.popup.details.profit_info")}
-                                            <div className="absolute left-1/2 -translate-x-1/2 top-full w-0 h-0 border-x-8 border-x-transparent border-t-8 border-t-primary-500"></div>
-                                        </div>
+                                    <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 hidden min-w-44 w-fit p-2 bg-primary-500 text-primary text-center text-sm font-medium rounded-lg shadow-lg group-hover:block z-50 pointer-events-none">
+                                        {t("tasks.popup.details.time_info")}
+                                        <div className="absolute left-1/2 -translate-x-1/2 top-full w-0 h-0 border-x-8 border-x-transparent border-t-8 border-t-primary-500"></div>
                                     </div>
                                 </div>
+                            </div>
 
-                                {/* Deadline Section */}
-                                <div className="flex flex-col gap-3">
-                                    {/* Datepicker Overlay */}
-                                    <div className="transition-all duration-300">
-                                        <DatePickerComponent
-                                            value={formData.date}
-                                            onChange={handleDateChange}
-                                            className={getInputClass("date")}
-                                            label={t("stages.popup.deadline")}
-                                        />
+                            {/* Profit Input Section */}
+                            <div className="flex items-center gap-2 w-full">
+                                <div className="relative flex-1">
+                                    <input
+                                        type="text"
+                                        id="profit"
+                                        name="profit"
+                                        placeholder={focusedInput === "profit" ? "0,00" : " "}
+                                        min={0}
+                                        value={formData.profit}
+                                        onChange={handleProfitChange}
+                                        onFocus={handleFocusProfit}
+                                        onBlur={handleBlurInput}
+                                        required
+                                        className={getInputClass("profit")}
+                                    />
+
+                                    <label htmlFor="profit" className="input-label input-textarea-label-primary">
+                                        {t("tasks.popup.details.profit")}
+                                    </label>
+                                </div>
+
+                                {/* Profit Info Tooltip Icon */}
+                                <div className="relative group flex items-center justify-center cursor-pointer">
+                                    <IconInfoCircleFilled className="group w-5 h-5 text-primary-500/70 hover:text-primary-500 transition-colors duration-200" />
+
+                                    <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 hidden min-w-44 w-fit p-2 bg-primary-500 text-primary text-center text-sm font-medium rounded-lg shadow-lg group-hover:block z-50 pointer-events-none">
+                                        {t("tasks.popup.details.profit_info")}
+                                        <div className="absolute left-1/2 -translate-x-1/2 top-full w-0 h-0 border-x-8 border-x-transparent border-t-8 border-t-primary-500"></div>
                                     </div>
+                                </div>
+                            </div>
 
-                                    {/* Deadline Toggle Switch */}
-                                    <div className="flex items-center justify-between px-2">
-                                        <span className="text-primary-500 text-sm font-bold">
-                                            {t("stages.popup.add_deadline")}
-                                        </span>
+                            {/* Deadline Section */}
+                            <div className="flex flex-col gap-3">
+                                {/* Datepicker Overlay */}
+                                <div className="transition-all duration-300">
+                                    <DatePickerComponent
+                                        value={formData.date}
+                                        onChange={handleDateChange}
+                                        className={getInputClass("date")}
+                                        label={t("stages.popup.deadline")}
+                                    />
+                                </div>
 
+                                {/* Deadline Toggle Switch */}
+                                <div className="flex items-center justify-between px-2">
+                                    <span className="text-primary-500 text-sm font-bold">
+                                        {t("stages.popup.add_deadline")}
+                                    </span>
+
+                                    <button
+                                        type="button"
+                                        onClick={handleToggleDeadline}
+                                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-300 focus:outline-none ${
+                                            insertDeadline ? "bg-primary-400" : "bg-primary-100"
+                                        }`}
+                                    >
+                                        <span
+                                            className={`inline-block h-4 w-4 rounded-full bg-primary transform transition-transform duration-300 ${
+                                                insertDeadline ? "translate-x-6" : "translate-x-1"
+                                            }`}
+                                        />
+                                    </button>
+                                </div>
+                            </div>
+
+                            {/* Description Textarea */}
+                            <div className="relative w-full">
+                                <textarea
+                                    id="note"
+                                    name="note"
+                                    rows="4"
+                                    placeholder=" "
+                                    value={formData.note}
+                                    onChange={handleChange}
+                                    required
+                                    className={getInputClass("note")}
+                                ></textarea>
+
+                                <label htmlFor="note" className="textarea-label input-textarea-label-primary">
+                                    {t("tasks.popup.details.description")}
+                                </label>
+
+                                <div className="input-icon peer-focus:text-primary-500 peer-[:not(:placeholder-shown)]:text-primary-500 items-start pt-3">
+                                    <IconNote className="w-5 h-5" />
+                                </div>
+                            </div>
+                        </>
+                    )}
+
+                    {/* Subtasks View Content */}
+                    {formData.view === "subtasks" && (
+                        <div className="flex flex-col items-center gap-2">
+                            {/* Dynamic Subtasks List */}
+                            {formData.subtasks.map((subtask, index) => (
+                                <div
+                                    key={`subtask-${index}`}
+                                    className="w-full flex flex-col justify-center items-center gap-2 mb-2"
+                                >
+                                    <div className="w-full flex items-center gap-2">
+                                        {/* Subtask Name Input */}
+                                        <div className="relative w-full">
+                                            <input
+                                                type="text"
+                                                placeholder=" "
+                                                value={subtask.name}
+                                                onChange={handleSubtaskChange(index)}
+                                                className={getInputClass("subtask-item")}
+                                            />
+                                            <label className="input-label input-textarea-label-primary">
+                                                {t("tasks.popup.subtasks.name")} {index + 1}
+                                            </label>
+                                        </div>
+
+                                        {/* Remove Subtask Button */}
                                         <button
                                             type="button"
-                                            onClick={handleToggleDeadline}
-                                            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-300 focus:outline-none ${
-                                                insertDeadline ? "bg-primary-400" : "bg-primary-100"
-                                            }`}
+                                            onClick={handleRemoveSubtask(index)}
+                                            className="text-tertiary-400 hover:text-tertiary-600 transition-colors p-2"
                                         >
-                                            <span
-                                                className={`inline-block h-4 w-4 rounded-full bg-primary transform transition-transform duration-300 ${
-                                                    insertDeadline ? "translate-x-6" : "translate-x-1"
-                                                }`}
-                                            />
+                                            <IconTrash className="w-5 h-5" />
                                         </button>
                                     </div>
                                 </div>
+                            ))}
 
-                                {/* Description Textarea */}
-                                <div className="relative w-full">
-                                    <textarea
-                                        id="note"
-                                        name="note"
-                                        rows="4"
-                                        placeholder=" "
-                                        value={formData.note}
-                                        onChange={handleChange}
-                                        required
-                                        className={getInputClass("note")}
-                                    ></textarea>
+                            {/* Add Subtask Button */}
+                            <button
+                                type="button"
+                                onClick={handleAddSubtask}
+                                className="w-full h-10 flex items-center justify-center gap-2 text-sm font-semibold text-primary-500 hover:text-primary-600 hover:bg-primary-50 border-2 border-dashed border-primary-200 hover:border-primary-400 rounded-xl transition-all"
+                            >
+                                <IconCirclePlusFilled className="w-5 h-5" />
+                                <span>{t("tasks.popup.subtasks.add_subtask")}</span>
+                            </button>
+                        </div>
+                    )}
 
-                                    <label htmlFor="note" className="textarea-label input-textarea-label-primary">
-                                        {t("tasks.popup.details.description")}
-                                    </label>
+                    {/* Form Submit Button */}
+                    <button type="submit" className="btn btn-primary md:min-w-1/2 mx-auto flex items-center gap-4">
+                        <span>
+                            {isLoading
+                                ? isEditing
+                                    ? t("tasks.popup.button.loading.edit")
+                                    : t("tasks.popup.button.loading.new")
+                                : isEditing
+                                  ? t("tasks.popup.button.edit")
+                                  : t("tasks.popup.button.new")}
+                        </span>
 
-                                    <div className="input-icon peer-focus:text-primary-500 peer-[:not(:placeholder-shown)]:text-primary-500 items-start pt-3">
-                                        <IconNote className="w-5 h-5" />
-                                    </div>
-                                </div>
-                            </>
-                        )}
-
-                        {/* Subtasks View Content */}
-                        {formData.view === "subtasks" && (
-                            <div className="flex flex-col items-center gap-2">
-                                {/* Dynamic Subtasks List */}
-                                {formData.subtasks.map((subtask, index) => (
-                                    <div
-                                        key={`subtask-${index}`}
-                                        className="flex flex-col justify-center items-center gap-2 mb-2"
-                                    >
-                                        <div className="w-full flex items-center gap-2">
-                                            {/* Subtask Name Input */}
-                                            <div className="relative w-full">
-                                                <input
-                                                    type="text"
-                                                    placeholder=" "
-                                                    value={subtask}
-                                                    onChange={handleSubtaskChange(index)}
-                                                    className={getInputClass("subtask-item")}
-                                                />
-                                                <label className="input-label input-textarea-label-primary">
-                                                    {t("tasks.popup.subtasks.name")} {index + 1}
-                                                </label>
-                                            </div>
-
-                                            {/* Remove Subtask Button */}
-                                            <button
-                                                type="button"
-                                                onClick={handleRemoveSubtask(index)}
-                                                className="text-tertiary-400 hover:text-tertiary-600 transition-colors p-2"
-                                            >
-                                                <IconTrash className="w-5 h-5" />
-                                            </button>
-                                        </div>
-
-                                        <div className="flex items-center gap-2 w-full">
-                                            {/* Subtask Time Input */}
-                                            <div className="relative flex-1">
-                                                <input
-                                                    type="text"
-                                                    id="time"
-                                                    name="time"
-                                                    placeholder={
-                                                        focusedInput === "time"
-                                                            ? timeUnit === "h"
-                                                                ? "0:00"
-                                                                : "0"
-                                                            : " "
-                                                    }
-                                                    min={0}
-                                                    value={formData.time}
-                                                    required
-                                                    onChange={handleTimeChange}
-                                                    onFocus={handleFocusTime}
-                                                    onBlur={handleBlurInput}
-                                                    className={getInputClass("time")}
-                                                />
-
-                                                <label
-                                                    htmlFor="time"
-                                                    className="input-label input-textarea-label-primary"
-                                                >
-                                                    {t("tasks.popup.subtasks.time")}
-                                                </label>
-                                            </div>
-
-                                            {/* Subtask Profit Input */}
-                                            <div className="relative flex-1">
-                                                <input
-                                                    type="text"
-                                                    id="profit"
-                                                    name="profit"
-                                                    placeholder={focusedInput === "profit" ? "0,00" : " "}
-                                                    min={0}
-                                                    value={formData.profit}
-                                                    onChange={handleProfitChange}
-                                                    onFocus={handleFocusProfit}
-                                                    onBlur={handleBlurInput}
-                                                    required
-                                                    className={getInputClass("profit")}
-                                                />
-
-                                                <label
-                                                    htmlFor="profit"
-                                                    className="input-label input-textarea-label-primary"
-                                                >
-                                                    {t("tasks.popup.subtasks.profit")}
-                                                </label>
-                                            </div>
-                                        </div>
-                                    </div>
-                                ))}
-
-                                {/* Add Subtask Button */}
-                                <button
-                                    type="button"
-                                    onClick={handleAddSubtask}
-                                    className="w-full h-10 flex items-center justify-center gap-2 text-sm font-semibold text-primary-500 hover:text-primary-600 hover:bg-primary-50 border-2 border-dashed border-primary-200 hover:border-primary-400 rounded-xl transition-all"
-                                >
-                                    <IconCirclePlusFilled className="w-5 h-5" />
-                                    <span>{t("tasks.popup.subtasks.add_subtask")}</span>
-                                </button>
-                            </div>
-                        )}
-
-                        {/* Form Submit Button */}
-                        <button type="submit" className="btn btn-primary md:min-w-1/2 mx-auto">
-                            <span>{isEditing ? t("tasks.popup.button.edit") : t("tasks.popup.button.new")}</span>
-                        </button>
-                    </form>
-                </div>
+                        {isLoading && <IconLoader className="h-6 w-6 text-primary animate-spin" />}
+                    </button>
+                </form>
             </div>
         </div>
     );

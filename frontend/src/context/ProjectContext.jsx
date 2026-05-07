@@ -55,7 +55,7 @@ export const ProjectProvider = ({ children }) => {
     const create = async (projectData) => {
         const token = localStorage.getItem("accessToken");
 
-        const data = await apiCall("/api/projects", "POST", projectData, {
+        const data = await apiCall("/api/project", "POST", projectData, {
             Authorization: `Bearer ${token}`,
         });
 
@@ -65,7 +65,7 @@ export const ProjectProvider = ({ children }) => {
     const update = async (id, projectData) => {
         const token = localStorage.getItem("accessToken");
 
-        const data = await apiCall(`/api/projects/${id}`, "PATCH", projectData, {
+        const data = await apiCall(`/api/project/${id}`, "PATCH", projectData, {
             Authorization: `Bearer ${token}`,
         });
 
@@ -75,7 +75,7 @@ export const ProjectProvider = ({ children }) => {
     const remove = async (id) => {
         const token = localStorage.getItem("accessToken");
 
-        const data = await apiCall(`/api/projects/${id}`, "DELETE", null, {
+        const data = await apiCall(`/api/project/${id}`, "DELETE", null, {
             Authorization: `Bearer ${token}`,
         });
 

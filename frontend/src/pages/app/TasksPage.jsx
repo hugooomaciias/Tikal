@@ -189,7 +189,7 @@ export const TasksPage = () => {
         const formattedProject = {
             ...newProject,
             stages: [],
-            logo: newProject.logoUrl || newProject.logo,
+            logo: newProject.logo,
         };
 
         setLocalTasksData((prev) => [...prev, formattedProject]);
@@ -206,7 +206,7 @@ export const TasksPage = () => {
                     return {
                         ...updatedProject,
                         stages: project.stages,
-                        logo: updatedProject.logoUrl || updatedProject.logo,
+                        logo: updatedProject.logo,
                     };
                 }
                 return project;
@@ -290,6 +290,163 @@ export const TasksPage = () => {
         }
     };
 
+    const handleTaskCreated = (newTask) => {
+        setLocalTasksData((prev) =>
+            prev.map((project) => {
+                if (project.id === selectedProjectId) {
+                    return {
+                        ...project,
+                        stages: project.stages.map((stage) => {
+                            if (stage.id === selectedStageId) {
+                                // Calculamos el número de subtareas del objeto que viene del backend
+                                const subtasks = newTask.subtasks || [];
+                                const formattedNewTask = {
+                                    ...newTask,
+                                    subtasks: subtasks,
+                                    numberOfSubTask: subtasks.length, // Actualización local del contador
+                                };
+
+                                return {
+                                    ...stage,
+                                    tasks: [...(stage.tasks || []), formattedNewTask],
+                                };
+                            }
+                            return stage;
+                        }),
+                    };
+                }
+                return project;
+            }),
+        );
+    };
+
+    const handleTaskUpdated = (updatedTask) => {
+        setLocalTasksData((prev) =>
+            prev.map((project) => {
+                if (project.id === selectedProjectId) {
+                    return {
+                        ...project,
+                        stages: project.stages.map((stage) => {
+                            if (stage.id === selectedStageId) {
+                                return {
+                                    ...stage,
+                                    tasks: stage.tasks.map((task) => {
+                                        if (task.id === updatedTask.id) {
+                                            // Al actualizar, priorizamos las subtareas que vengan del backend,
+                                            // si no vienen, usamos las que ya teníamos localmente.
+                                            const subtasks = updatedTask.subtasks || task.subtasks || [];
+
+                                            return {
+                                                ...task,
+                                                ...updatedTask,
+                                                subtasks: subtasks,
+                                                numberOfSubTask: subtasks.length, // Actualización local del contador
+                                            };
+                                        }
+                                        return task;
+                                    }),
+                                };
+                            }
+                            return stage;
+                        }),
+                    };
+                }
+                return project;
+            }),
+        );
+    };
+
+    const handleTaskDeleted = (deletedTaskId) => {
+        setLocalTasksData((prev) =>
+            prev.map((project) => {
+                // 1. Buscamos el proyecto seleccionado
+                if (project.id === selectedProjectId) {
+                    return {
+                        ...project,
+                        stages: project.stages.map((stage) => {
+                            // 2. Buscamos la fase seleccionada
+                            if (stage.id === selectedStageId) {
+                                return {
+                                    ...stage,
+                                    // 3. Filtramos el array de tareas para quitar la que coincida con el ID
+                                    tasks: stage.tasks.filter((task) => task.id !== deletedTaskId),
+                                };
+                            }
+                            return stage;
+                        }),
+                    };
+                }
+                return project;
+            }),
+        );
+    };
+
+    const handleSubtaskUpdated = (parentId, updatedSubtask) => {
+        setLocalTasksData((prev) =>
+            prev.map((project) => {
+                if (project.id === selectedProjectId) {
+                    return {
+                        ...project,
+                        stages: project.stages.map((stage) => {
+                            if (stage.id === selectedStageId) {
+                                return {
+                                    ...stage,
+                                    tasks: stage.tasks.map((task) => {
+                                        if (task.id === parentId) {
+                                            return {
+                                                ...task,
+                                                subtasks: task.subtasks.map((sub) =>
+                                                    sub.id === updatedSubtask.id ? updatedSubtask : sub,
+                                                ),
+                                            };
+                                        }
+                                        return task;
+                                    }),
+                                };
+                            }
+                            return stage;
+                        }),
+                    };
+                }
+                return project;
+            }),
+        );
+    };
+
+    const handleSubtaskDeleted = (parentId, deletedSubtaskId) => {
+        setLocalTasksData((prev) =>
+            prev.map((project) => {
+                if (project.id === selectedProjectId) {
+                    return {
+                        ...project,
+                        stages: project.stages.map((stage) => {
+                            if (stage.id === selectedStageId) {
+                                return {
+                                    ...stage,
+                                    tasks: stage.tasks.map((task) => {
+                                        if (task.id === parentId) {
+                                            const updatedSubtasks = task.subtasks.filter(
+                                                (sub) => sub.id !== deletedSubtaskId,
+                                            );
+                                            return {
+                                                ...task,
+                                                subtasks: updatedSubtasks,
+                                                numberOfSubTask: updatedSubtasks.length, // Actualizamos el contador
+                                            };
+                                        }
+                                        return task;
+                                    }),
+                                };
+                            }
+                            return stage;
+                        }),
+                    };
+                }
+                return project;
+            }),
+        );
+    };
+
     // --- 6. Render ---
 
     if (!isDataLoaded) {
@@ -346,9 +503,16 @@ export const TasksPage = () => {
                     >
                         <TasksCardComponent
                             data={selectedStage ? selectedStage.tasks : []}
-                            stageColor={selectedStage?.colour || tailwindColors.primary[500]}
+                            projectId={selectedProjectId}
+                            stageId={selectedStageId}
                             isCompletedFilter={isCompleted}
                             handleBackNavigation={handleBackNavigation}
+                            stageName={selectedStage?.name}
+                            onTaskCreated={handleTaskCreated}
+                            onTaskUpdated={handleTaskUpdated}
+                            onTaskDeleted={handleTaskDeleted}
+                            onSubtaskDeleted={handleSubtaskDeleted}
+                            onSubtaskUpdated={handleSubtaskUpdated}
                             t={t}
                         />
                     </div>

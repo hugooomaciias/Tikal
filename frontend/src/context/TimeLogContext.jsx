@@ -6,6 +6,7 @@ import { Outlet } from "react-router-dom";
 
 /** Components & Layouts */
 import { ConfirmTimeLogComponent } from "../components/app/common/ConfirmTimeLogComponent.jsx";
+import { ConfirmSwitchTaskComponent } from "../components/app/common/ConfirmSwitchTaskComponent.jsx";
 
 /** Config, Constants & Utils */
 import { API_BASE_URL } from "../constants/api.js";
@@ -118,6 +119,19 @@ export const TimeLogProvider = ({ children }) => {
      */
     const [activityDescription, setActivityDescription] = useState("");
 
+    const [pendingSwitchTask, setPendingSwitchTask] = useState(null);
+
+    const cancelSwitchTask = () => setPendingSwitchTask(null);
+
+    const confirmSwitchTask = async () => {
+        if (pendingSwitchTask) {
+            const { projectId, stageId, taskId, colour, logo, name } = pendingSwitchTask;
+
+            await setActiveTask(projectId, stageId, taskId, colour, logo, name, "", true);
+            setPendingSwitchTask(null);
+        }
+    };
+
     // --- 2. Initialization & Effects ---
 
     /**
@@ -143,10 +157,9 @@ export const TimeLogProvider = ({ children }) => {
             }
 
             // Normalizes the backend string ID into a usable React Icon component
-            if (data.projectLogoIcon) {
-                const projectLogoIcon = data.projectLogoIcon;
-                const iconObj = PROJECTS_ICONS.find((i) => i.id === projectLogoIcon);
-                setProjectIcon(() => (iconObj ? iconObj.component : IconDatabase));
+            if (data.logo) {
+                const logo = PROJECTS_ICONS.find((i) => i.id === data.logo);
+                setProjectIcon(() => (logo ? logo.component : IconDatabase));
             }
 
             setHasInitialized(true);
@@ -249,6 +262,7 @@ export const TimeLogProvider = ({ children }) => {
      * @returns {Promise<void>} Resolves when the toggle operation (and any potential saving) completes.
      */
     const toggleTimer = async () => {
+        console.log(isActive);
         if (isActive) {
             const now = new Date();
             setEndTime(now);
@@ -272,7 +286,7 @@ export const TimeLogProvider = ({ children }) => {
      * @returns {void}
      */
     const stopTimer = () => {
-        if (isActive) {
+        if (secs > 0) {
             setEndTime(new Date());
             setIsActive(false);
             setActivityDescription("");
@@ -280,6 +294,9 @@ export const TimeLogProvider = ({ children }) => {
         } else {
             setStartTime(null);
             setSecs(0);
+            setTaskId(null);
+            setStageId(null);
+            setProjectId(null);
         }
     };
 
@@ -298,6 +315,10 @@ export const TimeLogProvider = ({ children }) => {
         setStartTime(null);
         setSecs(0);
         setEndTime(null);
+
+        setTaskId(null);
+        setStageId(null);
+        setProjectId(null);
     };
 
     /**
@@ -354,11 +375,24 @@ export const TimeLogProvider = ({ children }) => {
         newProjectId,
         newStageId,
         newTaskId,
-        colorHex,
+        colour,
         IconComp,
         newTaskName,
         newSubTaskName,
+        force = false,
     ) => {
+        if (!force && taskId && secs > 0) {
+            setPendingSwitchTask({
+                projectId: newProjectId,
+                stageId: newStageId,
+                taskId: newTaskId,
+                name: newTaskName,
+                colour: colour,
+                logo: IconComp,
+            });
+            return;
+        }
+
         if (isActive) {
             const now = new Date();
             await saveTimeLog("", now);
@@ -367,7 +401,7 @@ export const TimeLogProvider = ({ children }) => {
         setProjectId(newProjectId);
         setStageId(newStageId);
         setTaskId(newTaskId);
-        setActiveColorId(colorHex);
+        setActiveColorId(colour);
         setProjectIcon(() => IconComp);
         setTaskName(newTaskName);
         setSubTaskName(newSubTaskName || "");
@@ -398,6 +432,10 @@ export const TimeLogProvider = ({ children }) => {
                 toggleTimer,
                 getParsedTime,
                 setActiveTask,
+                pendingSwitchTask,
+                setPendingSwitchTask,
+                confirmSwitchTask,
+                cancelSwitchTask,
             }}
         >
             {children}
@@ -413,6 +451,17 @@ export const TimeLogProvider = ({ children }) => {
                 colorId={activeColorId}
                 projectIcon={projectIcon}
             />
+
+            {pendingSwitchTask && (
+                <ConfirmSwitchTaskComponent
+                    pendingSwitchTask={pendingSwitchTask}
+                    taskName={taskName}
+                    projectIcon={projectIcon}
+                    activeColorId={activeColorId}
+                    cancelSwitchTask={cancelSwitchTask}
+                    confirmSwitchTask={confirmSwitchTask}
+                />
+            )}
         </TimeLogContext.Provider>
     );
 };

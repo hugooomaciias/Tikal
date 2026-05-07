@@ -1,9 +1,19 @@
 /** React & Third-Party Libraries */
 import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
+
+/** Contexts, Hooks & Services */
+import { useContextMenu } from "../../../hooks/useContextMenu.js";
+import { useTask } from "../../../hooks/useTask.js";
+import { useTimeLog } from "../../../hooks/useTimeLog.js";
 
 /** Components & Layouts */
 import { TaskPopUpComponent } from "./TaskPopUpComponent.jsx";
 import { ScrollingText } from "../common/ScrollingText";
+import { ContextMenuComponent } from "../common/ContextMenuComponent.jsx";
+import { RenameComponent } from "../common/RenameComponent.jsx";
+import { DeleteComponent } from "../common/DeleteComponent.jsx";
+import { SwipeableEntityItemComponent } from "./common/SwipeableEntityItemComponent.jsx";
 
 /** Icons */
 import {
@@ -13,14 +23,23 @@ import {
     IconNote,
     IconCirclePlusFilled,
     IconPlayerPlayFilled,
+    IconPlayerPauseFilled,
+    IconPlayerStopFilled,
+    IconEditFilled,
     IconPencilFilled,
     IconCircleChevronLeftFilled,
+    IconDatabase,
+    IconWriting,
+    IconWritingFilled,
+    IconTrash,
+    IconTrashFilled,
 } from "@tabler/icons-react";
 
 /** Assets, Utils & Constants */
+import { PROJECTS_ICONS } from "../../../constants/projects_icons.js";
+import { PHASE_COLOURS } from "../../../constants/phase_colours.js";
 import tailwindConfig from "../../../../tailwind.config.js";
 import resolveConfig from "tailwindcss/resolveConfig";
-import { PHASE_COLOURS } from "../../../constants/phase_colours.js";
 
 /**
  * Tailwind Configuration Resolver
@@ -47,8 +66,36 @@ const tailwindColors = fullConfig.theme.colors;
  * @param {Function} props.t - Translation function from i18next.
  * @returns {JSX.Element|null} The rendered tasks card.
  */
-export const TasksCardComponent = ({ data, stageColor, isCompletedFilter, handleBackNavigation, t }) => {
+export const TasksCardComponent = ({
+    data,
+    projectId,
+    stageId,
+    isCompletedFilter,
+    handleBackNavigation,
+    stageName,
+    onTaskCreated,
+    onTaskUpdated,
+    onTaskDeleted,
+    onSubtaskDeleted,
+    onSubtaskUpdated,
+    t,
+}) => {
     // --- 2. Local State ---
+
+    const { remove, update, toggleCompletion } = useTask();
+
+    const {
+        setActiveTask,
+        secs,
+        isActive: isGlobalTimerActive,
+        taskId: activeGlobalTaskId,
+        toggleTimer,
+        stopTimer,
+    } = useTimeLog();
+
+    const { contextMenuRef, contextMenuState, contextMenuActions } = useContextMenu((data) => {
+        setTaskToEdit(data);
+    });
 
     /**
      * Local Tasks State
@@ -97,15 +144,6 @@ export const TasksCardComponent = ({ data, stageColor, isCompletedFilter, handle
     // --- 3. Derived Variables ---
 
     /**
-     * Stage Theme Color
-     *
-     * Computes the hexadecimal color value associated with the current stage.
-     * Defaults to the primary theme color if the specific stage color is not found.
-     */
-    const foundColor = PHASE_COLOURS.find((c) => c.id === stageColor);
-    const color = foundColor ? foundColor.hex : tailwindColors.primary["DEFAULT"];
-
-    /**
      * Filtered Tasks Array
      *
      * Computes the subset of tasks that match the active search query and the completion filter.
@@ -144,7 +182,7 @@ export const TasksCardComponent = ({ data, stageColor, isCompletedFilter, handle
      */
     useEffect(() => {
         setLocalTasks(data);
-    }, [data]);
+    }, [stageId, data.length, data]);
 
     // --- 5. Event Handlers & Functions ---
 
@@ -157,9 +195,36 @@ export const TasksCardComponent = ({ data, stageColor, isCompletedFilter, handle
      * @param {number} taskId - The ID of the task to toggle.
      * @returns {void}
      */
-    const toggleTaskCompletion = (taskId) => {
+    const toggleTaskCompletion = (entity, parentId = null) => {
         setLocalTasks((prev) =>
-            prev.map((task) => (task.id === taskId ? { ...task, isCompleted: !task.isCompleted } : task)),
+            prev.map((task) => {
+                // CASO A: Estamos completando la TAREA PADRE
+                if (!parentId && task.id === entity.id) {
+                    const newStatus = !task.isCompleted;
+                    return {
+                        ...task,
+                        isCompleted: newStatus,
+                        // Si completas el padre, completas todas las subtareas
+                        subtasks: (task.subtasks || []).map((sub) => ({
+                            ...sub,
+                            isCompleted: newStatus,
+                        })),
+                    };
+                }
+
+                // CASO B: Estamos completando una SUBTAREA
+                if (parentId && task.id === parentId) {
+                    return {
+                        ...task,
+                        subtasks: (task.subtasks || []).map((sub) =>
+                            // Comparamos el ID de la subtarea que clicamos
+                            String(sub.id) === String(entity.id) ? { ...sub, isCompleted: !sub.isCompleted } : sub,
+                        ),
+                    };
+                }
+
+                return task;
+            }),
         );
     };
 
@@ -195,9 +260,30 @@ export const TasksCardComponent = ({ data, stageColor, isCompletedFilter, handle
      * @param {string|number} taskId - The ID of the task.
      * @returns {Function} Event handler.
      */
-    const handleToggleCompletion = (taskId) => () => {
-        toggleTaskCompletion(taskId);
-    };
+    const handleToggleCompletion =
+        (entity, parentId = null) =>
+        async () => {
+            toggleTaskCompletion(entity, parentId);
+            try {
+                await toggleCompletion(entity.id);
+
+                if (parentId) {
+                    // Buscamos la tarea padre en el estado local para tener la versión actualizada de la subtarea
+                    const updatedParent = localTasks.find((t) => t.id === parentId);
+                    const updatedSub = updatedParent?.subtasks.find((s) => s.id === entity.id);
+                    if (updatedSub && onSubtaskUpdated) {
+                        onSubtaskUpdated(parentId, { ...updatedSub, isCompleted: !entity.isCompleted });
+                    }
+                } else {
+                    if (onTaskUpdated) {
+                        onTaskUpdated({ ...entity, isCompleted: !entity.isCompleted });
+                    }
+                }
+            } catch (error) {
+                console.error("Error al completar la tarea:", error);
+                toggleTaskCompletion(entity, parentId);
+            }
+        };
 
     /**
      * Active Task Toggle Factory
@@ -213,20 +299,6 @@ export const TasksCardComponent = ({ data, stageColor, isCompletedFilter, handle
     };
 
     /**
-     * Tooltip Toggle Factory
-     *
-     * Computes a specific handler for toggling the visibility of a task's description tooltip.
-     *
-     * @param {string|number} taskId - The ID of the clicked task.
-     * @param {boolean} isTooltipOpen - Whether the tooltip is currently open.
-     * @returns {Function} Event handler.
-     */
-    const handleTooltipToggle = (taskId, isTooltipOpen) => (e) => {
-        e.stopPropagation();
-        setOpenTooltipId(isTooltipOpen ? null : taskId);
-    };
-
-    /**
      * Button Mouse Enter Handler
      *
      * Triggers dynamic inline style updates on hover for action buttons, using the stage theme color.
@@ -234,9 +306,14 @@ export const TasksCardComponent = ({ data, stageColor, isCompletedFilter, handle
      * @param {React.MouseEvent<HTMLDivElement>} e - The mouse event.
      * @returns {void}
      */
-    const handleButtonMouseEnter = (e) => {
-        e.currentTarget.style.backgroundColor = color;
-        e.currentTarget.style.color = tailwindColors.primary["DEFAULT"];
+    const handleButtonMouseEnter = (e, colour, colourDark, isSubtaskActive) => {
+        if (isSubtaskActive) {
+            e.currentTarget.style.backgroundColor = colourDark;
+            e.currentTarget.style.color = tailwindColors.primary["DEFAULT"];
+        } else {
+            e.currentTarget.style.backgroundColor = colour;
+            e.currentTarget.style.color = tailwindColors.primary["DEFAULT"];
+        }
     };
 
     /**
@@ -247,9 +324,14 @@ export const TasksCardComponent = ({ data, stageColor, isCompletedFilter, handle
      * @param {React.MouseEvent<HTMLDivElement>} e - The mouse event.
      * @returns {void}
      */
-    const handleButtonMouseLeave = (e) => {
-        e.currentTarget.style.backgroundColor = `${color}10`;
-        e.currentTarget.style.color = color;
+    const handleButtonMouseLeave = (e, colour, colourDark, isSubtaskActive) => {
+        if (isSubtaskActive) {
+            e.currentTarget.style.backgroundColor = `${colourDark}10`;
+            e.currentTarget.style.color = colourDark;
+        } else {
+            e.currentTarget.style.backgroundColor = `${colour}10`;
+            e.currentTarget.style.color = colour;
+        }
     };
 
     /**
@@ -284,6 +366,100 @@ export const TasksCardComponent = ({ data, stageColor, isCompletedFilter, handle
      */
     const handleClosePopUp = () => {
         setTaskToEdit(null);
+    };
+
+    const handleToggleTooltip = (e, stage, isTooltipOpen) => {
+        e.stopPropagation();
+        const rect = e.currentTarget.getBoundingClientRect();
+
+        if (isTooltipOpen) {
+            setOpenTooltipId(null);
+        } else {
+            setOpenTooltipId({
+                id: stage.id,
+                description: stage.description,
+                rect: rect,
+            });
+        }
+    };
+
+    const handleMouseEnterTooltip = (e, project) => {
+        if (window.innerWidth >= 768) {
+            const rect = e.currentTarget.getBoundingClientRect();
+            setOpenTooltipId({
+                id: project.id,
+                description: project.description,
+                rect: rect,
+            });
+        }
+    };
+
+    const handleMouseLeaveTooltip = () => {
+        if (window.innerWidth >= 768) {
+            setOpenTooltipId(null);
+        }
+    };
+
+    const handlePlayTask = (task) => (e) => {
+        e.stopPropagation();
+        const isThisTaskCurrentlyActive = String(activeGlobalTaskId) === String(task.id);
+
+        if (isThisTaskCurrentlyActive) {
+            toggleTimer();
+        } else {
+            const iconIdentifier = task.logo;
+            const iconObj = PROJECTS_ICONS.find((i) => i.id === iconIdentifier || i.component?.name === iconIdentifier);
+            const IconComp = iconObj ? iconObj.component : IconDatabase;
+
+            setActiveTask(projectId, stageId, task.id, task.colour, IconComp, task.name, stageName);
+        }
+    };
+
+    const handleStopTask = (e) => {
+        e.stopPropagation();
+        stopTimer();
+    };
+
+    const handleDeleteTask = async (id) => {
+        try {
+            await remove(id);
+
+            if (onTaskDeleted) {
+                onTaskDeleted(id);
+            }
+        } catch (error) {
+            console.error("Error al borrar el proyecto:", error);
+        }
+    };
+
+    const handleUpdateTask = async (id, data, parentId = null) => {
+        try {
+            const updatedEntity = await update(id, data);
+
+            if (parentId) {
+                if (onSubtaskUpdated) {
+                    onSubtaskUpdated(parentId, updatedEntity);
+                }
+            } else {
+                if (onTaskUpdated) {
+                    onTaskUpdated(updatedEntity);
+                }
+            }
+        } catch (error) {
+            console.error("Error al actualizar la entidad:", error);
+        }
+    };
+
+    const handleDeleteSubtask = async (parentId, subtaskId) => {
+        try {
+            await remove(subtaskId);
+
+            if (onSubtaskDeleted) {
+                onSubtaskDeleted(parentId, subtaskId);
+            }
+        } catch (error) {
+            console.error("Error al borrar la tarea:", error);
+        }
     };
 
     // --- 6. Render ---
@@ -328,6 +504,7 @@ export const TasksCardComponent = ({ data, stageColor, isCompletedFilter, handle
                 <div className="h-fit w-full flex flex-1 flex-col gap-3 overflow-y-auto custom-scrollbar">
                     {filteredTasks.length > 0 ? (
                         filteredTasks.map((task) => {
+                            const colour = PHASE_COLOURS.find((c) => c.id === task.colour);
                             /** Indicates if the current task row is expanded. */
                             const isActive = activeTaskId === task.id;
                             /** Indicates if the task has an attached description. */
@@ -337,132 +514,276 @@ export const TasksCardComponent = ({ data, stageColor, isCompletedFilter, handle
                             /** Indicates if the tooltip for this specific task is open. */
                             const isTooltipOpen = openTooltipId === task.id;
 
-                            return (
-                                <div
-                                    key={task.id}
-                                    className={`relative ${isTooltipOpen ? "z-50" : "z-10 hover:z-40"} h-fit w-full flex flex-col ${hasSubtasks && isActive ? "bg-primary-200 py-3" : "bg-transparent"} ${task.isCompleted ? "opacity-40" : "opacity-100"} px-3 rounded-3xl transition-all duration-300`}
-                                >
-                                    {/* Individual Task Card */}
-                                    {/* Task Row (Check, Title, Actions) */}
-                                    <div className="w-full flex flex-1 gap-4 min-w-0">
-                                        {/* Completion Checkbox Button */}
-                                        <button
-                                            onClick={handleToggleCompletion(task.id)}
-                                            className={`h-7 w-7 flex items-center justify-center p-[0.20rem] ${hasSubtasks && isActive ? "" : "mt-1"} rounded-full`}
-                                            style={{
-                                                backgroundColor: color,
-                                            }}
-                                        >
-                                            <IconCircleCheckFilled
-                                                className={`h-full text-primary ${task.isCompleted ? "" : "opacity-0"} z-50`}
-                                            />
-                                        </button>
+                            const isThisTaskCurrentlyActive =
+                                String(activeGlobalTaskId) === String(task.id) && (secs > 0 || isGlobalTimerActive);
+                            const isThisTaskTimerRunning =
+                                isGlobalTimerActive && String(activeGlobalTaskId) === String(task.id);
 
-                                        {/* Task Title & Metadata */}
-                                        <div
-                                            className="flex-1 flex flex-col cursor-pointer min-w-0"
-                                            onClick={handleActiveTaskToggle(task.id, isActive)}
-                                        >
-                                            <div
-                                                className={`min-w-0 w-full text-xl text-quaternary-700 ${hasSubtasks && isActive ? "text-primary" : "text-quaternary-700"}`}
+                            const isBeingEdited = String(contextMenuState.activeEntityId) === String(task.id);
+
+                            return (
+                                <SwipeableEntityItemComponent
+                                    key={task.id}
+                                    entity={task}
+                                    contextMenuActions={contextMenuActions}
+                                >
+                                    <div
+                                        key={task.id}
+                                        onContextMenu={(e) => contextMenuActions.handleContextMenu(e, task)}
+                                        className={`relative ${isBeingEdited ? "bg-quaternary-50/60" : "bg-transparent"} ${isTooltipOpen ? "z-50" : "z-10 hover:z-40"} h-fit w-full flex flex-col ${hasSubtasks && isActive ? "py-3" : "bg-transparent"} ${task.isCompleted ? "opacity-40" : "opacity-100"} px-3 rounded-3xl transition-all duration-300`}
+                                        style={hasSubtasks && isActive ? { backgroundColor: colour.hex } : {}}
+                                    >
+                                        {/* Individual Task Card */}
+                                        {/* Task Row (Check, Title, Actions) */}
+                                        <div className="w-full flex flex-1 gap-4 min-w-0">
+                                            {/* Completion Checkbox Button */}
+                                            <button
+                                                onClick={handleToggleCompletion(task)}
+                                                className={`h-7 w-7 flex items-center justify-center p-[0.20rem] ${hasSubtasks && isActive ? "" : "mt-1"} rounded-full`}
+                                                style={
+                                                    hasSubtasks && isActive
+                                                        ? { backgroundColor: tailwindColors.primary.DEFAULT }
+                                                        : { backgroundColor: colour.hex }
+                                                }
                                             >
-                                                <ScrollingText text={task.name} />
+                                                <IconCircleCheckFilled
+                                                    className={`h-full ${task.isCompleted ? "" : "opacity-0"} z-50`}
+                                                    style={{ color: colour.alt }}
+                                                />
+                                            </button>
+
+                                            {/* Task Title & Metadata */}
+                                            <div
+                                                className="flex-1 flex flex-col cursor-pointer min-w-0"
+                                                onClick={handleActiveTaskToggle(task.id, isActive)}
+                                            >
+                                                <div
+                                                    className={`min-w-0 w-full text-xl ${hasSubtasks && isActive ? "" : "text-quaternary-700"}`}
+                                                    style={hasSubtasks && isActive ? { color: colour.text } : {}}
+                                                >
+                                                    <ScrollingText text={task.name} />
+                                                </div>
+
+                                                {(!isActive || (isActive && !hasSubtasks)) && (
+                                                    <div className="flex items-center gap-2 text-xs text-quaternary-400">
+                                                        {/* Task Subtasks & Note Info */}
+                                                        <span>
+                                                            {task.numberOfSubTask || t("tasks.no_subtasks")}{" "}
+                                                            {t("tasks.subtasks")}
+                                                        </span>
+
+                                                        {hasNote && (
+                                                            <div
+                                                                className="relative group flex items-center justify-center shrink-0"
+                                                                onMouseEnter={(e) => handleMouseEnterTooltip(e, task)}
+                                                                onMouseLeave={handleMouseLeaveTooltip}
+                                                                onClick={(e) => {
+                                                                    if (window.innerWidth < 768) {
+                                                                        handleToggleTooltip(e, task, isTooltipOpen);
+                                                                    } else {
+                                                                        e.stopPropagation();
+                                                                    }
+                                                                }}
+                                                            >
+                                                                <IconNote
+                                                                    className={`h-4 w-4 transition-colors duration-200 text-quaternary-700 ${
+                                                                        isActive && hasSubtasks ? "md:text-primary" : ""
+                                                                    }`}
+                                                                />
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                )}
                                             </div>
 
-                                            {(!isActive || (isActive && !hasSubtasks)) && (
-                                                <div className="flex items-center gap-2 text-xs text-quaternary-400">
-                                                    {/* Task Subtasks & Note Info */}
-                                                    <span>
-                                                        {task.numberOfSubTask || t("tasks.no_subtasks")}{" "}
-                                                        {t("tasks.subtasks")}
-                                                    </span>
-
-                                                    {hasNote && (
-                                                        <div
-                                                            className="relative group flex items-center justify-center shrink-0"
-                                                            onClick={handleTooltipToggle(task.id, isTooltipOpen)}
-                                                        >
-                                                            {/* Description Tooltip Icon */}
-                                                            <IconNote
-                                                                className={`h-4 w-4 transition-colors duration-200 text-quaternary-400 ${
-                                                                    isActive ? "md:text-primary" : ""
-                                                                }`}
-                                                            />
-
-                                                            {/* Expanded Tooltip Content */}
-                                                            <div
-                                                                className={`absolute z-50 w-48 p-2 text-sm font-medium text-primary bg-quaternary-700 rounded-lg shadow-lg pointer-events-none transition-all
-                                                                    right-auto left-1/2 -translate-x-1/2 top-auto bottom-full translate-y-0 mr-0 mb-2
-                                                                    ${isTooltipOpen ? "block" : "hidden md:group-hover:block"}
-                                                                `}
-                                                            >
-                                                                {task.description}
-
-                                                                <div className="absolute left-1/2 -translate-x-1/2 top-full w-0 h-0 border-x-8 border-x-transparent border-t-8 border-t-quaternary-700"></div>
-                                                            </div>
-                                                        </div>
+                                            {/* Row Action Buttons */}
+                                            <div className="flex items-center gap-2">
+                                                {/* Play Action Button */}
+                                                <div
+                                                    className="p-1.5 rounded-full transition-all cursor-pointer"
+                                                    style={
+                                                        isActive && hasSubtasks
+                                                            ? {
+                                                                  backgroundColor: `${colour.alt}10`,
+                                                                  color: colour.alt,
+                                                                  border: `2px solid ${colour.alt}`,
+                                                              }
+                                                            : {
+                                                                  backgroundColor: `${colour.hex}10`,
+                                                                  color: colour.hex,
+                                                                  border: `2px solid ${colour.hex}`,
+                                                              }
+                                                    }
+                                                    onMouseEnter={(e) =>
+                                                        handleButtonMouseEnter(
+                                                            e,
+                                                            colour.hex,
+                                                            colour.alt,
+                                                            isActive && hasSubtasks,
+                                                        )
+                                                    }
+                                                    onMouseLeave={(e) =>
+                                                        handleButtonMouseLeave(
+                                                            e,
+                                                            colour.hex,
+                                                            colour.alt,
+                                                            isActive && hasSubtasks,
+                                                        )
+                                                    }
+                                                    onClick={handlePlayTask(task)}
+                                                >
+                                                    {isThisTaskTimerRunning ? (
+                                                        <IconPlayerPauseFilled
+                                                            className="w-4 h-4"
+                                                            style={{ color: "inherit" }}
+                                                        />
+                                                    ) : (
+                                                        <IconPlayerPlayFilled
+                                                            className="w-4 h-4"
+                                                            style={{ color: "inherit" }}
+                                                        />
                                                     )}
                                                 </div>
-                                            )}
-                                        </div>
 
-                                        {/* Row Action Buttons */}
-                                        <div className="flex items-center gap-2">
-                                            {/* Play Action Button */}
-                                            <div
-                                                className="p-1.5 rounded-full transition-all cursor-pointer"
-                                                style={{
-                                                    backgroundColor: `${color}10`,
-                                                    color: color,
-                                                    border: `2px solid ${color}`,
-                                                }}
-                                                onMouseEnter={handleButtonMouseEnter}
-                                                onMouseLeave={handleButtonMouseLeave}
-                                            >
-                                                <IconPlayerPlayFilled
-                                                    className="w-4 h-4"
-                                                    style={{ color: "inherit" }}
-                                                />
-                                            </div>
-                                            {/* Edit Action Button */}
-                                            <div
-                                                onClick={handleEditTask(task)}
-                                                className="p-1.5 rounded-full transition-all cursor-pointer"
-                                                style={{
-                                                    backgroundColor: `${color}10`,
-                                                    color: color,
-                                                    border: `2px solid ${color}`,
-                                                }}
-                                                onMouseEnter={handleButtonMouseEnter}
-                                                onMouseLeave={handleButtonMouseLeave}
-                                            >
-                                                <IconPencilFilled className="w-4 h-4" style={{ color: "inherit" }} />
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    {/* Subtasks Expanded View */}
-                                    {isActive && hasSubtasks && (
-                                        <div className="w-full mt-4 pl-11 flex flex-col gap-2 border-l-2 border-primary-300 ml-3">
-                                            {task.subtasks.map((sub, idx) => (
-                                                <div
-                                                    key={idx}
-                                                    className="flex items-center justify-between text-sm text-primary/80"
-                                                >
-                                                    <div className="flex items-center gap-2">
-                                                        <div className="w-1.5 h-1.5 bg-secondary-500 rounded-full" />
-                                                        <span>{sub.name || sub}</span>
+                                                {/* Edit Action Button */}
+                                                {isThisTaskCurrentlyActive ? (
+                                                    <div
+                                                        onClick={handleStopTask}
+                                                        className="p-1.5 rounded-full transition-all cursor-pointer"
+                                                        style={
+                                                            isActive && hasSubtasks
+                                                                ? {
+                                                                      backgroundColor: `${colour.alt}10`,
+                                                                      color: colour.alt,
+                                                                      border: `2px solid ${colour.alt}`,
+                                                                  }
+                                                                : {
+                                                                      backgroundColor: `${colour.hex}10`,
+                                                                      color: colour.hex,
+                                                                      border: `2px solid ${colour.hex}`,
+                                                                  }
+                                                        }
+                                                        onMouseEnter={(e) =>
+                                                            handleButtonMouseEnter(
+                                                                e,
+                                                                colour.hex,
+                                                                colour.alt,
+                                                                isActive && hasSubtasks,
+                                                            )
+                                                        }
+                                                        onMouseLeave={(e) =>
+                                                            handleButtonMouseLeave(
+                                                                e,
+                                                                colour.hex,
+                                                                colour.alt,
+                                                                isActive && hasSubtasks,
+                                                            )
+                                                        }
+                                                    >
+                                                        <IconPlayerStopFilled
+                                                            className="w-4 h-4"
+                                                            style={{ color: "inherit" }}
+                                                        />
                                                     </div>
-                                                </div>
-                                            ))}
-                                            {hasNote && (
-                                                <div className="mt-2 p-3 bg-white/50 rounded-xl text-xs text-quaternary-600 italic">
-                                                    {task.description}
-                                                </div>
-                                            )}
+                                                ) : (
+                                                    <div
+                                                        onClick={handleEditTask(task)}
+                                                        className="p-1.5 rounded-full transition-all cursor-pointer"
+                                                        style={
+                                                            isActive && hasSubtasks
+                                                                ? {
+                                                                      backgroundColor: `${colour.alt}10`,
+                                                                      color: colour.alt,
+                                                                      border: `2px solid ${colour.alt}`,
+                                                                  }
+                                                                : {
+                                                                      backgroundColor: `${colour.hex}10`,
+                                                                      color: colour.hex,
+                                                                      border: `2px solid ${colour.hex}`,
+                                                                  }
+                                                        }
+                                                        onMouseEnter={(e) =>
+                                                            handleButtonMouseEnter(
+                                                                e,
+                                                                colour.hex,
+                                                                colour.alt,
+                                                                isActive && hasSubtasks,
+                                                            )
+                                                        }
+                                                        onMouseLeave={(e) =>
+                                                            handleButtonMouseLeave(
+                                                                e,
+                                                                colour.hex,
+                                                                colour.alt,
+                                                                isActive && hasSubtasks,
+                                                            )
+                                                        }
+                                                    >
+                                                        <IconEditFilled
+                                                            className="w-4 h-4"
+                                                            style={{ color: "inherit" }}
+                                                        />
+                                                    </div>
+                                                )}
+                                            </div>
                                         </div>
-                                    )}
-                                </div>
+
+                                        {/* Subtasks Expanded View */}
+                                        {isActive && hasSubtasks && (
+                                            <div className="w-full mt-2 pl-6 flex flex-col gap-2">
+                                                {task.subtasks.map((sub, idx) => (
+                                                    <div
+                                                        key={idx}
+                                                        className="w-full flex items-center justify-between text-sm"
+                                                        style={{ color: colour.text }}
+                                                    >
+                                                        <div className="flex items-center gap-2 flex-1 min-w-0">
+                                                            <button
+                                                                onClick={handleToggleCompletion(sub, task.id)}
+                                                                className={`h-5 w-5 flex items-center justify-center p-[0.20rem] rounded-full`}
+                                                                style={{ backgroundColor: colour.alt }}
+                                                            >
+                                                                <IconCircleCheckFilled
+                                                                    className={`h-full text-primary ${task.isCompleted ? "" : "opacity-0"} z-50`}
+                                                                />
+                                                            </button>
+                                                            <span>{sub.name || sub}</span>
+                                                        </div>
+
+                                                        <div className="flex items-center gap-2 ml-4">
+                                                            {/* Play Action Button */}
+                                                            <button
+                                                                onClick={() =>
+                                                                    contextMenuActions.handleActionRename({
+                                                                        ...sub,
+                                                                        colour: task.colour,
+                                                                        logo: task.logo,
+                                                                        parentId: task.id,
+                                                                    })
+                                                                }
+                                                                className="flex items-center"
+                                                                style={{ color: colour.alt }}
+                                                            >
+                                                                {/* Hover Active Icon */}
+                                                                <IconWritingFilled className="w-6 h-6" stroke={1.5} />
+                                                            </button>
+
+                                                            {/* Edit Action Button */}
+                                                            <button
+                                                                onClick={() => handleDeleteSubtask(task.id, sub.id)}
+                                                                className="flex items-center"
+                                                                style={{ color: colour.alt }}
+                                                            >
+                                                                {/* Hover Active Icon */}
+                                                                <IconTrashFilled className="w-6 h-6" stroke={1.5} />
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
+                                    </div>
+                                </SwipeableEntityItemComponent>
                             );
                         })
                     ) : (
@@ -495,9 +816,62 @@ export const TasksCardComponent = ({ data, stageColor, isCompletedFilter, handle
                 <TaskPopUpComponent
                     onClose={handleClosePopUp}
                     initialData={taskToEdit === "new" ? null : taskToEdit}
+                    stageId={stageId}
+                    onTaskCreated={onTaskCreated}
+                    onTaskUpdated={onTaskUpdated}
                     t={t}
                 />
             )}
+
+            {contextMenuState.contextMenu.visible && (
+                <ContextMenuComponent
+                    contextMenuRef={contextMenuRef}
+                    contextMenuState={contextMenuState}
+                    contextMenuActions={contextMenuActions}
+                />
+            )}
+
+            {contextMenuState.entityToRename && (
+                <RenameComponent
+                    onClose={() => contextMenuActions.setEntityToRename(null)}
+                    data={contextMenuState.entityToRename}
+                    onRename={(id, data) => {
+                        const pId =
+                            contextMenuState.entityToRename.parentId ||
+                            contextMenuState.entityToRename.originalEntity?.parentId;
+
+                        handleUpdateTask(id, data, pId);
+                    }}
+                    t={t}
+                />
+            )}
+
+            {contextMenuState.entityToDelete && (
+                <DeleteComponent
+                    onClose={() => contextMenuActions.setEntityToDelete(null)}
+                    data={contextMenuState.entityToDelete}
+                    onDelete={handleDeleteTask}
+                />
+            )}
+
+            {openTooltipId &&
+                typeof document !== "undefined" &&
+                createPortal(
+                    <div
+                        className="fixed z-[9999] w-48 p-2 text-sm font-medium text-primary bg-quaternary-700 rounded-lg shadow-xl pointer-events-none transition-all animate-fade-in-up"
+                        style={{
+                            top: openTooltipId.rect.top - 8,
+                            left: openTooltipId.rect.left + openTooltipId.rect.width / 2,
+                            transform: "translate(-50%, -100%)",
+                        }}
+                    >
+                        {openTooltipId.description}
+
+                        {/* Flecha inferior del tooltip */}
+                        <div className="absolute left-1/2 -translate-x-1/2 top-full w-0 h-0 border-x-8 border-x-transparent border-t-8 border-t-quaternary-700"></div>
+                    </div>,
+                    document.body,
+                )}
         </>
     );
 };

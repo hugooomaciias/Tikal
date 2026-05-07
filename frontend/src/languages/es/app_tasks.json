@@ -124,6 +124,10 @@
                 "add_subtask": "Añadir subtarea"
             },
             "button": {
+                "loading": {
+                    "new": "Creando tarea",
+                    "edit": "Guardando cambios"
+                },
                 "new": "Crear tarea",
                 "edit": "Guardar cambios"
             },

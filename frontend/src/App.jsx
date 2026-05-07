@@ -8,6 +8,7 @@ import { MainProvider } from "./context/MainContext";
 import { TimeLogProvider } from "./context/TimeLogContext";
 import { ProjectProvider } from "./context/ProjectContext.jsx";
 import { StageProvider } from "./context/StageContext.jsx";
+import { TaskProvider } from "./context/TaskContext.jsx";
 
 /** Components & Layouts */
 import { ProtectedRoute } from "./components/security/ProtectedRoute.jsx";
@@ -77,14 +78,16 @@ function App() {
 
                             <Route element={<ProjectProvider />}>
                                 <Route element={<StageProvider />}>
-                                    <Route
-                                        path="/tasks"
-                                        element={
-                                            <ProtectedRoute>
-                                                <TasksPage />
-                                            </ProtectedRoute>
-                                        }
-                                    />
+                                    <Route element={<TaskProvider />}>
+                                        <Route
+                                            path="/tasks"
+                                            element={
+                                                <ProtectedRoute>
+                                                    <TasksPage />
+                                                </ProtectedRoute>
+                                            }
+                                        />
+                                    </Route>
                                 </Route>
                             </Route>
 

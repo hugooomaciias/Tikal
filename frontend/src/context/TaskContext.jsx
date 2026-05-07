@@ -83,6 +83,16 @@ export const TaskProvider = ({ children }) => {
         return data;
     };
 
+    const toggleCompletion = async (id) => {
+        const token = localStorage.getItem("accessToken");
+
+        const data = await apiCall(`/api/task/${id}/toggle-status`, "PATCH", null, {
+            Authorization: `Bearer ${token}`,
+        });
+
+        return data;
+    };
+
     // --- 4. Context Provider ---
 
     return (
@@ -91,6 +101,7 @@ export const TaskProvider = ({ children }) => {
                 create,
                 update,
                 remove,
+                toggleCompletion,
             }}
         >
             {children}

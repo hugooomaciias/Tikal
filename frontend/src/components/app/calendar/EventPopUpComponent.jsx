@@ -100,7 +100,7 @@ export const EventPopUpComponent = ({ onClose, initialData, cascadingOptions = [
         linkId: initialData?.linkId || "",
         linkType: initialData?.linkType || "",
         autoTracker: initialData?.autoTracker || false,
-        color: initialData?.color?.id || PHASE_COLOURS[0].id,
+        color: initialData?.color || PHASE_COLOURS[0].id,
         initDate: initialData?.date ? initialData.date : new Date().toISOString(),
         endDate: initialData?.date ? initialData.date : new Date().toISOString(),
         startTime: initialData?.startTime ? initialData.startTime : "10:00",

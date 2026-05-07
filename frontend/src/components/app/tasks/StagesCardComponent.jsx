@@ -1,5 +1,6 @@
 /** React & Third-Party Libraries */
 import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 
 /** Contexts, Hooks & Services */
 import { useContextMenu } from "../../../hooks/useContextMenu.js";
@@ -173,22 +174,6 @@ export const StagesCardComponent = ({
     };
 
     /**
-     * Tooltip Toggle Handler
-     *
-     * Toggles the display of a stage's description note. Stops event propagation
-     * to prevent triggering the stage selection.
-     *
-     * @param {React.MouseEvent} e - The mouse click event.
-     * @param {string|number} stageId - The ID of the stage whose tooltip was clicked.
-     * @param {boolean} isTooltipOpen - Whether the tooltip is currently open.
-     * @returns {void}
-     */
-    const handleToggleTooltip = (e, stageId, isTooltipOpen) => {
-        e.stopPropagation();
-        setOpenTooltipId(isTooltipOpen ? null : stageId);
-    };
-
-    /**
      * Create New Stage Handler
      *
      * Opens the StagePopUpComponent in "new stage" mode.
@@ -211,6 +196,38 @@ export const StagesCardComponent = ({
 
         contextMenuActions.setEntityToRename(null);
         contextMenuActions.setEntityToDelete(null);
+    };
+
+    const handleToggleTooltip = (e, stage, isTooltipOpen) => {
+        e.stopPropagation();
+        const rect = e.currentTarget.getBoundingClientRect();
+
+        if (isTooltipOpen) {
+            setOpenTooltipId(null);
+        } else {
+            setOpenTooltipId({
+                id: stage.id,
+                description: stage.description,
+                rect: rect,
+            });
+        }
+    };
+
+    const handleMouseEnterTooltip = (e, project) => {
+        if (window.innerWidth >= 768) {
+            const rect = e.currentTarget.getBoundingClientRect();
+            setOpenTooltipId({
+                id: project.id,
+                description: project.description,
+                rect: rect,
+            });
+        }
+    };
+
+    const handleMouseLeaveTooltip = () => {
+        if (window.innerWidth >= 768) {
+            setOpenTooltipId(null);
+        }
     };
 
     // --- 6. Render ---
@@ -258,9 +275,9 @@ export const StagesCardComponent = ({
                         filteredStages.map((stage) => {
                             const isActive = selectedId === stage.id;
                             const hasNote = stage.description && stage.description !== "";
-                            const foundColor = PHASE_COLOURS.find((c) => c.id === stage.colour);
-                            const color = foundColor ? foundColor.hex : tailwindColors.primary[600];
+                            const colour = PHASE_COLOURS.find((c) => c.id === stage.colour);
                             const isTooltipOpen = openTooltipId === stage.id;
+                            const isBeingEdited = String(contextMenuState.activeEntityId) === String(stage.id);
 
                             return (
                                 <SwipeableEntityItemComponent
@@ -273,10 +290,10 @@ export const StagesCardComponent = ({
                                         onClick={() => onSelect(stage.id)}
                                         onDoubleClick={() => setStageToEdit(stage)}
                                         onContextMenu={(e) => contextMenuActions.handleContextMenu(e, stage)}
-                                        style={{ "--stage-color": color }}
+                                        style={{ "--stage-color": colour.hex }}
                                         className={`flex items-center justify-between bg-transparent p-3 rounded-full transition-all duration-200 cursor-pointer ${
                                             isActive ? "md:bg-[var(--stage-color)]" : ""
-                                        }`}
+                                        } ${isBeingEdited ? "bg-quaternary-50/60" : "bg-transparent"}`}
                                     >
                                         {/* Stage Color Dot & Title Section */}
                                         <div className="flex items-center gap-4">
@@ -287,9 +304,10 @@ export const StagesCardComponent = ({
                                             ></div>
 
                                             <div
-                                                className={`min-w-0 w-full text-xl text-quaternary-700 ${
-                                                    isActive ? "md:text-primary" : ""
-                                                }`}
+                                                className="min-w-0 w-full text-xl"
+                                                style={{
+                                                    color: isActive ? colour.text : tailwindColors.quaternary[700],
+                                                }}
                                             >
                                                 <ScrollingText text={stage.name} />
                                             </div>
@@ -299,30 +317,22 @@ export const StagesCardComponent = ({
                                         {hasNote && (
                                             <div
                                                 className="relative group flex items-center justify-center shrink-0 ml-3"
-                                                onClick={(e) => handleToggleTooltip(e, stage.id, isTooltipOpen)}
+                                                onMouseEnter={(e) => handleMouseEnterTooltip(e, stage)}
+                                                onMouseLeave={handleMouseLeaveTooltip}
+                                                onClick={(e) => {
+                                                    if (window.innerWidth < 768) {
+                                                        handleToggleTooltip(e, stage, isTooltipOpen);
+                                                    } else {
+                                                        e.stopPropagation();
+                                                    }
+                                                }}
                                             >
                                                 <IconNote
-                                                    className={`h-5 w-5 transition-colors duration-200 text-quaternary-700 ${
-                                                        isActive ? "md:text-primary" : ""
-                                                    }`}
+                                                    className="h-5 w-5 transition-colors duration-200"
+                                                    style={{
+                                                        color: isActive ? colour.text : tailwindColors.quaternary[700],
+                                                    }}
                                                 />
-
-                                                {/* Tooltip Content Container */}
-                                                <div
-                                                    className={`absolute z-50 w-48 p-2 text-sm font-medium text-primary bg-quaternary-700 rounded-lg shadow-lg pointer-events-none transition-all
-                                                    right-full top-1/2 -translate-y-1/2 mr-3
-                                                    md:right-auto md:left-1/2 md:-translate-x-1/2 md:top-auto md:bottom-full md:translate-y-0 md:mr-0 md:mb-2
-                                                    ${isTooltipOpen ? "block" : "hidden md:group-hover:block"}
-                                                `}
-                                                >
-                                                    {stage.description}
-
-                                                    {/* Mobile Tooltip Arrow (Points Right) */}
-                                                    <div className="absolute md:hidden left-full top-1/2 -translate-y-1/2 w-0 h-0 border-y-8 border-y-transparent border-l-8 border-l-quaternary-700"></div>
-
-                                                    {/* Desktop Tooltip Arrow (Points Down) */}
-                                                    <div className="hidden md:block absolute left-1/2 -translate-x-1/2 top-full w-0 h-0 border-x-8 border-x-transparent border-t-8 border-t-quaternary-700"></div>
-                                                </div>
                                             </div>
                                         )}
                                     </div>
@@ -392,6 +402,25 @@ export const StagesCardComponent = ({
                     onDelete={handleDeleteStage}
                 />
             )}
+
+            {openTooltipId &&
+                typeof document !== "undefined" &&
+                createPortal(
+                    <div
+                        className="fixed z-[9999] w-48 p-2 text-sm font-medium text-primary bg-quaternary-700 rounded-lg shadow-xl pointer-events-none transition-all animate-fade-in-up"
+                        style={{
+                            top: openTooltipId.rect.top - 8,
+                            left: openTooltipId.rect.left + openTooltipId.rect.width / 2,
+                            transform: "translate(-50%, -100%)",
+                        }}
+                    >
+                        {openTooltipId.description}
+
+                        {/* Flecha inferior del tooltip */}
+                        <div className="absolute left-1/2 -translate-x-1/2 top-full w-0 h-0 border-x-8 border-x-transparent border-t-8 border-t-quaternary-700"></div>
+                    </div>,
+                    document.body,
+                )}
         </>
     );
 };

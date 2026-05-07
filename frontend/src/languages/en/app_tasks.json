@@ -124,6 +124,10 @@
                 "add_subtask": "Add subtask"
             },
             "button": {
+                "loading": {
+                    "new": "Creating task",
+                    "edit": "Saving changes"
+                },
                 "new": "Create task",
                 "edit": "Save changes"
             },
