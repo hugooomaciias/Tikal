@@ -2,6 +2,7 @@ package com.tikal.api.service;
 
 import com.tikal.api.model.dto.calendar.*;
 import com.tikal.api.model.entity.*;
+import com.tikal.api.model.entity.enumerated.EventType;
 import com.tikal.api.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -83,6 +84,7 @@ public class CalendarEventService {
             Stage stage = stageRepository.findById(request.getStageId())
                     .orElseThrow(() -> new RuntimeException("No existe la fase con el id que se ha buscado"));
             event.setStage(stage);
+            event.setCustomColour(stage.getColour());
         }
 
         if (request.getTaskId() != null) {
@@ -134,10 +136,22 @@ public class CalendarEventService {
         event.setEndDateTime(request.getEndDateTime());
         event.setIsActivateTracker(request.getIsActivateTracker() != null ? request.getIsActivateTracker() : false);
         event.setCustomColour(request.getCustomColour());
-        event.setEventType(request.getEventType());
+        event.setEventType(request.getEventType() != null ? request.getEventType() : EventType.GENERAL);
     }
 
     private CalendarEventDTO toDto(CalendarEvent event) {
+
+        String idLinkedEntity = null;
+        if (event.getProject() != null && event.getProject().getId() != null) {
+            idLinkedEntity = "p_" + event.getProject().getId();
+        }
+        if (event.getStage() != null && event.getStage().getId() != null) {
+            idLinkedEntity = "f_" + event.getStage().getId();
+        }
+        if (event.getTask() != null && event.getTask().getId() != null) {
+            idLinkedEntity = "t_" + event.getTask().getId();
+        }
+
         return CalendarEventDTO.builder()
                 .id(event.getId())
                 .name(event.getName())
@@ -145,7 +159,10 @@ public class CalendarEventService {
                 .initDateTime(event.getInitDateTime())
                 .endDateTime(event.getEndDateTime())
                 .isActivateTracker(event.getIsActivateTracker())
-                .colour(event.getStage() != null ? event.getStage().getColour() : null)
+                .colour(event.getCustomColour())
+                .eventType(event.getEventType())
+                .logo(event.getProject() != null ? event.getProject().getLogoUrl() : null)
+                .linkedEntity(idLinkedEntity)
                 .build();
     }
 }

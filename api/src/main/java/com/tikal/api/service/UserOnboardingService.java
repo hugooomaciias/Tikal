@@ -1,9 +1,7 @@
 package com.tikal.api.service;
 
 import com.tikal.api.model.entity.*;
-import com.tikal.api.model.entity.enumerated.SupportedLanguages;
-import com.tikal.api.model.entity.enumerated.ThemeSetting;
-import com.tikal.api.model.entity.enumerated.TimeRangeSetting;
+import com.tikal.api.model.entity.enumerated.*;
 import com.tikal.api.model.entity.metadata.LayoutsDashboardMetadata;
 import com.tikal.api.model.entity.metadata.NotificationSettingsMetadata;
 import com.tikal.api.model.entity.metadata.WidgetPreferencesMetadata;
@@ -11,16 +9,19 @@ import com.tikal.api.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+
 @Service
 public class UserOnboardingService {
 
+    @Autowired private CalendarEventRepository calendarEventRepository;
     @Autowired private UserSettingsRepository settingsRepository;
     @Autowired private ProjectRepository projectRepository;
     @Autowired private StageRepository stageRepository;
     @Autowired private TaskRepository taskRepository;
 
     /**
-     * Este método se llama justo después de guardar al nuevo usuario en BD.
+     * This method is called just after to save a new user
      */
     public void readyNewAccount(User newUser) {
         createDefaultSettings(newUser);
@@ -62,36 +63,132 @@ public class UserOnboardingService {
     }
 
     private void generateSampleData(User user) {
-        Project welcomeProject = new Project();
-        welcomeProject.setName("Proyecto de prueba");
-        welcomeProject.setDescription("Proyecto de ejemplo para aprender a usar la plataforma");
-        welcomeProject.setUserOwner(user);
-        welcomeProject.setLogoUrl("IconBook");
-        welcomeProject.setIsGroupBased(false);
-        welcomeProject = projectRepository.save(welcomeProject);
+        LocalDateTime now = LocalDateTime.now();
 
-        Stage stage1 = new Stage();
-        stage1.setName("Fase 1 de ejemplo");
-        stage1.setProject(welcomeProject);
-        stage1.setColour("g4");
-        stage1 = stageRepository.save(stage1);
+        // ==========================================
+        // 1. TUTORIAL PROJECT
+        // ==========================================
+        Project tutorialProject = new Project();
+        tutorialProject.setName("Campamento Base (Tutorial)");
+        tutorialProject.setDescription("Sigue estas tareas para dominar Tikal en 3 minutos.");
+        tutorialProject.setUserOwner(user);
+        tutorialProject.setLogoUrl("IconFlag");
+        tutorialProject.setIsGroupBased(false);
+        tutorialProject.setProjectType(ProjectType.PROJECT);
+        tutorialProject = projectRepository.save(tutorialProject);
+
+        Stage stageTodo = new Stage();
+        stageTodo.setName("Por descubrir");
+        stageTodo.setProject(tutorialProject);
+        stageTodo.setColour("b3");
+        stageTodo = stageRepository.save(stageTodo);
 
         Stage stage2 = new Stage();
-        stage2.setName("Fase 2 de ejemplo");
-        stage2.setProject(welcomeProject);
-        stage2.setColour("y5");
+        stage2.setName("Prueba a añadir alguna tarea");
+        stage2.setProject(tutorialProject);
+        stage2.setColour("y2");
         stage2 = stageRepository.save(stage2);
 
+        // Task 1: show the subtasks
         Task task1 = new Task();
-        task1.setName("Explorar el Dashboard Solar");
-        task1.setStage(stage1);
+        task1.setName("Descubre el poder de las subtareas");
+        task1.setDescription("Haz clic en la tarea para ver cómo funciona.");
+        task1.setStage(stageTodo);
         task1.setAssignedUser(user);
+
+        Task subtask1 = new Task();
+        subtask1.setName("Crear mi primer proyecto propio");
+        subtask1.setStage(stageTodo);
+        subtask1.setAssignedUser(user);
+        subtask1.setParentTask(task1);
+
+        Task subtask2 = new Task();
+        subtask2.setName("Invitar a un amigo al equipo");
+        subtask2.setStage(stageTodo);
+        subtask2.setAssignedUser(user);
+        subtask2.setParentTask(task1);
+
+        task1.getSubtasks().add(subtask1);
+        task1.getSubtasks().add(subtask2);
         taskRepository.save(task1);
 
+        // Task 2: show in the calendar and deadlines
         Task task2 = new Task();
-        task2.setName("Configurar mi perfil y avatar");
-        task2.setStage(stage2);
+        task2.setName("Revisar mi calendario de Tikal");
+        task2.setDescription("Esta tarea tiene una fecha límite y se ha añadido a tu calendario automáticamente.");
+        task2.setStage(stageTodo);
         task2.setAssignedUser(user);
-        taskRepository.save(task2);
+        task2.setDeadline(now.plusDays(1).withHour(18).withMinute(0));
+        task2 = taskRepository.save(task2);
+
+        // -> We create the deadline event for the task
+        CalendarEvent calendarEvent = new CalendarEvent();
+        calendarEvent.setName("Entrega Tarea: " + task2.getName());
+        calendarEvent.setInitDateTime(task2.getDeadline().minusHours(1));
+        calendarEvent.setEndDateTime(task2.getDeadline());
+        calendarEvent.setEventType(EventType.DEADLINE);
+        calendarEvent.setUser(user);
+        calendarEvent.setProject(tutorialProject);
+        calendarEvent.setStage(stageTodo);
+        calendarEvent.setTask(task2);
+        calendarEventRepository.save(calendarEvent);
+
+        // Task 3: completed task for the visual feedback
+        Task task3 = new Task();
+        task3.setName("Registrarme en Tikal");
+        task3.setStage(stage2);
+        task3.setAssignedUser(user);
+        task3.setIsCompleted(true);
+        task3.setCompletionDate(now);
+        taskRepository.save(task3);
+
+
+        // ==========================================
+        // 2. Example List
+        // ==========================================
+        Project personalList = new Project();
+        personalList.setName("Vida Personal");
+        personalList.setDescription("Un espacio para tus recados y notas.");
+        personalList.setUserOwner(user);
+        personalList.setLogoUrl("IconHome");
+        personalList.setIsGroupBased(false);
+        personalList.setProjectType(ProjectType.LIST);
+        personalList = projectRepository.save(personalList);
+
+        Stage sublist1 = new Stage();
+        sublist1.setName("Trámites");
+        sublist1.setProject(personalList);
+        sublist1.setColour("y2");
+        sublist1 = stageRepository.save(sublist1);
+
+        Stage sublist2 = new Stage();
+        sublist2.setName("Lista de la compra");
+        sublist2.setProject(personalList);
+        sublist2.setColour("b2");
+        sublist2 = stageRepository.save(sublist2);
+
+        Task listTask1 = new Task();
+        listTask1.setName("Renovar el DNI");
+        listTask1.setStage(sublist1);
+        listTask1.setAssignedUser(user);
+        taskRepository.save(listTask1);
+
+        Task listTask2 = new Task();
+        listTask1.setName("Tomate");
+        listTask1.setStage(sublist2);
+        listTask1.setAssignedUser(user);
+        taskRepository.save(listTask2);
+
+        Task listTask3 = new Task();
+        listTask1.setName("Leche");
+        listTask1.setStage(sublist2);
+        listTask1.setAssignedUser(user);
+        taskRepository.save(listTask3);
+
+        Task listTask4 = new Task();
+        listTask1.setName("Pan");
+        listTask1.setStage(sublist2);
+        listTask1.setAssignedUser(user);
+        taskRepository.save(listTask4);
     }
 }

@@ -1,6 +1,7 @@
 package com.tikal.api.service;
 
 import com.tikal.api.model.dto.UserSettingsDTO;
+import com.tikal.api.model.dto.calendar.CalendarEventDTO;
 import com.tikal.api.model.dto.sync.WorkspaceSyncDTO;
 import com.tikal.api.model.dto.sync.WorkspaceSyncDTO.*;
 import com.tikal.api.model.dto.sync.domain.ProjectSyncDTO;
@@ -231,7 +232,7 @@ public class DashboardService {
                 .collect(Collectors.toList());
     }
 
-    private List<CalendarEventSyncDTO> buildCalendarEvents(Integer userId) {
+    private List<CalendarEventDTO> buildCalendarEvents(Integer userId) {
         LocalDateTime now = LocalDateTime.now();
 
         // First day of the previous month
@@ -245,7 +246,7 @@ public class DashboardService {
         // Map entity to DTO
         return eventsInWindow.stream().map(event -> {
             // Linked entity logic
-            String eventColor = event.getCustomColour();
+            String eventColour = event.getCustomColour();
             String eventLogo = null;
             String idLinkedEntity = null;
 
@@ -253,11 +254,11 @@ public class DashboardService {
             if (event.getProject() != null && event.getProject().getId() != null) {
                 eventLogo = event.getProject().getLogoUrl();
             }
-            if (eventColor == null && event.getStage() != null) {
-                eventColor = event.getStage().getColour();
+            if (eventColour == null && event.getStage() != null) {
+                eventColour = event.getStage().getColour();
             }
-            if (eventColor == null) {
-                eventColor = "g2";
+            if (eventColour == null) {
+                eventColour = "g2";
             }
 
             // Linked entity id logic
@@ -271,15 +272,17 @@ public class DashboardService {
                 idLinkedEntity = "t_" + event.getTask().getId();
             }
 
-            return WorkspaceSyncDTO.CalendarEventSyncDTO.builder()
+            return CalendarEventDTO.builder()
                     .id(event.getId())
                     .logo(eventLogo)
                     .linkedEntity(idLinkedEntity)
-                    .title(event.getName())
+                    .name(event.getName())
                     .description(event.getDescription())
-                    .startDate(event.getInitDateTime())
-                    .endDate(event.getEndDateTime())
-                    .colour(eventColor)
+                    .initDateTime(event.getInitDateTime())
+                    .endDateTime(event.getEndDateTime())
+                    .colour(eventColour)
+                    .eventType(event.getEventType())
+                    .isActivateTracker(event.getIsActivateTracker())
                     .build();
 
         }).collect(Collectors.toList());
