@@ -85,49 +85,93 @@ public class WidgetBuilderService {
     }
 
     private WidgetData buildTimeTracker(Integer userId) {
-        Task targetTask = null;
-        TimeLog lastLog = timeLogRepository.findFirstByUser_IdAndTaskIsNotNullOrderByInitDateTimeDesc(userId);
+        // CASE 1: There is an active time batch (Play or Pause)
+        List<TimeLog> uncompletedLogs = timeLogRepository.findByUserIdAndIsCompletedFalse(userId);
 
-        if (lastLog != null) {
-            targetTask = lastLog.getTask();
-        } else {
-            targetTask = taskRepository.findFirstByAssignedUser_Id(userId);
-        }
+        if (!uncompletedLogs.isEmpty()) {
+            long accumulatedSeconds = 0;
+            TimeLog runningLog = null;
+            TimeLog referenceLog = uncompletedLogs.get(0);
 
-        if (targetTask == null) {
+            for (TimeLog log : uncompletedLogs) {
+                if (log.getEndDateTime() != null) {
+                    accumulatedSeconds += java.time.Duration.between(log.getInitDateTime(), log.getEndDateTime()).getSeconds();
+                } else {
+                    runningLog = log;
+                }
+            }
+
             return TimeTrackerWidgetData.builder()
-                    .taskId(0)
-                    .taskName("Bienvenido a Tikal")
-                    .subtaskName("Registra tu primera tarea")
+                    .taskId(referenceLog.getTask() != null ? referenceLog.getTask().getId() : null)
+                    .stageId(referenceLog.getStage() != null ? referenceLog.getStage().getId() : null)
+                    .projectId(referenceLog.getProject() != null ? referenceLog.getProject().getId() : null)
+                    .entityName(extractName(referenceLog))
+                    .colour(extractColor(referenceLog))
+                    .logo(extractLogo(referenceLog))
+                    .initDateTime(runningLog != null ? runningLog.getInitDateTime() : null)
+                    .accumulatedSeconds(accumulatedSeconds)
                     .build();
         }
 
-        String parentName = null;
-        String parentColor = "#FFFFFF";
-        String projectLogo = null;
-        String subtaskName = null;
+        // CASE 2: Nothing is active. We use the most recent completed record as a suggestion
+        Optional<TimeLog> optLastLog = timeLogRepository.findFirstByUser_IdAndTaskIsNotNullOrderByInitDateTimeDesc(userId);
 
-        if (targetTask.getStage() != null) {
-            if (targetTask.getParentTask() != null) {
-                parentName = targetTask.getParentTask().getName();
-                subtaskName = targetTask.getName();
-            } else {
-                parentName = targetTask.getName();
-            }
-            parentColor = targetTask.getStage().getColour();
-
-            if (targetTask.getStage().getProject() != null) {
-                projectLogo = targetTask.getStage().getProject().getLogoUrl();
-            }
+        if (optLastLog.isPresent()) {
+            TimeLog lastLog = optLastLog.get();
+            return TimeTrackerWidgetData.builder()
+                    .taskId(lastLog.getTask() != null ? lastLog.getTask().getId() : null)
+                    .stageId(lastLog.getStage() != null ? lastLog.getStage().getId() : null)
+                    .projectId(lastLog.getProject() != null ? lastLog.getProject().getId() : null)
+                    .entityName(extractName(lastLog))
+                    .colour(extractColor(lastLog))
+                    .logo(extractLogo(lastLog))
+                    .initDateTime(null) // Everything is null to tell the front that the tracker is stopped
+                    .accumulatedSeconds(0L)
+                    .build();
         }
 
+        // CASE 3: A completely new user with no history. We are looking for any tasks they have
+        Task fallbackTask = taskRepository.findFirstByAssignedUser_Id(userId);
+
+        if (fallbackTask != null) {
+            return TimeTrackerWidgetData.builder()
+                    .taskId(fallbackTask.getId())
+                    .entityName(fallbackTask.getName())
+                    .colour(fallbackTask.getStage() != null ? fallbackTask.getStage().getColour() : null)
+                    .logo(fallbackTask.getStage() != null && fallbackTask.getStage().getProject() != null ? fallbackTask.getStage().getProject().getLogoUrl() : "default")
+                    .initDateTime(null)
+                    .accumulatedSeconds(0L)
+                    .build();
+        }
+
+        // CASE 4: Empty database
         return TimeTrackerWidgetData.builder()
-                .taskId(targetTask.getId())
-                .taskName(parentName)
-                .subtaskName(subtaskName)
-                .parentColor(parentColor)
-                .logo(projectLogo)
+                .entityName("Bienvenido a Tikal")
+                .colour(null)
+                .logo("IconCompass")
+                .initDateTime(null)
+                .accumulatedSeconds(0L)
                 .build();
+    }
+
+    private String extractColor(TimeLog log) {
+        if (log.getStage() != null) return log.getStage().getColour();
+        if (log.getTask() != null && log.getTask().getStage() != null) return log.getTask().getStage().getColour();
+        return "g2";
+    }
+
+    private String extractLogo(TimeLog log) {
+        if (log.getProject() != null) return log.getProject().getLogoUrl();
+        if (log.getStage() != null) return log.getStage().getProject().getLogoUrl();
+        if (log.getTask() != null) return log.getTask().getStage().getProject().getLogoUrl();
+        return null;
+    }
+
+    private String extractName(TimeLog log) {
+        if (log.getTask() != null) return log.getTask().getName();
+        if (log.getStage() != null) return log.getStage().getName();
+        if (log.getProject() != null) return log.getProject().getName();
+        return "Actividad Desconocida";
     }
 
     private WidgetData buildTempleModeWidget(Integer userId, UserSettings settings) {

@@ -1,4 +1,4 @@
-package com.tikal.api.model.dto;
+package com.tikal.api.model.dto.timer;
 
 import lombok.Builder;
 import lombok.Data;
@@ -13,6 +13,7 @@ public class TimeLogRequest {
     private Integer targetTime;
     private Boolean isTempleMode;
     private String activityDescription;
+    private Boolean isCompleted;
     private Integer projectId;
     private Integer stageId;
     private Integer taskId;

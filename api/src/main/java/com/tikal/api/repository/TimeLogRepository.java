@@ -2,6 +2,7 @@ package com.tikal.api.repository;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import com.tikal.api.model.entity.User;
 import org.springframework.data.jpa.repository.Query;
@@ -34,7 +35,7 @@ public interface TimeLogRepository extends JpaRepository<TimeLog, Integer> {
     Integer sumMinutesInTempleModeByUserId(@Param("userId") Integer userId);
 
     /* --- Retrieve the latest time log for the user associated with a task --- */
-    TimeLog findFirstByUser_IdAndTaskIsNotNullOrderByInitDateTimeDesc(Integer userId);
+    Optional<TimeLog> findFirstByUser_IdAndTaskIsNotNullOrderByInitDateTimeDesc(Integer userId);
 
     /* --- Obtain total minutes worked between two dates --- */
     @Query(value = "SELECT SUM(TIMESTAMPDIFF(MINUTE, init_date_time, end_date_time)) " +
@@ -214,5 +215,10 @@ public interface TimeLogRepository extends JpaRepository<TimeLog, Integer> {
             nativeQuery = true)
     Integer getHistoricalTotalMinutes(@Param("userId") Integer userId);
 
+    /* --- Find all the time logs of the user between two dates --- */
     List<TimeLog> findByUserIdAndInitDateTimeBetween(Integer currentUser, LocalDateTime startOfDay, LocalDateTime endOfDay);
+
+    /* --- Obtain the time logs of the last batch --- */
+    @Query("SELECT t FROM TimeLog t WHERE t.isCompleted = false AND t.user.id = :userId")
+    List<TimeLog> findByUserIdAndIsCompletedFalse(@Param("userId") Integer userId);
 }

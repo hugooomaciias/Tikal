@@ -23,7 +23,7 @@ public interface TaskRepository extends JpaRepository<Task, Integer>{
 
     /* --- Obtain main tasks (without a parent) from an assigned user --- */
     @Query("SELECT t FROM Task t " +
-            "WHERE t.assignedUser.id = :userId " +
+            "WHERE t.stage.project.userOwner.id = :userId " +
             "AND t.parentTask IS NULL")
     List<Task> findByAssignedUser_IdWithoutParent(Integer userId);
 
@@ -38,7 +38,7 @@ public interface TaskRepository extends JpaRepository<Task, Integer>{
 
     /* --- Count the number of main tasks completed within a date range --- */
     @Query("SELECT COUNT(t) FROM Task t " +
-            "WHERE t.assignedUser.id = :userId " +
+            "WHERE t.stage.project.userOwner.id = :userId " +
             "AND t.isCompleted = true " +
             "AND t.parentTask IS NULL " +
             "AND t.completionDate >= :startDate AND t.completionDate <= :endDate")
@@ -49,7 +49,7 @@ public interface TaskRepository extends JpaRepository<Task, Integer>{
 
     /* --- Show main tasks (without a parent) that are pending or have been recently completed --- */
     @Query("SELECT t FROM Task t " +
-            "WHERE t.assignedUser.id = :userId " +
+            "WHERE t.stage.project.userOwner.id= :userId " +
             "AND t.parentTask IS NULL " +
             "AND t.deadline IS NOT NULL " +
             "AND (t.isCompleted = false OR (t.isCompleted = true AND t.completionDate >= :since))")
@@ -65,7 +65,7 @@ public interface TaskRepository extends JpaRepository<Task, Integer>{
 
     /* --- Obtain completed parent tasks with a valid time estimate for a specific user since a given date --- */
     @Query("SELECT t FROM Task t " +
-            "WHERE t.assignedUser.id = :userId " +
+            "WHERE t.stage.project.userOwner.id = :userId " +
             "AND t.isCompleted = true " +
             "AND t.estimatedTime IS NOT NULL " +
             "AND t.estimatedTime > 0 " +
@@ -77,7 +77,7 @@ public interface TaskRepository extends JpaRepository<Task, Integer>{
 
     /* --- Obtain the total number of completed parent tasks with a valid time estimate for a specific user since a given date --- */
     @Query("SELECT COUNT(t) FROM Task t " +
-            "WHERE t.assignedUser.id = :userId " +
+            "WHERE t.stage.project.userOwner.id = :userId " +
             "AND t.isCompleted = true " +
             "AND t.estimatedTime IS NOT NULL " +
             "AND t.estimatedTime > 0 " +
@@ -89,7 +89,7 @@ public interface TaskRepository extends JpaRepository<Task, Integer>{
 
     /* --- Obtain the total number of completed parent tasks for a specific user since a given date --- */
     @Query("SELECT COUNT(t) FROM Task t " +
-            "WHERE t.assignedUser.id = :userId " +
+            "WHERE t.stage.project.userOwner.id = :userId " +
             "AND t.isCompleted = true " +
             "AND t.completionDate >= :since " +
             "AND t.parentTask IS NULL")
@@ -109,7 +109,7 @@ public interface TaskRepository extends JpaRepository<Task, Integer>{
             "   ELSE NULL " +
             "END) " +
             "FROM Task t " +
-            "WHERE t.assignedUser.id = :userId " +
+            "WHERE t.stage.project.userOwner.id = :userId " +
             "AND t.isCompleted = true " +
             "AND t.parentTask IS NULL " +
             "AND t.completionDate IS NOT NULL " +
@@ -118,7 +118,12 @@ public interface TaskRepository extends JpaRepository<Task, Integer>{
     List<Object[]> findDailyAverageEffectiveness(@Param("userId") Integer userId);
 
     /* --- Count the user's pending tasks --- */
-    Integer countByAssignedUser_IdAndIsCompletedFalse(Integer userId);
+    @Query("SELECT COUNT(t) FROM Task t " +
+            "WHERE t.stage.project.userOwner.id = :userId " +
+            "AND t.isCompleted = false " +
+            "AND t.parentTask IS NULL " +
+            "AND t.deadline IS NOT NULL")
+    Integer countPendingTasks(@Param("userId")  Integer userId);
 
     /* --- Count the total number of tasks completed by the user --- */
     Integer countByAssignedUser_IdAndIsCompletedTrue(Integer userId);

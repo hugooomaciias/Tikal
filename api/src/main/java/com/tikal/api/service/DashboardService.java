@@ -290,7 +290,7 @@ public class DashboardService {
 
     private List<HeaderInformation> buildHomeHeaders(Integer userId) {
         // 1. Tareas Pendientes
-        Integer pendingTasks = taskRepository.countByAssignedUser_IdAndIsCompletedFalse(userId);
+        Integer pendingTasks = taskRepository.countPendingTasks(userId);
 
         // 2. Minutos trabajados HOY
         LocalDateTime startOfToday = LocalDate.now().atStartOfDay();

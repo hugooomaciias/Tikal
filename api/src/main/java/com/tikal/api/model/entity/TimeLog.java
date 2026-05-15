@@ -18,15 +18,15 @@ import java.time.LocalDateTime;
 @Table(name = "time_logs")
 public class TimeLog {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY) // Auto-increment en MySQL
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
     /* --- Date when you start the time tracker --- */
-    @Column(name = "init_date_time", nullable = false, updatable = false, columnDefinition = "DATETIME")
+    @Column(name = "init_date_time", nullable = false, columnDefinition = "DATETIME")
     private LocalDateTime initDateTime;
 
     /* --- Date when you finish the time tracker --- */
-    @Column(name = "end_date_time", updatable = false, columnDefinition = "DATETIME")
+    @Column(name = "end_date_time", columnDefinition = "DATETIME")
     private LocalDateTime endDateTime;
 
     /* --- Target time for focusing on a Task --- */
@@ -34,7 +34,7 @@ public class TimeLog {
     private Integer targetTime;
 
     /* --- If the Time_Log is in temple mode, this attribute has to be 'True' --- */
-    @Column(name = "is_temple_mode", columnDefinition = "TINYINT(1) DEFAULT 0")
+    @Column(name = "is_temple_mode", nullable = false, columnDefinition = "TINYINT(1) DEFAULT 0")
     private Boolean isTempleMode = false;
 
     /* --- Description of the activity carried out during the focused time --- */
@@ -42,7 +42,7 @@ public class TimeLog {
     private String activityDescription;
 
     /* --- Indicate whether this log has already been closed (Stop) or is still pending (Play/Pause) --- */
-    @Column(name = "is_completed", columnDefinition = "TINYINT(1) DEFAULT 0")
+    @Column(name = "is_completed", nullable = false, columnDefinition = "TINYINT(1) DEFAULT 0")
     private Boolean isCompleted = false;
 
     /* --- User relation ==> Many time logs can be recorded by the same User --- */
