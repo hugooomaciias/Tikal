@@ -24,6 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.UUID;
 
@@ -49,20 +50,27 @@ public class AuthService {
         boolean existsByEmail = userRepository.existsByEmail(request.getEmail());
         boolean existsByName = userRepository.existsByName(request.getName());
         if (existsByName && existsByEmail) {
-            throw new EmailAndNameAlreadyExistsException(request.getEmail(), request.getName());
+            throw new ConflictException(
+                    "El correo electrónico '" + request.getEmail() + "' y el nombre de usuario '"
+                            + request.getName() + "' ya están en uso.", "3. Data conflict");
         }
         if (existsByEmail) {
-            throw new EmailAlreadyExistsException(request.getEmail());
+            throw new ConflictException(
+                    "El email '" + request.getEmail() + "' ya existe en la plataforma", "2. Data conflict");
         }
         if (existsByName) {
-            throw new NameAlreadyExistsException(request.getName());
+            throw new ConflictException(
+                    "El usuario con el nombre '" + request.getName()
+                            + "' ya existe en la plataforma", "1 Data conflict");
         }
 
         SubscriptionPlan plan;
         try {
             plan = SubscriptionPlan.valueOf(request.getSubscriptionPlan().toUpperCase());
         } catch (IllegalArgumentException | NullPointerException e) {
-            throw new InvalidUserPlanException(request.getSubscriptionPlan());
+            throw new BadRequestException("El plan '" + request.getSubscriptionPlan()
+                    + "' no es valido. Los valores permitidos son: "
+                    + Arrays.toString(SubscriptionPlan.values()));
         }
         var user = User.builder()
                 .name(request.getName())
@@ -81,7 +89,8 @@ public class AuthService {
 
     public TokenResponse login(LoginRequest request){
         User user = userRepository.findByEmailOrName(request.getIdentifier(), request.getIdentifier())
-                .orElseThrow(NotFoundUserException::new);
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "No se ha encontrado ningún usuario con esas credenciales"));
 
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
@@ -101,24 +110,25 @@ public class AuthService {
 
     public TokenResponse refreshToken(String authHeader) {
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            throw new IllegalArgumentException("Invalid token format or missing header");
+            throw new UnauthorizedException("Invalid token format or missing header");
         }
 
         final String refreshTokenString = authHeader.substring(7);
         final String userEmail = jwtService.extractUsername(refreshTokenString);
 
         if (userEmail == null) {
-            throw new InvalidTokenException("Invalid refresh token");
+            throw new UnauthorizedException("Invalid refresh token");
         }
 
         User user = userRepository.findByEmail(userEmail)
-                .orElseThrow(NotFoundUserException::new);
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "No se ha encontrado ningún usuario con esas credenciales"));
 
         RefreshToken tokenInDb = tokenRepository.findByToken(refreshTokenString)
-                .orElseThrow(() -> new InvalidTokenException("Refresh token not found in our records"));
+                .orElseThrow(() -> new UnauthorizedException("Refresh token not found in our records"));
 
         if (!jwtService.isTokenValid(refreshTokenString, user.getEmail())) {
-            throw new InvalidTokenException("The refresh token signature is invalid");
+            throw new UnauthorizedException("The refresh token signature is invalid");
         }
 
         var newAccessToken = jwtService.generateToken(user);
@@ -131,11 +141,11 @@ public class AuthService {
 
     public void logout(String refreshToken) {
         if (refreshToken == null || refreshToken.isBlank()) {
-            throw new IllegalArgumentException("Refresh token is required to close session");
+            throw new UnauthorizedException("Refresh token is required to close session");
         }
 
         var storedToken = tokenRepository.findByToken(refreshToken)
-                .orElseThrow(() -> new InvalidTokenException("The token does not exist or has already been deleted"));
+                .orElseThrow(() -> new UnauthorizedException("The token does not exist or has already been deleted"));
 
         tokenRepository.delete(storedToken);
     }
@@ -143,11 +153,11 @@ public class AuthService {
     @Transactional
     public void logoutAll(String refreshToken) {
         if (refreshToken == null || refreshToken.isBlank()) {
-            throw new IllegalArgumentException("Refresh token is required to close all sessions");
+            throw new UnauthorizedException("Refresh token is required to close all sessions");
         }
 
         var storedToken = tokenRepository.findByToken(refreshToken)
-                .orElseThrow(() -> new InvalidTokenException("The token does not exist or has already been deleted"));
+                .orElseThrow(() -> new UnauthorizedException("The token does not exist or has already been deleted"));
 
         User user = storedToken.getUser();
 
@@ -199,7 +209,7 @@ public class AuthService {
         try {
             GoogleIdToken idToken = verifier.verify(idTokenString);
             if (idToken == null) {
-                throw new InvalidTokenException("El token de Google no es válido, ha expirado o está manipulado.");
+                throw new UnauthorizedException("El token de Google no es válido, ha expirado o está manipulado.");
             }
 
             GoogleIdToken.Payload payload = idToken.getPayload();
@@ -214,14 +224,11 @@ public class AuthService {
                 newUser.setSubscriptionPlan(SubscriptionPlan.GRATUITO);
                 newUser.setAvatarUrl(pictureUrl);
 
-                // As you log in with Google, we assign you a random password that is impossible to guess.
-                // This prevents anyone from attempting to log in traditionally without having clicked on ‘I forgot my password’.
                 newUser.setPassword(passwordEncoder.encode(UUID.randomUUID().toString()));
 
                 User savedUser = userRepository.save(newUser);
 
-                // We execute the trigger for dashboards and projects by default.
-                // onboardingService.prepararCuentaNueva(savedUser);
+                userOnboardingService.readyNewAccount(savedUser);
 
                 return savedUser;
             });
@@ -233,7 +240,7 @@ public class AuthService {
 
             return new TokenResponse(accessToken, refreshToken);
         } catch (Exception e) {
-            throw new InvalidTokenException("Error en la autenticación con Google");
+            throw new UnauthorizedException("Error en la autenticación con Google");
         }
     }
 
@@ -250,15 +257,15 @@ public class AuthService {
 
     private PasswordResetOtp validateAndGetOtp(String email, String otpCode) {
         PasswordResetOtp otpEntity = otpRepository.findByUserEmail(email)
-                .orElseThrow(() -> new IllegalOtpException("No se ha solicitado ningún cambio de contraseña para este email."));
+                .orElseThrow(() -> new BadRequestException("No se ha solicitado ningún cambio de contraseña para este email."));
 
         if (!otpEntity.getOtpCode().equals(otpCode)) {
-            throw new WrongOtpException("El código introducido es incorrecto.");
+            throw new BadRequestException("El código introducido es incorrecto.");
         }
 
         if (otpEntity.isExpired()) {
             otpRepository.delete(otpEntity);
-            throw new IllegalOtpException("El código ha caducado. Por favor, solicita uno nuevo.");
+            throw new BadRequestException("El código ha caducado. Por favor, solicita uno nuevo.");
         }
 
         return otpEntity;

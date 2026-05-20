@@ -1,6 +1,6 @@
 package com.tikal.api.config;
 
-import com.tikal.api.exception.InvalidTokenException;
+import com.tikal.api.exception.UnauthorizedException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -47,7 +47,7 @@ public class SecurityConfig {
                                     request,
                                     response,
                                     null,
-                                    new InvalidTokenException("No se proporcionó un token de acceso o el token no es válido.")
+                                    new UnauthorizedException("No se proporcionó un token de acceso o el token no es válido.")
                             );
                         })
                 );

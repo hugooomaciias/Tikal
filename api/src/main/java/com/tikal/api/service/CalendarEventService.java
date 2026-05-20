@@ -1,5 +1,8 @@
 package com.tikal.api.service;
 
+import com.tikal.api.exception.ForbiddenAccessException;
+import com.tikal.api.exception.ResourceNotFoundException;
+import com.tikal.api.exception.UnauthorizedException;
 import com.tikal.api.model.dto.calendar.*;
 import com.tikal.api.model.entity.*;
 import com.tikal.api.model.entity.enumerated.EventType;
@@ -41,19 +44,19 @@ public class CalendarEventService {
         // Linked entities logic
         if (request.getProjectId() != null) {
             Project project = projectRepository.findById(request.getProjectId())
-                    .orElseThrow(() -> new RuntimeException("No existe el proyecto con el id que se ha buscado"));
+                    .orElseThrow(() -> new ResourceNotFoundException("No existe el proyecto con el id que se ha buscado"));
             event.setProject(project);
         }
 
         if (request.getStageId() != null) {
             Stage stage = stageRepository.findById(request.getStageId())
-                    .orElseThrow(() -> new RuntimeException("No existe la fase con el id que se ha buscado"));
+                    .orElseThrow(() -> new ResourceNotFoundException("No existe la fase con el id que se ha buscado"));
             event.setStage(stage);
         }
 
         if (request.getTaskId() != null) {
             Task task = taskRepository.findById(request.getTaskId())
-                    .orElseThrow(() -> new RuntimeException("No existe la fase con el id que se ha buscado"));
+                    .orElseThrow(() -> new ResourceNotFoundException("No existe la fase con el id que se ha buscado"));
             event.setTask(task);
         }
 
@@ -65,10 +68,10 @@ public class CalendarEventService {
     public CalendarEventDTO updateEvent(Integer id, CalendarEventRequest request) {
         User user = userService.getAuthenticatedUser();
         CalendarEvent event = calendarEventRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Evento no encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Evento no encontrado"));
 
         if (!event.getUser().getId().equals(user.getId())) {
-            throw new RuntimeException("No tienes permiso para editar este evento");
+            throw new ForbiddenAccessException("No tienes permiso para editar este evento");
         }
 
         mapRequestToEntity(request, event);
@@ -76,20 +79,20 @@ public class CalendarEventService {
         // Linked entities logic
         if (request.getProjectId() != null) {
             Project project = projectRepository.findById(request.getProjectId())
-                    .orElseThrow(() -> new RuntimeException("No existe el proyecto con el id que se ha buscado"));
+                    .orElseThrow(() -> new ResourceNotFoundException("No existe el proyecto con el id que se ha buscado"));;
             event.setProject(project);
         }
 
         if (request.getStageId() != null) {
             Stage stage = stageRepository.findById(request.getStageId())
-                    .orElseThrow(() -> new RuntimeException("No existe la fase con el id que se ha buscado"));
+                    .orElseThrow(() -> new ResourceNotFoundException("No existe la fase con el id que se ha buscado"));
             event.setStage(stage);
             event.setCustomColour(stage.getColour());
         }
 
         if (request.getTaskId() != null) {
             Task task = taskRepository.findById(request.getTaskId())
-                    .orElseThrow(() -> new RuntimeException("No existe la fase con el id que se ha buscado"));
+                    .orElseThrow(() -> new ResourceNotFoundException("No existe la tarea con el id que se ha buscado"));
             event.setTask(task);
         }
 
@@ -100,10 +103,10 @@ public class CalendarEventService {
     public CalendarEventDTO changeEventTime(Integer id, ChangeTimeRequest request) {
         User user = userService.getAuthenticatedUser();
         CalendarEvent event = calendarEventRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Evento no encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Evento no encontrado"));
 
         if (!event.getUser().getId().equals(user.getId())) {
-            throw new RuntimeException("No tienes permiso");
+            throw new ForbiddenAccessException("No tienes permiso");
         }
 
         event.setInitDateTime(request.getInitDateTime());
@@ -116,10 +119,10 @@ public class CalendarEventService {
     public void deleteEvent(Integer id) {
         User user = userService.getAuthenticatedUser();
         CalendarEvent event = calendarEventRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Evento no encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Evento no encontrado"));;
 
         if (!event.getUser().getId().equals(user.getId())) {
-            throw new RuntimeException("No tienes permiso");
+            throw new ForbiddenAccessException("No tienes permiso");
         }
 
         calendarEventRepository.delete(event);

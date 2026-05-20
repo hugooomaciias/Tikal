@@ -1,6 +1,7 @@
 package com.tikal.api.service;
 
-import com.tikal.api.exception.NotFoundUserException;
+import com.tikal.api.exception.ResourceNotFoundException;
+import com.tikal.api.exception.UnauthorizedException;
 import com.tikal.api.model.dto.UserDTO;
 import com.tikal.api.model.entity.User;
 import com.tikal.api.repository.UserRepository;
@@ -21,12 +22,11 @@ public class UserService {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         if (authentication == null || !authentication.isAuthenticated() || authentication.getPrincipal().equals("anonymousUser")) {
-            throw new RuntimeException("There is no authenticated user in the context.");
+            throw new UnauthorizedException("There is no authenticated user in the context.");
         }
-
         String email = authentication.getName();
 
-        return userRepository.findByEmail(email).orElseThrow(NotFoundUserException::new);
+        return userRepository.findByEmail(email).orElseThrow(() -> new ResourceNotFoundException("No se ha encontrado ningún usuario con esas credenciales"));
     }
 
     /**
@@ -39,7 +39,7 @@ public class UserService {
     public UserDTO getUser(Integer userId){
         var optUser = userRepository.findById(userId);
         if (optUser.isEmpty()){
-            throw new NotFoundUserException();
+            throw new ResourceNotFoundException("No se ha encontrado ningún usuario con esas credenciales");
         }
         var user = optUser.get();
         return getUserDTO(user);

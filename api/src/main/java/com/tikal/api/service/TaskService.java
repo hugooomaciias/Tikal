@@ -1,7 +1,7 @@
 package com.tikal.api.service;
 
-import com.tikal.api.exception.NotFoundTaskException;
-import com.tikal.api.exception.ProjectAccessDeniedException;
+import com.tikal.api.exception.ForbiddenAccessException;
+import com.tikal.api.exception.ResourceNotFoundException;
 import com.tikal.api.model.dto.task.*;
 import com.tikal.api.model.entity.*;
 import com.tikal.api.model.entity.enumerated.EventType;
@@ -28,7 +28,7 @@ public class TaskService {
     public List<TaskDTO> getTasksByStage(Integer stageId) {
         User currentUser = userService.getAuthenticatedUser();
         Stage stage = stageRepository.findById(stageId)
-                .orElseThrow(() -> new RuntimeException("Fase no encontrada"));
+                .orElseThrow(() -> new ResourceNotFoundException("Fase", stageId));
 
         validateTaskPermissions(stage.getProject(), currentUser, "ver");
 
@@ -57,7 +57,7 @@ public class TaskService {
     public TaskDTO createTask(TaskRequest request) {
         User currentUser = userService.getAuthenticatedUser();
         Stage stage = stageRepository.findById(request.getStageId())
-                .orElseThrow(() -> new RuntimeException("Stage no encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Fase", request.getStageId()));
 
         validateTaskPermissions(stage.getProject(), currentUser, "crear");
 
@@ -101,7 +101,7 @@ public class TaskService {
     public void deleteTask(Integer id) {
         User currentUser = userService.getAuthenticatedUser();
         Task task = taskRepository.findById(id)
-                .orElseThrow(() -> new NotFoundTaskException("No existe la tarea que se quiere eliminar"));
+                .orElseThrow(() -> new ResourceNotFoundException("Tarea", id));
 
         validateTaskPermissions(task.getStage().getProject(), currentUser, "borrar");
 
@@ -113,7 +113,7 @@ public class TaskService {
         User currentUser = userService.getAuthenticatedUser();
 
         Task task = taskRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Tarea no encontrada con ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Tarea", id));
 
         validateTaskPermissions(task.getStage().getProject(), currentUser, "actualizar");
 
@@ -177,7 +177,7 @@ public class TaskService {
         User currentUser = userService.getAuthenticatedUser();
 
         Task task = taskRepository.findById(id)
-                .orElseThrow(() -> new NotFoundTaskException("Tarea no encontrada con ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Tarea", id));
 
         validateTaskPermissions(task.getStage().getProject(), currentUser, "actualizar");
 
@@ -220,7 +220,7 @@ public class TaskService {
                         .findByUserIdAndTeamId(user.getId(), project.getTeam().getId())
                         .isPresent();
                 if (!isMember) {
-                    throw new ProjectAccessDeniedException("Debes ser miembro del equipo para ver las tareas.");
+                    throw new ForbiddenAccessException("Debes ser miembro del equipo para ver las tareas.");
                 }
             } else {
                 List<TeamMember> adminMembers = teamMemberRepository.findTeamAdmins(project.getTeam().getId());
@@ -228,12 +228,12 @@ public class TaskService {
                         .anyMatch(member -> member.getUser().getId().equals(user.getId()));
 
                 if (!isCurrentUserAdmin) {
-                    throw new ProjectAccessDeniedException("Solo los administradores del equipo pueden " + action + " tareas.");
+                    throw new ForbiddenAccessException("Solo los administradores del equipo pueden " + action + " tareas.");
                 }
             }
         } else {
             if (project.getUserOwner() == null || !project.getUserOwner().getId().equals(user.getId())) {
-                throw new ProjectAccessDeniedException("No tienes permiso para " + action + " esta tarea.");
+                throw new ForbiddenAccessException("No tienes permiso para " + action + " esta tarea.");
             }
         }
     }

@@ -1,9 +1,6 @@
 package com.tikal.api.service;
 
-import com.tikal.api.exception.NotFoundProjectException;
-import com.tikal.api.exception.NotFoundTeamMemberException;
-import com.tikal.api.exception.ProjectAccessDeniedException;
-import com.tikal.api.exception.TeamBadRequestException;
+import com.tikal.api.exception.*;
 import com.tikal.api.model.dto.task.CreateProjectRequest;
 import com.tikal.api.model.dto.task.ProjectDTO;
 import com.tikal.api.model.dto.task.UpdateProjectRequest;
@@ -80,13 +77,13 @@ public class ProjectService {
         // Team validation for admins
         if (project.getIsGroupBased()) {
             var team = teamRepository.findById(request.getTeamId())
-                    .orElseThrow(() -> new TeamBadRequestException(request.getTeamId().toString()));
+                    .orElseThrow(() -> new BadRequestException(request.getTeamId().toString()));
 
             var teamMember = teamMemberRepository.findByUserIdAndTeamId(currentUser.getId(), team.getId())
-                    .orElseThrow(() -> new NotFoundTeamMemberException(currentUser.getName(), team.getName()));
+                    .orElseThrow(() -> new ResourceNotFoundException("Miembro del equipo", team.getName()));
 
             if (!teamMember.getIsAdmin()) {
-                throw new ProjectAccessDeniedException("No está permitido crear un proyecto nuevo, el usuario no es administrador.");
+                throw new ForbiddenAccessException("No está permitido crear un proyecto nuevo, el usuario no es administrador.");
             }
             project.setTeam(team);
         }
@@ -108,11 +105,11 @@ public class ProjectService {
         User currentUser = userService.getAuthenticatedUser();
 
         Project project = projectRepository.findById(projectId)
-                .orElseThrow(() -> new NotFoundProjectException("Proyecto no encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Proyecto", projectId));
 
         // Security validation
         if (!project.getIsGroupBased() && !project.getUserOwner().getId().equals(currentUser.getId())) {
-            throw new ProjectAccessDeniedException("No tienes permiso para borrar este proyecto.");
+            throw new ForbiddenAccessException("No tienes permiso para borrar este proyecto.");
         }
 
         // Team validation for admins
@@ -121,7 +118,7 @@ public class ProjectService {
             boolean isCurrentUserAdmin = adminMembers.stream()
                     .anyMatch(member -> member.getUser().getId().equals(currentUser.getId()));
             if (!isCurrentUserAdmin) {
-                throw new ProjectAccessDeniedException("Solo los administradores del equipo pueden borrar este proyecto grupal.");
+                throw new ForbiddenAccessException("Solo los administradores del equipo pueden borrar este proyecto grupal.");
             }
         }
 
@@ -133,11 +130,11 @@ public class ProjectService {
         User currentUser = userService.getAuthenticatedUser();
 
         Project project = projectRepository.findById(projectId)
-                .orElseThrow(() -> new NotFoundProjectException("Proyecto no encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Proyecto", projectId));
 
         // Security validation
         if (!project.getIsGroupBased() && !project.getUserOwner().getId().equals(currentUser.getId())) {
-            throw new ProjectAccessDeniedException("No tienes permiso para editar este proyecto.");
+            throw new ForbiddenAccessException("No tienes permiso para editar este proyecto.");
         }
 
         // Team validation for admins
@@ -146,7 +143,7 @@ public class ProjectService {
             boolean isCurrentUserAdmin = adminMembers.stream()
                     .anyMatch(member -> member.getUser().getId().equals(currentUser.getId()));
             if (!isCurrentUserAdmin) {
-                throw new ProjectAccessDeniedException("Solo los administradores del equipo pueden editar este proyecto grupal.");
+                throw new ForbiddenAccessException("Solo los administradores del equipo pueden editar este proyecto grupal.");
             }
         }
 

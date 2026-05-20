@@ -1,8 +1,7 @@
 package com.tikal.api.service;
 
-import com.tikal.api.exception.NotFoundProjectException;
-import com.tikal.api.exception.NotFoundStageException;
-import com.tikal.api.exception.NotFoundUserException;
+import com.tikal.api.exception.BadRequestException;
+import com.tikal.api.exception.ResourceNotFoundException;
 import com.tikal.api.model.dto.sync.widgets.*;
 import com.tikal.api.model.entity.*;
 import com.tikal.api.repository.*;
@@ -175,7 +174,7 @@ public class WidgetBuilderService {
     }
 
     private WidgetData buildTempleModeWidget(Integer userId, UserSettings settings) {
-        User user = userRepository.findById(userId).orElseThrow(NotFoundUserException::new);
+        User user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("No se ha encontrado ningún usuario con esas credenciales"));
         RankList userRank = user.getCurrentRank();
         Integer defaultSession = settings.getFocusSessionMinutes() != null ? settings.getFocusSessionMinutes() : 25;
 
@@ -446,7 +445,8 @@ public class WidgetBuilderService {
         try {
             filter = SolarChartWidgetData.TimeRangeFilter.valueOf(filterParam);
         } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("Invalid filterParam: " + filterParam + ". Allowed values: DAILY, WEEKLY, MONTHLY, GLOBAL, CUSTOM");
+            throw new BadRequestException(
+                    "Invalid filterParam: " + filterParam + ". Allowed values: DAILY, WEEKLY, MONTHLY, GLOBAL, CUSTOM");
         }
 
         LocalDate startDate = null;
@@ -456,7 +456,7 @@ public class WidgetBuilderService {
         if (filter == SolarChartWidgetData.TimeRangeFilter.CUSTOM) {
             // Validate that custom dates are provided
             if (customStart == null || customStart.isEmpty() || customEnd == null || customEnd.isEmpty()) {
-                throw new IllegalArgumentException("Custom date range requires both customStart and customEnd parameters");
+                throw new BadRequestException("Custom date range requires both customStart and customEnd parameters");
             }
 
             // Parse and validate custom dates
@@ -464,12 +464,12 @@ public class WidgetBuilderService {
                 startDate = LocalDate.parse(customStart);
                 endDate = LocalDate.parse(customEnd);
             } catch (DateTimeParseException e) {
-                throw new IllegalArgumentException("Invalid date format. Expected format: YYYY-MM-DD. Provided: start=" + customStart + ", end=" + customEnd, e);
+                throw new BadRequestException("Invalid date format. Expected format: YYYY-MM-DD. Provided: start=" + customStart + ", end=" + customEnd);
             }
 
             // Validate that start date is not after end date
             if (startDate.isAfter(endDate)) {
-                throw new IllegalArgumentException("Start date cannot be after end date: start=" + startDate + ", end=" + endDate);
+                throw new BadRequestException("Start date cannot be after end date: start=" + startDate + ", end=" + endDate);
             }
 
             dateRange = new LocalDateTime[]{
@@ -496,7 +496,7 @@ public class WidgetBuilderService {
         try {
             filter = SolarChartWidgetData.TimeRangeFilter.valueOf(filterParam);
         } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("Invalid filterParam: " + filterParam + ". Allowed values: DAILY, WEEKLY, MONTHLY, GLOBAL, CUSTOM");
+            throw new BadRequestException("Invalid filterParam: " + filterParam + ". Allowed values: DAILY, WEEKLY, MONTHLY, GLOBAL, CUSTOM");
         }
 
         LocalDate startDate = null;
@@ -506,7 +506,7 @@ public class WidgetBuilderService {
         if (filter == SolarChartWidgetData.TimeRangeFilter.CUSTOM) {
             // Validate that custom dates are provided
             if (customStart == null || customStart.isEmpty() || customEnd == null || customEnd.isEmpty()) {
-                throw new IllegalArgumentException("Custom date range requires both customStart and customEnd parameters");
+                throw new BadRequestException("Custom date range requires both customStart and customEnd parameters");
             }
 
             // Parse and validate custom dates
@@ -514,12 +514,12 @@ public class WidgetBuilderService {
                 startDate = LocalDate.parse(customStart);
                 endDate = LocalDate.parse(customEnd);
             } catch (DateTimeParseException e) {
-                throw new IllegalArgumentException("Invalid date format. Expected format: YYYY-MM-DD. Provided: start=" + customStart + ", end=" + customEnd, e);
+                throw new BadRequestException("Invalid date format. Expected format: YYYY-MM-DD. Provided: start=" + customStart + ", end=" + customEnd);
             }
 
             // Validate that start date is not after end date
             if (startDate.isAfter(endDate)) {
-                throw new IllegalArgumentException("Start date cannot be after end date: start=" + startDate + ", end=" + endDate);
+                throw new BadRequestException("Start date cannot be after end date: start=" + startDate + ", end=" + endDate);
             }
 
             dateRange = new LocalDateTime[]{
@@ -596,11 +596,11 @@ public class WidgetBuilderService {
 
         if (layer.trim().equalsIgnoreCase("STAGE")) {
             Project project = projectRepository.findById(parentId)
-                    .orElseThrow(() -> new NotFoundProjectException("El proyecto no existe"));
+                    .orElseThrow(() -> new ResourceNotFoundException("El proyecto no existe"));
             logo = project.getLogoUrl();
         } else if (layer.trim().equalsIgnoreCase("TASK")) {
             Stage stage = stageRepository.findById(parentId)
-                    .orElseThrow(() -> new NotFoundStageException("La fase solicitada no existe"));
+                    .orElseThrow(() -> new ResourceNotFoundException("La fase solicitada no existe"));
             colour = stage.getColour();
             logo = stage.getProject().getLogoUrl();
         }
