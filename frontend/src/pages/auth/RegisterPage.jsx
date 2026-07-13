@@ -1,10 +1,8 @@
 /** React & Third-Party Libraries */
-import React, { useState, useEffect } from "react";
-import { Link, useLocation } from "react-router-dom";
-import { useTranslation } from "react-i18next";
+import { Link } from "react-router-dom";
 
 /** Contexts, Hooks & Services */
-// (None)
+import { useRegisterLogic } from "../../hooks/components/auth/register/useRegisterLogic.js";
 
 /** Components & Layouts */
 import { FormRegisterComponent } from "../../components/auth/FormRegisterComponent.jsx";
@@ -16,103 +14,36 @@ import { IconCircleXFilled } from "@tabler/icons-react";
 import logoHeader from "../../assets/tikal/logoHeader_1.svg";
 
 /**
- * Registration Page Layout
+ * Registration Page Presentational Component
  *
- * This component serves as the dedicated entry point for new user onboarding.
- * It implements a focused, distraction-free layout designed to maximize
- * conversion rates. It acts as a structural wrapper, responsible for the visual
- * presentation while delegating the input logic and validation to the
- * `FormRegisterComponent`.
+ * This component serves as the purely visual entry point for new user onboarding.
+ * It acts strictly as a Headless UI consumer, utilizing a focused, distraction-free
+ * layout designed to maximize conversion rates.
+ *
+ * All complex state management, routing data extraction (e.g., selected plan), API
+ * error handling, and popup animation lifecycles are delegated entirely to its custom
+ * headless hook (`useRegisterLogic`), keeping this file purely declarative.
  *
  * @component
- * @returns {JSX.Element} The rendered registration page layout.
+ * @returns {JSX.Element} The rendered registration page layout and interactive UI sections.
  */
 export const RegisterPage = () => {
-    // --- 1. Hooks & Contexts ---
+    // --- 1. Logic Hook Extraction ---
 
     /**
-     * Translation Hook
+     * Headless Hook Destructuring
      *
-     * Provides the 't' function to localize strings specifically for the
-     * auth namespace.
+     * Injects the localized translations (`t`), strictly typed UI states (API error flags and visibility),
+     * derived routing data (selected subscription plan), and stable interaction handlers
+     * from the logic layer into this presentational layer.
      */
-    const { t } = useTranslation("auth");
+    const { t, registerStates, registerData, registerActions } = useRegisterLogic();
 
-    /**
-     * Router Location Hook
-     *
-     * Accesses the current router state to extract forwarded parameters,
-     * such as the selected subscription plan from the landing page.
-     */
-    const location = useLocation();
+    const { apiError, isVisible } = registerStates;
+    const { plan } = registerData;
+    const { clearApiError, reportApiError } = registerActions;
 
-    // --- 2. Local State ---
-
-    /**
-     * API Error State
-     *
-     * Stores the error message returned by the backend to display an alert.
-     */
-    const [apiError, setApiError] = useState("");
-
-    /**
-     * Popup Visibility State
-     *
-     * Controls the visibility of the error popup for animation purposes.
-     * When true, the popup scales in and becomes fully opaque.
-     */
-    const [isVisible, setIsVisible] = useState(false);
-
-    // --- 3. Derived Variables ---
-
-    /**
-     * Selected Plan
-     *
-     * Derives the plan explicitly requested by the user, defaulting to
-     * "GRATUITO" if none was provided in the routing state.
-     */
-    const plan = location.state?.plan || "GRATUITO";
-
-    // --- 4. Side Effects ---
-
-    /**
-     * Popup Auto-Hide Effect
-     *
-     * Monitors the `apiError` state. When an error is present, it displays
-     * the popup and sets a timeout to automatically close it after 5 seconds.
-     * It cleans up the timeout if the component unmounts or if the error changes.
-     */
-    useEffect(() => {
-        if (apiError) {
-            setIsVisible(true);
-
-            const timer = setTimeout(() => {
-                closePopup();
-            }, 5000);
-
-            return () => clearTimeout(timer);
-        }
-    }, [apiError]);
-
-    // --- 5. Event Handlers & Functions ---
-
-    /**
-     * Closes the Error Popup
-     *
-     * Triggers the exit animation by setting `isVisible` to false, and then
-     * clears the `apiError` message after the animation duration (300ms).
-     *
-     * @function
-     */
-    function closePopup() {
-        setIsVisible(false);
-
-        setTimeout(() => {
-            setApiError("");
-        }, 300);
-    }
-
-    // --- 6. Render ---
+    // --- 2. Render ---
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-primary p-0 md:p-4">
@@ -144,7 +75,12 @@ export const RegisterPage = () => {
 
                 <div className="flex flex-1 flex-col justify-center">
                     {/* Primary Registration Form Integration */}
-                    <FormRegisterComponent apiError={apiError} setApiError={setApiError} plan={plan} t={t} />
+                    <FormRegisterComponent
+                        clearApiError={clearApiError}
+                        reportApiError={reportApiError}
+                        plan={plan}
+                        t={t}
+                    />
 
                     {/* Footer Section: Link to Login */}
                     <div className="text-center mt-8 space-y-2">

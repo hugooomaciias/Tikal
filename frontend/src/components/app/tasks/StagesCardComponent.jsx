@@ -1,10 +1,8 @@
 /** React & Third-Party Libraries */
-import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 
 /** Contexts, Hooks & Services */
-import { useContextMenu } from "../../../hooks/useContextMenu.js";
-import { useStage } from "../../../hooks/useStage.js";
+import { useStagesCardLogic } from "../../../hooks/components/app/tasks/useStagesCardLogic.js";
 
 /** Components & Layouts */
 import { StagePopUpComponent } from "./StagePopUpComponent.jsx";
@@ -21,6 +19,7 @@ import {
     IconNote,
     IconCirclePlusFilled,
     IconCircleChevronLeftFilled,
+    IconCalendarEventFilled,
 } from "@tabler/icons-react";
 
 /** Assets, Utils & Constants */
@@ -40,222 +39,87 @@ const tailwindColors = fullConfig.theme.colors;
 /**
  * Stages Card Component
  *
- * This component renders a sidebar card displaying a list of stages (phases).
- * It provides functionalities to select an active stage, search through
- * existing stages, edit a stage, and create a new stage via a popup.
+ * A purely presentational component that renders the sidebar card displaying the list of stages (phases).
+ * It delegates all of its business logic, local state management, and event handling
+ * to the `useStagesCardLogic` headless hook, ensuring strict separation of UI and logic.
  *
  * @component
  * @param {Object} props - The component props.
  * @param {Array<Object>} props.data - The array of stage objects to display.
+ * @param {string|number} props.projectId - The ID of the parent project.
  * @param {string|number|null} props.selectedId - The ID of the currently active stage.
  * @param {Function} props.onSelect - Callback invoked when a stage is clicked.
  * @param {Function} props.handleBackNavigation - Callback to navigate back on mobile devices.
  * @param {Function} props.t - Translation function from i18next.
  * @returns {JSX.Element|null} The rendered stages card, or null if data is invalid.
  */
-export const StagesCardComponent = ({
-    data,
-    projectId,
-    selectedId,
-    onSelect,
-    handleBackNavigation,
-    onStageCreated,
-    onStageUpdated,
-    onStageDeleted,
-    t,
-}) => {
-    // --- 2. Local State ---
-
-    const { remove, update } = useStage();
-
-    const { contextMenuRef, contextMenuState, contextMenuActions } = useContextMenu((data) => {
-        setStageToEdit(data);
-    });
+export const StagesCardComponent = ({ data, projectId, selectedId, onSelect, handleBackNavigation, formatShortDate, t }) => {
+    // --- 1. Logic Hook Extraction ---
 
     /**
-     * Search Modal State
+     * Stages Card Logic
      *
-     * Toggles the visibility of the search input for filtering stages.
+     * Extracts derived datasets (e.g., filtered arrays), internal UI states (e.g., tooltip/modal visibility, active context menu),
+     * and specific action handlers from the headless hook.
      */
-    const [isStageSearchOpen, setIsStageSearchOpen] = useState(false);
+    const { stagesCardStates, stagesCardData, stagesCardActions } = useStagesCardLogic(projectId, data);
 
-    /**
-     * Search Query State
-     *
-     * Stores the current text used to filter the stages list.
-     */
-    const [stageSearchQuery, setStageSearchQuery] = useState("");
+    const {
+        contextMenuRef,
+        contextMenuStates,
+        contextMenuActions,
+        isStageSearchOpen,
+        stageSearchQuery,
+        stageToEdit,
+        openTooltipId,
+        i18n,
+    } = stagesCardStates;
+    const { filteredStages } = stagesCardData;
+    const {
+        handleDeleteStage,
+        handleUpdateStage,
+        handleToggleSearch,
+        handleCreateNewStage,
+        handleClosePopUp,
+        handleToggleTooltip,
+        handleMouseEnterTooltip,
+        handleMouseLeaveTooltip,
+        handleSearchChange,
+        handleEditStage,
+    } = stagesCardActions;
 
-    /**
-     * Edit Stage State
-     *
-     * Stores the stage object to be edited, or 'new' if creating a new stage.
-     * Controls the visibility and mode of the StagePopUpComponent.
-     */
-    const [stageToEdit, setStageToEdit] = useState(null);
+    const { contextMenu, entityToRename, entityToDelete, activeEntityId } = contextMenuStates;
+    const { closeRenameModal, closeDeleteModal, handleContextMenu } = contextMenuActions;
 
-    /**
-     * Open Tooltip ID State
-     *
-     * Tracks the ID of the stage whose description tooltip is currently visible.
-     */
-    const [openTooltipId, setOpenTooltipId] = useState(null);
-
-    // --- 3. Derived Variables ---
-
-    /**
-     * Filtered Stages
-     *
-     * Computes the subset of stages that match the user's active search query.
-     */
-    const filteredStages = Array.isArray(data)
-        ? data.filter((stage) => stage.name.toLowerCase().includes(stageSearchQuery.toLowerCase()))
-        : [];
-
-    // --- 4. Side Effects ---
-
-    /**
-     * Tooltip Auto-Close Effect
-     *
-     * Automatically dismisses the active tooltip after 4 seconds to prevent UI clutter.
-     */
-    useEffect(() => {
-        let timeoutId;
-
-        if (openTooltipId !== null) {
-            timeoutId = setTimeout(() => {
-                setOpenTooltipId(null);
-            }, 4000);
-        }
-
-        return () => {
-            if (timeoutId) clearTimeout(timeoutId);
-        };
-    }, [openTooltipId]);
-
-    // --- 5. Event Handlers & Functions ---
-
-    const handleDeleteStage = async (id) => {
-        try {
-            await remove(id);
-
-            if (onStageDeleted) {
-                onStageDeleted(id);
-            }
-        } catch (error) {
-            console.error("Error al borrar el proyecto:", error);
-        }
-    };
-
-    const handleUpdateStage = async (id, data) => {
-        try {
-            const updatedStage = await update(id, data);
-
-            if (onStageUpdated) {
-                onStageUpdated(updatedStage);
-            }
-        } catch (error) {
-            console.error("Error al actualizar el proyecto:", error);
-        }
-    };
-
-    /**
-     * Search Toggle Handler
-     *
-     * Toggles the visibility of the search input. Resets the search query when closing.
-     *
-     * @returns {void}
-     */
-    const handleToggleSearch = () => {
-        setIsStageSearchOpen((prev) => !prev);
-        if (isStageSearchOpen) {
-            setStageSearchQuery("");
-        }
-    };
-
-    /**
-     * Create New Stage Handler
-     *
-     * Opens the StagePopUpComponent in "new stage" mode.
-     *
-     * @returns {void}
-     */
-    const handleCreateNewStage = () => {
-        setStageToEdit("new");
-    };
-
-    /**
-     * Close PopUp Handler
-     *
-     * Closes the StagePopUpComponent.
-     *
-     * @returns {void}
-     */
-    const handleClosePopUp = () => {
-        setStageToEdit(null);
-
-        contextMenuActions.setEntityToRename(null);
-        contextMenuActions.setEntityToDelete(null);
-    };
-
-    const handleToggleTooltip = (e, stage, isTooltipOpen) => {
-        e.stopPropagation();
-        const rect = e.currentTarget.getBoundingClientRect();
-
-        if (isTooltipOpen) {
-            setOpenTooltipId(null);
-        } else {
-            setOpenTooltipId({
-                id: stage.id,
-                description: stage.description,
-                rect: rect,
-            });
-        }
-    };
-
-    const handleMouseEnterTooltip = (e, project) => {
-        if (window.innerWidth >= 768) {
-            const rect = e.currentTarget.getBoundingClientRect();
-            setOpenTooltipId({
-                id: project.id,
-                description: project.description,
-                rect: rect,
-            });
-        }
-    };
-
-    const handleMouseLeaveTooltip = () => {
-        if (window.innerWidth >= 768) {
-            setOpenTooltipId(null);
-        }
-    };
-
-    // --- 6. Render ---
+    // --- 2. Render ---
 
     if (!data || !Array.isArray(data)) return null;
 
     return (
         <>
-            {/* Top Section: Header & Stage List */}
+            {/* Top Container: Header and Scrollable Stages List */}
             <div className="h-full w-full flex flex-col items-center gap-4 overflow-hidden">
-                {/* Header: Title and Search Area */}
+                {/* Header Section: Title & Interactive Search Bar */}
                 <div className="h-10 w-full flex items-center justify-between text-quaternary-700">
-                    {!isStageSearchOpen && <span className="text-2xl font-bold">{t("stages.title")}</span>}
+                    <div className="flex items-center gap-2">
+                        {!isStageSearchOpen && <span className="text-2xl font-bold">{filteredStages.length}</span>}
+                        {!isStageSearchOpen && <span className="text-2xl font-bold">{t("stages.title")}</span>}
+                    </div>
 
                     <div
                         className={`flex items-center justify-end transition-all duration-500 ease-in-out rounded-full ${isStageSearchOpen ? "w-full bg-primary-50 px-3 py-1.5 shadow-inner" : "w-fit bg-transparent p-0"}`}
                     >
-                        {/* Search Input Field */}
+                        {/* Dynamic Search Input Field */}
                         <input
                             type="text"
                             placeholder={t("stages.search")}
                             value={stageSearchQuery}
-                            onChange={(e) => setStageSearchQuery(e.target.value)}
+                            onChange={(e) => handleSearchChange(e.target.value)}
                             autoFocus={isStageSearchOpen}
                             className={`bg-transparent outline-none text-primary-600 transition-all duration-500 ease-in-out ${isStageSearchOpen ? "w-full opacity-100 ml-2" : "w-0 opacity-0"}`}
                         />
 
-                        {/* Search Toggle Button */}
+                        {/* Search Toggle Icon Button */}
                         <button
                             className="flex-shrink-0 cursor-pointer hover:text-quaternary-900 transition-colors"
                             onClick={handleToggleSearch}
@@ -269,15 +133,17 @@ export const StagesCardComponent = ({
                     </div>
                 </div>
 
-                {/* Stages List Container */}
+                {/* Main Content Section: Scrollable List of Stage Items */}
                 <div className="h-fit w-full flex flex-1 flex-col gap-3 overflow-y-auto custom-scrollbar">
                     {filteredStages.length > 0 ? (
                         filteredStages.map((stage) => {
                             const isActive = selectedId === stage.id;
+                            const hasDeadline = stage.deadline;
+                            const formattedDeadline = hasDeadline ? formatShortDate(stage.deadline, i18n.language) : "";
                             const hasNote = stage.description && stage.description !== "";
                             const colour = PHASE_COLOURS.find((c) => c.id === stage.colour);
-                            const isTooltipOpen = openTooltipId === stage.id;
-                            const isBeingEdited = String(contextMenuState.activeEntityId) === String(stage.id);
+                            const isTooltipOpen = openTooltipId?.id === stage.id;
+                            const isBeingEdited = String(activeEntityId) === String(stage.id);
 
                             return (
                                 <SwipeableEntityItemComponent
@@ -288,53 +154,64 @@ export const StagesCardComponent = ({
                                     <div
                                         key={stage.id}
                                         onClick={() => onSelect(stage.id)}
-                                        onDoubleClick={() => setStageToEdit(stage)}
-                                        onContextMenu={(e) => contextMenuActions.handleContextMenu(e, stage)}
+                                        onDoubleClick={() => handleEditStage(stage)}
+                                        onContextMenu={(e) => handleContextMenu(e, stage)}
                                         style={{ "--stage-color": colour.hex }}
                                         className={`flex items-center justify-between bg-transparent p-3 rounded-full transition-all duration-200 cursor-pointer ${
                                             isActive ? "md:bg-[var(--stage-color)]" : ""
                                         } ${isBeingEdited ? "bg-quaternary-50/60" : "bg-transparent"}`}
                                     >
-                                        {/* Stage Color Dot & Title Section */}
+                                        {/* Stage Item: Color Indicator and Name */}
                                         <div className="flex items-center gap-4">
                                             <div
-                                                className={`h-6 w-6 p-3 rounded-full bg-[var(--stage-color)] ${
+                                                className={`h-8 w-8 p-3 rounded-full bg-[var(--stage-color)] ${
                                                     isActive ? "md:bg-primary" : ""
                                                 }`}
                                             ></div>
 
-                                            <div
-                                                className="min-w-0 w-full text-xl"
-                                                style={{
-                                                    color: isActive ? colour.text : tailwindColors.quaternary[700],
-                                                }}
-                                            >
-                                                <ScrollingText text={stage.name} />
+                                            <div className="flex flex-col">
+                                                <div
+                                                    className={`min-w-0 w-full text-xl text-quaternary-700 ${
+                                                        isActive ? "md:text-primary" : ""
+                                                    }`}
+                                                >
+                                                    <ScrollingText text={stage.name} />
+                                                </div>
+
+                                                <div className="flex items-center gap-2">
+                                                    {hasDeadline && (
+                                                        <span className={`flex items-center gap-[3px] text-sm text-quaternary-700 ${
+                                                            isActive ? "md:text-primary" : ""
+                                                        }`}>
+                                                            <IconCalendarEventFilled className="h-4 w-4 transition-colors duration-200" />
+                                                            {formattedDeadline}
+                                                        </span>
+                                                    )}
+
+                                                    {/* Note Tooltip Toggle */}
+                                                    {hasNote && (
+                                                        <div
+                                                            className="relative group flex items-center justify-center shrink-0"
+                                                            onMouseEnter={(e) => handleMouseEnterTooltip(e, stage)}
+                                                            onMouseLeave={handleMouseLeaveTooltip}
+                                                            onClick={(e) => {
+                                                                if (window.innerWidth < 768) {
+                                                                    handleToggleTooltip(e, stage, isTooltipOpen);
+                                                                } else {
+                                                                    e.stopPropagation();
+                                                                }
+                                                            }}
+                                                        >
+                                                            <IconNote
+                                                                className={`h-4 w-4 transition-colors duration-200 text-quaternary-700 ${
+                                                                    isActive ? "md:text-primary" : ""
+                                                                }`}
+                                                            />
+                                                        </div>
+                                                    )}
+                                                </div>
                                             </div>
                                         </div>
-
-                                        {/* Stage Note Tooltip Indicator */}
-                                        {hasNote && (
-                                            <div
-                                                className="relative group flex items-center justify-center shrink-0 ml-3"
-                                                onMouseEnter={(e) => handleMouseEnterTooltip(e, stage)}
-                                                onMouseLeave={handleMouseLeaveTooltip}
-                                                onClick={(e) => {
-                                                    if (window.innerWidth < 768) {
-                                                        handleToggleTooltip(e, stage, isTooltipOpen);
-                                                    } else {
-                                                        e.stopPropagation();
-                                                    }
-                                                }}
-                                            >
-                                                <IconNote
-                                                    className="h-5 w-5 transition-colors duration-200"
-                                                    style={{
-                                                        color: isActive ? colour.text : tailwindColors.quaternary[700],
-                                                    }}
-                                                />
-                                            </div>
-                                        )}
                                     </div>
                                 </SwipeableEntityItemComponent>
                             );
@@ -347,9 +224,9 @@ export const StagesCardComponent = ({
                 </div>
             </div>
 
-            {/* Create Stage & Back Navigation Container */}
+            {/* Bottom Footer Section: Actions & Navigation */}
             <div className="w-full flex items-center justify-between md:justify-end">
-                {/* Mobile Back Button */}
+                {/* Mobile Specific Back Navigation */}
                 <button
                     onClick={handleBackNavigation}
                     className="md:hidden flex items-center gap-1 bg-primary-200 rounded-full pr-2 text-primary"
@@ -358,7 +235,7 @@ export const StagesCardComponent = ({
                     <span className="font-semibold">Proyectos</span>
                 </button>
 
-                {/* Create Stage Button */}
+                {/* Primary Action: Create New Stage */}
                 <div className="shrink-0 w-full flex justify-end">
                     <button onClick={handleCreateNewStage}>
                         <IconCirclePlusFilled className="h-10 w-10 text-primary-200 md:text-primary-200/70 md:hover:text-primary-200" />
@@ -366,43 +243,36 @@ export const StagesCardComponent = ({
                 </div>
             </div>
 
-            {/* Create/Edit Stage PopUp Modal */}
+            {/* Entity Creation and Editing Modal */}
             {stageToEdit && (
                 <StagePopUpComponent
                     onClose={handleClosePopUp}
                     initialData={stageToEdit === "new" ? null : stageToEdit}
                     projectId={projectId}
-                    onStageCreated={onStageCreated}
-                    onStageUpdated={onStageUpdated}
                     t={t}
                 />
             )}
 
-            {contextMenuState.contextMenu.visible && (
+            {/* Entity Context Menu Options */}
+            {contextMenu.visible && (
                 <ContextMenuComponent
                     contextMenuRef={contextMenuRef}
-                    contextMenuState={contextMenuState}
+                    contextMenuStates={contextMenuStates}
                     contextMenuActions={contextMenuActions}
                 />
             )}
 
-            {contextMenuState.entityToRename && (
-                <RenameComponent
-                    onClose={() => contextMenuActions.setEntityToRename(null)}
-                    data={contextMenuState.entityToRename}
-                    onRename={handleUpdateStage}
-                    t={t}
-                />
+            {/* Entity Rename Prompt Modal */}
+            {entityToRename && (
+                <RenameComponent onClose={closeRenameModal} data={entityToRename} onRename={handleUpdateStage} t={t} />
             )}
 
-            {contextMenuState.entityToDelete && (
-                <DeleteComponent
-                    onClose={() => contextMenuActions.setEntityToDelete(null)}
-                    data={contextMenuState.entityToDelete}
-                    onDelete={handleDeleteStage}
-                />
+            {/* Entity Delete Confirmation Modal */}
+            {entityToDelete && (
+                <DeleteComponent onClose={closeDeleteModal} data={entityToDelete} onDelete={handleDeleteStage} />
             )}
 
+            {/* Global Tooltip Rendering Portal */}
             {openTooltipId &&
                 typeof document !== "undefined" &&
                 createPortal(
@@ -416,7 +286,7 @@ export const StagesCardComponent = ({
                     >
                         {openTooltipId.description}
 
-                        {/* Flecha inferior del tooltip */}
+                        {/* Tooltip Downward Arrow Triangle */}
                         <div className="absolute left-1/2 -translate-x-1/2 top-full w-0 h-0 border-x-8 border-x-transparent border-t-8 border-t-quaternary-700"></div>
                     </div>,
                     document.body,

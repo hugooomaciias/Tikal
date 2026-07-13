@@ -1,10 +1,8 @@
 /** React & Third-Party Libraries */
-import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 
 /** Contexts, Hooks & Services */
-import { useContextMenu } from "../../../hooks/useContextMenu.js";
-import { useProject } from "../../../hooks/useProject.js";
+import { useProjectsCardLogic } from "../../../hooks/components/app/tasks/useProjectsCardLogic.js";
 
 /** Components & Layouts */
 import { ProjectPopUpComponent } from "./ProjectPopUpComponent.jsx";
@@ -15,17 +13,14 @@ import { DeleteComponent } from "../common/DeleteComponent.jsx";
 import { SwipeableEntityItemComponent } from "./common/SwipeableEntityItemComponent.jsx";
 
 /** Icons */
-import { IconBook, IconSearch, IconCircleXFilled, IconNote, IconCirclePlusFilled } from "@tabler/icons-react";
-
-/** Assets, Utils & Constants */
-import { PROJECTS_ICONS } from "../../../constants/projects_icons";
+import { IconSearch, IconCircleXFilled, IconNote, IconCirclePlusFilled, IconCalendarEventFilled } from "@tabler/icons-react";
 
 /**
  * Projects Card Component
  *
- * This component renders a sidebar card displaying a list of projects.
- * It provides functionalities to select an active project, search through
- * existing projects, edit a project, and create a new project via a popup.
+ * This purely presentational component renders a sidebar card displaying a list of projects.
+ * It delegates all local state management, complex derived calculations, and side effects
+ * to its custom headless hook `useProjectsCardLogic`.
  *
  * @component
  * @param {Object} props - The component props.
@@ -33,233 +28,76 @@ import { PROJECTS_ICONS } from "../../../constants/projects_icons";
  * @param {string|number|null} props.selectedId - The ID of the currently active project.
  * @param {Function} props.onSelect - Callback invoked when a project is clicked.
  * @param {Function} props.t - Translation function from i18next.
- * @returns {JSX.Element|null} The rendered projects card, or null if data is invalid.
+ * @returns {JSX.Element|null} The rendered projects card UI, or null if data is invalid.
  */
-export const ProjectsCardComponent = ({
-    data,
-    selectedId,
-    onSelect,
-    onProjectCreated,
-    onProjectUpdated,
-    onProjectDeleted,
-    t,
-}) => {
-    // --- 2. Local State ---
-
-    const { remove, update } = useProject();
-
-    const { contextMenuRef, contextMenuState, contextMenuActions } = useContextMenu((data) => {
-        setProjectToEdit(data);
-    });
+export const ProjectsCardComponent = ({ data, selectedId, onSelect, formatShortDate, t }) => {
+    // --- 1. Logic Hook Extraction ---
 
     /**
-     * Search Modal State
+     * Headless Logic Hook Extraction
      *
-     * Toggles the visibility of the search input for filtering projects.
+     * Extracts all managed UI states, derived datasets, and interaction handlers
+     * required to power this presentational component.
      */
-    const [isProjectSearchOpen, setIsProjectSearchOpen] = useState(false);
+    const { projectsCardStates, projectsCardData, projectsCardActions } = useProjectsCardLogic(data);
 
-    /**
-     * Search Query State
-     *
-     * Stores the current text used to filter the projects list.
-     */
-    const [projectSearchQuery, setProjectSearchQuery] = useState("");
+    const {
+        contextMenuRef,
+        contextMenuStates,
+        contextMenuActions,
+        isProjectSearchOpen,
+        projectSearchQuery,
+        projectToEdit,
+        openTooltipId,
+        i18n,
+    } = projectsCardStates;
+    const { filteredProjects } = projectsCardData;
+    const {
+        handleDeleteProject,
+        handleUpdateProject,
+        handleToggleSearch,
+        handleToggleTooltip,
+        handleMouseEnterTooltip,
+        handleMouseLeaveTooltip,
+        handleCreateNewProject,
+        handleClosePopUp,
+        getIconComponent,
+        handleSearchChange,
+        handleEditProject,
+    } = projectsCardActions;
 
-    /**
-     * Edit Project State
-     *
-     * Stores the project object to be edited, or 'new' if creating a new project.
-     * Controls the visibility and mode of the ProjectPopUpComponent.
-     */
-    const [projectToEdit, setProjectToEdit] = useState(null);
+    const { contextMenu, entityToRename, entityToDelete, activeEntityId } = contextMenuStates;
+    const { closeRenameModal, closeDeleteModal, handleContextMenu } = contextMenuActions;
 
-    /**
-     * Open Tooltip ID State
-     *
-     * Tracks the ID of the project whose description tooltip is currently visible.
-     */
-    const [openTooltipId, setOpenTooltipId] = useState(null);
-
-    // --- 3. Derived Variables ---
-
-    /**
-     * Filtered Projects
-     *
-     * Computes the subset of projects that match the user's active search query.
-     */
-    const filteredProjects = Array.isArray(data)
-        ? data.filter((project) => project.name.toLowerCase().includes(projectSearchQuery.toLowerCase()))
-        : [];
-
-    // --- 4. Side Effects ---
-
-    /**
-     * Tooltip Auto-Close Effect
-     *
-     * Automatically dismisses the active tooltip after 4 seconds to prevent UI clutter.
-     */
-    useEffect(() => {
-        let timeoutId;
-
-        if (openTooltipId !== null) {
-            timeoutId = setTimeout(() => {
-                setOpenTooltipId(null);
-            }, 4000);
-        }
-
-        return () => {
-            if (timeoutId) clearTimeout(timeoutId);
-        };
-    }, [openTooltipId]);
-
-    // --- 5. Event Handlers & Functions ---
-
-    const handleDeleteProject = async (id) => {
-        try {
-            await remove(id);
-
-            if (onProjectDeleted) {
-                onProjectDeleted(id);
-            }
-        } catch (error) {
-            console.error("Error al borrar el proyecto:", error);
-        }
-    };
-
-    const handleUpdateProject = async (id, data) => {
-        try {
-            const updatedProject = await update(id, data);
-
-            if (onProjectUpdated) {
-                onProjectUpdated(updatedProject);
-            }
-        } catch (error) {
-            console.error("Error al actualizar el proyecto:", error);
-        }
-    };
-
-    /**
-     * Search Toggle Handler
-     *
-     * Toggles the visibility of the search input. Resets the search query when closing.
-     *
-     * @returns {void}
-     */
-    const handleToggleSearch = () => {
-        setIsProjectSearchOpen(!isProjectSearchOpen);
-        if (isProjectSearchOpen) {
-            setProjectSearchQuery("");
-        }
-    };
-
-    /**
-     * Tooltip Toggle Handler
-     *
-     * Toggles the display of a project's description note. Stops event propagation
-     * to prevent triggering the project selection.
-     *
-     * @param {React.MouseEvent} e - The mouse click event.
-     * @param {string|number} projectId - The ID of the project whose tooltip was clicked.
-     * @param {boolean} isTooltipOpen - Whether the tooltip is currently open.
-     * @returns {void}
-     */
-    const handleToggleTooltip = (e, project, isTooltipOpen) => {
-        e.stopPropagation();
-        const rect = e.currentTarget.getBoundingClientRect();
-
-        if (isTooltipOpen) {
-            setOpenTooltipId(null);
-        } else {
-            setOpenTooltipId({
-                id: project.id,
-                description: project.description,
-                rect: rect,
-            });
-        }
-    };
-
-    const handleMouseEnterTooltip = (e, project) => {
-        if (window.innerWidth >= 768) {
-            const rect = e.currentTarget.getBoundingClientRect();
-            setOpenTooltipId({
-                id: project.id,
-                description: project.description,
-                rect: rect,
-            });
-        }
-    };
-
-    const handleMouseLeaveTooltip = () => {
-        if (window.innerWidth >= 768) {
-            setOpenTooltipId(null);
-        }
-    };
-
-    /**
-     * Create New Project Handler
-     *
-     * Opens the ProjectPopUpComponent in "new project" mode.
-     *
-     * @returns {void}
-     */
-    const handleCreateNewProject = () => {
-        setProjectToEdit("new");
-    };
-
-    /**
-     * Close PopUp Handler
-     *
-     * Closes the ProjectPopUpComponent.
-     *
-     * @returns {void}
-     */
-    const handleClosePopUp = () => {
-        setProjectToEdit(null);
-
-        contextMenuActions.setEntityToRename(null);
-        contextMenuActions.setEntityToDelete(null);
-    };
-
-    /**
-     * Icon Resolver Helper
-     *
-     * Resolves the appropriate React Icon component based on the project's logo identifier.
-     *
-     * @param {string} iconIdentifier - The string ID or component name of the desired icon.
-     * @returns {React.ComponentType} The matched React Icon component, or IconBook as fallback.
-     */
-    const getIconComponent = (iconIdentifier) => {
-        const iconObj = PROJECTS_ICONS.find((i) => i.component.name === iconIdentifier || i.id === iconIdentifier);
-        return iconObj ? iconObj.component : IconBook;
-    };
-
-    // --- 6. Render ---
+    // --- 2. Render ---
 
     if (!data || !Array.isArray(data)) return null;
 
     return (
         <>
-            {/* Top Section: Header & Project List */}
+            {/* Top Section: Header & Project List Container */}
             <div className="h-full w-full flex flex-col items-center gap-4 overflow-hidden">
-                {/* Header: Title and Search Area */}
+                {/* Header Section: Title & Search Toggle */}
                 <div className="h-10 w-full flex items-center justify-between text-quaternary-700">
-                    {!isProjectSearchOpen && <span className="text-2xl font-bold">{t("projects.title")}</span>}
+                    <div className="flex items-center gap-2">
+                        {!isProjectSearchOpen && <span className="text-2xl font-bold">{filteredProjects.length}</span>}
+                        {!isProjectSearchOpen && <span className="text-2xl font-bold">{t("projects.title")}</span>}
+                    </div>
 
                     <div
-                        className={`flex items-center justify-end transition-all duration-500 ease-in-out rounded-full ${isProjectSearchOpen ? "w-full bg-primary-50 px-3 py-1.5 shadow-inner" : "w-fit bg-transparent p-0"}`}
+                        className={`flex items-center justify-end gap-1 transition-all duration-500 ease-in-out rounded-full ${isProjectSearchOpen ? "w-full bg-primary-50 px-3 py-1.5 shadow-inner" : "w-fit bg-transparent p-0"}`}
                     >
                         {/* Search Input Field */}
                         <input
                             type="text"
                             placeholder={t("projects.search")}
                             value={projectSearchQuery}
-                            onChange={(e) => setProjectSearchQuery(e.target.value)}
+                            onChange={(e) => handleSearchChange(e.target.value)}
                             autoFocus={isProjectSearchOpen}
                             className={`bg-transparent outline-none text-primary-600 transition-all duration-500 ease-in-out ${isProjectSearchOpen ? "w-full opacity-100 ml-2" : "w-0 opacity-0"}`}
                         />
 
-                        {/* Search Toggle Button */}
+                        {/* Search Toggle Action */}
                         <button
                             className="flex-shrink-0 cursor-pointer hover:text-quaternary-900 transition-colors"
                             onClick={handleToggleSearch}
@@ -273,15 +111,17 @@ export const ProjectsCardComponent = ({
                     </div>
                 </div>
 
-                {/* Projects List Container */}
-                <div className="h-fit w-full flex flex-1 flex-col gap-3 pr-3 overflow-y-auto custom-scrollbar">
+                {/* Main Content: Filtered Projects List */}
+                <div className="h-fit w-full flex flex-1 flex-col gap-3 overflow-y-auto custom-scrollbar">
                     {filteredProjects.length > 0 ? (
                         filteredProjects.map((project) => {
                             const IconComponent = getIconComponent(project.logo);
                             const isActive = selectedId === project.id;
+                            const hasDeadline = project.deadline;
+                            const formattedDeadline = hasDeadline ? formatShortDate(project.deadline, i18n.language) : "";
                             const hasNote = project.description && project.description !== "";
                             const isTooltipOpen = openTooltipId === project.id;
-                            const isBeingEdited = String(contextMenuState.activeEntityId) === String(project.id);
+                            const isBeingEdited = String(activeEntityId) === String(project.id);
 
                             return (
                                 <SwipeableEntityItemComponent
@@ -291,55 +131,63 @@ export const ProjectsCardComponent = ({
                                 >
                                     <div
                                         onClick={() => onSelect(project.id)}
-                                        onDoubleClick={() => setProjectToEdit(project)}
-                                        onContextMenu={(e) => contextMenuActions.handleContextMenu(e, project)}
-                                        className={`w-full flex items-center justify-between text-primary rounded-[2rem] transition-all duration-200 cursor-pointer bg-transparent ${
-                                            isActive ? "md:bg-primary-200 md:pr-5" : ""
+                                        onDoubleClick={() => handleEditProject(project)}
+                                        onContextMenu={(e) => handleContextMenu(e, project)}
+                                        className={`flex items-center justify-between text-primary rounded-full py-3 transition-all duration-200 cursor-pointer bg-transparent ${
+                                            isActive ? "md:bg-primary-200 p-3" : ""
                                         } ${isBeingEdited ? "bg-quaternary-50/60" : "bg-transparent"}`}
                                     >
                                         {/* Project Icon and Title Section */}
-                                        <div
-                                            className={`flex-1 min-w-0 flex items-center gap-3 ${isActive ? "md:gap-0" : ""} transition-all duration-300`}
-                                        >
-                                            <div className="h-fit w-fit bg-primary-200 p-3 rounded-full shrink-0">
-                                                <IconComponent className="h-7 w-7" />
+                                        <div className="flex items-center gap-4">
+                                            <div className={`h-fit w-fit bg-primary-200 rounded-full ${isActive ? "" : "p-3"}`}>
+                                                <IconComponent className="h-8 w-8" />
                                             </div>
 
-                                            <div
-                                                className={`min-w-0 w-full text-xl text-quaternary-700 ${
-                                                    isActive ? "md:text-primary" : ""
-                                                }`}
-                                            >
-                                                <ScrollingText text={project.name} />
+                                            <div className="flex flex-col">
+                                                <div className={`min-w-0 w-full text-xl text-quaternary-700 ${isActive ? "md:text-primary" : ""}`}>
+                                                    <ScrollingText text={project.name} />
+                                                </div>
+
+                                                <div className="flex items-center gap-2">
+                                                    {hasDeadline && (
+                                                        <span className={`flex items-center gap-[3px] text-sm text-quaternary-700 ${
+                                                            isActive ? "md:text-primary" : ""
+                                                        }`}>
+                                                            <IconCalendarEventFilled className="h-4 w-4 transition-colors duration-200" />
+                                                            {formattedDeadline}
+                                                        </span>
+                                                    )}
+
+                                                    {/* Note Tooltip Toggle */}
+                                                    {hasNote && (
+                                                        <div
+                                                            className="relative group flex items-center justify-center shrink-0"
+                                                            onMouseEnter={(e) => handleMouseEnterTooltip(e, project)}
+                                                            onMouseLeave={handleMouseLeaveTooltip}
+                                                            onClick={(e) => {
+                                                                if (window.innerWidth < 768) {
+                                                                    handleToggleTooltip(e, project, isTooltipOpen);
+                                                                } else {
+                                                                    e.stopPropagation();
+                                                                }
+                                                            }}
+                                                        >
+                                                            <IconNote
+                                                                className={`h-4 w-4 transition-colors duration-200 text-quaternary-700 ${
+                                                                    isActive ? "md:text-primary" : ""
+                                                                }`}
+                                                            />
+                                                        </div>
+                                                    )}
+                                                </div>
                                             </div>
                                         </div>
-
-                                        {/* Note Tooltip Indicator */}
-                                        {hasNote && (
-                                            <div
-                                                className="relative group flex items-center justify-center shrink-0 ml-3"
-                                                onMouseEnter={(e) => handleMouseEnterTooltip(e, project)}
-                                                onMouseLeave={handleMouseLeaveTooltip}
-                                                onClick={(e) => {
-                                                    if (window.innerWidth < 768) {
-                                                        handleToggleTooltip(e, project, isTooltipOpen);
-                                                    } else {
-                                                        e.stopPropagation();
-                                                    }
-                                                }}
-                                            >
-                                                <IconNote
-                                                    className={`h-5 w-5 transition-colors duration-200 text-quaternary-700 ${
-                                                        isActive ? "md:text-primary" : ""
-                                                    }`}
-                                                />
-                                            </div>
-                                        )}
                                     </div>
                                 </SwipeableEntityItemComponent>
                             );
                         })
                     ) : (
+                        /* Empty State Indicator */
                         <div className="flex-1 flex items-center justify-center text-quaternary-400 italic">
                             {t("projects.no_projects")}
                         </div>
@@ -347,49 +195,47 @@ export const ProjectsCardComponent = ({
                 </div>
             </div>
 
-            {/* Create Project Button */}
-            <div className="shrink-0 w-full flex justify-end">
+            {/* Floating Action: Create Project Button */}
+            <div className="w-full flex items-center justify-end">
                 <button onClick={handleCreateNewProject}>
                     <IconCirclePlusFilled className="h-10 w-10 text-primary-200/70 hover:text-primary-200" />
                 </button>
             </div>
 
-            {/* Create/Edit Project PopUp Modal */}
+            {/* Project Edit/Create Modal */}
             {projectToEdit && (
                 <ProjectPopUpComponent
                     onClose={handleClosePopUp}
                     initialData={projectToEdit === "new" ? null : projectToEdit}
-                    onProjectCreated={onProjectCreated}
-                    onProjectUpdated={onProjectUpdated}
                     t={t}
                 />
             )}
 
-            {contextMenuState.contextMenu.visible && (
+            {/* Context Menu Dropdown */}
+            {contextMenu.visible && (
                 <ContextMenuComponent
                     contextMenuRef={contextMenuRef}
-                    contextMenuState={contextMenuState}
+                    contextMenuStates={contextMenuStates}
                     contextMenuActions={contextMenuActions}
                 />
             )}
 
-            {contextMenuState.entityToRename && (
+            {/* Rename Project Modal */}
+            {entityToRename && (
                 <RenameComponent
-                    onClose={() => contextMenuActions.setEntityToRename(null)}
-                    data={contextMenuState.entityToRename}
+                    onClose={closeRenameModal}
+                    data={entityToRename}
                     onRename={handleUpdateProject}
                     t={t}
                 />
             )}
 
-            {contextMenuState.entityToDelete && (
-                <DeleteComponent
-                    onClose={() => contextMenuActions.setEntityToDelete(null)}
-                    data={contextMenuState.entityToDelete}
-                    onDelete={handleDeleteProject}
-                />
+            {/* Delete Confirmation Modal */}
+            {entityToDelete && (
+                <DeleteComponent onClose={closeDeleteModal} data={entityToDelete} onDelete={handleDeleteProject} />
             )}
 
+            {/* Description Tooltip Portal */}
             {openTooltipId &&
                 typeof document !== "undefined" &&
                 createPortal(
@@ -403,7 +249,7 @@ export const ProjectsCardComponent = ({
                     >
                         {openTooltipId.description}
 
-                        {/* Flecha inferior del tooltip */}
+                        {/* Tooltip Bottom Arrow */}
                         <div className="absolute left-1/2 -translate-x-1/2 top-full w-0 h-0 border-x-8 border-x-transparent border-t-8 border-t-quaternary-700"></div>
                     </div>,
                     document.body,

@@ -1,5 +1,5 @@
 /** React & Third-Party Libraries */
-import React, { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 
 /** Icons */
@@ -8,9 +8,10 @@ import { IconWorld } from "@tabler/icons-react";
 /**
  * Language Picker Component
  *
- * A floating widget that allows users to toggle the application's current
- * locale. It includes dynamic styling to adapt to different background
- * colors depending on the section of the landing page where it is accessed.
+ * A hybrid presentational floating widget that allows users to toggle the application's
+ * current locale. It manages minimal local state exclusively for UI interactions (dropdown
+ * visibility toggling) and dynamically adapts its styling based on the section of the
+ * landing page where it is accessed.
  *
  * @component
  * @param {Object} props - The component props.
@@ -20,23 +21,21 @@ import { IconWorld } from "@tabler/icons-react";
  * @returns {JSX.Element} The floating language selection widget.
  */
 export const LanguagePickerComponent = ({ btnBgColour, btnTextColour, langSection }) => {
-    // --- 1. Hooks & Contexts ---
+    // --- 1. Local UI Logic ---
 
     /**
-     * Translation Hook
+     * Translation Hook Extraction
      *
      * Provides access to the internationalization engine to configure the locale.
      */
     const { i18n } = useTranslation();
 
     /**
-     * Click Outside Reference
+     * Click Outside DOM Reference
      *
      * Captures the DOM element of the widget to detect external clicks.
      */
     const langMenuRef = useRef(null);
-
-    // --- 2. Local State ---
 
     /**
      * Menu Visibility State
@@ -45,8 +44,6 @@ export const LanguagePickerComponent = ({ btnBgColour, btnTextColour, langSectio
      */
     const [isLangMenuOpen, setIsLangMenuOpen] = useState(false);
 
-    // --- 4. Side Effects ---
-
     /**
      * Outside Click Detector Effect
      *
@@ -54,6 +51,14 @@ export const LanguagePickerComponent = ({ btnBgColour, btnTextColour, langSectio
      * language menu when the user clicks outside its container.
      */
     useEffect(() => {
+        /**
+         * Outside Click Handler
+         *
+         * Evaluates if a click occurred outside the component boundary and closes the menu if true.
+         *
+         * @param {MouseEvent} event - The triggered global mouse event.
+         * @returns {void}
+         */
         const handleClickOutside = (event) => {
             if (langMenuRef.current && !langMenuRef.current.contains(event.target)) {
                 setIsLangMenuOpen(false);
@@ -66,8 +71,6 @@ export const LanguagePickerComponent = ({ btnBgColour, btnTextColour, langSectio
             document.removeEventListener("mousedown", handleClickOutside);
         };
     }, []);
-
-    // --- 5. Event Handlers & Functions ---
 
     /**
      * Language Option Class Generator
@@ -107,21 +110,24 @@ export const LanguagePickerComponent = ({ btnBgColour, btnTextColour, langSectio
      * Instructs the i18n engine to switch the current locale context.
      *
      * @param {string} lang - The new language code to apply safely context-wide.
+     * @returns {void}
      */
     const changeLanguage = (lang) => {
         i18n.changeLanguage(lang);
     };
 
-    // --- 6. Render ---
+    // --- 2. Render ---
 
     return (
         <div ref={langMenuRef} className="fixed bottom-6 left-6 z-50">
-            {/* Dropdown Menu (Expands Upwards) */}
+            {/* Expanding Dropdown Menu Options (Upwards Animation) */}
             <div
                 className={`absolute bottom-full left-0 w-full ${btnBgColour} rounded-t-2xl overflow-hidden origin-bottom
                     ${isLangMenuOpen ? "scale-100 opacity-100 translate-y-0" : "scale-95 opacity-0 translate-y-2 pointer-events-none"}`}
             >
+                {/* Options List Column */}
                 <div className="flex flex-col p-2 gap-1">
+                    {/* Spanish Selection Option */}
                     <button
                         onClick={() => {
                             changeLanguage("es");
@@ -131,6 +137,8 @@ export const LanguagePickerComponent = ({ btnBgColour, btnTextColour, langSectio
                     >
                         Español
                     </button>
+
+                    {/* English Selection Option */}
                     <button
                         onClick={() => {
                             changeLanguage("en");
@@ -143,7 +151,7 @@ export const LanguagePickerComponent = ({ btnBgColour, btnTextColour, langSectio
                 </div>
             </div>
 
-            {/* Floating Action Button */}
+            {/* Main Floating Action Toggle Button */}
             <button
                 onClick={() => setIsLangMenuOpen(!isLangMenuOpen)}
                 className={`flex items-center justify-center w-fit gap-2 py-3 px-4 shadow-lg
@@ -151,7 +159,10 @@ export const LanguagePickerComponent = ({ btnBgColour, btnTextColour, langSectio
                     ${btnBgColour} ${btnTextColour}`}
                 aria-label="Cambiar idioma"
             >
+                {/* World Icon Indiciator */}
                 <IconWorld className="w-6 h-6" />
+
+                {/* Current Active Language Text */}
                 <span className="text-sm font-bold uppercase mr-1">{i18n.language}</span>
             </button>
         </div>

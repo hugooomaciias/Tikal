@@ -67,4 +67,8 @@ public class Project {
     /* --- Calendar Events relation ==> If a Project is deleted, all its linked events are deleted --- */
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<CalendarEvent> calendarEvents = new ArrayList<>();
+
+    /* --- Calendar Events relation ==> If a Project is deleted, all its linked events are deleted --- */
+    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<TimeLog> timeLogs = new ArrayList<>();
 }

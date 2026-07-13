@@ -4,40 +4,37 @@ import { useState, useRef, useEffect } from "react";
 /**
  * Circular Dropdown Component
  *
- * A reusable, circular dropdown menu typically used for small selection options
- * or actions. It includes a built-in tooltip on hover and handles outside clicks
- * to close automatically.
+ * A purely visual, reusable circular dropdown menu typically used for metric selection options
+ * or micro-actions. It manages minimal local state exclusively to handle UI interactions
+ * (dropdown visibility toggling and outside click detection) without warranting a full headless hook architecture.
  *
  * @component
  * @param {Object} props - The component props.
- * @param {string|number} props.value - The currently selected value.
- * @param {JSX.Element|string} props.defaultIcon - The icon or fallback text displayed when no value is present.
- * @param {string} props.tooltip - The explanatory text shown when hovering over the trigger.
- * @param {Array<Object>} props.options - List of selectable options in the format { value, label }.
- * @param {Function} props.onChange - Callback fired when a new option is selected.
- * @returns {JSX.Element} The rendered circular dropdown component.
+ * @param {string|number} props.value - The currently selected value driving the active state.
+ * @param {JSX.Element|string} props.defaultIcon - The icon or fallback string displayed when no value is selected.
+ * @param {string} props.tooltip - The explanatory helper text shown when hovering over the trigger button.
+ * @param {Array<Object>} props.options - List of selectable dropdown options in the `{ value, label }` format.
+ * @param {Function} props.onChange - External callback fired when a new dropdown option is selected.
+ * @param {boolean} [props.disabled] - Optional flag to disable the dropdown trigger and interactions.
+ * @returns {JSX.Element} The rendered visual Circular Dropdown Component.
  */
 export const CircularDropdownComponent = ({ value, defaultIcon, tooltip, options, onChange, disabled }) => {
-    // --- 1. Hooks & Contexts ---
+    // --- 1. Local UI Logic ---
 
     /**
-     * Component Reference
+     * Component DOM Reference
      *
-     * Local reference to the main container div, used to detect clicks outside
-     * of the component to automatically close the dropdown.
+     * Local reference to the main container div, used by the effect hook to detect clicks
+     * outside of the component to automatically close the dropdown menu.
      */
     const dropdownRef = useRef(null);
-
-    // --- 2. Local State ---
 
     /**
      * Menu Visibility State
      *
-     * Controls whether the dropdown menu list is currently open and visible.
+     * Controls whether the dropdown menu list is currently open and visible to the user.
      */
     const [isOpen, setIsOpen] = useState(false);
-
-    // --- 4. Side Effects ---
 
     /**
      * Outside Click Detector Effect
@@ -51,7 +48,7 @@ export const CircularDropdownComponent = ({ value, defaultIcon, tooltip, options
          *
          * Evaluates if a click occurred outside the component boundary and closes the menu if true.
          *
-         * @param {MouseEvent} event - The triggered mouse event.
+         * @param {MouseEvent} event - The triggered global mouse event.
          * @returns {void}
          */
         const handleClickOutside = (event) => {
@@ -69,12 +66,10 @@ export const CircularDropdownComponent = ({ value, defaultIcon, tooltip, options
         };
     }, [isOpen]);
 
-    // --- 5. Event Handlers & Functions ---
-
     /**
      * Toggle Menu Handler
      *
-     * Toggles the visibility state of the dropdown menu.
+     * Toggles the local visibility state of the dropdown menu, blocked if the component is disabled.
      *
      * @returns {void}
      */
@@ -86,7 +81,7 @@ export const CircularDropdownComponent = ({ value, defaultIcon, tooltip, options
     /**
      * Option Selection Handler
      *
-     * Fires the onChange callback with the selected value and closes the dropdown menu.
+     * Fires the external onChange callback with the selected value and locally closes the dropdown menu.
      *
      * @param {string|number} selectedValue - The value of the clicked option.
      * @returns {void}
@@ -96,11 +91,11 @@ export const CircularDropdownComponent = ({ value, defaultIcon, tooltip, options
         setIsOpen(false);
     };
 
-    // --- 6. Render ---
+    // --- 2. Render ---
 
     return (
         <div ref={dropdownRef} className="relative inline-block text-left shrink-0">
-            {/* Main Circular Trigger Button */}
+            {/* Circular Primary Trigger Button */}
             <button
                 type="button"
                 onClick={handleToggleMenu}
@@ -112,10 +107,10 @@ export const CircularDropdownComponent = ({ value, defaultIcon, tooltip, options
                         : "bg-primary text-primary-500 hover:bg-primary-400 hover:text-primary active:scale-95"
                 }`}
             >
-                {/* Active Value or Fallback Icon */}
+                {/* Active Selection Value or Fallback Default Icon */}
                 {value ? value : defaultIcon}
 
-                {/* Hover Tooltip Container */}
+                {/* Conditional Hover Tooltip Container */}
                 {!disabled && (
                     <div className="absolute right-full top-1/2 -translate-y-1/2 mr-2 mt-2 hidden min-w-44 w-fit p-2 bg-primary-500 text-primary text-center text-sm font-medium rounded-lg shadow-lg group-hover:block z-50 pointer-events-none">
                         {tooltip}
@@ -124,12 +119,12 @@ export const CircularDropdownComponent = ({ value, defaultIcon, tooltip, options
                 )}
             </button>
 
-            {/* Dropdown Options List Container */}
+            {/* Expanding Dropdown Options Menu */}
             <div
                 className={`absolute right-0 mt-2 w-20 origin-top-right bg-primary-400 rounded-xl shadow-lg z-50 transition-all duration-200 ${isOpen ? "scale-100 opacity-100" : "scale-95 opacity-0 pointer-events-none"}`}
             >
                 <div className="flex flex-col">
-                    {/* Dynamic Options Mapping */}
+                    {/* Dynamic Option Buttons List */}
                     {options.map((option) => (
                         <button
                             key={option.value}

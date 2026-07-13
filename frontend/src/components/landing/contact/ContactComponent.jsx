@@ -1,45 +1,45 @@
 /** React & Third-Party Libraries */
-import React from "react";
 import { useTranslation, Trans } from "react-i18next";
 
 /** Components & Layouts */
 import { FormContactComponent } from "./FormContactComponent.jsx";
 
 /**
- * Contact Support Section Layout Component
+ * Contact Support Section Component
  *
- * This component serves as the structural wrapper for the Contact section on the landing page.
- * It implements a responsive split-view layout that combines the brand's customer service
- * philosophy with the functional input mechanism (the contact form).
+ * A primarily visual presentational layout acting as the structural wrapper for the Contact
+ * section on the landing page. It manages minimal logic exclusively to extract the translation
+ * context and implements a responsive split-view layout combining the brand's customer service
+ * philosophy with the functional contact form.
  *
  * @component
  * @returns {JSX.Element} The rendered visual layout of the contact section.
  */
 export const ContactComponent = () => {
-    // --- 1. Hooks & Contexts ---
+    // --- 1. Local UI Logic ---
 
     /**
-     * Translation Hook
+     * Translation Hook Extraction
      *
-     * Provides the 't' function to localize strings specifically for the
-     * landing page namespace.
+     * Provides the 't' function to localize static text strings specifically
+     * for the landing page namespace.
      */
     const { t } = useTranslation("landing");
 
-    // --- 6. Render ---
+    // --- 2. Render ---
 
     return (
         <div className="w-full max-w-6xl mx-auto flex items-center justify-items-center p-12 md:p-8 mt-28 md:m-28">
             {/* Contact Content Container */}
             <div className="text-primary-300 text-center">
-                {/* Section Title */}
+                {/* Section Hero Title */}
                 <h1 className="text-4xl md:text-5xl font-bold mb-4 md:mb-10 leading-tight">
                     {t("landing.contact.title")}
                 </h1>
 
-                {/* Split Content Grid */}
+                {/* Split Content Grid Layout */}
                 <div className="grid grid-cols-1 md:grid-cols-2 items-center gap-10 md:gap-16">
-                    {/* Left Column - Brand Messaging Description */}
+                    {/* Left Column: Brand Messaging Description */}
                     <div>
                         <p className="text-primary-300 text-lg md:text-xl text-justify font-medium">
                             <Trans
@@ -55,7 +55,7 @@ export const ContactComponent = () => {
                         </p>
                     </div>
 
-                    {/* Right Column - Contact Form Container */}
+                    {/* Right Column: Contact Form Container */}
                     <div className="bg-primary-300 p-8 rounded-xl shadow-lg">
                         <FormContactComponent t={t} />
                     </div>

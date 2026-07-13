@@ -65,4 +65,8 @@ public class Stage {
     /* --- Calendar Events relation ==> If a Stage is deleted, all its linked events are deleted --- */
     @OneToMany(mappedBy = "stage", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<CalendarEvent> calendarEvents = new ArrayList<>();
+
+    /* --- Time Logs relation ==> If a Stage is deleted, all its linked time logs are deleted --- */
+    @OneToMany(mappedBy = "stage", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<TimeLog> timeLogs = new ArrayList<>();
 }

@@ -1,20 +1,14 @@
-/** React & Third-Party Libraries */
-import { useEffect, useRef, useState } from "react";
-
-/**
- * Constant Animation Speed
- *
- * Defines the uniform scrolling speed in pixels per second. This maintains
- * a constant visual velocity regardless of the overflow distance.
- */
-const SPEED_PX_PER_SECOND = 25;
+/** Contexts, Hooks & Services */
+import { useScrollingTextLogic } from "../../../hooks/components/app/common/useScrollingTextLogic.js";
 
 /**
  * Scrolling Text Component
  *
- * A specialized utility component that smoothly animates textual content back and forth (ping-pong)
- * when the text overflows its parent container. The animation is triggered either by user hover
- * on desktop devices, or it runs automatically on mobile viewports.
+ * A specialized purely visual component that smoothly animates textual content back and forth
+ * (ping-pong) when the text overflows its parent container. The animation is triggered either
+ * by user hover on desktop devices, or it runs automatically on mobile viewports.
+ * It explicitly delegates all DOM measurement, overflow logic, and state management
+ * to the `useScrollingTextLogic` headless hook.
  *
  * @component
  * @param {Object} props - The component props.
@@ -23,135 +17,27 @@ const SPEED_PX_PER_SECOND = 25;
  * @returns {JSX.Element} The rendered scrolling text container.
  */
 export const ScrollingText = ({ text, className }) => {
-    // --- 1. Hooks & Contexts ---
+    // --- 1. Logic Hook Extraction ---
 
     /**
-     * Container Reference
+     * UI Data & Action Handlers
      *
-     * References the outer bounding container to measure its maximum available width.
+     * Extracts DOM references, calculation states, derived overflow data, and interaction
+     * handlers from the logic hook. Injects the `text` string to ensure the overflow
+     * recalculates automatically if the textual content dynamically changes.
      */
-    const containerRef = useRef(null);
+    const { scrollingTextRefs, scrollingTextStates, scrollingTextData, scrollingTextActions } =
+        useScrollingTextLogic(text);
 
-    /**
-     * Text Reference
-     *
-     * References the inner textual element to measure its actual unrestricted width.
-     */
-    const textRef = useRef(null);
+    const { containerRef, textRef } = scrollingTextRefs;
+    const { scrollDist } = scrollingTextStates;
+    const { isOverflowing, animationDuration, shouldAnimate } = scrollingTextData;
+    const { handleMouseEnter, handleMouseLeave } = scrollingTextActions;
 
-    // --- 2. Local State ---
-
-    /**
-     * Hover State
-     *
-     * Tracks whether the user's cursor is currently hovering over the component.
-     */
-    const [isHovered, setIsHovered] = useState(false);
-
-    /**
-     * Mobile Viewport State
-     *
-     * Tracks if the current viewport is sized as a mobile device (< 768px).
-     */
-    const [isMobile, setIsMobile] = useState(false);
-
-    /**
-     * Scroll Distance State
-     *
-     * Stores the calculated overflowing pixels (plus a small buffer) that the text needs to traverse.
-     * A value greater than 0 indicates an overflow condition.
-     */
-    const [scrollDist, setScrollDist] = useState(0);
-
-    // --- 3. Derived Variables ---
-
-    /**
-     * Overflowing State Flag
-     *
-     * Determines if the text exceeds the container's boundaries based on the scroll distance.
-     */
-    const isOverflowing = scrollDist > 0;
-
-    /**
-     * Animation Duration
-     *
-     * Calculates the time (in seconds) required to traverse the scroll distance at a constant speed,
-     * ensuring a minimum duration of 1.5 seconds for smoothness on shorter overflows.
-     */
-    const animationDuration = Math.max(scrollDist / SPEED_PX_PER_SECOND, 1.5);
-
-    /**
-     * Animation Trigger Flag
-     *
-     * Resolves whether the ping-pong animation should be actively running, requiring both an overflow
-     * condition and an appropriate interaction context (hovered on desktop or always on mobile).
-     */
-    const shouldAnimate = isOverflowing && (isHovered || isMobile);
-
-    // --- 4. Side Effects ---
-
-    /**
-     * Overflow Measurement Effect
-     *
-     * Calculates the required scroll distance when the component mounts, when the viewport resizes,
-     * or when the textual content changes. Triggers a small timeout on mount to ensure the DOM is fully painted.
-     */
-    useEffect(() => {
-        /**
-         * Check Overflow Routine
-         *
-         * Measures the DOM nodes and updates the scroll distance state.
-         *
-         * @returns {void}
-         */
-        const checkOverflow = () => {
-            setIsMobile(window.innerWidth < 768);
-
-            if (containerRef.current && textRef.current) {
-                const parentWidth = containerRef.current.clientWidth;
-                const textWidth = textRef.current.scrollWidth;
-
-                if (textWidth > parentWidth) {
-                    const overflowPixels = textWidth - parentWidth + 8;
-                    setScrollDist(overflowPixels);
-                } else {
-                    setScrollDist(0);
-                }
-            }
-        };
-
-        const timeoutId = setTimeout(checkOverflow, 50);
-        window.addEventListener("resize", checkOverflow);
-
-        return () => {
-            clearTimeout(timeoutId);
-            window.removeEventListener("resize", checkOverflow);
-        };
-    }, [text]);
-
-    // --- 5. Event Handlers & Functions ---
-
-    /**
-     * Mouse Enter Handler
-     *
-     * Activates the hover state, potentially triggering the animation if the text overflows.
-     *
-     * @returns {void}
-     */
-    const handleMouseEnter = () => setIsHovered(true);
-
-    /**
-     * Mouse Leave Handler
-     *
-     * Deactivates the hover state, halting the animation on desktop devices.
-     *
-     * @returns {void}
-     */
-    const handleMouseLeave = () => setIsHovered(false);
-
-    // --- 6. Render ---
+    // --- 2. Render ---
 
     return (
+        /* Main Overflow Container */
         <div
             ref={containerRef}
             className={`relative w-full overflow-hidden whitespace-nowrap flex items-center ${className}`}

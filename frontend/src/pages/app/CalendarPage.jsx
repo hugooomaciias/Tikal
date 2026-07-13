@@ -7,12 +7,10 @@ import listPlugin from "@fullcalendar/list";
 import esLocale from "@fullcalendar/core/locales/es";
 import enLocale from "@fullcalendar/core/locales/en-gb";
 import DatePicker from "react-datepicker";
-import { useTranslation } from "react-i18next";
 
 /** Contexts, Hooks & Services */
-import { useMain } from "../../hooks/useMain.js";
-import { useCalendarLogic } from "../../hooks/useCalendarLogic.js";
-import { useContextMenu } from "../../hooks/useContextMenu.js";
+import { useCalendarLogic } from "../../hooks/components/app/calendar/useCalendarLogic.js";
+import { useContextMenu } from "../../hooks/components/app/common/useContextMenu.js";
 import i18n from "../../i18n.js";
 
 /** Components & Layouts */
@@ -28,36 +26,43 @@ import { renderEventContent, renderCustomDayContents } from "../../components/ap
 /**
  * Calendar Page Component
  *
- * This component renders the main calendar view of the application. It features a
- * dual-calendar layout: a large interactive main calendar for weekly, monthly and
- * daily overviews, and a mini-calendar in the sidebar for quick navigation.
- * It also includes an agenda view of upcoming events.
+ * This purely presentational component acts as the primary layout wrapper for the user's
+ * calendar dashboard. It delegates all its complex state management, data fetching, and
+ * calculation logic to the `useCalendarLogic` hook, focusing strictly on rendering
+ * the responsive calendar layout and injecting the visualization components.
  *
  * @component
- * @returns {JSX.Element|null} The rendered calendar page or null if data is loading.
+ * @returns {JSX.Element|null} The rendered calendar dashboard, or null if data is not loaded.
  */
 export const CalendarPage = () => {
-    // --- 1. Hooks & Contexts ---
+    // --- 1. Logic Hook Extraction ---
 
     /**
-     * Main Context Hook
+     * Component Logic Payload
      *
-     * Extracts global application state regarding user profile data and loading status.
+     * Extracts all required business logic, including layout state arrays, overarching metadata,
+     * localization functions, and layout modification action handlers from the headless hooks.
      */
-    const { getCalendarEvents, getTasksData, isDataLoaded } = useMain();
+    const { t, calendarRef, calendarStates, calendarData, calendarActions } = useCalendarLogic();
 
-    /**
-     * Translation Hook
-     *
-     * Provides the 't' function to localize strings specifically for the
-     * calendar namespace.
-     */
-    const { t } = useTranslation("app_calendar");
+    const { isDataLoaded, selectedDate, eventToEdit, isMobile } = calendarStates;
+    const { events, highlightDates, eventsColorMap, groupedEvents, cascadingOptions } = calendarData;
+    const {
+        openNewEventModal,
+        closeEventModal,
+        handleDateClick,
+        handleEventClick,
+        handleDatesSet,
+        handleMiniCalendarChange,
+        handleMonthChange,
+    } = calendarActions;
 
-    const { calendarRef, calendarState, calendarActions, data } = useCalendarLogic(getCalendarEvents, getTasksData);
-    const { contextMenuRef, contextMenuState, contextMenuActions } = useContextMenu(calendarActions.handleEventClick);
+    const { contextMenuRef, contextMenuStates, contextMenuActions } = useContextMenu(handleEventClick);
 
-    // --- 6. Render ---
+    const { contextMenu, entityToRename, entityToDelete } = contextMenuStates;
+    const { closeRenameModal, closeDeleteModal, handleContextMenu } = contextMenuActions;
+
+    // --- 2. Render ---
 
     if (!isDataLoaded) {
         return null;
@@ -65,18 +70,13 @@ export const CalendarPage = () => {
 
     return (
         <div className="flex flex-col md:flex-row h-[100dvh] bg-gradient-to-t md:bg-gradient-to-r from-primary-50 to-primary-300 p-2 md:p-4 gap-4 md:gap-8 overflow-hidden">
-            {/* Global Primary Navigation Menu Layer */}
+            {/* Vertical Navbar Navigation Layer */}
             <NavbarComponent />
 
             {/* Viewport Action Context Section */}
             <section className="flex-1 flex flex-col gap-4 md:gap-6 w-full h-full overflow-hidden">
                 {/* Universal Interactive Core Headers */}
-                <HeaderComponent
-                    page={t("calendar_title")}
-                    get1={calendarState.eventToEdit}
-                    set1={() => calendarActions.setEventToEdit({ isNew: true })}
-                    t={t}
-                />
+                <HeaderComponent page={t("calendar_title")} primaryState={eventToEdit} onTogglePrimary={openNewEventModal} t={t} />
 
                 {/* Central Data Wrapper Container */}
                 <div className="flex-1 flex gap-2 overflow-hidden">
@@ -85,14 +85,14 @@ export const CalendarPage = () => {
                         {/* Left Side Fast Nav DatePicker */}
                         <div className="alt-datepicker-theme w-full flex justify-center shrink-0">
                             <DatePicker
-                                selected={calendarState.selectedDate}
-                                onChange={calendarActions.handleMiniCalendarChange}
-                                onMonthChange={calendarActions.handleMonthChange}
+                                selected={selectedDate}
+                                onChange={handleMiniCalendarChange}
+                                onMonthChange={handleMonthChange}
                                 inline
                                 locale={i18n.language}
-                                highlightDates={data.highlightDates}
+                                highlightDates={highlightDates}
                                 renderDayContents={(dayOfMonth, date) =>
-                                    renderCustomDayContents(dayOfMonth, date, data.eventsColorMap)
+                                    renderCustomDayContents(dayOfMonth, date, eventsColorMap)
                                 }
                             />
                         </div>
@@ -102,9 +102,9 @@ export const CalendarPage = () => {
 
                         {/* Event Feed Activity List Scroller */}
                         <NextEventsComponent
-                            groupedEvents={data.groupedEvents}
-                            handleEventClick={calendarActions.handleEventClick}
-                            handleContextMenu={contextMenuActions.handleContextMenu}
+                            groupedEvents={groupedEvents}
+                            handleEventClick={handleEventClick}
+                            handleContextMenu={handleContextMenu}
                             t={t}
                         />
                     </aside>
@@ -112,13 +112,14 @@ export const CalendarPage = () => {
                     {/* Main Interaction Full Calendar Board */}
                     <main className="flex-1 flex flex-col bg-primary rounded-[2.5rem] shadow-sm p-6 overflow-hidden">
                         <div className="main-calendar-theme w-full h-full relative">
+                            {/* Calendar Third-Party Instance */}
                             <FullCalendar
                                 ref={calendarRef}
                                 plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin, listPlugin]}
-                                initialView={calendarState.isMobile ? "listWeek" : "dayGridMonth"}
+                                initialView={isMobile ? "listWeek" : "dayGridMonth"}
                                 locale={i18n.language === "es" ? esLocale : enLocale}
                                 headerToolbar={
-                                    calendarState.isMobile
+                                    isMobile
                                         ? {
                                               left: "prev,next",
                                               center: "title",
@@ -131,20 +132,18 @@ export const CalendarPage = () => {
                                           }
                                 }
                                 buttonText={{
-                                    listDay: calendarState.isMobile ? "Día" : "",
-                                    listWeek: calendarState.isMobile ? "Semana" : "",
+                                    listDay: isMobile ? "Día" : "",
+                                    listWeek: isMobile ? "Semana" : "",
                                 }}
-                                listDayFormat={calendarState.isMobile ? { weekday: "long" } : { weekday: "long" }}
+                                listDayFormat={isMobile ? { weekday: "long" } : { weekday: "long" }}
                                 listDaySideFormat={
-                                    calendarState.isMobile
+                                    isMobile
                                         ? { day: "numeric", month: "short" }
                                         : { day: "numeric", month: "long", year: "numeric" }
                                 }
-                                titleFormat={calendarState.isMobile ? { year: "numeric" } : ""}
-                                events={data.events}
-                                eventContent={(eventInfo) =>
-                                    renderEventContent(eventInfo, contextMenuActions.handleContextMenu)
-                                }
+                                titleFormat={isMobile ? { year: "numeric" } : ""}
+                                events={events}
+                                eventContent={(eventInfo) => renderEventContent(eventInfo, handleContextMenu)}
                                 slotLabelFormat={{
                                     hour: "numeric",
                                     minute: "2-digit",
@@ -152,18 +151,16 @@ export const CalendarPage = () => {
                                     meridiem: false,
                                 }}
                                 allDaySlot={false}
-                                dateClick={calendarActions.handleDateClick}
-                                eventClick={calendarActions.handleEventClick}
+                                dateClick={handleDateClick}
+                                eventClick={handleEventClick}
                                 editable={true}
                                 selectable={true}
                                 selectMirror={true}
                                 dayMaxEvents={false}
                                 height="100%"
-                                datesSet={calendarActions.handleDatesSet}
+                                datesSet={handleDatesSet}
                                 eventDidMount={(info) => {
-                                    info.el.addEventListener("contextmenu", (e) =>
-                                        contextMenuActions.handleContextMenu(e, info),
-                                    );
+                                    info.el.addEventListener("contextmenu", (e) => handleContextMenu(e, info));
                                 }}
                             />
                         </div>
@@ -171,28 +168,30 @@ export const CalendarPage = () => {
                 </div>
             </section>
 
-            {contextMenuState.contextMenu.visible && (
+            {/* Right-Click Context Menu Injector */}
+            {contextMenu.visible && (
                 <ContextMenuComponent
                     contextMenuRef={contextMenuRef}
-                    contextMenuState={contextMenuState}
+                    contextMenuStates={contextMenuStates}
                     contextMenuActions={contextMenuActions}
                 />
             )}
 
             {/* Overlap Dialog Box Injector Engine */}
-            {calendarState.eventToEdit && (
+            {eventToEdit && (
                 <EventPopUpComponent
-                    onClose={() => calendarActions.setEventToEdit(null)}
-                    initialData={calendarState.eventToEdit}
-                    cascadingOptions={data.cascadingOptions}
+                    onClose={closeEventModal}
+                    initialData={eventToEdit}
+                    cascadingOptions={cascadingOptions}
                     t={t}
                 />
             )}
 
-            {contextMenuState.entityToRename && (
+            {/* Inline Title Modification Injector */}
+            {entityToRename && (
                 <RenameComponent
-                    onClose={() => contextMenuActions.setEntityToRename(null)}
-                    data={contextMenuState.entityToRename}
+                    onClose={closeRenameModal}
+                    data={entityToRename}
                     onRename={(id, newTitle) => {
                         console.log("Guardar nuevo nombre:", newTitle, "para el evento:", id);
                     }}
@@ -200,10 +199,11 @@ export const CalendarPage = () => {
                 />
             )}
 
-            {contextMenuState.entityToDelete && (
+            {/* Resource Deletion Confirmation Injector */}
+            {entityToDelete && (
                 <DeleteComponent
-                    onClose={() => contextMenuActions.setEntityToDelete(null)}
-                    data={contextMenuState.entityToDelete}
+                    onClose={closeDeleteModal}
+                    data={entityToDelete}
                     onDelete={(id) => {
                         console.log("Eliminando el evento con ID:", id);
                     }}

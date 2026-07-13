@@ -1,13 +1,10 @@
-/** React & Third-Party Libraries */
-import { useState, useEffect } from "react";
+/** Contexts, Hooks & Services */
+import { useStagesPopUpLogic } from "../../../hooks/components/app/tasks/useStagesPopUpLogic.js";
 
 /** Components & Layouts */
 import { TabsComponent } from "../common/popups/TabsComponent.jsx";
 import { DatePickerComponent } from "../common/popups/DatepickerComponent.jsx";
 import { PickerComponent } from "../common/popups/PickerComponent.jsx";
-
-/** Contexts, Hooks & Services */
-import { useStage } from "../../../hooks/useStage.js";
 
 /** Icons */
 import { IconCircleXFilled, IconNote, IconLoader } from "@tabler/icons-react";
@@ -16,301 +13,57 @@ import { IconCircleXFilled, IconNote, IconLoader } from "@tabler/icons-react";
 import { PHASE_COLOURS } from "../../../constants/phase_colours.js";
 
 /**
- * New Stage/Sublist PopUp Component
+ * Stage PopUp Component
  *
- * This component renders a modal overlay that allows users to create a new
- * stage or sublist, or edit an existing one. It includes form fields for the
- * name, description (note), an colour picker, and a toggle between 'stage' and 'sublist'.
+ * A purely presentational component that renders the modal overlay for creating or editing stages and sublists.
+ * It delegates all form state, validation, and API submission logic to the `useStagesPopUpLogic` headless hook,
+ * remaining strictly focused on visual rendering and layout management.
  *
  * @component
  * @param {Object} props - The component props.
  * @param {Function} props.onClose - Callback function triggered to close the modal.
- * @param {Object|null} props.initialData - Initial data injected when editing an existing stage/sublist.
+ * @param {Object|null} props.initialData - Initial data injected when editing an existing entity.
+ * @param {string|number} props.projectId - The ID of the parent project.
  * @param {Function} props.t - Translation function from i18next for multi-language support.
  * @returns {JSX.Element} The rendered modal component.
  */
-export const StagePopUpComponent = ({ onClose, initialData, projectId, onStageCreated, onStageUpdated, t }) => {
-    // --- 1. Hooks & Contexts ---
+export const StagePopUpComponent = ({ onClose, initialData, projectId, t }) => {
+    // --- 1. Logic Hook Extraction ---
 
     /**
-     * Main Context Hook
+     * Stages PopUp Logic
      *
-     * Extracts global application state regarding user profile data and loading status.
+     * Extracts form data, validation errors, loading/API states, and the necessary action handlers
+     * required to process user inputs from the headless hook.
      */
-    const { create, update } = useStage();
+    const { stagesPopUpStates, stagesPopUpData, stagesPopUpActions } = useStagesPopUpLogic(
+        initialData,
+        onClose,
+        projectId,
+        t,
+    );
 
-    // --- 2. Local State ---
+    const { selectedColour, insertDeadline, formData, errors, isLoading, apiError, isVisible } = stagesPopUpStates;
+    const { isEditing } = stagesPopUpData;
+    const {
+        handleChange,
+        handleSubmit,
+        handleClose,
+        handleToggleDeadline,
+        getInputClass,
+        handleTabTypeChange,
+        handleDefaultColourSelection,
+        handleDateChange,
+    } = stagesPopUpActions;
 
-    /**
-     * Selected Colour State
-     *
-     * Stores the currently selected colour for the stage or sublist.
-     * Initializes with the provided stage colour if editing, otherwise defaults to the first available colour.
-     */
-    const [selectedColour, setSelectedColour] = useState(() => {
-        if (initialData) {
-            return PHASE_COLOURS.find((colour) => colour.id === initialData.colour) || PHASE_COLOURS[0];
-        }
-        return PHASE_COLOURS[0];
-    });
-
-    /**
-     * Deadline Toggle State
-     *
-     * Manages the visual toggle switch indicating whether the user wants to attach a deadline date.
-     */
-    const [insertDeadline, setInsertDeadline] = useState(() => {
-        return Boolean(initialData && initialData.date);
-    });
-
-    /**
-     * Form Data State
-     *
-     * Manages the controlled input values for the stage/sublist metadata (type, name, date, description).
-     */
-    const [formData, setFormData] = useState({
-        type: "stage",
-        stage: initialData ? initialData.name : "",
-        date: initialData && initialData.deadline ? new Date(initialData.deadline) : null,
-        note: initialData ? initialData.description : "",
-    });
-
-    /**
-     * Validation Error State
-     *
-     * Stores field-specific error messages displayed under the inputs when validation fails.
-     */
-    const [errors, setErrors] = useState({});
-
-    const [isLoading, setIsLoading] = useState(false);
-    const [apiError, setApiError] = useState("");
-
-    /**
-     * Popup Visibility State
-     *
-     * Controls the visibility of the error popup for animation purposes.
-     * When true, the popup scales in and becomes fully opaque.
-     */
-    const [isVisible, setIsVisible] = useState(false);
-
-    // --- 3. Derived Variables ---
-
-    /**
-     * Edit Mode Flag
-     *
-     * Determines if the component is in edit mode based on the presence of initial data.
-     * Used dynamically throughout the render cycle to swap between "Create" and "Edit" labels.
-     */
-    const isEditing = Boolean(initialData);
-
-    // --- 4. Side Effects ---
-
-    /**
-     * Popup Auto-Hide Effect
-     *
-     * Monitors the `apiError` state. When an error is present, it displays
-     * the popup and sets a timeout to automatically close it after 5 seconds.
-     * It cleans up the timeout if the component unmounts or if the error changes.
-     */
-    useEffect(() => {
-        if (apiError) {
-            setIsVisible(true);
-
-            const timer = setTimeout(() => {
-                handleClose();
-            }, 5000);
-
-            return () => clearTimeout(timer);
-        }
-    }, [apiError]);
-
-    // --- 5. Event Handlers & Functions ---
-
-    /**
-     * Form Validation Logic
-     *
-     * Performs client-side checks to ensure all required fields,
-     * such as the stage or sublist name, are properly filled out before submission.
-     *
-     * @returns {boolean} True if the form is valid, false otherwise.
-     */
-    const validateForm = () => {
-        let tempErrors = {};
-        let isValid = true;
-
-        if (!formData.stage.trim()) {
-            tempErrors.stage = t("stages.popup.error");
-            isValid = false;
-        }
-
-        setErrors(tempErrors);
-
-        return isValid;
-    };
-
-    /**
-     * Input Change Handler
-     *
-     * Updates the specific field in the state object while preserving
-     * other values. Instantly clears any existing visual errors for the active field to improve UX.
-     *
-     * @param {React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>} e - The native DOM change event.
-     * @returns {void}
-     */
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-
-        setFormData((prev) => ({
-            ...prev,
-            [name]: value,
-        }));
-
-        if (errors[name]) {
-            setErrors((prev) => ({
-                ...prev,
-                [name]: "",
-            }));
-        }
-    };
-
-    /**
-     * Form Submission Handler
-     *
-     * Orchestrates the submission process: validates the user's input,
-     * resets the temporary data, and cleanly closes the modal.
-     *
-     * @param {React.FormEvent} e - The form submission event.
-     * @returns {void}
-     */
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        setApiError("");
-
-        if (validateForm()) {
-            setIsLoading(true);
-
-            try {
-                let finalDeadline = null;
-                if (formData.date) {
-                    const dateCopy = new Date(formData.date);
-                    dateCopy.setHours(2, 0, 0, 0);
-                    finalDeadline = dateCopy.toISOString();
-                }
-
-                const stagePayload = {
-                    projectId: projectId,
-                    name: formData.stage,
-                    description: formData.note,
-                    deadline: finalDeadline,
-                    colour: selectedColour.id,
-                };
-
-                if (isEditing) {
-                    const updatedStage = await update(initialData.id, stagePayload);
-
-                    if (onStageUpdated) {
-                        onStageUpdated(updatedStage);
-                    }
-
-                    handleClose();
-                } else {
-                    const newStage = await create(stagePayload);
-
-                    setFormData({ type: "stage", stage: "", date: "", note: "" });
-
-                    if (onStageCreated) {
-                        onStageCreated(newStage);
-                    }
-
-                    handleClose();
-                }
-            } catch (error) {
-                setApiError(error.message || "Ocurrió un error al crear la fase.");
-            } finally {
-                setIsLoading(false);
-            }
-        }
-    };
-
-    /**
-     * Close Modal Handler
-     *
-     * Triggers the parent's callback to dismiss the popup modal.
-     *
-     * @returns {void}
-     */
-    const handleClose = () => {
-        setIsVisible(false);
-
-        setTimeout(() => {
-            setApiError("");
-        }, 300);
-
-        onClose();
-    };
-
-    /**
-     * Colour Change Handler
-     *
-     * Updates the selected colour state when a new colour is chosen.
-     *
-     * @param {Object} newColourObj - The newly selected colour object.
-     * @returns {void}
-     */
-    const handleColourChange = (newColourObj) => {
-        setSelectedColour(newColourObj);
-    };
-
-    /**
-     * Date Change Handler
-     *
-     * Updates the date field within the form data state.
-     *
-     * @param {Date|null} date - The newly selected date or null if cleared.
-     * @returns {void}
-     */
-    const handleDateChange = (date) => {
-        setFormData((prev) => ({ ...prev, date }));
-    };
-
-    /**
-     * Toggle Deadline Handler
-     *
-     * Toggles the user's preference for adding a deadline.
-     *
-     * @returns {void}
-     */
-    const handleToggleDeadline = () => {
-        setInsertDeadline((prev) => !prev);
-    };
-
-    /**
-     * Dynamic Input Styling Helper
-     *
-     * Computes the Tailwind CSS classes for form fields based on their current
-     * validation and error states.
-     *
-     * @param {string} fieldName - The unique identifier name of the field to check.
-     * @returns {string} The fully computed CSS class string.
-     */
-    const getInputClass = (fieldName) => {
-        const baseInputClass = "input input-textarea-primary peer";
-        const baseTextareaClass = "textarea input-textarea-primary peer";
-        const errorClass = "ring-[3px] ring-tertiary-200";
-
-        const baseClass = fieldName === "note" ? baseTextareaClass : baseInputClass;
-
-        return `${baseClass} ${errors[fieldName] ? errorClass : ""}`;
-    };
-
-    // --- 6. Render ---
+    // --- 2. Render ---
 
     return (
         <div
             className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm"
             onClick={handleClose}
         >
-            {/* API Error Alert Modal */}
+            {/* Global API Error Alert Banner */}
             {apiError && (
                 <div
                     className={`absolute top-10 md:top-16 h-16 w-[89%] md:w-1/4 bg-primary border-2 border-tertiary-200 text-tertiary-200 px-4 py-3 rounded-lg flex items-center justify-center gap-3 shadow-xl transition-all duration-300 animate-fade-in-up z-50
@@ -322,14 +75,14 @@ export const StagePopUpComponent = ({ onClose, initialData, projectId, onStageCr
                 </div>
             )}
 
-            {/* Modal Content Container */}
+            {/* Main Modal Content Card */}
             <div
                 className="relative w-[90%] max-w-md shadow-2xl flex flex-col gap-6 bg-primary-50 rounded-[2.5rem] p-8 animate-fade-in-up"
                 onClick={(e) => {
                     e.stopPropagation();
                 }}
             >
-                {/* Header: Dynamic Title and Close Action */}
+                {/* Modal Header: Dynamic Title and Close Action */}
                 <div className="flex items-center justify-between">
                     <span className="text-2xl font-bold text-quaternary-700">
                         {isEditing
@@ -349,29 +102,28 @@ export const StagePopUpComponent = ({ onClose, initialData, projectId, onStageCr
                     </button>
                 </div>
 
-                {/* Main Submission Form */}
+                {/* Main Form Elements Container */}
                 <form onSubmit={handleSubmit} className="flex flex-col gap-6" noValidate>
-                    {/* Type Selection Tabs */}
+                    
+                    {/* Form Section: Entity Type Tabs (Stage vs Sublist) */}
                     <TabsComponent
                         page={"Stage"}
                         formData={formData}
-                        setFormData={setFormData}
-                        setSelected={setSelectedColour}
+                        onChangeType={handleTabTypeChange}
+                        onChangeSelected={handleDefaultColourSelection}
                         fieldToUpdate={"type"}
                         t={t}
                     />
 
-                    {/* Colour Picker and Name Input Row */}
+                    {/* Form Section: Colour Picker & Title Input Row */}
                     <div className="flex items-center gap-3">
-                        {/* Stage/Sublist Colour Picker */}
                         <PickerComponent
                             items={PHASE_COLOURS}
                             selectedItem={selectedColour}
                             pickerType="colour"
-                            onChange={handleColourChange}
+                            onChange={handleDefaultColourSelection}
                         />
 
-                        {/* Name Input Field */}
                         <div className="relative w-full">
                             <input
                                 type="text"
@@ -389,7 +141,7 @@ export const StagePopUpComponent = ({ onClose, initialData, projectId, onStageCr
                                     : t("stages.popup.name.sublist")}
                             </label>
 
-                            {/* Validation Error Message */}
+                            {/* Input Validation Error */}
                             {errors.stage && (
                                 <span className="absolute -bottom-5 left-0 text-tertiary-200 text-xs font-semibold">
                                     {errors.stage}
@@ -398,9 +150,9 @@ export const StagePopUpComponent = ({ onClose, initialData, projectId, onStageCr
                         </div>
                     </div>
 
-                    {/* Deadline Section */}
+                    {/* Form Section: Deadline Toggle & Date Picker */}
                     <div className="flex flex-col gap-3">
-                        {/* Datepicker Overlay */}
+                        {/* Interactive Date Picker */}
                         <div className="transition-all duration-300">
                             <DatePickerComponent
                                 value={formData.date}
@@ -410,7 +162,7 @@ export const StagePopUpComponent = ({ onClose, initialData, projectId, onStageCr
                             />
                         </div>
 
-                        {/* Deadline Toggle Switch */}
+                        {/* Deadline Opt-in Switch */}
                         <div className="flex items-center justify-between px-2">
                             <span className="text-primary-500 text-sm font-bold">{t("stages.popup.add_deadline")}</span>
 
@@ -430,7 +182,7 @@ export const StagePopUpComponent = ({ onClose, initialData, projectId, onStageCr
                         </div>
                     </div>
 
-                    {/* Description Textarea */}
+                    {/* Form Section: Description Textarea */}
                     <div className="relative w-full">
                         <textarea
                             id="note"
@@ -452,7 +204,7 @@ export const StagePopUpComponent = ({ onClose, initialData, projectId, onStageCr
                         </div>
                     </div>
 
-                    {/* Form Submit Button */}
+                    {/* Form Section: Submit Actions */}
                     <button type="submit" className="btn btn-primary md:min-w-1/2 mx-auto flex items-center gap-4">
                         <span>
                             {isLoading

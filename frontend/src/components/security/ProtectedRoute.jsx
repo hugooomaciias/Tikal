@@ -3,7 +3,7 @@ import React from "react";
 import { Navigate } from "react-router-dom";
 
 /** Contexts, Hooks & Services */
-import { useAuth } from "../../hooks/useAuth";
+import { useAuth } from "../../hooks/core/useAuth";
 
 /** Components & Layouts */
 import { LoadingPage } from "../../pages/LoadingPage";
@@ -30,33 +30,15 @@ export const ProtectedRoute = ({ children }) => {
      */
     const { isAuthenticated, isLoading } = useAuth();
 
-    // --- 6. Render ---
+    // --- 2. Render ---
 
-    /**
-     * Handle Pending State
-     *
-     * If the authentication status is still being determined, display the
-     * full-screen loading component.
-     */
     if (isLoading) {
         return <LoadingPage />;
     }
 
-    /**
-     * Redirect Unauthenticated Users
-     *
-     * If the user is definitely not authenticated, block access to the private route
-     * and forcibly redirect them to the login screen.
-     */
     if (!isAuthenticated) {
         return <Navigate to="/login" replace />;
     }
 
-    /**
-     * Render Protected Route
-     *
-     * If an active session exists and is verified, allow the component to render its
-     * child routes.
-     */
     return children;
 };

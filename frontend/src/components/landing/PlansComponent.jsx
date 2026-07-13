@@ -1,5 +1,4 @@
 /** React & Third-Party Libraries */
-import React from "react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
@@ -9,30 +8,29 @@ import { IconUser, IconUsersGroup, IconCheck, IconX } from "@tabler/icons-react"
 /**
  * Plans & Pricing Section Component
  *
- * This component renders the subscription plans section of the landing page. It
- * outlines the different tiers available, presenting a clear comparison of their
- * respective features.
+ * A primarily visual presentational layout rendering the subscription plans section
+ * of the landing page. It manages minimal local data to map out the different pricing tiers,
+ * presenting a clear visual comparison of their respective features and guiding the user to registration.
  *
  * @component
  * @returns {JSX.Element} The rendered plans section with a responsive grid layout.
  */
 export const PlansComponent = () => {
-    // --- 1. Hooks & Contexts ---
+    // --- 1. Local UI Logic ---
 
     /**
-     * Translation Hook
+     * Translation Hook Extraction
      *
-     * Provides the 't' function to localize strings specifically for the
-     * landing page namespace.
+     * Provides the 't' function to localize static text strings specifically
+     * for the landing page namespace.
      */
     const { t } = useTranslation("landing");
-
-    // --- 3. Derived Variables ---
 
     /**
      * Color Theme Configuration
      *
-     * This object maps abstract theme keys to concrete Tailwind utility classes.
+     * This object maps abstract theme keys to concrete Tailwind utility classes
+     * used dynamically when mapping over the plan objects.
      */
     const coloursVariants = {
         secondary: {
@@ -48,8 +46,8 @@ export const PlansComponent = () => {
     /**
      * Icon Component Map
      *
-     * Acts as a lookup table to resolve string identifiers from the data into
-     * actual React functional components.
+     * Acts as a lookup table to resolve string identifiers from the data array
+     * into actual React functional icon components.
      */
     const iconMap = {
         UserIcon: IconUser,
@@ -59,7 +57,8 @@ export const PlansComponent = () => {
     /**
      * Pricing Options Data
      *
-     * Defines the content and visual style for each subscription plan.
+     * Defines the content, feature lists, and visual style configurations for
+     * each subscription plan tier.
      */
     const plansOptions = [
         {
@@ -101,26 +100,28 @@ export const PlansComponent = () => {
         },
     ];
 
-    // --- 6. Render ---
+    // --- 2. Render ---
 
     return (
         <div className="w-full max-w-6xl mx-auto flex items-center justify-items-center p-12 md:p-8 mt-28 md:m-28">
+            {/* Main Content Container */}
             <div className="text-primary text-center">
-                {/* Hero Section */}
+                {/* Hero Title Block */}
                 <h1 className="text-4xl md:text-5xl font-bold mb-4 leading-tight">{t("landing.plans.title")}</h1>
 
-                {/* Description Section */}
+                {/* Section Description Paragraph */}
                 <p className="md:w-3/4 mx-auto text-xl mb-10">{t("landing.plans.description")}</p>
 
-                {/* Pricing Cards Grid */}
+                {/* Pricing Cards Mapping Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                    {/* Iterative Card Rendering */}
                     {plansOptions.map((plan, planIndex) => {
                         const styles = coloursVariants[plan.colour];
                         const IconComponent = iconMap[plan.icon];
 
                         return (
                             <div key={planIndex} className="bg-primary p-6 rounded-xl shadow-lg">
-                                {/* Card Header */}
+                                {/* Card Header Area: Icon & Theme Tag */}
                                 <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-6">
                                     <IconComponent className={`w-10 h-10 ${styles.text}`} />
 
@@ -131,7 +132,7 @@ export const PlansComponent = () => {
                                     </div>
                                 </div>
 
-                                {/* Plan Details */}
+                                {/* Plan Title, Price & Short Description */}
                                 <div className="flex flex-col lg:text-left gap-4 text-quaternary-700 mb-6">
                                     <div className="flex flex-col md:flex-row items-center justify-center md:justify-between">
                                         <span className="text-3xl font-light">{plan.title}</span>
@@ -142,16 +143,19 @@ export const PlansComponent = () => {
                                     <p className="font-extralight">{plan.desc}</p>
                                 </div>
 
-                                {/* Features List */}
+                                {/* Features Checklist Block */}
                                 <div className="flex flex-col text-left gap-4 text-quaternary-700 mb-8">
+                                    {/* Iterative Feature Rendering */}
                                     {plan.featuresList.map((feature, featureIndex) => (
                                         <div key={featureIndex} className="flex items-center gap-4">
+                                            {/* Feature Status Icon */}
                                             {feature.included ? (
                                                 <IconCheck className="w-5 h-5" />
                                             ) : (
                                                 <IconX className="w-5 h-5" />
                                             )}
 
+                                            {/* Feature Description Text */}
                                             <p
                                                 className={`font-thin
                                                            ${feature.included ? "text-gray-700" : "text-gray-400 line-through decoration-gray-300"}
@@ -163,7 +167,7 @@ export const PlansComponent = () => {
                                     ))}
                                 </div>
 
-                                {/* Call-to-Action Button */}
+                                {/* Registration Call-to-Action Link */}
                                 <Link
                                     to={plan.action}
                                     state={plan.state}
@@ -176,7 +180,7 @@ export const PlansComponent = () => {
                     })}
                 </div>
 
-                {/* Footer Note */}
+                {/* Disclamers & Footer Note */}
                 <p className="font-thin">{t("landing.plans.footer_note")}</p>
             </div>
         </div>

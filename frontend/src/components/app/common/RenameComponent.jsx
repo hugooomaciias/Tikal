@@ -1,11 +1,18 @@
-import React, { useState } from "react";
+/** React & Third-Party Libraries */
+import { useState } from "react";
+import resolveConfig from "tailwindcss/resolveConfig";
+
+/** Contexts, Hooks & Services */
+
+/** Components & Layouts */
+
+/** Icons */
 import { IconCircleXFilled, IconWriting } from "@tabler/icons-react";
 
-/** Config, Constants & Utils */
+/** Assets, Utils & Constants */
 import { PROJECTS_ICONS } from "../../../constants/projects_icons.js";
 import { PHASE_COLOURS } from "../../../constants/phase_colours.js";
 import tailwindConfig from "../../../../tailwind.config.js";
-import resolveConfig from "tailwindcss/resolveConfig";
 
 /**
  * Tailwind Configuration Resolver
@@ -16,9 +23,37 @@ import resolveConfig from "tailwindcss/resolveConfig";
 const fullConfig = resolveConfig(tailwindConfig);
 const tailwindColors = fullConfig.theme.colors;
 
+/**
+ * Rename Modal Component
+ *
+ * This component is primarily visual, rendering a modal that prompts the user
+ * to input a new name for a specific entity. It manages minimal local state (`newName`)
+ * exclusively for tracking the controlled input and resolving the target's logo/colors,
+ * bypassing the need to over-engineer a dedicated headless hook.
+ *
+ * @component
+ * @param {Object} props - The component props.
+ * @param {Function} props.onClose - Callback function triggered to close the modal without renaming.
+ * @param {Object} props.data - Data object containing the target entity's details (id, title, color, logo).
+ * @param {Function} props.onRename - Callback function triggered to execute the renaming action.
+ * @returns {JSX.Element} The rendered rename modal overlay.
+ */
 export const RenameComponent = ({ onClose, data, onRename }) => {
+    // --- 1. Local UI Logic ---
+
+    /**
+     * Input Value State
+     *
+     * Tracks the string value of the controlled input field for the new entity name.
+     */
     const [newName, setNewName] = useState("");
 
+    /**
+     * Form Submission Handler
+     *
+     * Prevents default form submission, validates that the input is not empty,
+     * triggers the rename callback with the new payload, and subsequently closes the modal.
+     */
     const handleSubmit = (e) => {
         e.preventDefault();
         if (newName.trim() === "") return;
@@ -30,11 +65,30 @@ export const RenameComponent = ({ onClose, data, onRename }) => {
         onClose();
     };
 
-    const LogoComponent = data.logo ? PROJECTS_ICONS.find((i) => i.id === data.logo) || PROJECTS_ICONS[0] : null;
+    /**
+     * Target Entity Logo Model
+     *
+     * Resolves the full icon metadata block for the entity, defaulting to a fallback if necessary.
+     */
+    const logo = data.logo ? PROJECTS_ICONS.find((i) => i.id === data.logo) || PROJECTS_ICONS[0] : null;
+
+    /**
+     * Target Entity Icon Component
+     *
+     * Extracts the specific React icon component from the resolved logo metadata.
+     */
+    const LogoComponent = logo ? logo.component : null;
+
+    /**
+     * Target Entity Color
+     *
+     * Resolves the specific hex color representation associated with the entity's phase/project.
+     */
     const color = PHASE_COLOURS.find((c) => c.id === data.color);
 
+    // --- 2. Render ---
+
     return (
-        /* Modal Overlay Container */
         <div
             className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm"
             onClick={onClose}
@@ -42,8 +96,9 @@ export const RenameComponent = ({ onClose, data, onRename }) => {
             {/* Modal Content Container */}
             <div
                 className="relative w-[90%] max-w-md shadow-2xl flex flex-col gap-6 bg-primary-50 rounded-[2.5rem] p-8 animate-fade-in-up"
-                onClick={(e) => e.stopPropagation()} // Evita que al hacer clic dentro se cierre
+                onClick={(e) => e.stopPropagation()}
             >
+                {/* Header Information Section */}
                 <div className="flex flex-col gap-2">
                     {/* Header: Title and Close Action */}
                     <div className="flex items-center justify-between">
@@ -58,18 +113,22 @@ export const RenameComponent = ({ onClose, data, onRename }) => {
                         </button>
                     </div>
 
-                    {/* Banner del Evento Actual */}
+                    {/* Target Entity Information Banner */}
                     <div
                         className="w-full flex items-center justify-center gap-3 py-3 px-4 mt-4 rounded-xl text-primary shadow-sm"
                         style={{ backgroundColor: color?.hex || tailwindColors.primary[500] }}
                     >
-                        {LogoComponent && <LogoComponent.component className="w-5 h-5" />}
+                        {/* Entity Logo */}
+                        {LogoComponent && <LogoComponent className="w-5 h-5" />}
+
+                        {/* Entity Title */}
                         <span className="font-bold">{data?.title}</span>
                     </div>
                 </div>
 
+                {/* Rename Form Section */}
                 <form onSubmit={handleSubmit} className="flex flex-col gap-6 w-full">
-                    {/* Input de Nombre (Usamos 'input' simple, no 'textarea') */}
+                    {/* Input Field Wrapper */}
                     <div className="relative w-full">
                         <input
                             type="text"
@@ -86,6 +145,7 @@ export const RenameComponent = ({ onClose, data, onRename }) => {
                             Nuevo nombre
                         </label>
 
+                        {/* Input Icon Decorator */}
                         <div className="input-icon peer-focus:text-primary-500 peer-[:not(:placeholder-shown)]:text-primary-500 items-center">
                             <IconWriting className="w-5 h-5" />
                         </div>

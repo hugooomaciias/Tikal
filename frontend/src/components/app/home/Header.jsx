@@ -1,9 +1,5 @@
-/** React & Third-Party Libraries */
-import { useState, useEffect, useContext } from "react";
-import { useNavigate } from "react-router-dom";
-
 /** Contexts, Hooks & Services */
-import { AuthContext } from "../../../context/AuthContext.jsx";
+import { useHeaderLogic } from "../../../hooks/components/app/home/useHeaderLogic.js";
 
 /** Icons */
 import {
@@ -35,117 +31,34 @@ const ICON_MAP = {
 /**
  * Header Component
  *
- * This component renders the top header of the home dashboard. It displays the user's
- * avatar, summary statistics about their projects, and action buttons to toggle edit mode.
- * The mobile variant fluidly collapses its statistics grid upon scroll detection.
+ * This purely visual component renders the top header of the home dashboard. It delegates
+ * all scroll detection, authentication logic, and edit mode state management to its
+ * dedicated headless hook (`useHeaderLogic`).
  *
  * @component
  * @param {Object} props - The component props.
  * @param {Array<Object>} props.data - An array of statistical data objects to display (contains title, value, logo).
  * @param {boolean} props.isEditing - State indicating if the dashboard is currently in edit mode.
- * @param {Function} props.setIsEditing - Function to toggle the dashboard's edit mode state.
  * @param {boolean} props.checkChanges - State indicating if there are unsaved changes pending validation.
- * @param {Function} props.setCheckChanges - Function to update the unsaved changes state.
+ * @param {Function} props.onEnableEdit - Function to enable edit mode.
+ * @param {Function} props.onDisableEdit - Function to disable edit mode.
  * @returns {JSX.Element|null} The rendered header component, or null if data is invalid.
  */
-export const Header = ({ data, isEditing, setIsEditing, checkChanges, setCheckChanges }) => {
-    // --- 1. Hooks & Contexts ---
+export const Header = ({ data, isEditing, checkChanges, onEnableEdit, onDisableEdit }) => {
+    // --- 1. Logic Hook Extraction ---
 
     /**
-     * Authentication Context
+     * Header Data & Action Handlers
      *
-     * Provides the 'logout' function to securely terminate the user's session.
+     * Extracts the resolved UI states (like scroll detection) and mapped interaction handlers
+     * (like logout and edit toggles) from the headless logic hook.
      */
-    const { logout } = useContext(AuthContext);
+    const { headerStates, headerActions } = useHeaderLogic({ onEnableEdit, onDisableEdit });
 
-    /**
-     * Programmatic Navigation Hook
-     *
-     * Enables routing capabilities, redirecting the user back to the login page post-logout.
-     */
-    const navigate = useNavigate();
+    const { isScrolled } = headerStates;
+    const { handleLogout, handleEnableEditMode, handleDisableEditMode } = headerActions;
 
-    // --- 2. Local State ---
-
-    /**
-     * Scrolled State
-     *
-     * Tracks whether the user has scrolled the main dashboard container down beyond a 20px threshold.
-     * This flag activates the compact header layout on mobile devices.
-     */
-    const [isScrolled, setIsScrolled] = useState(false);
-
-    // --- 4. Side Effects ---
-
-    /**
-     * Scroll Listener Effect
-     *
-     * Attaches a scroll event listener to the main dashboard container (`.custom-scrollbar`).
-     * It toggles the `isScrolled` state to activate or deactivate the compact mobile header layout.
-     */
-    useEffect(() => {
-        const scrollContainer = document.querySelector(".custom-scrollbar");
-        if (!scrollContainer) return;
-
-        /**
-         * Scroll Event Handler
-         *
-         * Evaluates the current scroll position and updates the collapsed state.
-         *
-         * @returns {void}
-         */
-        const handleScroll = () => {
-            setIsScrolled(scrollContainer.scrollTop > 20);
-        };
-
-        scrollContainer.addEventListener("scroll", handleScroll);
-        return () => scrollContainer.removeEventListener("scroll", handleScroll);
-    }, []);
-
-    // --- 5. Event Handlers & Functions ---
-
-    /**
-     * Logout Handler
-     *
-     * Asynchronously terminates the session and redirects to the login screen.
-     * Logs an error to the console if the operation fails.
-     *
-     * @async
-     * @returns {Promise<void>}
-     */
-    const handleLogout = async () => {
-        try {
-            await logout();
-            navigate("/login");
-        } catch (error) {
-            console.error("Error al cerrar sesión", error);
-        }
-    };
-
-    /**
-     * Enable Edit Mode Handler
-     *
-     * Activates the dashboard's edit mode and resets the pending changes flag.
-     *
-     * @returns {void}
-     */
-    const handleEnableEditMode = () => {
-        setIsEditing(true);
-        setCheckChanges(false);
-    };
-
-    /**
-     * Disable Edit Mode Handler
-     *
-     * Deactivates the dashboard's edit mode when the user confirms or cancels.
-     *
-     * @returns {void}
-     */
-    const handleDisableEditMode = () => {
-        setIsEditing(false);
-    };
-
-    // --- 6. Render ---
+    // --- 2. Render ---
 
     if (!data || !Array.isArray(data)) return null;
 

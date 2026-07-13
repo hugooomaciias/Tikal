@@ -1,11 +1,10 @@
 /** React & Third-Party Libraries */
-import { useState } from "react";
-import { Link, useNavigate, useLocation } from "react-router-dom";
-import { useTranslation } from "react-i18next";
+import { Link } from "react-router-dom";
 
 /** Contexts, Hooks & Services */
-import { useMain } from "../../../hooks/useMain.js";
-import { useAuth } from "../../../hooks/useAuth.js";
+import { useNavbarLogic } from "../../../hooks/components/app/common/useNavbarLogic.js";
+
+/** Components & Layouts */
 
 /** Icons */
 import {
@@ -38,137 +37,31 @@ const ICON_MAP = {
 /**
  * Navbar Component
  *
- * This component renders the main navigation sidebar for the application.
+ * This purely visual component renders the main navigation sidebar for the application.
  * On desktop, it functions as an expandable vertical sidebar containing navigation links
  * and user session controls. On mobile, it acts as a compact horizontal bottom bar.
+ * It explicitly delegates all its business logic, URL watching, and state management 
+ * to the `useNavbarLogic` headless hook.
  *
  * @component
- * @param {Object} props - The component props.
- * @param {Object} props.data - The user profile data object used to display name and information.
  * @returns {JSX.Element|null} The rendered navigation bar component, or null if user data is missing.
  */
 export const NavbarComponent = () => {
-    // --- 1. Hooks & Contexts ---
+    // --- 1. Logic Hook Extraction ---
 
     /**
-     * Translation Hook
+     * UI Data & Action Handlers
      *
-     * Provides access to the i18n instance specifically scoped to the "app_common"
-     * namespace to localize navbar text content dynamically.
+     * Extracts the translation instance, UI states (e.g., expanded layout), derived navigation configuration,
+     * user profile data, and the interaction handlers from the centralized headless logic hook.
      */
-    const { t } = useTranslation("app_common");
+    const { t, navbarStates, navbarData, navbarActions } = useNavbarLogic();
 
-    /**
-     * Main Context Hook
-     *
-     * Extracts global application state regarding user profile data and loading status.
-     */
-    const { getUserProfile } = useMain();
+    const { isExpanded } = navbarStates;
+    const { navbarOptions, activeTab, userProfile } = navbarData;
+    const { handleLogout, handleToggleSidebar } = navbarActions;
 
-    /**
-     * Authentication Context
-     *
-     * Provides the 'logout' function to allow the user to properly end their session.
-     */
-    const { logout } = useAuth();
-
-    /**
-     * Programmatic Navigation Hook
-     *
-     * Enables programmatic routing capabilities, such as redirecting the user
-     * back to the login page after their session terminates.
-     */
-    const navigate = useNavigate();
-
-    /**
-     * Location Hook
-     *
-     * Subscribes to the router's location object. Used to watch for path changes
-     * so the active tab can be synchronized with the current browser URL.
-     */
-    const location = useLocation();
-
-    // --- 2. Local State ---
-
-    /**
-     * Sidebar Expanded State
-     *
-     * Controls the visual state of the sidebar on desktop screens. When true,
-     * the sidebar expands to reveal labels and additional user information.
-     */
-    const [isExpanded, setIsExpanded] = useState(false);
-
-    // --- 3. Derived Variables ---
-
-    /**
-     * Navigation Options
-     *
-     * Configuration array for rendering the navigation links located in the sidebar.
-     * Includes their localized titles and corresponding icon keys.
-     */
-    const navbarOptions = [
-        { icon: "IconHome", title: t("navbar.home"), to: "/home" },
-        { icon: "IconListFilled", title: t("navbar.tasks"), to: "/tasks" },
-        { icon: "IconCalendarWeekFilled", title: t("navbar.calendar"), to: "/calendar" },
-        { icon: "IconChartBar", title: t("navbar.statistics"), to: "/statistics" },
-        { icon: "IconPyramid", title: t("navbar.temple_mode"), to: "/home" },
-        { icon: "IconUsersGroup", title: t("navbar.groups"), to: "/home" },
-    ];
-
-    /**
-     * Current Navigation Option
-     *
-     * Resolves the navigation configuration object that corresponds to the active browser URL.
-     */
-    const currentOption = navbarOptions.find((option) => option.to === location.pathname);
-
-    /**
-     * Active Tab Title
-     *
-     * Derives the title of the currently selected navigation tab to apply
-     * active styling to the corresponding link. Evaluated entirely from the URL state.
-     */
-    const activeTab = currentOption ? currentOption.title : "";
-
-    /**
-     * General Home Information
-     *
-     * Retrieves the high-level dashboard configuration and metadata from the context.
-     */
-    const userProfile = getUserProfile();
-
-    // --- 5. Event Handlers & Functions ---
-
-    /**
-     * Logout Handler
-     *
-     * Asynchronously terminates the user session through the auth context
-     * and redirects the user back to the login page. Logs an error if it fails.
-     *
-     * @async
-     * @returns {Promise<void>}
-     */
-    const handleLogout = async () => {
-        try {
-            await logout();
-            navigate("/login");
-        } catch (error) {
-            console.error("Error al cerrar sesión", error);
-        }
-    };
-
-    /**
-     * Toggle Sidebar Handler
-     *
-     * Expands or collapses the desktop sidebar interface.
-     *
-     * @returns {void}
-     */
-    const handleToggleSidebar = () => {
-        setIsExpanded(!isExpanded);
-    };
-
-    // --- 6. Render ---
+    // --- 2. Render ---
 
     if (!userProfile) return null;
 

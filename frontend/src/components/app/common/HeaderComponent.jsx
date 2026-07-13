@@ -17,113 +17,135 @@ import logoSabidurIA from "../../../assets/ia/sabidurIAIcon.svg";
 /**
  * Application Header Component
  *
- * A dynamic, contextual header that renders different action buttons depending on the active view.
- * It manages page-specific layout toggles, entity creation triggers, and specialized edit modes.
+ * This component is primarily visual, rendering a dynamic, contextual header with different action buttons
+ * depending on the active view. It manages minimal local logic exclusively for UI interactions
+ * (e.g., handling state toggles passed from the parent) to avoid the overhead of a dedicated headless hook.
  *
  * @component
  * @param {Object} props - The component props.
  * @param {string} props.page - The current active page title, localized (e.g., "Tasks", "Calendar").
  * @param {boolean} props.get1 - Primary state flag (e.g., Kanban mode active, Edit mode active, etc.).
  * @param {boolean} props.get2 - Secondary state flag (e.g., Unsaved changes pending in edit mode).
- * @param {Function} props.set1 - Setter function for the primary state flag.
- * @param {Function} props.set2 - Setter function for the secondary state flag.
+ * @param {Function} props.onTogglePrimary - Setter function for the primary state flag.
+ * @param {Function} props.onToggleSecondary - Setter function for the secondary state flag.
  * @param {Function} props.t - The i18n translation function.
  * @returns {JSX.Element} The rendered header component.
  */
-export const HeaderComponent = ({ page, get1, get2, set1, set2, t }) => {
-    // --- 6. Render ---
+export const HeaderComponent = ({ page, primaryState, secondaryState, onTogglePrimary, onToggleSecondary, t }) => {
+    // --- 1. Local UI Logic ---
+
+    /**
+     * Enable Edit Mode Handler
+     *
+     * Activates the edit mode on the Statistics page and resets any pending unsaved changes state.
+     */
+    const handleEnableEditMode = () => {
+        onTogglePrimary();
+    };
+
+    /**
+     * Disable Edit Mode Handler
+     *
+     * Deactivates the edit mode on the Statistics page, discarding or saving depending on the pending state.
+     */
+    const handleDisableEditMode = () => {
+        onToggleSecondary();
+    };
+
+    // --- 2. Render ---
 
     return (
-        <div className="flex items-center justify-between">
-            {/* Page Title Wrapper */}
-            <div className="h-full w-fit flex items-center gap-2 md:gap-4 rounded-full">
-                <div className="h-full w-fit bg-primary flex items-center px-5 py-3 rounded-full shadow-md">
-                    <h2 className="text-2xl text-primary-600 font-bold">{page}</h2>
+        <>
+            {/* Main Header Container */}
+            <div className="flex items-center justify-between">
+                {/* Page Title & Time Tracker Section */}
+                <div className="h-full w-fit flex items-center gap-2 md:gap-4 rounded-full">
+                    {/* Active Page Indicator */}
+                    <div className="h-full w-fit bg-primary flex items-center px-5 py-3 rounded-full shadow-md">
+                        <h2 className="text-2xl text-primary-600 font-bold">{page}</h2>
+                    </div>
+
+                    {/* Dynamic Time Tracker Island */}
+                    <DynamicIslandComponent />
                 </div>
 
-                {/* Time Tracker Island */}
-                <DynamicIslandComponent />
-            </div>
-
-            {/* Contextual Action Bar */}
-            <div className="h-full w-fit flex items-center gap-2 md:gap-4 rounded-full">
-                {/* Tasks Action */}
-                {page === t("tasks_title") && (
-                    <button
-                        type="button"
-                        className={`h-fit w-fit ${get1 ? "bg-primary-600" : "bg-primary"} p-2 rounded-full shadow-md`}
-                        onClick={() => set1(!get1)}
-                    >
-                        {!get1 ? (
-                            <IconListCheckFilled className="w-8 h-8 text-primary-600" />
-                        ) : (
-                            <IconListCheckFilled className="w-8 h-8 text-primary" />
-                        )}
-                    </button>
-                )}
-
-                {/* Calendar Action */}
-                {page === t("calendar_title") && (
-                    <button
-                        type="button"
-                        className="h-fit w-fit bg-primary text-primary-600 hover:bg-primary-600 hover:text-primary p-2 rounded-full shadow-md transition-colors duration-200"
-                        onClick={() => set1(!get1)}
-                    >
-                        <IconPlusFilled className="w-8 h-8" />
-                    </button>
-                )}
-
-                {/* Statistics Action */}
-                {page === t("statistics_title") && (
-                    <button
-                        type="button"
-                        className={`relative hidden md:flex items-center justify-center overflow-hidden h-12 rounded-full shadow-md transition-all duration-300 ease-in-out ${
-                            get1
-                                ? "bg-primary-600 text-primary w-[96px]"
-                                : "bg-primary text-primary-600 hover:bg-primary-600 hover:text-primary w-12"
-                        }`}
-                    >
-                        {/* Edit Button (Visible when NOT editing) */}
-                        <div
-                            className={`absolute flex items-center justify-center transition-all duration-300 w-full h-full cursor-pointer
-                                    ${!get1 ? "opacity-100 scale-100" : "opacity-0 scale-50 pointer-events-none"}
-                                `}
-                            onClick={() => {
-                                set1(true);
-                                set2(false);
-                            }}
+                {/* Contextual Action Bar Section */}
+                <div className="h-full w-fit flex items-center gap-2 md:gap-4 rounded-full">
+                    {/* Tasks Page Actions */}
+                    {page === t("tasks_title") && (
+                        <button
+                            type="button"
+                            className={`h-fit w-fit ${primaryState ? "bg-primary-600" : "bg-primary"} p-2 rounded-full shadow-md`}
+                            onClick={onTogglePrimary}
                         >
-                            <IconEditFilled className="w-8 h-8" />
-                        </div>
+                            {!primaryState ? (
+                                <IconListCheckFilled className="w-8 h-8 text-primary-600" />
+                            ) : (
+                                <IconListCheckFilled className="w-8 h-8 text-primary" />
+                            )}
+                        </button>
+                    )}
 
-                        {/* Action Bar (Visible when Editing) */}
-                        <div
-                            className={`absolute flex items-center justify-center gap-2 transition-all duration-300 w-full h-full px-2
-                                    ${get1 ? "opacity-100 scale-100" : "opacity-0 scale-150 pointer-events-none"}
-                                `}
+                    {/* Calendar Page Actions */}
+                    {page === t("calendar_title") && (
+                        <button
+                            type="button"
+                            className="h-fit w-fit bg-primary text-primary-600 hover:bg-primary-600 hover:text-primary p-2 rounded-full shadow-md transition-colors duration-200"
+                            onClick={onTogglePrimary}
                         >
-                            {/* Cancel / Save Action Icon */}
-                            <div className="cursor-pointer transition-transform" onClick={() => set1(false)}>
-                                {!get2 ? (
-                                    <IconSquareRoundedXFilled className="w-8 h-8" />
-                                ) : (
-                                    <IconSquareRoundedCheckFilled className="w-8 h-8" />
-                                )}
-                            </div>
+                            <IconPlusFilled className="w-8 h-8" />
+                        </button>
+                    )}
 
-                            {/* Additional Tool */}
-                            <div className="cursor-pointer transition-transform">
-                                <IconSquareRoundedPlus className="w-8 h-8" />
+                    {/* Statistics Page Actions */}
+                    {page === t("statistics_title") && (
+                        <div
+                            className={`relative hidden md:flex items-center justify-center overflow-hidden h-12 rounded-full shadow-md transition-all duration-300 ease-in-out ${
+                                primaryState
+                                    ? "bg-primary-600 text-primary w-[96px]"
+                                    : "bg-primary text-primary-600 hover:bg-primary-600 hover:text-primary w-12"
+                            }`}
+                        >
+                            {/* Edit Mode Toggle Action */}
+                            <button
+                                type="button"
+                                className={`absolute flex items-center justify-center transition-all duration-300 w-full h-full cursor-pointer
+                                        ${!primaryState ? "opacity-100 scale-100" : "opacity-0 scale-50 pointer-events-none"}
+                                    `}
+                                onClick={handleEnableEditMode}
+                            >
+                                <IconEditFilled className="w-8 h-8" />
+                            </button>
+
+                            {/* Edit Mode Interactive Toolset */}
+                            <div
+                                className={`absolute flex items-center justify-center gap-2 transition-all duration-300 w-full h-full px-2
+                                        ${primaryState ? "opacity-100 scale-100" : "opacity-0 scale-150 pointer-events-none"}
+                                    `}
+                            >
+                                {/* Save / Cancel Action */}
+                                <button className="cursor-pointer transition-transform" onClick={handleDisableEditMode}>
+                                    {!secondaryState ? (
+                                        <IconSquareRoundedXFilled className="w-8 h-8" />
+                                    ) : (
+                                        <IconSquareRoundedCheckFilled className="w-8 h-8" />
+                                    )}
+                                </button>
+
+                                {/* Supplementary Action Tool */}
+                                <div className="cursor-pointer transition-transform">
+                                    <IconSquareRoundedPlus className="w-8 h-8" />
+                                </div>
                             </div>
                         </div>
-                    </button>
-                )}
+                    )}
 
-                {/* SabidurIA Avatar Launcher */}
-                <button className="h-fit w-fit bg-primary p-3 rounded-full shadow-md">
-                    <img className="w-10 h-10" src={logoSabidurIA} alt="Icono Dios de la Sabiduría" />
-                </button>
+                    {/* AI Assistant Global Action */}
+                    <button className="h-fit w-fit bg-primary p-3 rounded-full shadow-md">
+                        <img className="w-10 h-10" src={logoSabidurIA} alt="Icono Dios de la Sabiduría" />
+                    </button>
+                </div>
             </div>
-        </div>
+        </>
     );
 };

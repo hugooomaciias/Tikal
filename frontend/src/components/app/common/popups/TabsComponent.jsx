@@ -5,8 +5,9 @@ import { PHASE_COLOURS } from "../../../../constants/phase_colours.js";
 /**
  * Reusable Tabs Component
  *
- * A segmented control/tab switcher used in popups to toggle between two distinct modes.
- * It visually animates between the two states and updates the parent form data accordingly.
+ * This component is primarily visual, rendering a segmented control/tab switcher used in popups
+ * to toggle between two distinct modes. It manages minimal local logic (deriving active types and mapping
+ * selection payloads) exclusively for UI interactions, bypassing the need for a dedicated headless hook.
  *
  * @component
  * @param {Object} props - The component props.
@@ -18,8 +19,8 @@ import { PHASE_COLOURS } from "../../../../constants/phase_colours.js";
  * @param {Function} props.t - The i18n translation function.
  * @returns {JSX.Element} The rendered tabs component.
  */
-export const TabsComponent = ({ page, formData, setFormData, setSelected, fieldToUpdate, t }) => {
-    // --- 3. Derived Variables ---
+export const TabsComponent = ({ page, formData, onChangeType, onChangeSelected, fieldToUpdate, t }) => {
+    // --- 1. Local UI Logic ---
 
     /**
      * Tab Type Identifiers
@@ -40,18 +41,16 @@ export const TabsComponent = ({ page, formData, setFormData, setSelected, fieldT
      */
     const currentValue = formData[fieldToUpdate];
 
-    // --- 5. Event Handlers & Functions ---
-
     /**
      * Type Change Handler
      *
-     * Updates the form data type and sets a default icon
-     * or colour corresponding to the newly selected type.
+     * Updates the form data type and sets a default icon or colour
+     * corresponding to the newly selected type payload.
      *
      * @param {string} newType - The newly selected type string.
      */
     const handleTypeChange = (newType) => {
-        setFormData((prev) => ({ ...prev, [fieldToUpdate]: newType }));
+        onChangeType(newType);
 
         let newDefault;
         let defaultId;
@@ -71,11 +70,11 @@ export const TabsComponent = ({ page, formData, setFormData, setSelected, fieldT
         }
 
         if (newDefault) {
-            setSelected(newDefault);
+            onChangeSelected(newDefault);
         }
     };
 
-    // --- 6. Render ---
+    // --- 2. Render ---
 
     return (
         <div className="flex items-center justify-center w-full bg-primary-100 p-1.5 rounded-2xl relative overflow-hidden">

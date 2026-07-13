@@ -1,0 +1,47 @@
+/** React & Context */
+import { useContext } from "react";
+
+/** Contexts, Hooks & Services */
+import { TimeLogContext } from "../../context/TimeLogContext.jsx";
+
+/**
+ * Safe Time Tracker Hook
+ *
+ * Provides a type-safe accessor for the global time tracking context
+ * (`TimeLogContext`), which manages the complete lifecycle of the active
+ * timer, including tracking task IDs, accumulated seconds, formatting utilities,
+ * and handling modal confirmations for stopping or switching tasks.
+ * This hook enforces a strict fail-safe boundary: if invoked from a
+ * component that is not a descendant of the `TimeLogProvider`, it will
+ * throw a descriptive error immediately, preventing silent `undefined`
+ * access patterns from propagating through the component tree.
+ *
+ * @function
+ * @returns {Object} The full time tracking context payload, including
+ *   state data (`isActive`, `secs`, `taskId`, etc.), timer actions
+ *   (`playTimer`, `stopTimer`, `toggleTimer`, `setActiveTask`), formatting
+ *   utilities (`getParsedTime`), and modal handlers (`confirmSwitchTask`, etc.).
+ * @throws {Error} Throws if called from a component not wrapped in a `<TimeLogProvider>`.
+ */
+export const useTimeLog = () => {
+    // --- 1. Context Extraction ---
+
+    /**
+     * Time Tracker Context Instance
+     *
+     * Captures the current value from the nearest `TimeLogProvider` ancestor
+     * in the React component tree. Returns `undefined` if no provider is
+     * found, which is intercepted by the safety validation below.
+     */
+    const context = useContext(TimeLogContext);
+
+    // --- 2. Safety Validation ---
+
+    if (context === undefined) {
+        throw new Error("useTimeLog must be used within a TimeLogProvider");
+    }
+
+    // --- 3. Return Payload ---
+
+    return context;
+};

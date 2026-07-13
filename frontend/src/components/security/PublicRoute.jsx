@@ -26,23 +26,11 @@ export const PublicRoute = () => {
      */
     const { isAuthenticated } = useContext(AuthContext);
 
-    // --- 6. Render ---
+    // --- 2. Render ---
 
-    /**
-     * Redirect Authenticated Users
-     *
-     * If the user is already authenticated, block access to the public route
-     * and forcibly redirect them to the loading gateway.
-     */
     if (isAuthenticated) {
         return <Navigate to="/loading" replace />;
     }
 
-    /**
-     * Render Public Route
-     *
-     * If no active session exists, allow the component to render its child
-     * routes (e.g., /login or /register).
-     */
     return <Outlet />;
 };

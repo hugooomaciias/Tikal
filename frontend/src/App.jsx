@@ -4,11 +4,8 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-d
 
 /** Contexts, Hooks & Services */
 import { AuthProvider } from "./context/AuthContext";
-import { MainProvider } from "./context/MainContext";
+import { SyncProvider } from "./context/SyncContext";
 import { TimeLogProvider } from "./context/TimeLogContext";
-import { ProjectProvider } from "./context/ProjectContext.jsx";
-import { StageProvider } from "./context/StageContext.jsx";
-import { TaskProvider } from "./context/TaskContext.jsx";
 
 /** Components & Layouts */
 import { ProtectedRoute } from "./components/security/ProtectedRoute.jsx";
@@ -61,7 +58,7 @@ function App() {
                     {/* Password Recovery Routes */}
                     <Route path="/forgot-password" element={<ForgotPasswordPage />} />
 
-                    <Route element={<MainProvider />}>
+                    <Route element={<SyncProvider />}>
                         {/* Loading Screen Route */}
                         <Route path="/loading" element={<LoadingPage />} />
 
@@ -76,20 +73,14 @@ function App() {
                                 }
                             />
 
-                            <Route element={<ProjectProvider />}>
-                                <Route element={<StageProvider />}>
-                                    <Route element={<TaskProvider />}>
-                                        <Route
-                                            path="/tasks"
-                                            element={
-                                                <ProtectedRoute>
-                                                    <TasksPage />
-                                                </ProtectedRoute>
-                                            }
-                                        />
-                                    </Route>
-                                </Route>
-                            </Route>
+                            <Route
+                                path="/tasks"
+                                element={
+                                    <ProtectedRoute>
+                                        <TasksPage />
+                                    </ProtectedRoute>
+                                }
+                            />
 
                             <Route
                                 path="/calendar"

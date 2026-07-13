@@ -19,8 +19,9 @@ registerLocale("en", en);
 /**
  * Reusable Date Picker Component
  *
- * A customizable wrapper around `react-datepicker` that conforms to the project's
- * design system, including dynamically localized dates, floating labels, and Tailwind classes.
+ * This component is primarily visual, functioning as a customizable wrapper around `react-datepicker`
+ * that conforms to the project's design system. It manages minimal local logic (such as locale resolution
+ * and date string parsing) exclusively for UI interactions, bypassing the need for a dedicated headless hook.
  *
  * @component
  * @param {Object} props - The component props.
@@ -31,7 +32,7 @@ registerLocale("en", en);
  * @returns {JSX.Element} The rendered date picker component.
  */
 export const DatePickerComponent = ({ value, onChange, className, label }) => {
-    // --- 1. Hooks & Contexts ---
+    // --- 1. Local UI Logic ---
 
     /**
      * Translation Hook
@@ -39,8 +40,6 @@ export const DatePickerComponent = ({ value, onChange, className, label }) => {
      * Provides access to the current i18n instance to evaluate active language state.
      */
     const { i18n } = useTranslation();
-
-    // --- 3. Derived Variables ---
 
     /**
      * Selected Date Object
@@ -58,8 +57,6 @@ export const DatePickerComponent = ({ value, onChange, className, label }) => {
      */
     const currentLocale = i18n.language && i18n.language.startsWith("es") ? "es" : "en";
 
-    // --- 5. Event Handlers & Functions ---
-
     /**
      * Date Change Handler
      *
@@ -72,7 +69,7 @@ export const DatePickerComponent = ({ value, onChange, className, label }) => {
         onChange(date ? date.toISOString() : "");
     };
 
-    // --- 6. Render ---
+    // --- 2. Render ---
 
     return (
         <div className="main-datepicker-theme relative w-full flex flex-col group">

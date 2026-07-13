@@ -1,17 +1,14 @@
 /** React & Third-Party Libraries */
-import React from "react";
-
-/** Contexts, Hooks & Services */
 import { useTranslation } from "react-i18next";
+import resolveConfig from "tailwindcss/resolveConfig";
 
 /** Icons */
-import { IconCircleXFilled, IconAlertTriangle } from "@tabler/icons-react";
+import { IconAlertTriangle } from "@tabler/icons-react";
 
-/** Config, Constants & Utils */
+/** Assets, Utils & Constants */
+import tailwindConfig from "../../../../tailwind.config.js";
 import { PROJECTS_ICONS } from "../../../constants/projects_icons.js";
 import { PHASE_COLOURS } from "../../../constants/phase_colours.js";
-import tailwindConfig from "../../../../tailwind.config.js";
-import resolveConfig from "tailwindcss/resolveConfig";
 
 /**
  * Tailwind Configuration Resolver
@@ -25,37 +22,53 @@ const tailwindColors = fullConfig.theme.colors;
 /**
  * Delete Modal Component
  *
- * A confirmation modal that prompts the user to verify the deletion of a specific event.
- * Displays the event's title and color for visual confirmation before triggering the
- * deletion callback.
+ * This component is primarily visual, rendering a confirmation modal that prompts the user
+ * to verify the deletion of a specific entity. It manages minimal local logic exclusively for UI
+ * interactions (e.g., resolving the specific logo and color of the target entity before rendering),
+ * bypassing the need to over-engineer a dedicated headless hook.
  *
  * @component
  * @param {Object} props - The component props.
- * @param {Function} props.onClose - Callback function triggered to close the modal.
- * @param {Object} props.data - Data object containing the target event's details (id, title, color).
+ * @param {Function} props.onClose - Callback function triggered to close the modal without deleting.
+ * @param {Object} props.data - Data object containing the target entity's details (id, title, color, logo).
  * @param {Function} props.onDelete - Callback function triggered to confirm and execute the deletion.
- * @returns {JSX.Element} The rendered deletion confirmation modal.
+ * @returns {JSX.Element} The rendered deletion confirmation modal overlay.
  */
 export const DeleteComponent = ({ onClose, data, onDelete }) => {
-    // --- 1. Hooks & Contexts ---
+    // --- 1. Local UI Logic ---
 
     /**
-     * Translation Hook
+     * Localization Hook
      *
-     * Provides access to the i18n instance scoped to the "app_common"
-     * namespace for localized text content within the modal.
+     * Injects the translation function scoped to the common application namespace.
      */
     const { t } = useTranslation("app_common");
 
-    // --- 5. Event Handlers & Functions ---
+    /**
+     * Target Entity Logo Model
+     *
+     * Resolves the full icon metadata block for the entity, defaulting to a fallback if necessary.
+     */
+    const logo = data.logo ? PROJECTS_ICONS.find((i) => i.id === data.logo) || PROJECTS_ICONS[0] : null;
 
     /**
-     * Deletion Confirmation Handler
+     * Target Entity Icon Component
      *
-     * Triggers the provided `onDelete` callback with the current event's ID,
-     * then automatically closes the modal overlay.
+     * Extracts the specific React icon component from the resolved logo metadata.
+     */
+    const LogoComponent = logo ? logo.component : null;
+
+    /**
+     * Target Entity Color
      *
-     * @returns {void}
+     * Resolves the specific hex color representation associated with the entity's phase/project.
+     */
+    const color = PHASE_COLOURS.find((c) => c.id === data.color);
+
+    /**
+     * Delete Confirmation Handler
+     *
+     * Executes the passed deletion callback with the target entity's ID, and subsequently closes the modal.
      */
     const handleDelete = () => {
         if (onDelete) {
@@ -65,53 +78,66 @@ export const DeleteComponent = ({ onClose, data, onDelete }) => {
         onClose();
     };
 
-    const logo = data.logo ? PROJECTS_ICONS.find((i) => i.id === data.logo) || PROJECTS_ICONS[0] : null;
-    const LogoComponent = logo ? logo.component : null;
-
-    const color = PHASE_COLOURS.find((c) => c.id === data.color);
-
-    // --- 6. Render ---
+    // --- 2. Render ---
 
     return (
-        <div
-            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm"
-            onClick={onClose}
-        >
-            {/* Modal Content Container */}
+        <>
+            {/* Full Screen Dimmed Overlay */}
             <div
-                className="relative w-[90%] max-w-md shadow-2xl flex flex-col gap-4 bg-primary-50 rounded-[2.5rem] p-8 animate-fade-in-up"
-                onClick={(e) => e.stopPropagation()}
+                className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm"
+                onClick={onClose}
             >
-                {/* Header: Title */}
-                <span className="text-2xl font-bold text-quaternary-700">{t("context_menu.delete.modal.title")}</span>
-
-                {/* Warning Message Section */}
-                <div className="flex flex-col items-center justify-center gap-3 text-center">
-                    <IconAlertTriangle className="w-12 h-12 text-tertiary-200" stroke={1.5} />
-                    <p className="text-quaternary-500 font-medium leading-relaxed">
-                        {t("context_menu.delete.modal.description")}
-                    </p>
-                </div>
-
-                {/* Target Event Info Banner */}
+                {/* Modal Dialog Container */}
                 <div
-                    className="w-full flex items-center justify-center gap-3 py-3 px-4 mt-4 rounded-xl text-primary shadow-sm"
-                    style={{ backgroundColor: color?.hex || tailwindColors.primary[500] }}
+                    className="relative w-[90%] max-w-md shadow-2xl flex flex-col gap-4 bg-primary-50 rounded-[2.5rem] p-8 animate-fade-in-up"
+                    onClick={(e) => e.stopPropagation()}
                 >
-                    {LogoComponent && <LogoComponent className="w-5 h-5" />}
-                    <span className="font-bold">{data?.title}</span>
-                </div>
+                    {/* Header: Title Section */}
+                    <span className="text-2xl font-bold text-quaternary-700">
+                        {t("context_menu.delete.modal.title")}
+                    </span>
 
-                {/* Action Buttons: Cancel & Confirm */}
-                <div className="flex items-center justify-between gap-4 mt-2">
-                    <button type="button" onClick={onClose} className="w-full btn text-primary bg-primary-200">
-                        {t("context_menu.delete.modal.cancel")}
-                    </button>
-                    <button type="button" onClick={handleDelete} className="w-full btn text-primary bg-tertiary-200">
-                        {t("context_menu.delete.modal.delete")}
-                    </button>
+                    {/* Warning Message Section */}
+                    <div className="flex flex-col items-center justify-center gap-3 text-center">
+                        {/* Warning Icon */}
+                        <IconAlertTriangle className="w-12 h-12 text-tertiary-200" stroke={1.5} />
+
+                        {/* Warning Text */}
+                        <p className="text-quaternary-500 font-medium leading-relaxed">
+                            {t("context_menu.delete.modal.description")}
+                        </p>
+                    </div>
+
+                    {/* Target Entity Information Banner */}
+                    <div
+                        className="w-full flex items-center justify-center gap-3 py-3 px-4 mt-4 rounded-xl text-primary shadow-sm"
+                        style={{ backgroundColor: color?.hex || tailwindColors.primary[500] }}
+                    >
+                        {/* Entity Logo */}
+                        {LogoComponent && <LogoComponent className="w-5 h-5" />}
+
+                        {/* Entity Title */}
+                        <span className="font-bold">{data?.title}</span>
+                    </div>
+
+                    {/* Action Buttons Section */}
+                    <div className="flex items-center justify-between gap-4 mt-2">
+                        {/* Cancel Button */}
+                        <button type="button" onClick={onClose} className="w-full btn text-primary bg-primary-200">
+                            {t("context_menu.delete.modal.cancel")}
+                        </button>
+
+                        {/* Confirm Delete Button */}
+                        <button
+                            type="button"
+                            onClick={handleDelete}
+                            className="w-full btn text-primary bg-tertiary-200"
+                        >
+                            {t("context_menu.delete.modal.delete")}
+                        </button>
+                    </div>
                 </div>
             </div>
-        </div>
+        </>
     );
 };

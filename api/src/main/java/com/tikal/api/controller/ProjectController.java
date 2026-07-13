@@ -33,7 +33,9 @@ public class ProjectController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteProject(@PathVariable("id") Integer id) {
+        System.out.println("\n Received request to delete project with ID: " + id);
         projectService.deleteProject(id);
+        System.out.println("\n Deleted project with ID: " + id);
         return ResponseEntity.noContent().build();
     }
 

@@ -4,15 +4,17 @@ import { createContext, useState, useEffect } from "react";
 /** Routing & Navigation */
 import { Outlet } from "react-router-dom";
 
+/** Contexts, Hooks & Services */
+import { useSync } from "../hooks/core/useSync.js";
+import { timeLogService } from "../services/time/timeLogService.js";
+
 /** Components & Layouts */
 import { ConfirmTimeLogComponent } from "../components/app/common/ConfirmTimeLogComponent.jsx";
 import { ConfirmSwitchTaskComponent } from "../components/app/common/ConfirmSwitchTaskComponent.jsx";
 
 /** Config, Constants & Utils */
-import { API_BASE_URL } from "../constants/api.js";
-import { PROJECTS_ICONS } from "../constants/projects_icons";
+import { PROJECTS_ICONS } from "../constants/projects_icons.js";
 import { IconDatabase } from "@tabler/icons-react";
-import { useMain } from "../hooks/useMain.js";
 
 // eslint-disable-next-line react-refresh/only-export-components
 export const TimeLogContext = createContext();
@@ -22,7 +24,8 @@ export const TimeLogContext = createContext();
  *
  * Manages the global state for the active time tracker, including the currently tracked
  * task, accumulated seconds, status (playing/paused), and formatting utilities.
- * Integrates directly with the `MainContext` to fetch initial tracking states.
+ * Integrates directly with the `MainContext` to fetch initial tracking states and uses
+ * `timeLogService` to persist data. Acts as the single source of truth for time logs.
  *
  * @component
  * @param {Object} props - The component props.
@@ -32,105 +35,128 @@ export const TimeLogContext = createContext();
 export const TimeLogProvider = ({ children }) => {
     // --- 1. Context State ---
 
-    const { getHomeWidgetsData, isDataLoaded, refreshData } = useMain();
+    const { getHomeWidgetsData, isDataLoaded, refreshData } = useSync();
     const initialData = getHomeWidgetsData();
 
     /**
      * Initialization State
+     *
      * Indicates whether the tracker has successfully hydrated its initial data from the backend.
+     * @type {[boolean, Function]}
      */
     const [hasInitialized, setHasInitialized] = useState(false);
 
     /**
      * Timer Activity State
+     *
      * Indicates whether the tracker is currently ticking.
+     * @type {[boolean, Function]}
      */
     const [isActive, setIsActive] = useState(false);
 
     /**
      * Accumulated Seconds State
+     *
      * The total amount of tracked seconds for the active task.
+     * @type {[number, Function]}
      */
     const [secs, setSecs] = useState(0);
 
     /**
      * Project Identifier State
+     *
      * The unique ID of the project currently being tracked.
+     * @type {[string|null, Function]}
      */
     const [projectId, setProjectId] = useState(null);
 
     /**
      * Stage Identifier State
+     *
      * The unique ID of the stage currently being tracked.
+     * @type {[string|null, Function]}
      */
     const [stageId, setStageId] = useState(null);
 
     /**
      * Task Identifier State
+     *
      * The unique ID of the task currently being tracked.
+     * @type {[string|null, Function]}
      */
     const [taskId, setTaskId] = useState(null);
 
     /**
      * Start Time State
+     *
      * The start time of the currently tracked task.
+     * @type {[Date|null, Function]}
      */
     const [startTime, setStartTime] = useState(null);
 
     /**
      * End Time State
+     *
      * The end time of the currently tracked task.
+     * @type {[Date|null, Function]}
      */
     const [endTime, setEndTime] = useState(null);
 
     /**
      * Active Theme Color State
+     *
      * The hex color code associated with the task's parent phase or project.
+     * @type {[string|null, Function]}
      */
     const [activeColorId, setActiveColorId] = useState(null);
 
     /**
      * Project/Task Icon State
+     *
      * The React component function representing the icon of the tracked task.
+     * @type {[React.ElementType|null, Function]}
      */
     const [projectIcon, setProjectIcon] = useState(null);
 
     /**
      * Active Task Name State
+     *
      * The display string of the active task.
+     * @type {[string, Function]}
      */
     const [taskName, setTaskName] = useState("");
 
     /**
      * Active Subtask or Phase Name State
+     *
      * The display string of the parent phase or project grouping the task.
+     * @type {[string|null, Function]}
      */
     const [subTaskName, setSubTaskName] = useState(null);
 
     /**
      * Modal Visibility State
+     *
      * Controls the display of the confirmation modal when stopping a timer.
+     * @type {[boolean, Function]}
      */
     const [showStopModal, setShowStopModal] = useState(false);
 
     /**
      * Activity Description State
+     *
      * Captures the user's notes/description for the logged time segment.
+     * @type {[string, Function]}
      */
     const [activityDescription, setActivityDescription] = useState("");
 
+    /**
+     * Pending Switch Task State
+     *
+     * Stores the payload of a requested task switch while the confirmation modal is open.
+     * @type {[Object|null, Function]}
+     */
     const [pendingSwitchTask, setPendingSwitchTask] = useState(null);
-
-    const cancelSwitchTask = () => setPendingSwitchTask(null);
-
-    const confirmSwitchTask = async () => {
-        if (pendingSwitchTask) {
-            const { projectId, stageId, taskId, colour, logo, name } = pendingSwitchTask;
-
-            await setActiveTask(projectId, stageId, taskId, colour, logo, name, "", true);
-            setPendingSwitchTask(null);
-        }
-    };
 
     // --- 2. Initialization & Effects ---
 
@@ -156,7 +182,6 @@ export const TimeLogProvider = ({ children }) => {
                 setSecs(data.accumulatedSeconds);
             }
 
-            // Normalizes the backend string ID into a usable React Icon component
             if (data.logo) {
                 const logo = PROJECTS_ICONS.find((i) => i.id === data.logo);
                 setProjectIcon(() => (logo ? logo.component : IconDatabase));
@@ -179,10 +204,11 @@ export const TimeLogProvider = ({ children }) => {
             interval = setInterval(() => {
                 setSecs((prev) => prev + 1);
             }, 1000);
-        } else {
-            clearInterval(interval);
         }
-        return () => clearInterval(interval);
+
+        return () => {
+            if (interval) clearInterval(interval);
+        };
     }, [isActive]);
 
     // --- 3. API & Action Methods ---
@@ -211,32 +237,43 @@ export const TimeLogProvider = ({ children }) => {
             initDateTime: formatLocalISO(startTime),
             endDateTime: formatLocalISO(finalEndTime),
             activityDescription: activityDescription,
-            projectId: projectId,
-            stageId: stageId,
-            taskId: taskId,
+            projectId,
+            stageId,
+            taskId,
         };
 
         try {
-            const token = localStorage.getItem("accessToken");
-            const response = await fetch(`${API_BASE_URL}/api/time_log`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${token}`,
-                },
-                body: JSON.stringify(payload),
-            });
-
-            if (!response.ok) {
-                const errorText = await response.text();
-                throw new Error(`API Error ${response.status}: ${errorText || response.statusText}`);
-            }
+            await timeLogService.saveLog(payload);
 
             if (refreshData) {
                 await refreshData();
             }
         } catch (error) {
             console.error("Error al registrar tiempo:", error);
+        }
+    };
+
+    /**
+     * Cancels a pending task switch and closes the confirmation modal.
+     *
+     * @function
+     * @returns {void}
+     */
+    const cancelSwitchTask = () => setPendingSwitchTask(null);
+
+    /**
+     * Confirms and executes a pending task switch.
+     *
+     * @async
+     * @function
+     * @returns {Promise<void>} Resolves when the new task is set as active.
+     */
+    const confirmSwitchTask = async () => {
+        if (pendingSwitchTask) {
+            const { projectId, stageId, taskId, colour, logo, name } = pendingSwitchTask;
+
+            await setActiveTask(projectId, stageId, taskId, colour, logo, name, "", true);
+            setPendingSwitchTask(null);
         }
     };
 
@@ -262,7 +299,6 @@ export const TimeLogProvider = ({ children }) => {
      * @returns {Promise<void>} Resolves when the toggle operation (and any potential saving) completes.
      */
     const toggleTimer = async () => {
-        console.log(isActive);
         if (isActive) {
             const now = new Date();
             setEndTime(now);
@@ -357,18 +393,19 @@ export const TimeLogProvider = ({ children }) => {
     /**
      * Overrides the current tracker state with a newly selected task.
      *
-     * Automatically stops any running timer, resets the data with the new payload,
-     * resets the timer to zero, and immediately begins tracking the new task.
+     * Automatically stops any running timer, saves the current log, resets the
+     * data with the new payload, and immediately begins tracking the new task.
      *
      * @async
      * @function
      * @param {string} newProjectId - The unique identifier of the project to track.
      * @param {string} newStageId - The unique identifier of the stage to track.
      * @param {string} newTaskId - The unique identifier of the task to track.
-     * @param {string} colorHex - The theme color hex code to apply to the widget.
+     * @param {string} colour - The theme color hex code to apply to the widget.
      * @param {React.ElementType} IconComp - The icon component associated with the task/project.
      * @param {string} newTaskName - The display name of the task.
      * @param {string} [newSubTaskName] - Optional parent phase or project name.
+     * @param {boolean} [force=false] - If true, bypasses the confirmation modal when switching.
      * @returns {Promise<void>} Resolves when the task transition is complete.
      */
     const setActiveTask = async (

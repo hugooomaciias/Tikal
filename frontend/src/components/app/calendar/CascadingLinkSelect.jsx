@@ -8,54 +8,53 @@ import { PROJECTS_ICONS } from "../../../constants/projects_icons.js";
 /**
  * Cascading Link Select Component
  *
- * This component provides an animated, cascading dropdown for hierarchically
- * linking events to projects, phases, and tasks. It dynamically filters options
- * based on the selected parent level and manages internal navigation before updating
- * the parent component.
+ * This primarily visual component provides an animated, cascading dropdown for hierarchically
+ * linking events to projects, phases, and tasks. It manages minimal local state exclusively
+ * for UI interactions (e.g., visibility toggling, active tabs, and navigation paths) before
+ * dispatching the final selection to the parent component.
  *
  * @component
  * @param {Object} props - The component props.
- * @param {Array<Object>} [props.cascadingOptions=[]] - Array of available link options (projects, phases, tasks).
+ * @param {Array<Object>} [props.cascadingOptions=[]] - Array of available nested link options (projects, phases, tasks).
  * @param {string|null} props.currentLinkId - ID of the currently selected link entity.
- * @param {Function} props.onSelect - Callback function triggered when a valid option is selected.
- * @param {string|null} props.error - Validation error message to display, if any.
- * @param {string} props.inputClass - CSS class string for styling the trigger input field.
- * @param {Function} props.t - Internationalization translation function.
- * @returns {JSX.Element} The rendered cascading select component.
+ * @param {Function} props.onSelect - Callback function triggered when a valid option is clicked.
+ * @param {string|null} props.error - Validation error message to display beneath the input field.
+ * @param {string} props.inputClass - CSS class string for styling the trigger input field wrapper.
+ * @param {Function} props.t - Internationalization translation function provided by i18next.
+ * @returns {JSX.Element} The rendered cascading select dropdown component.
  */
 export const CascadingLinkSelect = ({ cascadingOptions = [], currentLinkId, onSelect, error, inputClass, t }) => {
-    // --- 1. Hooks & Contexts ---
+    // --- 1. Local UI Logic ---
 
     /**
      * Component DOM Reference
      *
-     * Reference to the main component container, used to detect clicks outside
-     * for auto-closing the dropdown.
+     * Reference to the main component container, used to detect interactions outside
+     * the DOM tree to trigger auto-closing behavior for the dropdown.
      */
     const linkSelectorRef = useRef(null);
 
-    // --- 2. Local State ---
-
     /**
-     * Dropdown Visibility State
+     * Dropdown Visibility Toggle
      *
-     * Tracks whether the cascading selector dropdown menu is currently visible.
+     * Boolean state that controls the visual expansion and collapse of the cascading
+     * options menu overlay.
      */
     const [isOpen, setIsOpen] = useState(false);
 
     /**
-     * Active Tab State
+     * Active Navigation Tab
      *
-     * Tracks the currently active sorting tab ("project", "phase", or "task")
-     * within the cascading selector to filter the options list.
+     * Tracks the currently selected sorting tier ("project", "phase", or "task")
+     * to visually shift the animated tab highlight pill and filter list items.
      */
     const [activeLinkTab, setActiveLinkTab] = useState("project");
 
     /**
-     * Cascading Navigation Path State
+     * Hierarchical Navigation Path
      *
-     * Stores the IDs of the selected project, phase, and task to sequentially
-     * filter subsequent options in the hierarchy.
+     * Stores the specific IDs of the selected project, phase, and task to sequentially
+     * filter the subsequent depth levels within the dropdown options array.
      */
     const [cascadingPath, setCascadingPath] = useState({
         project: "",
@@ -63,20 +62,19 @@ export const CascadingLinkSelect = ({ cascadingOptions = [], currentLinkId, onSe
         task: "",
     });
 
-    // --- 3. Derived Variables ---
-
     /**
-     * Current Selected Item Look-up
+     * Selected Item Retrieval
      *
-     * Retrieves the complete object payload from the options array based on the `currentLinkId` prop.
+     * Dynamically retrieves the complete object payload from the options array
+     * matching the globally provided `currentLinkId`. Used for displaying the input label.
      */
     const currentSelectedItem = cascadingOptions.find((opt) => opt.id === currentLinkId);
 
     /**
-     * Filtered Navigation Options
+     * Filtered Viewport Options
      *
-     * Dynamically filters the list of available options based on the currently active tab
-     * and the hierarchical constraints of the cascading path.
+     * Iterates over the raw options array and computes a strict subset based on the currently
+     * active tab and the prerequisite parent IDs defined in the cascading path.
      */
     const filteredOptions = cascadingOptions.filter((opt) => {
         if (activeLinkTab === "project") return opt.type === "project";
@@ -85,22 +83,13 @@ export const CascadingLinkSelect = ({ cascadingOptions = [], currentLinkId, onSe
         return false;
     });
 
-    // --- 4. Side Effects ---
-
     /**
-     * Click Outside Detection Effect
+     * Outside Click Listener
      *
      * Binds a global event listener to detect mousedown events outside the component's
-     * DOM node, closing the dropdown to enhance UX.
+     * bounding box. If triggered, it sets the `isOpen` state to false.
      */
     useEffect(() => {
-        /**
-         * Outside Click Evaluator
-         *
-         * Determines if the event target is outside the component ref bounds.
-         *
-         * @param {MouseEvent} event - The native mousedown event.
-         */
         const handleClickOutside = (event) => {
             if (linkSelectorRef.current && !linkSelectorRef.current.contains(event.target)) {
                 setIsOpen(false);
@@ -114,26 +103,21 @@ export const CascadingLinkSelect = ({ cascadingOptions = [], currentLinkId, onSe
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, [isOpen]);
 
-    // --- 5. Event Handlers & Functions ---
-
     /**
-     * Dropdown Toggle Handler
+     * Dropdown Visibility Handler
      *
-     * Toggles the visibility state of the cascading dropdown menu.
-     *
-     * @returns {void}
+     * Inverts the boolean state controlling the dropdown expansion.
      */
     const handleToggleDropdown = () => {
         setIsOpen((prev) => !prev);
     };
 
     /**
-     * Dropdown Close Handler
+     * Dropdown Dismissal Action
      *
-     * Explicitly closes the dropdown menu and stops event propagation.
+     * Explicitly forces the dropdown menu to collapse and halts event bubbling.
      *
-     * @param {React.MouseEvent} e - The mouse click event.
-     * @returns {void}
+     * @param {React.MouseEvent} e - The native React synthetic event.
      */
     const handleCloseDropdown = (e) => {
         e.stopPropagation();
@@ -141,13 +125,12 @@ export const CascadingLinkSelect = ({ cascadingOptions = [], currentLinkId, onSe
     };
 
     /**
-     * Tab Selection Handler
+     * Tab Switching Trigger
      *
-     * Updates the active tab state when a navigation pill is clicked, preventing event bubbling.
+     * Updates the active tab state explicitly when a user clicks on the top navigation buttons.
      *
-     * @param {React.MouseEvent} e - The mouse click event.
-     * @param {string} tab - The tab identifier ("project", "phase", or "task").
-     * @returns {void}
+     * @param {React.MouseEvent} e - The native React synthetic event.
+     * @param {string} tab - The specific string key targeting the requested tab level.
      */
     const handleTabSelect = (e, tab) => {
         e.stopPropagation();
@@ -155,15 +138,13 @@ export const CascadingLinkSelect = ({ cascadingOptions = [], currentLinkId, onSe
     };
 
     /**
-     * Cascading Selection Handler
+     * Cascading Step Processor
      *
-     * Processes user clicks on list options. Updates the local cascading path and
-     * active tab state to automatically navigate to the next selection level.
-     * Triggers the `onSelect` prop to notify the parent.
+     * Intercepts item selection. If the item is a parent container (e.g., project), it updates
+     * the internal path state and advances the tab automatically. Also notifies the parent `onSelect`.
      *
-     * @param {React.MouseEvent} e - The mouse click event.
-     * @param {Object} option - The option selected by the user.
-     * @returns {void}
+     * @param {React.MouseEvent} e - The native React synthetic event.
+     * @param {Object} option - The complete option object interacted with by the user.
      */
     const handleCascadingSelection = (e, option) => {
         e.stopPropagation();
@@ -182,11 +163,10 @@ export const CascadingLinkSelect = ({ cascadingOptions = [], currentLinkId, onSe
     };
 
     /**
-     * Dynamic Tab Pill Width
+     * Tab Indicator Width Calculator
      *
-     * Computes the CSS width of the animated highlight pill based on the active tab context.
-     *
-     * @returns {string} Tailwind CSS class representing the calculated width.
+     * Evaluates the current active tab state and returns the strict Tailwind CSS width class
+     * required to animate the background pill smoothly.
      */
     const getPillWidth = () => {
         if (activeLinkTab === "project") return "w-[calc(33.333%-4px)]";
@@ -194,10 +174,11 @@ export const CascadingLinkSelect = ({ cascadingOptions = [], currentLinkId, onSe
         return "w-[calc(100%-12px)]";
     };
 
-    // --- 6. Render ---
+    // --- 2. Render ---
+
     return (
         <div ref={linkSelectorRef} className="relative inline-block text-left shrink-0 w-full">
-            {/* Trigger Input & Label Container */}
+            {/* Primary Action Input Trigger */}
             <input
                 type="text"
                 id="linkId"
@@ -208,6 +189,8 @@ export const CascadingLinkSelect = ({ cascadingOptions = [], currentLinkId, onSe
                 onClick={handleToggleDropdown}
                 className={`${inputClass} cursor-pointer`}
             />
+
+            {/* Floating Input Text Label */}
             <label
                 htmlFor="linkId"
                 className="input-label input-textarea-label-primary cursor-pointer truncate max-w-[90%]"
@@ -215,23 +198,23 @@ export const CascadingLinkSelect = ({ cascadingOptions = [], currentLinkId, onSe
                 {t("popup.linked.name")}
             </label>
 
-            {/* Validation Error Message */}
+            {/* Conditional Validation Error Text */}
             {error && (
                 <span className="absolute -bottom-5 left-0 text-tertiary-200 text-xs font-semibold">{error}</span>
             )}
 
-            {/* Dropdown Menu Wrapper */}
+            {/* Animated Options Overlay Menu */}
             <div
                 className={`absolute left-0 lg:right-0 lg:left-auto mt-2 w-full origin-top bg-primary-400 rounded-2xl shadow-xl text-primary z-50 overflow-hidden transition-all duration-200 ${isOpen ? "scale-100 opacity-100" : "scale-95 opacity-0 pointer-events-none"}`}
             >
-                {/* Navigation Tabs Header */}
+                {/* Horizontal Level Selection Header */}
                 <div className="flex items-center justify-center w-full p-1.5 rounded-t-2xl relative overflow-hidden bg-primary-400">
-                    {/* Animated Tab Highlight Pill */}
+                    {/* Animated Tab Background Pill */}
                     <div
                         className={`absolute top-1.5 bottom-1.5 left-1.5 bg-primary-50 rounded-xl shadow-sm transition-all duration-300 ease-out z-0 ${getPillWidth()}`}
                     ></div>
 
-                    {/* Project Tab Button */}
+                    {/* Level 1: Project Tab Button */}
                     <button
                         type="button"
                         onClick={(e) => handleTabSelect(e, "project")}
@@ -240,7 +223,7 @@ export const CascadingLinkSelect = ({ cascadingOptions = [], currentLinkId, onSe
                         {t("popup.linked.projects")}
                     </button>
 
-                    {/* Phase Tab Button */}
+                    {/* Level 2: Phase Tab Button */}
                     <button
                         type="button"
                         disabled={!cascadingPath.project}
@@ -250,7 +233,7 @@ export const CascadingLinkSelect = ({ cascadingOptions = [], currentLinkId, onSe
                         {t("popup.linked.stages")}
                     </button>
 
-                    {/* Task Tab Button */}
+                    {/* Level 3: Task Tab Button */}
                     <button
                         type="button"
                         disabled={!cascadingPath.phase}
@@ -261,28 +244,28 @@ export const CascadingLinkSelect = ({ cascadingOptions = [], currentLinkId, onSe
                     </button>
                 </div>
 
-                {/* Dynamic Options List */}
+                {/* Filtered Scrollable List Items Panel */}
                 <div className="flex flex-col max-h-48 overflow-y-auto custom-scrollbar p-2 gap-1 bg-primary-400">
                     {filteredOptions.length > 0 ? (
                         filteredOptions.map((option) => {
                             /**
-                             * Selection Status Flag
+                             * Selection Highlight Matcher
                              *
-                             * Evaluates if the current mapped option exists in the active hierarchical path.
+                             * Flags true if this specific option matches the currently recorded cascading path ID.
                              */
                             const isSelected = cascadingPath[option.type] === option.id;
 
                             /**
-                             * Option Logo Component
+                             * Entity Logo Matcher
                              *
-                             * Look-up the specific SVG icon corresponding to the project.
+                             * Looks up the corresponding SVG icon reference from the predefined constant array.
                              */
                             const logo = PROJECTS_ICONS.find((i) => i.id === option.logo);
 
                             /**
-                             * Option Phase Color
+                             * Entity Color Matcher
                              *
-                             * Look-up the precise hex color assigned to the phase.
+                             * Looks up the precise hex object reference from the predefined constant array.
                              */
                             const color = PHASE_COLOURS.find((c) => c.id === option.color);
 
@@ -293,33 +276,36 @@ export const CascadingLinkSelect = ({ cascadingOptions = [], currentLinkId, onSe
                                     onClick={(e) => handleCascadingSelection(e, option)}
                                     className={`px-3 py-2 text-sm font-medium text-left rounded-xl transition-colors flex items-center gap-2 ${isSelected ? "bg-primary-100/50 text-primary" : "text-primary hover:bg-primary-100/20"}`}
                                 >
+                                    {/* Optional Item SVG Icon */}
                                     {option.logo && <logo.component className="w-4 h-4" />}
+
+                                    {/* Optional Item Color Dot */}
                                     {option.color && (
                                         <div
                                             className="w-3 h-3 rounded-full shrink-0 border-2 border-primary-50"
                                             style={{ backgroundColor: color?.hex }}
                                         ></div>
                                     )}
+
+                                    {/* Target Name Truncation Wrapper */}
                                     <span className="truncate">{option.name}</span>
                                 </button>
                             );
                         })
                     ) : (
-                        <p className="text-xs text-center text-primary/70 py-3">
-                            {/* Empty Options Placeholder */}
-                            {t("popup.linked.no_options")}
-                        </p>
+                        /* Empty State Fallback Typography */
+                        <p className="text-xs text-center text-primary/70 py-3">{t("popup.linked.no_options")}</p>
                     )}
                 </div>
 
-                {/* Dropdown Action Footer */}
+                {/* Menu Footer Confirmation Container */}
                 <div className="p-3 border-t border-primary-50/70 bg-primary-400 flex items-center justify-between">
-                    {/* Selected Item Display */}
+                    {/* Active Path Label Element */}
                     <span className="text-xs font-medium text-primary/80 truncate max-w-[60%]">
                         {currentLinkId ? `${currentSelectedItem?.name}` : ""}
                     </span>
 
-                    {/* Close / Confirm Button */}
+                    {/* Exit/Confirm Action Button */}
                     <button
                         type="button"
                         onClick={handleCloseDropdown}

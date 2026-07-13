@@ -90,6 +90,7 @@
         "title": "Tasks",
         "search": "Search task",
         "no_tasks": "No tasks found",
+        "completed_separator": "Completed tasks",
         "subtasks": "subtasks",
         "no_subtasks": "No",
         "popup": {

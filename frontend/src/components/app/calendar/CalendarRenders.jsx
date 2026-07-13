@@ -1,3 +1,6 @@
+/** React & Third-Party Libraries */
+import React from "react";
+
 /** Components & Layouts */
 import { ScrollingText } from "../../../components/app/common/ScrollingText.jsx";
 
@@ -7,64 +10,70 @@ import { IconDotsVerticalFilled } from "@tabler/icons-react";
 /**
  * Custom DatePicker Day Content Renderer
  *
- * Overrides React-DatePicker's native day wrapper to embed custom event indicator
- * "dots" fetched strictly from our local event color-map index.
+ * This primarily visual component manages minimal derived state specifically to render
+ * the UI overlay for calendar days. It translates the injected map of events into localized
+ * color dots and overflow indicators, ensuring the interface accurately reflects daily workloads.
  *
  * @component
- * @param {number|string} dayOfMonth - Numeric date string or number representing the day of the month.
- * @param {Date} date - Raw Date object of the day being rendered.
- * @param {Object} eventsColorMap - Dictionary mapping date strings to arrays of color objects.
- * @returns {JSX.Element} Composed DOM node mapping days to precise chronological dot queues.
+ * @param {number|string} dayOfMonth - Numeric date string or number representing the localized day of the month.
+ * @param {Date} date - Raw, unformatted Date object representing the exact chronological coordinate.
+ * @param {Object} eventsColorMap - Dictionary index mapping "YYYY-MM-DD" keys to arrays of specific color objects.
+ * @returns {JSX.Element} Composed DOM hierarchy outlining the day layout and event dots.
  */
 export const renderCustomDayContents = (dayOfMonth, date, eventsColorMap) => {
-    // --- 3. Derived Variables ---
+    // --- 1. Local UI Logic ---
 
     /**
-     * Formatted Date String
+     * Formatted Target Date String
      *
-     * Converts the raw Date object into a standardized "YYYY-MM-DD" string for map lookup.
+     * Converts the standard Date object into an ISO-compliant string representation
+     * (e.g., "YYYY-MM-DD") to allow deterministic lookup against the mapped events dictionary.
      */
     const formattedDate = date.toLocaleDateString("en-CA");
 
     /**
-     * Day Colors Array
+     * Day Colors Retrieval
      *
-     * Retrieves the array of event colors scheduled for this specific date, defaulting to an empty array.
+     * Extracts the specific array of color objects scheduled for the formatted date.
+     * Defaults to an empty array to prevent undefined errors during rendering iterations.
      */
     const dayColors = eventsColorMap[formattedDate] || [];
 
     /**
-     * Total Events Count
+     * Active Events Counter
      *
-     * Computes the total number of events scheduled for the current date.
+     * Calculates the definitive integer total of all events attached to the current day.
+     * This metric dictates whether to display exact dots or fall back to an overflow UI state.
      */
     const totalEvents = dayColors.length;
 
     /**
-     * Display Colors Subset
+     * Visual Slice Computation
      *
-     * Limits the displayed color dots to a maximum of 2 if there are more than 3 events, else shows all.
+     * Limits the maximum number of individually rendered dots to exactly 2 if the day
+     * exceeds 3 events, preserving layout consistency in small, confined grid cells.
      */
     const displayColors = totalEvents > 3 ? dayColors.slice(0, 2) : dayColors;
 
     /**
-     * Has More Events Indicator
+     * Overflow State Toggle
      *
-     * Boolean flag indicating if there are more events than can be displayed as dots.
+     * Computes a strict boolean value indicating whether the current day surpasses
+     * the maximum threshold of viewable dots (more than 3 events).
      */
     const hasMore = totalEvents > 3;
 
-    // --- 6. Render ---
+    // --- 2. Render ---
 
     return (
         <div className="relative flex flex-col items-center justify-center w-full h-full">
-            {/* Day Numeric Value */}
+            {/* Primary Cell Date Number */}
             <span>{dayOfMonth}</span>
 
-            {/* Event Dot Indicators Display Container */}
+            {/* Absolute Positioned Event Dots Wrapper */}
             {totalEvents > 0 && (
                 <div className="absolute bottom-[4px] flex gap-[2px]">
-                    {/* Render Dot List */}
+                    {/* Inline Loop Rendering Individual Color Nodes */}
                     {displayColors.map((colour, index) => (
                         <div
                             key={index}
@@ -72,7 +81,8 @@ export const renderCustomDayContents = (dayOfMonth, date, eventsColorMap) => {
                             style={{ backgroundColor: colour.hex }}
                         />
                     ))}
-                    {/* Overflow State Indicator */}
+
+                    {/* Conditional Plus/Overflow Graphic Indicator */}
                     {hasMore && (
                         <div className="custom-event-dot-more w-[4px] h-[4px] rounded-full border-[1.5px] border-quaternary-400 bg-transparent opacity-80" />
                     )}
@@ -83,39 +93,48 @@ export const renderCustomDayContents = (dayOfMonth, date, eventsColorMap) => {
 };
 
 /**
- * FullCalendar Event Content Renderer
+ * FullCalendar Event Block Renderer
  *
- * Customizes the visual presentation of events within FullCalendar across different
- * view types (monthly, weekly, daily, and fallback list views).
+ * This primarily visual component orchestrates the granular rendering of distinct events
+ * across all varying sizes and layouts supported by FullCalendar. It manages minimal local logic
+ * exclusively to bind and inject context-menu interactions and adapt the JSX DOM based on the active view type.
  *
  * @component
- * @param {Object} eventInfo - The event rendering information provided by FullCalendar.
- * @param {Object} eventInfo.event - The event object containing details like title, backgroundColor, and extendedProps.
- * @param {string} [eventInfo.timeText] - The formatted time string for the event (optional).
- * @param {Object} eventInfo.view - The current FullCalendar view object.
- * @param {string} eventInfo.view.type - The identifier string for the current view (e.g., "dayGridMonth").
- * @param {Function} handleContextMenu - The function to trigger the context menu, receiving the click event and event info.
- * @returns {JSX.Element} Structured DOM elements tailored to the active calendar view.
+ * @param {Object} eventInfo - Full payload of render variables injected automatically by FullCalendar.
+ * @param {Object} eventInfo.event - The normalized event object containing fundamental attributes like title and extendedProps.
+ * @param {string} [eventInfo.timeText] - Standardized formatted timestamp string calculated by the parent grid (optional).
+ * @param {Object} eventInfo.view - Complex layout state dictating the active structural layout parameters.
+ * @param {string} eventInfo.view.type - The literal identifier designating the active mode (e.g., "dayGridMonth").
+ * @param {Function} handleContextMenu - Injected callback function designated to trigger the central context menu modal UI.
+ * @returns {JSX.Element} Responsive, dynamic visual node customized for the specific calendar context space.
  */
 export const renderEventContent = (eventInfo, handleContextMenu) => {
-    // --- 3. Derived Variables ---
+    // --- 1. Local UI Logic ---
 
     /**
-     * Event Rendering Data
+     * Payload Object Destructuring
      *
-     * Extracts the event details, time text, and view context from the FullCalendar payload.
+     * Unpacks the complex nested FullCalendar payload to isolate fundamental rendering properties,
+     * reducing verbose object lookups during the JSX mapping block.
      */
     const { event, timeText, view } = eventInfo;
 
-    // --- 5. Event Handlers & Functions ---
+    /**
+     * Target Color Extraction
+     *
+     * Identifies the primary color signature explicitly bound to the target event via extended metadata.
+     * Required for synchronizing borders, texts, and background tokens dynamically.
+     */
+    const colour = event.extendedProps.color;
 
     /**
-     * Context Menu Click Handler
+     * Context Menu Propagation Interceptor
      *
-     * Prevents the click event from bubbling up to parent containers and opens
-     * the context menu with the current event's information.
+     * Explicitly prevents the synthetic React mouse event from bubbling up to the underlying calendar grid
+     * (which would inadvertently fire "empty space" click actions), and directly injects the event payload
+     * into the modal orchestrator.
      *
-     * @param {React.MouseEvent} e - The React mouse click event.
+     * @param {React.MouseEvent} e - The raw DOM click event synthesized by React.
      */
     const onContextMenuClick = (e) => {
         e.stopPropagation();
@@ -124,42 +143,36 @@ export const renderEventContent = (eventInfo, handleContextMenu) => {
         }
     };
 
-    const colour = event.extendedProps.color;
+    // --- 2. Render ---
 
-    // --- 6. Render ---
-
-    /**
-     * Month View Render
-     *
-     * Renders a compact layout with a color dot and a single-line title for "dayGridMonth".
-     */
+    {
+        /* View-Specific Conditional Rendering Block: Month */
+    }
     if (view.type === "dayGridMonth") {
         return (
             <div className="flex items-center w-full overflow-hidden px-1 h-full">
-                {/* Event Color Indicator */}
+                {/* Visual Label Dot */}
                 <div className="w-2 h-2 rounded-full mr-1.5 shrink-0" style={{ backgroundColor: colour.hex }} />
 
-                {/* Event Title */}
+                {/* Animated Horizontal Title Marquee */}
                 <ScrollingText text={event.title} className="text-xs font-semibold leading-tight text-quaternary-700" />
             </div>
         );
     }
 
-    /**
-     * Week View Render
-     *
-     * Renders a vertical layout with time, title, and optional description for "timeGridWeek".
-     */
+    {
+        /* View-Specific Conditional Rendering Block: Week */
+    }
     if (view.type === "timeGridWeek") {
         return (
             <div className="flex flex-col items-start w-full overflow-hidden p-1 h-full" style={{ color: colour.text }}>
-                {/* Event Time Header */}
+                {/* Text-Based Time Header Label */}
                 {timeText && <div className="text-[10px] font-medium opacity-80 mb-0.5">{timeText}</div>}
 
-                {/* Event Title */}
+                {/* Primary Animated Title Marquee */}
                 <ScrollingText text={event.title} className="text-xs font-bold leading-tight" />
 
-                {/* Event Description Container */}
+                {/* Sub-Headline Description Injector */}
                 {event.extendedProps?.description && (
                     <div className="opacity-70 w-full mt-0.5">
                         <ScrollingText
@@ -172,26 +185,25 @@ export const renderEventContent = (eventInfo, handleContextMenu) => {
         );
     }
 
-    /**
-     * Day View Render
-     *
-     * Renders an expansive layout with padded content, larger text, and multi-line descriptions for "timeGridDay".
-     */
+    {
+        /* View-Specific Conditional Rendering Block: Day */
+    }
     if (view.type === "timeGridDay") {
         return (
             <div
                 className="flex flex-col items-start w-full overflow-hidden p-2 h-full gap-1"
                 style={{ color: colour.text }}
             >
-                {/* Event Time Header Wrapper */}
+                {/* Horizontal Alignment Header Layout */}
                 <div className="flex items-center justify-between w-full">
+                    {/* Text-Based Time Label Wrapper */}
                     {timeText && <span className="text-xs font-bold opacity-90">{timeText}</span>}
                 </div>
 
-                {/* Event Title */}
+                {/* Bold Standard Target Title Wrapper */}
                 <span className="text-sm font-extrabold leading-tight">{event.title}</span>
 
-                {/* Multi-line Event Description */}
+                {/* Multi-Line Visual Description Block */}
                 {event.extendedProps?.description && (
                     <p className="text-xs opacity-80 line-clamp-3 whitespace-normal">
                         {event.extendedProps.description}
@@ -201,17 +213,15 @@ export const renderEventContent = (eventInfo, handleContextMenu) => {
         );
     }
 
-    /**
-     * Fallback List View Render
-     *
-     * Renders a minimal layout for unspecified or list views (e.g., "listWeek").
-     */
+    {
+        /* Default Fallback Render Block: Generic List */
+    }
     return (
         <div className="flex items-center justify-between w-full overflow-hidden">
-            {/* Minimal Event Title */}
+            {/* Primary Event Headline */}
             <span className="text-xs font-bold leading-tight">{event.title}</span>
 
-            {/* Context Menu Trigger Icon */}
+            {/* Clickable Context Action Node Trigger */}
             <IconDotsVerticalFilled onClick={onContextMenuClick} className="h-4 w-4" />
         </div>
     );

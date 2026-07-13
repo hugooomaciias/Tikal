@@ -1,248 +1,60 @@
-/** React & Third-Party Libraries */
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-
 /** Contexts, Hooks & Services */
-import { useAuth } from "../../hooks/useAuth";
+import { useRegisterFormLogic } from "../../hooks/components/auth/register/useRegisterFormLogic.js";
 
 /** Icons */
 import { IconUser, IconMail, IconEyeClosed, IconEye, IconInfoCircleFilled } from "@tabler/icons-react";
 
 /**
- * Registration Form Component
+ * Registration Form Presentational Component
  *
- * This component encapsulates the operational logic for the user registration
- * process. It manages form state, handles strict client-side validation, and
- * provides real-time visual feedback through dynamic styling and tooltips.
+ * This component acts as the visual core of the registration section, functioning
+ * strictly as a Headless UI consumer. Its sole responsibility is to render the
+ * form layout, bind user inputs, and display dynamic validation feedback.
+ *
+ * All complex business logic, client-side validation, state management, and API
+ * authentication interactions are delegated entirely to its custom headless hook
+ * (`useRegisterFormLogic`).
  *
  * @component
  * @param {Object} props - The component props.
- * @param {string|null} props.apiError - The current API error state from the parent.
- * @param {Function} props.setApiError - Function to set or clear API errors.
+ * @param {Function} props.clearApiError - Callback to clear the parent's API error state.
+ * @param {Function} props.reportApiError - Callback to report caught exceptions to the parent.
  * @param {string} props.plan - The selected tier plan for registration.
  * @param {Function} props.t - Translation function from i18next.
- * @returns {JSX.Element} The interactive registration form.
+ * @returns {JSX.Element} The interactive registration form element.
  */
-export const FormRegisterComponent = ({ apiError, setApiError, plan, t }) => {
-    // --- 1. Hooks & Contexts ---
+export const FormRegisterComponent = ({ clearApiError, reportApiError, plan, t }) => {
+    // --- 1. Logic Hook Extraction ---
 
     /**
-     * Navigation Hook
+     * Headless Hook Destructuring
      *
-     * Provides programmatic navigation to redirect the user after a successful registration.
+     * Injects the strictly typed UI states (form values, visibility toggles, validation errors)
+     * and the stable interaction handlers (input changes, form submission, dynamic style computers)
+     * from the logic layer into this presentational layer.
      */
-    const navigate = useNavigate();
-
-    /**
-     * Authentication Hook
-     *
-     * Provides the 'register' function to communicate with the Auth Context/API.
-     */
-    const { register } = useAuth();
-
-    // --- 2. Local State ---
-
-    /**
-     * Form Input State
-     *
-     * Manages the controlled inputs for the registration form.
-     */
-    const [formData, setFormData] = useState({
-        username: "",
-        email: "",
-        password: "",
-        passwordConf: "",
+    const { registerFormStates, registerFormActions } = useRegisterFormLogic({
+        clearApiError,
+        reportApiError,
+        plan,
+        t,
     });
 
-    /**
-     * Password Visibility State
-     *
-     * Toggles the input type between "password" and "text" for the main password field.
-     */
-    const [showPassword, setShowPassword] = useState(false);
+    const { formData, showPassword, showConfirmPassword, errors } = registerFormStates;
+    const {
+        togglePasswordVisibility,
+        toggleConfirmPasswordVisibility,
+        handleChange,
+        handleSubmit,
+        getInputClass,
+        getIconClass,
+    } = registerFormActions;
 
-    /**
-     * Confirm Password Visibility State
-     *
-     * Toggles the input type between "password" and "text" for the confirmation field.
-     */
-    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-
-    /**
-     * Validation Error State
-     *
-     * Stores localized error messages for each field to be displayed in the UI.
-     */
-    const [errors, setErrors] = useState({});
-
-    // --- 5. Event Handlers & Functions ---
-
-    /**
-     * Form Validation Logic
-     *
-     * Performs client-side checks for required fields and validates non-empty
-     * fields, the email format using a strict Regex pattern, strong password and
-     * password confirmation matching.
-     *
-     * @returns {boolean} True if the form is valid, false otherwise.
-     */
-    const validateForm = () => {
-        let tempErrors = {};
-        let isValid = true;
-
-        if (!formData.username.trim()) {
-            tempErrors.username = t("auth.register.form.errors.username");
-            isValid = false;
-        }
-
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-        if (!formData.email.trim()) {
-            tempErrors.email = t("auth.register.form.errors.email");
-            isValid = false;
-        } else if (!emailRegex.test(formData.email)) {
-            tempErrors.email = t("auth.register.form.errors.incorrect_email");
-            isValid = false;
-        }
-
-        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
-
-        if (!formData.password) {
-            tempErrors.password = t("auth.register.form.errors.password");
-            isValid = false;
-        } else if (!passwordRegex.test(formData.password)) {
-            tempErrors.password = t("auth.register.form.errors.incorrect_password");
-            isValid = false;
-        }
-
-        if (!formData.passwordConf) {
-            tempErrors.passwordConf = t("auth.register.form.errors.password");
-            isValid = false;
-        } else if (!passwordRegex.test(formData.passwordConf)) {
-            tempErrors.passwordConf = t("auth.register.form.errors.incorrect_password");
-            isValid = false;
-        } else if (formData.password !== formData.passwordConf) {
-            tempErrors.passwordConf = t("auth.register.form.errors.passwords_do_not_match");
-            isValid = false;
-        }
-
-        setErrors(tempErrors);
-
-        return isValid;
-    };
-
-    /**
-     * Input Change Handler
-     *
-     * Updates the specific field in the state object while preserving other
-     * values. Also clears the visual error state and API errors to improve UX.
-     *
-     * @param {React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>} e - The change event.
-     */
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-
-        setFormData((prev) => ({
-            ...prev,
-            [name]: value,
-        }));
-
-        if (errors[name]) {
-            setErrors((prev) => ({
-                ...prev,
-                [name]: "",
-            }));
-        }
-
-        if (apiError) {
-            setApiError("");
-        }
-    };
-
-    /**
-     * Form Submission Handler
-     *
-     * Orchestrates the submission process: prevents default behavior, runs
-     * validation, and registers user via AuthContext if successful.
-     *
-     * @param {React.FormEvent} e - The form submission event.
-     */
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-
-        if (validateForm()) {
-            try {
-                await register({
-                    username: formData.username,
-                    email: formData.email,
-                    password: formData.password,
-                    plan: plan,
-                });
-                navigate("/loading");
-
-                setFormData({ username: "", email: "", password: "", passwordConf: "" });
-            } catch (error) {
-                console.error("Error al registrar", error);
-                setApiError(error.message || "Error al realizar el registro");
-            }
-        }
-    };
-
-    /**
-     * Input Style Generator
-     *
-     * Computes the Tailwind classes for input fields based on their current
-     * validation state.
-     *
-     * @param {string} fieldName - The name of the field to check.
-     * @returns {string} The computed CSS class string.
-     */
-    const getInputClass = (fieldName) => {
-        const baseInputClass = "input input-textarea-primary peer";
-        const errorNoPassClass = "ring-[3px] ring-tertiary-200";
-
-        const errorClass = `${errors[fieldName] === t("auth.register.form.errors.incorrect_password") || errors[fieldName] === t("auth.register.form.errors.passwords_do_not_match") ? "" : errorNoPassClass}`;
-
-        return `${baseInputClass} ${errors[fieldName] ? errorClass : ""}`;
-    };
-
-    /**
-     * Icon Style Generator
-     *
-     * Determines the color and styling of input icons based on error presence
-     * or user interaction.
-     *
-     * @param {string} fieldName - The name of the field associated with the icon.
-     * @returns {string} The computed CSS class string for the icon container.
-     */
-    const getIconClass = (fieldName) => {
-        const baseNoPassClass = "input-icon";
-        const basePassClass = "input-icon cursor-pointer pointer-events-auto";
-        const errorClass = "peer-focus:text-tertiary-200 peer-[:not(:placeholder-shown)]:text-tertiary-200";
-        const normalClass = "peer-focus:text-primary-500 peer-[:not(:placeholder-shown)]:text-primary-500";
-
-        let isPass = false;
-        let blankErrorText = "";
-
-        if (fieldName === "password" || fieldName === "passwordConf") {
-            isPass = true;
-            blankErrorText = t("auth.register.form.errors.password");
-        } else if (fieldName === "email") {
-            blankErrorText = t("auth.register.form.errors.email");
-        } else if (fieldName === "username") {
-            blankErrorText = t("auth.register.form.errors.username");
-        }
-
-        const baseClass = isPass ? basePassClass : baseNoPassClass;
-
-        return `${baseClass} ${errors[fieldName] !== undefined && errors[fieldName] !== blankErrorText ? errorClass : normalClass}`;
-    };
-
-    // --- 6. Render ---
+    // --- 2. Render ---
 
     return (
         <form onSubmit={handleSubmit} className="flex flex-col items-center justify-center gap-6" noValidate>
-            {/* Username Input */}
+            {/* Username Input Section */}
             <div className="relative w-full">
                 <input
                     type="text"
@@ -270,7 +82,7 @@ export const FormRegisterComponent = ({ apiError, setApiError, plan, t }) => {
                 )}
             </div>
 
-            {/* Email Input */}
+            {/* Email Input Section */}
             <div className="relative w-full">
                 <input
                     type="text"
@@ -298,7 +110,7 @@ export const FormRegisterComponent = ({ apiError, setApiError, plan, t }) => {
                 )}
             </div>
 
-            {/* Password Input */}
+            {/* Primary Password Input Section */}
             <div className="relative w-full">
                 <input
                     type={showPassword ? "text" : "password"}
@@ -314,7 +126,7 @@ export const FormRegisterComponent = ({ apiError, setApiError, plan, t }) => {
                     {t("auth.register.form.password")}
                 </label>
 
-                <div className={getIconClass("password")} onClick={() => setShowPassword(!showPassword)}>
+                <div className={getIconClass("password")} onClick={togglePasswordVisibility}>
                     {showPassword ? <IconEye className="h-5 w-5" /> : <IconEyeClosed className="h-5 w-5" />}
                 </div>
 
@@ -343,7 +155,7 @@ export const FormRegisterComponent = ({ apiError, setApiError, plan, t }) => {
                 )}
             </div>
 
-            {/* Confirm Password Input */}
+            {/* Confirm Password Input Section */}
             <div className="relative w-full">
                 <input
                     type={showConfirmPassword ? "text" : "password"}
@@ -359,10 +171,7 @@ export const FormRegisterComponent = ({ apiError, setApiError, plan, t }) => {
                     {t("auth.register.form.password_confirm")}
                 </label>
 
-                <div
-                    className={getIconClass("passwordConf")}
-                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                >
+                <div className={getIconClass("passwordConf")} onClick={toggleConfirmPasswordVisibility}>
                     {showConfirmPassword ? <IconEye className="h-5 w-5" /> : <IconEyeClosed className="h-5 w-5" />}
                 </div>
 
@@ -391,7 +200,7 @@ export const FormRegisterComponent = ({ apiError, setApiError, plan, t }) => {
                 )}
             </div>
 
-            {/* Submit Button */}
+            {/* Primary Submit Button */}
             <button type="submit" className="btn btn-primary md:w-1/2 mt-6">
                 <span>{t("auth.register.form.submit")}</span>
             </button>

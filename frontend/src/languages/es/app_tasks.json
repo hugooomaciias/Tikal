@@ -90,6 +90,7 @@
         "title": "Tareas",
         "search": "Buscar tarea",
         "no_tasks": "No hay tareas",
+        "completed_separator": "Tareas completadas",
         "subtasks": "subtareas",
         "no_subtasks": "No hay",
         "popup": {

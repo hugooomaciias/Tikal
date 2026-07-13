@@ -4,8 +4,8 @@ import { useNavigate } from "react-router-dom";
 import Lottie from "lottie-react";
 
 /** Components */
-import { useAuth } from "../hooks/useAuth";
-import { useMain } from "../hooks/useMain";
+import { useAuth } from "../hooks/core/useAuth";
+import { useSync } from "../hooks/core/useSync.js";
 
 /** Animations */
 import firstPartAnimation from "../assets/animations/firstPartAnimationLoadingScreen.json";
@@ -35,7 +35,7 @@ export const LoadingPage = () => {
      * Provides the 'isLoading' state to communicate with the Auth Context/API.
      */
     const { isLoading } = useAuth();
-    const { initialSync } = useMain();
+    const { sync } = useSync();
 
     /**
      * State to control which phase of the animation is currently active.
@@ -57,8 +57,8 @@ export const LoadingPage = () => {
         const fetchData = async () => {
             if (!isLoading) {
                 try {
-                    await initialSync();
-                    setDataReady(true); // Marcamos que todo está listo
+                    await sync();
+                    setDataReady(true);
                 } catch (error) {
                     console.error("Error al sincronizar", error);
                     navigate("/login");
@@ -66,7 +66,7 @@ export const LoadingPage = () => {
             }
         };
         fetchData();
-    }, [isLoading, initialSync, navigate]);
+    }, [isLoading, sync, navigate]);
 
     /**
      * Animation Phase One Handler
@@ -78,8 +78,6 @@ export const LoadingPage = () => {
      * @function
      */
     const handleLoopComplete = () => {
-        // Solo si los datos ya llegaron (dataReady), permitimos el cambio.
-        // Si no han llegado, el componente Lottie hará otro loop automáticamente.
         if (dataReady) {
             setShowSecondPartAnimation(true);
         }

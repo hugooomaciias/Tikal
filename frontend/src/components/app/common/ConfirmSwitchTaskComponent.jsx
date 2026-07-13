@@ -1,3 +1,6 @@
+/** React & Third-Party Libraries */
+import resolveConfig from "tailwindcss/resolveConfig";
+
 /** Icons */
 import { IconCircleXFilled, IconNote } from "@tabler/icons-react";
 
@@ -5,7 +8,6 @@ import { IconCircleXFilled, IconNote } from "@tabler/icons-react";
 import { PROJECTS_ICONS } from "../../../constants/projects_icons.js";
 import { PHASE_COLOURS } from "../../../constants/phase_colours.js";
 import tailwindConfig from "../../../../tailwind.config.js";
-import resolveConfig from "tailwindcss/resolveConfig";
 
 /**
  * Tailwind Configuration Resolver
@@ -16,6 +18,25 @@ import resolveConfig from "tailwindcss/resolveConfig";
 const fullConfig = resolveConfig(tailwindConfig);
 const tailwindColors = fullConfig.theme.colors;
 
+/**
+ * Confirm Switch Task Component
+ *
+ * This component is primarily visual, rendering a modal to confirm the switching of active tasks.
+ * It manages minimal local logic exclusively for UI interactions (e.g., resolving dynamic icons and colors
+ * from the design system based on task metadata), avoiding the overhead of a dedicated headless hook.
+ *
+ * @component
+ * @param {Object} props - The component props.
+ * @param {Object} props.pendingSwitchTask - The target task data object the user wants to switch to.
+ * @param {string} props.taskName - The name of the currently active task.
+ * @param {Function} props.projectIcon - The React icon component of the currently active task.
+ * @param {string} props.activeColorId - The color ID associated with the currently active task.
+ * @param {Function} props.cancelSwitchTask - Callback to close the modal without saving and cancel the switch.
+ * @param {Function} props.confirmSwitchTask - Callback to execute the task switch and submit the activity description.
+ * @param {string} props.activityDescription - Controlled state value for the activity description textarea.
+ * @param {Function} props.setActivityDescription - Callback to update the activity description controlled state.
+ * @returns {JSX.Element} The rendered confirmation modal.
+ */
 export const ConfirmSwitchTaskComponent = ({
     pendingSwitchTask,
     taskName,
@@ -26,11 +47,37 @@ export const ConfirmSwitchTaskComponent = ({
     activityDescription,
     setActivityDescription,
 }) => {
+    // --- 1. Local UI Logic ---
+
+    /**
+     * Active Task Icon Component
+     *
+     * Resolves the icon for the currently active task, defaulting to a fallback icon if none is provided.
+     */
     const OldIcon = projectIcon || PROJECTS_ICONS[0].component;
+
+    /**
+     * Active Task Color
+     *
+     * Resolves the hex color for the currently active task, defaulting to the primary brand color.
+     */
     const oldColor = PHASE_COLOURS.find((c) => c.id === activeColorId)?.hex || tailwindColors.primary[500];
 
+    /**
+     * Target Task Icon Component
+     *
+     * Resolves the icon for the pending target task, defaulting to a fallback icon if none is provided.
+     */
     const NewIcon = pendingSwitchTask.logo || PROJECTS_ICONS[0].component;
+
+    /**
+     * Target Task Color
+     *
+     * Resolves the hex color for the pending target task, defaulting to the primary brand color.
+     */
     const newColor = PHASE_COLOURS.find((c) => c.id === pendingSwitchTask.colour)?.hex || tailwindColors.primary[500];
+
+    // --- 2. Render ---
 
     return (
         <div
@@ -44,8 +91,9 @@ export const ConfirmSwitchTaskComponent = ({
                     e.stopPropagation();
                 }}
             >
+                {/* Modal Header & Context Section */}
                 <div className="flex flex-col gap-2">
-                    {/* Header: Dynamic Title and Close Action */}
+                    {/* Modal Title Banner */}
                     <div className="flex items-center justify-between">
                         <span className="text-2xl font-bold text-quaternary-700">Tarea en curso detectada</span>
 
@@ -57,16 +105,19 @@ export const ConfirmSwitchTaskComponent = ({
                         </button>
                     </div>
 
+                    {/* Contextual Information Text */}
                     <span className="text-quaternary-500">
                         Actualmente tienes otra tarea activa. Si continúas, la tarea actual se pausará y se guardará
                         para iniciar la nueva tarea seleccionada.
                     </span>
 
-                    {/* Task Summary Banner */}
+                    {/* Task Comparison Section */}
                     <div className="flex flex-col items-center justify-between gap-2 mt-3">
+                        {/* Current Task Details Box */}
                         <div className="w-full flex flex-col items-start rounded-xl text-quaternary-700">
                             <span className="text-sm font-bold">Tarea actual</span>
 
+                            {/* Current Task Pill */}
                             <div
                                 className="w-full flex items-center justify-between py-3 px-4 rounded-xl text-primary"
                                 style={{ backgroundColor: oldColor }}
@@ -76,9 +127,11 @@ export const ConfirmSwitchTaskComponent = ({
                             </div>
                         </div>
 
+                        {/* Target Task Details Box */}
                         <div className="w-full flex flex-col items-start rounded-xl text-quaternary-700">
                             <span className="text-sm font-bold">Tarea seleccionada</span>
 
+                            {/* Target Task Pill */}
                             <div
                                 className="w-full flex items-center justify-between py-3 px-4 rounded-xl text-primary"
                                 style={{ backgroundColor: newColor }}
@@ -90,12 +143,14 @@ export const ConfirmSwitchTaskComponent = ({
                     </div>
                 </div>
 
+                {/* Activity Description Form Section */}
                 <div className="flex flex-col items-center gap-2">
+                    {/* Activity Description Prompt */}
                     <span className="text-quaternary-500">
                         ¿A qué le has dedicado tiempo exactamente durante este último bloque en <b>{taskName}</b>?
                     </span>
 
-                    {/* Activity Description Input */}
+                    {/* Controlled Textarea Wrapper */}
                     <div className="relative w-full">
                         <textarea
                             id="note"
@@ -108,18 +163,21 @@ export const ConfirmSwitchTaskComponent = ({
                             className="textarea input-textarea-primary peer"
                         ></textarea>
 
+                        {/* Floating Textarea Label */}
                         <label htmlFor="note" className="textarea-label input-textarea-label-primary">
                             Descripción de la actividad realizada
                         </label>
 
+                        {/* Textarea Leading Icon */}
                         <div className="input-icon peer-focus:text-primary-500 peer-[:not(:placeholder-shown)]:text-primary-500 items-start pt-3">
                             <IconNote className="w-5 h-5" />
                         </div>
                     </div>
                 </div>
 
-                {/* Confirmation Action Button */}
+                {/* Modal Action Buttons Wrapper */}
                 <div className="w-full flex items-center gap-3 mt-2">
+                    {/* Cancel Action Button */}
                     <button
                         type="button"
                         onClick={cancelSwitchTask}
@@ -128,6 +186,7 @@ export const ConfirmSwitchTaskComponent = ({
                         <span>Cancelar</span>
                     </button>
 
+                    {/* Confirm Action Button */}
                     <button type="button" onClick={confirmSwitchTask} className="w-full btn btn-primary">
                         <span>Confirmar</span>
                     </button>

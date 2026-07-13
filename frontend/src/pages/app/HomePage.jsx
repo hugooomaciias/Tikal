@@ -1,21 +1,13 @@
 /** React & Third-Party Libraries */
-import React, { useState, useEffect } from "react";
 import { Responsive, WidthProvider } from "react-grid-layout/legacy";
-import { useTranslation } from "react-i18next";
 
 /** Contexts, Hooks & Services */
-import { useMain } from "../../hooks/useMain.js";
+import { useHomeLogic } from "../../hooks/components/app/home/useHomeLogic.js";
 
 /** Components & Layouts */
 import { NavbarComponent } from "../../components/app/common/NavbarComponent.jsx";
 import { Header } from "../../components/app/home/Header.jsx";
-import { BaseWidget } from "../../components/app/widgets/common/BaseWidget.jsx";
-import { WeeklyProgressWidget } from "../../components/app/widgets/home/WeeklyProgressWidget.jsx";
-import { TimeTrackerWidget } from "../../components/app/widgets/home/TimeTrackerWidget.jsx";
-import { TempleModeWidget } from "../../components/app/widgets/home/TempleModeWidget.jsx";
-import { TaskWidget } from "../../components/app/widgets/home/TaskWidget.jsx";
-import { AIWidget } from "../../components/app/widgets/home/AIWidget.jsx";
-import { CalendarWidget } from "../../components/app/widgets/home/CalendarWidget.jsx";
+import { BaseWidget } from "../../components/app/common/widgets/BaseWidget.jsx";
 
 /** Icons */
 import { IconCircleXFilled } from "@tabler/icons-react";
@@ -27,236 +19,33 @@ import "react-resizable/css/styles.css";
 /** Setup & Configurations */
 const ResponsiveGridLayout = WidthProvider(Responsive);
 
-const WIDGET_CONFIG = {
-    weeklyProgressWidget: {
-        component: WeeklyProgressWidget,
-        titleKey: "widgets.weekly_progress.title",
-        pageLink: "/statistics",
-        textColor: "text-quaternary-700",
-        borderColor: "border-primary-500",
-        isResizable: false,
-    },
-    timeTrackerWidget: {
-        component: TimeTrackerWidget,
-        titleKey: "Time tracker",
-        actions: false,
-        bgColor: "blue-powder",
-        textColor: "text-quaternary",
-    },
-    templeModeWidget: {
-        component: TempleModeWidget,
-        titleKey: "widgets.temple_mode.title",
-        pageLink: "/home",
-        textColor: "text-quaternary-50",
-    },
-    taskWidget: {
-        component: TaskWidget,
-        titleKey: "widgets.tasks.title",
-        pageLink: "/tasks",
-        textColor: "text-quaternary-700",
-        borderColor: "border-primary-500",
-    },
-    AIMainWidget: {
-        component: AIWidget,
-        titleKey: "Dios de la SabidurIA",
-        pageLink: "/home",
-        bgColor: "bg-primary-700",
-        textColor: "text-quaternary-50/80",
-        actions: false,
-        isResizable: false,
-        isDraggable: false,
-    },
-    calendarWidget: {
-        component: CalendarWidget,
-        titleKey: "widgets.calendar.title",
-        pageLink: "/calendar",
-        textColor: "text-quaternary-700",
-        borderColor: "border-primary-500",
-    },
-};
-
 /**
  * Main Application Dashboard Component
  *
- * This component acts as the primary layout wrapper for the authenticated area.
- * It manages the responsive grid layout where widgets are dynamically rendered,
- * moved, and removed.
+ * This purely visual component acts as the primary layout wrapper for the authenticated area.
+ * It renders the responsive grid layout where widgets are dynamically injected. All data fetching,
+ * state management, and grid modification logic (such as dragging and resizing) are entirely delegated
+ * to its dedicated headless hook (`useHomeLogic`).
  *
  * @component
  * @returns {JSX.Element|null} The rendered dashboard layout, or null if data is not loaded.
  */
 export const HomePage = () => {
-    // --- 1. Hooks & Contexts ---
+    // --- 1. Logic Hook Extraction ---
 
     /**
-     * Main Context Hook
+     * Dashboard Data & Action Handlers
      *
-     * Extracts global application state regarding user profile data, layout coordinates,
-     * widget datasets, and loading status.
+     * Extracts the resolved layout states, hydrated widget payload, translation mapping,
+     * and grid interaction handlers directly from the headless logic hook.
      */
-    const { getHomeGeneralInformation, getHomeLayout, getHomeWidgetsData, getCalendarEvents, isDataLoaded } = useMain();
+    const { t, homeStates, homeData, homeActions } = useHomeLogic();
 
-    /**
-     * Translation Hook
-     *
-     * Provides access to the i18n instance specifically scoped to the "app_home"
-     * namespace to localize header text content dynamically.
-     */
-    const { t } = useTranslation("app_home");
+    const { isDataLoaded, isEditing, checkChanges, widgets } = homeStates;
+    const { homeGeneralInformation } = homeData;
+    const { handleLayoutChange, removeWidget, enableEditMode, disableEditMode } = homeActions;
 
-    // --- 2. Local State ---
-
-    /**
-     * Edit Mode State
-     *
-     * Toggles whether the dashboard grid is currently in an interactive "edit mode"
-     * allowing users to drag, resize, and remove widgets.
-     */
-    const [isEditing, setIsEditing] = useState(false);
-
-    /**
-     * Unsaved Changes State
-     *
-     * Tracks if any modifications have been made to the layout while in edit mode,
-     * prompting actions to save or discard.
-     */
-    const [checkChanges, setCheckChanges] = useState(false);
-
-    /**
-     * Dashboard Widgets State
-     *
-     * Maintains the local collection of active widgets, allowing them to be dynamically
-     * repositioned or removed during edit mode.
-     */
-    const [widgets, setWidgets] = useState([]);
-
-    // --- 3. Derived Variables ---
-
-    /**
-     * General Home Information
-     *
-     * Retrieves the high-level dashboard configuration and metadata from the context.
-     */
-    const homeGeneralInformation = getHomeGeneralInformation();
-
-    // --- 4. Side Effects ---
-
-    /**
-     * Widget Data Synchronization Effect
-     *
-     * Hydrates the local `widgets` state with layout and data mappings provided by
-     * the context once the data is fully loaded. Re-runs to translate widget titles
-     * when the language changes.
-     */
-    useEffect(() => {
-        if (isDataLoaded) {
-            const layout = getHomeLayout();
-            const allWidgetsData = getHomeWidgetsData();
-            const calendarEvents = getCalendarEvents();
-
-            const mappedWidgets = layout
-                .map((item) => {
-                    const configBase = WIDGET_CONFIG[item.i];
-
-                    if (!configBase) return null;
-
-                    let widgetData = allWidgetsData[item.i];
-
-                    if (item.i === "calendarWidget") {
-                        widgetData = {
-                            ...widgetData,
-                            events: calendarEvents,
-                        };
-                    }
-
-                    const isResizable = configBase.isResizable === false ? false : undefined;
-                    const isDraggable = configBase.isDraggable === false ? false : undefined;
-
-                    return {
-                        id: item.i,
-                        grid: {
-                            i: item.i,
-                            x: item.x,
-                            y: item.y,
-                            w: item.w,
-                            h: item.h,
-                            isResizable: isResizable,
-                            isDraggable: isDraggable,
-                        },
-                        config: {
-                            title: configBase.titleKey.includes(".") ? t(configBase.titleKey) : configBase.titleKey,
-                            subtitle: widgetData?.subtitle,
-                            bgColor: configBase.bgColor,
-                            textColor: configBase.textColor,
-                            borderColor: configBase.borderColor,
-                            actions: configBase.actions ?? true,
-                            pageLink: configBase.pageLink,
-                            content: {
-                                component: configBase.component,
-                                props: widgetData,
-                            },
-                        },
-                    };
-                })
-                .filter(Boolean);
-
-            setWidgets(mappedWidgets);
-        }
-    }, [isDataLoaded, t, getHomeWidgetsData, getHomeLayout, getCalendarEvents]);
-
-    // --- 5. Event Handlers & Functions ---
-
-    /**
-     * Layout Change Handler
-     *
-     * Fired by `react-grid-layout` whenever a widget is dragged or resized.
-     * Updates the internal `widgets` state with the new spatial coordinates
-     * and flags the dashboard as having unsaved changes.
-     *
-     * @param {Array<Object>} currentLayout - The latest grid object map provided by the library.
-     */
-    const handleLayoutChange = (currentLayout) => {
-        if (isEditing) {
-            setCheckChanges(true);
-
-            setWidgets((prevWidgets) => {
-                return prevWidgets.map((widget) => {
-                    const updatedLayout = currentLayout.find((item) => item.i === widget.id);
-
-                    if (updatedLayout) {
-                        return {
-                            ...widget,
-                            grid: {
-                                i: widget.id,
-                                x: updatedLayout.x,
-                                y: updatedLayout.y,
-                                w: updatedLayout.w,
-                                h: updatedLayout.h,
-                                isResizable: widget.grid.isResizable,
-                                isDraggable: widget.grid.isDraggable,
-                            },
-                        };
-                    }
-
-                    return widget;
-                });
-            });
-        }
-    };
-
-    /**
-     * Remove Widget Handler
-     *
-     * Deletes a specific widget from the dashboard grid by filtering it
-     * out of the current state.
-     *
-     * @param {string} idToRemove - The unique identifier of the widget to delete.
-     */
-    const removeWidget = (idToRemove) => {
-        setWidgets(widgets.filter((widget) => widget.id !== idToRemove));
-    };
-
-    // --- 6. Render ---
+    // --- 2. Render ---
 
     if (!isDataLoaded || widgets.length === 0) {
         return null;
@@ -273,10 +62,9 @@ export const HomePage = () => {
                 <Header
                     data={homeGeneralInformation}
                     isEditing={isEditing}
-                    setIsEditing={setIsEditing}
                     checkChanges={checkChanges}
-                    setCheckChanges={setCheckChanges}
-                    t={t}
+                    onEnableEdit={enableEditMode}
+                    onDisableEdit={disableEditMode}
                 />
 
                 {/* Dashboard Responsive Grid Area */}

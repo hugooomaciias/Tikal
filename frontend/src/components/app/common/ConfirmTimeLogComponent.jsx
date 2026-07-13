@@ -1,4 +1,4 @@
-/** Contexts, Hooks & Services */
+/** React & Third-Party Libraries */
 import { useTranslation } from "react-i18next";
 
 /** Icons */
@@ -10,21 +10,21 @@ import { PHASE_COLOURS } from "../../../constants/phase_colours.js";
 /**
  * Confirm Time Log Component
  *
- * A modal component that prompts the user to confirm stopping a time log.
- * It displays the task details and allows the user to add an activity description
- * before confirming the action.
+ * This component is primarily visual, rendering a modal to confirm the stopping of a time log session.
+ * It manages minimal local logic exclusively for UI interactions (e.g., pulling localized translations
+ * and resolving dynamic design tokens based on task metadata), bypassing the need for a dedicated headless hook.
  *
  * @component
  * @param {Object} props - The component props.
  * @param {boolean} props.showStopModal - Controls the visibility of the modal.
- * @param {string} props.activityDescription - The current value of the activity description.
- * @param {Function} props.setActivityDescription - State updater function for the activity description.
- * @param {Function} props.cancelStopTimer - Handler function to cancel stopping the timer.
- * @param {Function} props.confirmStopTimer - Handler function to confirm stopping the timer.
- * @param {string} props.taskName - The name of the task being logged.
- * @param {number} props.colorId - The ID representing the color of the project/phase.
- * @param {React.ElementType} props.projectIcon - The icon component for the project.
- * @returns {JSX.Element} The rendered confirm time log modal component.
+ * @param {string} props.activityDescription - The controlled value of the activity description text area.
+ * @param {Function} props.setActivityDescription - State updater callback for the activity description.
+ * @param {Function} props.cancelStopTimer - Handler callback to close the modal without saving the session.
+ * @param {Function} props.confirmStopTimer - Handler callback to confirm and securely log the tracked time.
+ * @param {string} props.taskName - The name of the currently active task being logged.
+ * @param {number} props.colorId - The configuration ID representing the project/phase color.
+ * @param {React.ElementType} props.projectIcon - The SVG icon component for the active project.
+ * @returns {JSX.Element} The rendered confirm time log modal overlay.
  */
 export const ConfirmTimeLogComponent = ({
     showStopModal,
@@ -36,32 +36,28 @@ export const ConfirmTimeLogComponent = ({
     colorId,
     projectIcon: ProjectIcon,
 }) => {
-    // --- 1. Hooks & Contexts ---
+    // --- 1. Local UI Logic ---
 
     /**
-     * Translation Hook
+     * Localization Hook
      *
-     * Provides access to the i18n instance scoped to the "app_tasks"
-     * namespace for localized text content within the modal.
+     * Injects the translation function scoped to the common application namespace.
      */
     const { t } = useTranslation("app_common");
 
-    // --- 3. Derived Variables ---
-
     /**
-     * Phase Color Configuration
+     * Active Phase Color
      *
-     * Resolves the corresponding color configuration object based on the provided
-     * `colorId`. Defaults to the first defined color if no match is found.
+     * Resolves the correct hex color representing the active project phase, defaulting to the primary brand color.
      */
     const color = PHASE_COLOURS.find((c) => c.id === colorId) || PHASE_COLOURS[0];
 
-    // --- 6. Render ---
+    // --- 2. Render ---
 
     return (
         <>
+            {/* Modal Overlay Container */}
             {showStopModal && (
-                /* Modal Overlay Container */
                 <div
                     className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm"
                     onClick={cancelStopTimer}
@@ -73,8 +69,9 @@ export const ConfirmTimeLogComponent = ({
                             e.stopPropagation();
                         }}
                     >
+                        {/* Modal Header & Task Summary Section */}
                         <div className="flex flex-col gap-2">
-                            {/* Header: Dynamic Title and Close Action */}
+                            {/* Modal Title & Close Action */}
                             <div className="flex items-center justify-between">
                                 <span className="text-2xl font-bold text-quaternary-700">
                                     {t("confirm_time_log.title")}
@@ -88,6 +85,7 @@ export const ConfirmTimeLogComponent = ({
                                 </button>
                             </div>
 
+                            {/* Informational Prompt */}
                             <span className="text-quaternary-500">{t("confirm_time_log.description")}</span>
 
                             {/* Task Summary Banner */}
@@ -100,8 +98,9 @@ export const ConfirmTimeLogComponent = ({
                             </div>
                         </div>
 
-                        {/* Activity Description Input */}
+                        {/* Activity Description Form Section */}
                         <div className="relative w-full">
+                            {/* Controlled Textarea Component */}
                             <textarea
                                 id="note"
                                 name="note"
@@ -113,16 +112,18 @@ export const ConfirmTimeLogComponent = ({
                                 className="textarea input-textarea-primary peer"
                             ></textarea>
 
+                            {/* Floating Textarea Label */}
                             <label htmlFor="note" className="textarea-label input-textarea-label-primary">
                                 {t("confirm_time_log.placeholder")}
                             </label>
 
+                            {/* Decorative Textarea Icon */}
                             <div className="input-icon peer-focus:text-primary-500 peer-[:not(:placeholder-shown)]:text-primary-500 items-start pt-3">
                                 <IconNote className="w-5 h-5" />
                             </div>
                         </div>
 
-                        {/* Confirmation Action Button */}
+                        {/* Confirmation Action Section */}
                         <button
                             type="button"
                             onClick={confirmStopTimer}

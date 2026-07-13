@@ -1,171 +1,50 @@
 /** React & Third-Party Libraries */
-import React, { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { GoogleLogin } from "@react-oauth/google";
-import { useTranslation } from "react-i18next";
 
 /** Contexts, Hooks & Services */
-import { useAuth } from "../../hooks/useAuth";
+import { useLoginLogic } from "../../hooks/components/auth/login/useLoginLogic.js";
 
 /** Components & Layouts */
 import { FormLoginComponent } from "../../components/auth/FormLoginComponent.jsx";
 
 /** Icons */
-import { IconBrandGoogleFilled, IconCircleXFilled } from "@tabler/icons-react";
+import { IconCircleXFilled } from "@tabler/icons-react";
 
 /** Assets, Utils & Constants */
 import logoHeader from "../../assets/tikal/logoHeader_1.svg";
 
 /**
- * Login Page Layout
+ * Login Page Presentational Component
  *
- * This component serves as the authentication gateway for returning users.
- * Like the registration page, it uses a centralized, distraction-free layout
- * to ensure users focus entirely on the credential entry process. It acts as
- * the visual container (View), delegating the complex authentication logic,
- * state management, and API interactions to the `FormLoginComponent`.
+ * This component serves as the purely visual authentication gateway for returning
+ * users. It acts as a Headless UI consumer, utilizing a centralized, distraction-free
+ * layout to ensure users focus entirely on the credential entry process.
+ *
+ * All complex authentication logic, Google OAuth state management, API error handling,
+ * and routing interactions are delegated entirely to its custom headless hook
+ * (`useLoginLogic`), keeping this file strictly declarative.
  *
  * @component
- * @returns {JSX.Element} The rendered login page layout.
+ * @returns {JSX.Element} The rendered login page layout and interactive UI sections.
  */
 export const LoginPage = () => {
-    // --- 1. Hooks & Contexts ---
+    // --- 1. Logic Hook Extraction ---
 
     /**
-     * Translation Hook
+     * Headless Hook Destructuring
      *
-     * Provides the 't' function to localize strings specifically for the
-     * auth namespace.
+     * Injects the localized translations (`t`), strictly typed UI states (API error flags and visibility),
+     * memoized static configuration maps (icons, OAuth provider logic, social sign-in lists),
+     * and stable interaction handlers from the logic layer into this presentational layer.
      */
-    const { t } = useTranslation("auth");
+    const { t, loginStates, loginData, loginActions } = useLoginLogic();
 
-    /**
-     * Navigation Hook
-     *
-     * Enables programmatic routing after successful authentication events.
-     */
-    const navigate = useNavigate();
+    const { apiError, isVisible } = loginStates;
+    const { iconMap, loginMap, signInOptions } = loginData;
+    const { clearApiError, reportApiError } = loginActions;
 
-    /**
-     * Authentication Hook
-     *
-     * Provides the 'googleLogin' function to communicate with the Auth Context/API.
-     */
-    const { googleLogin } = useAuth();
-
-    // --- 2. Local State ---
-
-    /**
-     * API Error State
-     *
-     * Stores the error message returned by the backend to display an alert.
-     */
-    const [apiError, setApiError] = useState("");
-
-    /**
-     * Popup Visibility State
-     *
-     * Controls the visibility of the error popup for animation purposes.
-     * When true, the popup scales in and becomes fully opaque.
-     */
-    const [isVisible, setIsVisible] = useState(false);
-
-    // --- 3. Derived Variables ---
-
-    /**
-     * Icon Component Map
-     *
-     * Maps string identifiers to their corresponding React icon components.
-     * Used dynamically when rendering the sign-in options below.
-     */
-    const iconMap = {
-        GoogleIcon: IconBrandGoogleFilled,
-    };
-
-    /**
-     * Provider Component Map
-     *
-     * Maps string identifiers to their corresponding OAuth provider components
-     * or context logic functions. Used for dynamically rendering the right handler
-     * within the social login buttons below.
-     */
-    const loginMap = {
-        Google: GoogleLogin,
-    };
-
-    /**
-     * Social Sign-in Options
-     *
-     * Configuration array for rendering social login buttons.
-     */
-    const signInOptions = [
-        {
-            title: "Google",
-            icon: "GoogleIcon",
-            action: handleGoogleLogin,
-        },
-    ];
-
-    // --- 4. Side Effects ---
-
-    /**
-     * Popup Auto-Hide Effect
-     *
-     * Monitors the `apiError` state. When an error is present, it displays
-     * the popup and sets a timeout to automatically close it after 5 seconds.
-     * It cleans up the timeout if the component unmounts or if the error changes.
-     */
-    useEffect(() => {
-        if (apiError) {
-            setIsVisible(true);
-
-            const timer = setTimeout(() => {
-                closePopup();
-            }, 5000);
-
-            return () => clearTimeout(timer);
-        }
-    }, [apiError]);
-
-    // --- 5. Event Handlers & Functions ---
-
-    /**
-     * Google Login Handler
-     *
-     * Processes the response from the Google OAuth provider. Extracts the credential
-     * (ID token) and forwards it to the backend via the AuthContext. Navigates to
-     * the home page upon success or displays an API error.
-     *
-     * @async
-     * @function
-     * @param {Object} credentialResponse - The response object from Google Login popup.
-     */
-    async function handleGoogleLogin(credentialResponse) {
-        try {
-            await googleLogin(credentialResponse.credential);
-            navigate("/loading");
-        } catch (error) {
-            setApiError(error.message);
-        }
-    }
-
-    /**
-     * Closes the Error Popup
-     *
-     * Triggers the exit animation by setting `isVisible` to false, and then
-     * clears the `apiError` message after the animation duration (300ms).
-     *
-     * @function
-     */
-    function closePopup() {
-        setIsVisible(false);
-
-        setTimeout(() => {
-            setApiError("");
-        }, 300);
-    }
-
-    // --- 6. Render ---
+    // --- 2. Render ---
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-primary p-0 md:p-4">
@@ -197,7 +76,7 @@ export const LoginPage = () => {
 
                 <div className="flex-1 flex flex-col justify-center">
                     {/* Primary Login Form Integration */}
-                    <FormLoginComponent apiError={apiError} setApiError={setApiError} t={t} />
+                    <FormLoginComponent clearApiError={clearApiError} reportApiError={reportApiError} t={t} />
 
                     {/* Alternative Sign-In Divider */}
                     <div className="relative w-full flex items-center justify-center p-8">

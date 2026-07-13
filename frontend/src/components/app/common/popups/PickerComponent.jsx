@@ -7,8 +7,10 @@ import { PHASE_COLOURS } from "../../../../constants/phase_colours.js";
 /**
  * Reusable Picker Component
  *
- * A versatile dropdown component used to select from a grid of items.
- * Currently supports rendering both color swatches and SVG icons.
+ * This component is primarily visual, rendering a versatile dropdown to select from a grid of items
+ * (supporting both color swatches and SVG icons). It manages minimal local state (`isOpen`) and
+ * an outside-click listener exclusively for tracking UI interactions, bypassing the need to
+ * over-engineer a dedicated headless hook.
  *
  * @component
  * @param {Object} props - The component props.
@@ -20,7 +22,7 @@ import { PHASE_COLOURS } from "../../../../constants/phase_colours.js";
  * @returns {JSX.Element} The rendered picker component.
  */
 export const PickerComponent = ({ items, selectedItem, onChange, disabled = false, pickerType = "colour" }) => {
-    // --- 1. Hooks & Contexts ---
+    // --- 1. Local UI Logic ---
 
     /**
      * Dropdown Container Reference
@@ -31,17 +33,13 @@ export const PickerComponent = ({ items, selectedItem, onChange, disabled = fals
      */
     const pickerRef = useRef(null);
 
-    // --- 2. Local State ---
-
     /**
-     * Dropdown Visibility Indicator
+     * Dropdown Visibility State
      *
      * Tracks the current visual state of the popup grid menu (open/closed).
      * Used to conditionally render the dropdown overlay and attach global event listeners.
      */
     const [isOpen, setIsOpen] = useState(false);
-
-    // --- 4. Side Effects ---
 
     /**
      * Outside Click Listener
@@ -66,8 +64,6 @@ export const PickerComponent = ({ items, selectedItem, onChange, disabled = fals
         };
     }, [isOpen, disabled]);
 
-    // --- 5. Event Handlers & Functions ---
-
     /**
      * Dropdown Toggle Handler
      *
@@ -91,7 +87,7 @@ export const PickerComponent = ({ items, selectedItem, onChange, disabled = fals
         setIsOpen(false);
     };
 
-    // --- 6. Render ---
+    // --- 2. Render ---
 
     return (
         <div ref={pickerRef} className="relative shrink-0">

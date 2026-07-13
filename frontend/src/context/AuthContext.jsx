@@ -5,51 +5,17 @@ import { createContext, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 /** Config, Constants & Utils */
-import { API_BASE_URL } from "../constants/api.js";
+import { authService } from "../services/auth/authService.js";
 
 // eslint-disable-next-line react-refresh/only-export-components
 export const AuthContext = createContext();
-
-/**
- * Private Helper: Handle API Calls
- *
- * Encapsulates the repetitive boilerplate for fetch requests, including
- * setting JSON headers, stringifying the payload, and safely parsing
- * the response. It automatically throws an error if the response is not OK.
- *
- * @async
- * @function
- * @param {string} endpoint - The API endpoint to call (e.g., '/auth/login').
- * @param {string} method - The HTTP method (e.g., 'POST').
- * @param {Object} [payload] - Optional JSON body payload.
- * @param {Object} [customHeaders] - Optional headers to override defaults.
- * @returns {Promise<Object>} The parsed JSON response data.
- * @throws {Error} Throws an error containing the backend message if the response is not OK.
- */
-const apiCall = async (endpoint, method, payload = null, customHeaders = {}) => {
-    const headers = { "Content-Type": "application/json", ...customHeaders };
-    const options = { method, headers };
-
-    if (payload) {
-        options.body = JSON.stringify(payload);
-    }
-
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, options);
-    const text = await response.text();
-    const data = text ? JSON.parse(text) : {};
-
-    if (!response.ok) {
-        throw new Error(data.message || "Ocurrió un error en la solicitud");
-    }
-
-    return data;
-};
 
 /**
  * Authentication Provider Component
  *
  * Manages the global user state, handles login, registration, logout, and securely
  * fetches and refreshes JWT access tokens upon application load and during runtime.
+ * Acts as the single source of truth for the application's authentication state.
  *
  * @component
  * @param {Object} props - The component props.
@@ -63,6 +29,7 @@ export const AuthProvider = ({ children }) => {
      * User State
      *
      * Stores the currently authenticated user's information.
+     * @type {[Object|null, Function]}
      */
     const [user, setUser] = useState(null);
 
@@ -70,6 +37,7 @@ export const AuthProvider = ({ children }) => {
      * Authentication State
      *
      * Flag indicating whether there is an active valid session.
+     * @type {[boolean, Function]}
      */
     const [isAuthenticated, setIsAuthenticated] = useState(false);
 
@@ -78,6 +46,7 @@ export const AuthProvider = ({ children }) => {
      *
      * Indicates if the application is currently verifying the stored token
      * on initial load. Usually prevents the main app from rendering until finished.
+     * @type {[boolean, Function]}
      */
     const [isLoading, setIsLoading] = useState(true);
 
@@ -125,9 +94,7 @@ export const AuthProvider = ({ children }) => {
 
                     if (refreshToken) {
                         try {
-                            const data = await apiCall("/auth/refresh", "POST", null, {
-                                Authorization: `Bearer ${refreshToken}`,
-                            });
+                            const data = await authService.refreshTokens(refreshToken);
 
                             localStorage.setItem("accessToken", data.access_token);
                             localStorage.setItem("refreshToken", data.refresh_token);
@@ -143,6 +110,14 @@ export const AuthProvider = ({ children }) => {
                                 state: { setApiError: "La sesión ha expirado. Por favor, inicia sesión de nuevo" },
                             });
                         }
+                    } else {
+                        localStorage.removeItem("accessToken");
+                        localStorage.removeItem("refreshToken");
+                        setIsAuthenticated(false);
+
+                        navigate("/login", {
+                            state: { setApiError: "La sesión ha expirado. Por favor, inicia sesión de nuevo" },
+                        });
                     }
                 } else {
                     setUser({ identifier: decoded.sub });
@@ -167,7 +142,7 @@ export const AuthProvider = ({ children }) => {
     /**
      * Executes the login flow.
      *
-     * Sends credentials to the backend. On success, securely saves the newly
+     * Sends credentials to the backend using authService. On success, securely saves the newly
      * acquired access and refresh tokens in `localStorage` and updates context state.
      *
      * @async
@@ -182,7 +157,7 @@ export const AuthProvider = ({ children }) => {
         setIsLoading(true);
 
         try {
-            const data = await apiCall("/auth/login", "POST", userData);
+            const data = await authService.login(userData);
 
             localStorage.setItem("accessToken", data.access_token);
             localStorage.setItem("refreshToken", data.refresh_token);
@@ -197,7 +172,7 @@ export const AuthProvider = ({ children }) => {
     /**
      * Executes the registration flow.
      *
-     * Formats the user data, creates the account via the backend API, and then
+     * Formats the user data, creates the account via authService, and then
      * directly logs the user in by saving the issued tokens and updating state.
      *
      * @async
@@ -221,7 +196,7 @@ export const AuthProvider = ({ children }) => {
                 subscriptionPlan: userData.plan || "GRATUITO",
             };
 
-            const data = await apiCall("/auth/register", "POST", registerPayload);
+            const data = await authService.register(registerPayload);
 
             localStorage.setItem("accessToken", data.access_token);
             localStorage.setItem("refreshToken", data.refresh_token);
@@ -236,28 +211,31 @@ export const AuthProvider = ({ children }) => {
     /**
      * Executes the logout flow.
      *
-     * Invalidates the refresh token on the backend, clears local state, and
-     * removes authentication tokens from `localStorage`.
+     * Invalidates the refresh token on the backend via authService, clears local state,
+     * and removes authentication tokens from `localStorage`.
      *
      * @async
      * @function
-     * @throws {Error} Throws an error if the server invalidation fails.
+     * @throws {Error} Logs an error without throwing if the server invalidation fails, guaranteeing local logout.
      * @returns {Promise<void>}
      */
     const logout = async () => {
-        await apiCall("/auth/logout", "POST", { refresh_token: localStorage.getItem("refreshToken") });
-
-        setUser(null);
-        setIsAuthenticated(false);
-
-        localStorage.removeItem("accessToken");
-        localStorage.removeItem("refreshToken");
+        try {
+            await authService.logout(localStorage.getItem("refreshToken"));
+        } catch (error) {
+            console.error("No se pudo notificar al servidor el cierre de sesión", error);
+        } finally {
+            setUser(null);
+            setIsAuthenticated(false);
+            localStorage.removeItem("accessToken");
+            localStorage.removeItem("refreshToken");
+        }
     };
 
     /**
      * Initiates the password recovery flow.
      *
-     * Sends the user's email to the backend to request a password reset OTP.
+     * Sends the user's email to the backend via authService to request a password reset OTP.
      *
      * @async
      * @function
@@ -266,13 +244,13 @@ export const AuthProvider = ({ children }) => {
      * @returns {Promise<void>}
      */
     const forgotPassword = async (email) => {
-        await apiCall("/auth/forgot-password", "POST", { email });
+        await authService.forgotPassword(email);
     };
 
     /**
      * Verifies the password reset OTP.
      *
-     * Sends the provided OTP code and user email to the backend for validation.
+     * Sends the provided OTP code and user email to the backend via authService for validation.
      *
      * @async
      * @function
@@ -288,13 +266,13 @@ export const AuthProvider = ({ children }) => {
             otpCode: userData.otpCode,
         };
 
-        await apiCall("/auth/verify-otp", "POST", verifyOTPPayload);
+        await authService.verifyOTP(verifyOTPPayload);
     };
 
     /**
      * Executes the password reset confirm flow.
      *
-     * Sends the validated OTP, email, and the new password to the backend
+     * Sends the validated OTP, email, and the new password to the backend via authService
      * to successfully complete the password reset process.
      *
      * @async
@@ -313,13 +291,13 @@ export const AuthProvider = ({ children }) => {
             newPassword: userData.password,
         };
 
-        await apiCall("/auth/reset-password", "POST", resetPasswordPayload);
+        await authService.resetPassword(resetPasswordPayload);
     };
 
     /**
      * Executes the Google Login flow.
      *
-     * Sends the Google-provided ID token to the backend for verification and authentication.
+     * Sends the Google-provided ID token to the backend via authService for verification and authentication.
      * On success, securely saves the newly acquired JWT access and refresh tokens in
      * `localStorage` and updates the context state.
      *
@@ -330,7 +308,7 @@ export const AuthProvider = ({ children }) => {
      * @returns {Promise<void>}
      */
     const googleLogin = async (googleIdToken) => {
-        const data = await apiCall("/auth/google", "POST", { idToken: googleIdToken });
+        const data = await authService.googleLogin(googleIdToken);
 
         localStorage.setItem("accessToken", data.access_token);
         localStorage.setItem("refreshToken", data.refresh_token);

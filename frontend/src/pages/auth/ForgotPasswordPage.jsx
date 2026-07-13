@@ -1,10 +1,8 @@
 /** React & Third-Party Libraries */
-import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { useTranslation } from "react-i18next";
 
 /** Contexts, Hooks & Services */
-// (None)
+import { useForgotPasswordLogic } from "../../hooks/components/auth/forgotPassword/useForgotPasswordLogic.js";
 
 /** Components & Layouts */
 import { FormForgotPasswordComponent } from "../../components/auth/FormForgotPasswordComponent.jsx";
@@ -16,84 +14,34 @@ import { IconCircleXFilled } from "@tabler/icons-react";
 import logoHeader from "../../assets/tikal/logoHeader_1.svg";
 
 /**
- * Forgot Password Page Component
+ * Forgot Password Page Presentational Component
  *
- * This component renders the dedicated view for the account recovery flow.
- * Unlike the login/register pages, this layout is specifically designed to
- * provide a reassuring and low-friction environment for users experiencing
- * access issues.
+ * This component serves as the purely visual entry point for the account recovery flow.
+ * It acts strictly as a Headless UI consumer, utilizing a focused layout designed to
+ * provide a reassuring and low-friction environment for users experiencing access issues.
+ *
+ * All complex state management, routing data extraction, API error handling, and
+ * popup animation lifecycles are delegated entirely to its custom headless hook
+ * (`useForgotPasswordLogic`), keeping this file purely declarative.
  *
  * @component
  * @returns {JSX.Element} The rendered forgot password page layout.
  */
 export const ForgotPasswordPage = () => {
-    // --- 1. Hooks & Contexts ---
+    // --- 1. Logic Hook Extraction ---
 
     /**
-     * Translation Hook
+     * Headless Hook Destructuring
      *
-     * Provides the 't' function to localize strings specifically for the
-     * auth namespace.
+     * Injects the localized translations (`t`), strictly typed UI states (API error flags and visibility),
+     * and stable interaction handlers from the logic layer into this presentational layer.
      */
-    const { t } = useTranslation("auth");
+    const { t, forgotPasswordStates, forgotPasswordActions } = useForgotPasswordLogic();
 
-    // --- 2. Local State ---
+    const { apiError, isVisible } = forgotPasswordStates;
+    const { clearApiError, reportApiError } = forgotPasswordActions;
 
-    /**
-     * API Error State
-     *
-     * Stores the error message returned by the backend to display an alert.
-     */
-    const [apiError, setApiError] = useState("");
-
-    /**
-     * Popup Visibility State
-     *
-     * Controls the visibility of the error popup for animation purposes.
-     * When true, the popup scales in and becomes fully opaque.
-     */
-    const [isVisible, setIsVisible] = useState(false);
-
-    // --- 4. Side Effects ---
-
-    /**
-     * Popup Auto-Hide Effect
-     *
-     * Monitors the `apiError` state. When an error is present, it displays
-     * the popup and sets a timeout to automatically close it after 5 seconds.
-     * It cleans up the timeout if the component unmounts or if the error changes.
-     */
-    useEffect(() => {
-        if (apiError) {
-            setIsVisible(true);
-
-            const timer = setTimeout(() => {
-                closePopup();
-            }, 5000);
-
-            return () => clearTimeout(timer);
-        }
-    }, [apiError]);
-
-    // --- 5. Event Handlers & Functions ---
-
-    /**
-     * Closes the Error Popup
-     *
-     * Triggers the exit animation by setting `isVisible` to false, and then
-     * clears the `apiError` message after the animation duration (300ms).
-     *
-     * @function
-     */
-    const closePopup = () => {
-        setIsVisible(false);
-
-        setTimeout(() => {
-            setApiError("");
-        }, 300);
-    };
-
-    // --- 6. Render ---
+    // --- 2. Render ---
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-primary p-0 md:p-4">
@@ -126,7 +74,7 @@ export const ForgotPasswordPage = () => {
                 </div>
 
                 {/* Forgot Password Form Integration */}
-                <FormForgotPasswordComponent apiError={apiError} setApiError={setApiError} t={t} />
+                <FormForgotPasswordComponent clearApiError={clearApiError} reportApiError={reportApiError} t={t} />
             </div>
         </div>
     );

@@ -25,5 +25,6 @@ export default defineConfig([globalIgnores(['dist']), {
   },
   rules: {
     'no-unused-vars': ['error', { varsIgnorePattern: '^[A-Z_]' }],
+    "react/prop-types": "off",
   },
 }, ...storybook.configs["flat/recommended"]])

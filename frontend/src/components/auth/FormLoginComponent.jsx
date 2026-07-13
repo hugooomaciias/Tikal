@@ -1,216 +1,50 @@
 /** React & Third-Party Libraries */
-import React, { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 /** Contexts, Hooks & Services */
-import { useAuth } from "../../hooks/useAuth";
+import { useLoginFormLogic } from "../../hooks/components/auth/login/useLoginFormLogic.js";
 
 /** Icons */
 import { IconUser, IconEyeClosed, IconEye, IconInfoCircleFilled } from "@tabler/icons-react";
 
 /**
- * Login Form Component
+ * Login Form Presentational Component
  *
- * This component encapsulates the operational logic for user authentication.
- * It provides a secure interface for users to access their accounts, handling
- * input validation, credential submission, and error feedback.
+ * This component acts as the visual core of the authentication section, functioning
+ * strictly as a Headless UI consumer. Its sole responsibility is to render the
+ * form layout, bind user inputs, and display dynamic validation feedback.
+ *
+ * All complex business logic, client-side validation, state management, and API
+ * authentication interactions are delegated entirely to its custom headless hook
+ * (`useLoginFormLogic`).
  *
  * @component
  * @param {Object} props - The component props.
- * @param {string|null} props.apiError - The current API error state from the parent.
- * @param {Function} props.setApiError - Function to set or clear API errors.
+ * @param {Function} props.clearApiError - Callback to clear the parent's API error state.
+ * @param {Function} props.reportApiError - Callback to report caught exceptions to the parent.
  * @param {Function} props.t - Translation function from i18next.
- * @returns {JSX.Element} The interactive login form.
+ * @returns {JSX.Element} The interactive login form element.
  */
-export const FormLoginComponent = ({ apiError, setApiError, t }) => {
-    // --- 1. Hooks & Contexts ---
+export const FormLoginComponent = ({ clearApiError, reportApiError, t }) => {
+    // --- 1. Logic Hook Extraction ---
 
     /**
-     * Navigation Hook
+     * Headless Hook Destructuring
      *
-     * Provides programmatic navigation to redirect the user after a successful login.
+     * Injects the strictly typed UI states (form values, visibility toggles, validation errors)
+     * and the stable interaction handlers (input changes, form submission, dynamic style computers)
+     * from the logic layer into this presentational layer.
      */
-    const navigate = useNavigate();
+    const { loginFormStates, loginFormActions } = useLoginFormLogic({ clearApiError, reportApiError, t });
 
-    /**
-     * Authentication Hook
-     *
-     * Provides the 'login' function to communicate with the Auth Context/API.
-     */
-    const { login } = useAuth();
+    const { formData, showPassword, errors } = loginFormStates;
+    const { togglePasswordVisibility, handleChange, handleSubmit, getInputClass, getIconClass } = loginFormActions;
 
-    // --- 2. Local State ---
-
-    /**
-     * Form Input State
-     *
-     * Manages the controlled inputs for the login form (username/email and password).
-     */
-    const [formData, setFormData] = useState({
-        username: "",
-        password: "",
-    });
-
-    /**
-     * Password Visibility State
-     *
-     * Toggles the input type between "password" and "text" for the password field.
-     */
-    const [showPassword, setShowPassword] = useState(false);
-
-    /**
-     * Validation Error State
-     *
-     * Stores localized error messages for each field to be displayed in the UI.
-     */
-    const [errors, setErrors] = useState({});
-
-    // --- 5. Event Handlers & Functions ---
-
-    /**
-     * Form Validation Logic
-     *
-     * Performs client-side checks for required fields and validates the email
-     * format (if provided) and strong password requirements.
-     *
-     * @returns {boolean} True if the form is valid, false otherwise.
-     */
-    const validateForm = () => {
-        let tempErrors = {};
-        let isValid = true;
-
-        if (!formData.username.trim()) {
-            tempErrors.username = t("auth.login.form.errors.username");
-            isValid = false;
-        } else if (formData.username.includes("@")) {
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-            if (!emailRegex.test(formData.username)) {
-                tempErrors.username = t("auth.login.form.errors.incorrect_email");
-                isValid = false;
-            }
-        }
-
-        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
-
-        if (!formData.password) {
-            tempErrors.password = t("auth.login.form.errors.password");
-            isValid = false;
-        } else if (!passwordRegex.test(formData.password)) {
-            tempErrors.password = t("auth.login.form.errors.incorrect_password");
-            isValid = false;
-        }
-
-        setErrors(tempErrors);
-
-        return isValid;
-    };
-
-    /**
-     * Input Change Handler
-     *
-     * Updates the specific field in the state object while preserving
-     * other values. Also clears visual errors and API errors to improve UX.
-     *
-     * @param {React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>} e - The change event.
-     */
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-
-        setFormData((prev) => ({
-            ...prev,
-            [name]: value,
-        }));
-
-        if (errors[name]) {
-            setErrors((prev) => ({
-                ...prev,
-                [name]: "",
-            }));
-        }
-
-        if (apiError) {
-            setApiError("");
-        }
-    };
-
-    /**
-     * Form Submission Handler
-     *
-     * Orchestrates the submission process: prevents default behavior, runs
-     * validation, and attempts to authenticate the user. On success, navigates
-     * to the loading screen.
-     *
-     * @param {React.FormEvent} e - The form submission event.
-     */
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-
-        if (validateForm()) {
-            try {
-                await login({
-                    identifier: formData.username,
-                    password: formData.password,
-                });
-                navigate("/loading");
-
-                setFormData({ username: "", password: "" });
-            } catch (error) {
-                console.error("Error al iniciar sesión", error);
-                setApiError(error.message || "Error al iniciar sesión. Por favor, inténtalo de nuevo.");
-            }
-        }
-    };
-
-    /**
-     * Input Style Generator
-     *
-     * Computes the Tailwind classes for input fields based on their current
-     * validation state.
-     *
-     * @param {string} fieldName - The name of the field to check.
-     * @returns {string} The computed CSS class string.
-     */
-    const getInputClass = (fieldName) => {
-        const baseInputClass = "input input-textarea-primary peer";
-        const errorNoPassClass = "ring-[3px] ring-tertiary-200";
-
-        const errorClass = `${errors[fieldName] === t("auth.login.form.errors.incorrect_password") || errors[fieldName] === t("auth.login.form.errors.incorrect_email") ? "" : errorNoPassClass}`;
-
-        return `${baseInputClass} ${errors[fieldName] ? errorClass : ""}`;
-    };
-
-    /**
-     * Icon Style Generator
-     *
-     * Determines the color and styling of input icons based on error presence
-     * or user interaction.
-     *
-     * @param {string} fieldName - The name of the field associated with the icon.
-     * @returns {string} The computed CSS class string for the icon container.
-     */
-    const getIconClass = (fieldName) => {
-        const baseNoPassClass = "input-icon";
-        const basePassClass = "input-icon cursor-pointer pointer-events-auto";
-        const errorClass = "peer-focus:text-tertiary-200 peer-[:not(:placeholder-shown)]:text-tertiary-200";
-        const normalClass = "peer-focus:text-primary-500 peer-[:not(:placeholder-shown)]:text-primary-500";
-
-        let isPass = false;
-
-        if (fieldName === "password") {
-            isPass = true;
-        }
-
-        const baseClass = isPass ? basePassClass : baseNoPassClass;
-
-        return `${baseClass} ${errors[fieldName] !== undefined && errors[fieldName] !== t("auth.login.form.errors.password") ? errorClass : normalClass}`;
-    };
-
-    // --- 6. Render ---
+    // --- 2. Render ---
 
     return (
         <form onSubmit={handleSubmit} className="flex flex-col items-center justify-center gap-6" noValidate>
-            {/* Username or Email Input */}
+            {/* Username or Email Input Container */}
             <div className="relative w-full">
                 <input
                     type="text"
@@ -238,7 +72,7 @@ export const FormLoginComponent = ({ apiError, setApiError, t }) => {
                 )}
             </div>
 
-            {/* Password Input */}
+            {/* Password Input Container */}
             <div className="relative w-full">
                 <input
                     type={showPassword ? "text" : "password"}
@@ -254,7 +88,7 @@ export const FormLoginComponent = ({ apiError, setApiError, t }) => {
                     {t("auth.login.form.password")}
                 </label>
 
-                <div className={getIconClass("password")} onClick={() => setShowPassword(!showPassword)}>
+                <div className={getIconClass("password")} onClick={togglePasswordVisibility}>
                     {showPassword ? <IconEye className="h-5 w-5" /> : <IconEyeClosed className="h-5 w-5" />}
                 </div>
 
@@ -283,7 +117,7 @@ export const FormLoginComponent = ({ apiError, setApiError, t }) => {
                 )}
             </div>
 
-            {/* Forgot Password Link */}
+            {/* Forgot Password Link Container */}
             <div className="w-full flex justify-end">
                 <Link
                     to="/forgot-password"
@@ -295,7 +129,7 @@ export const FormLoginComponent = ({ apiError, setApiError, t }) => {
                 </Link>
             </div>
 
-            {/* Submit Button */}
+            {/* Primary Submit Button */}
             <button type="submit" className="btn btn-primary md:w-1/2 mt-4">
                 <span>{t("auth.login.form.submit")}</span>
             </button>
