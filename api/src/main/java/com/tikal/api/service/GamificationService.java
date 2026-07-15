@@ -1,5 +1,6 @@
 package com.tikal.api.service;
 
+import com.tikal.api.exception.ConflictException;
 import com.tikal.api.model.dto.sync.WorkspaceSyncDTO;
 import com.tikal.api.model.entity.TotemInventory;
 import com.tikal.api.model.entity.TotemList;
@@ -12,7 +13,6 @@ import com.tikal.api.repository.TotemListRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.sql.Time;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -82,7 +82,7 @@ public class GamificationService {
                 return new WorkspaceSyncDTO.ProgressData(unlockedTotems, "Tótems desbloqueados");
 
             default:
-                throw new IllegalArgumentException("Tipo de objetivo no soportado: " + typeOfGoal);
+                throw new ConflictException("Tipo de objetivo no soportado: " + typeOfGoal);
         }
     }
 

@@ -1,7 +1,11 @@
 package com.tikal.api.service;
 
+import com.tikal.api.exception.ForbiddenAccessException;
+import com.tikal.api.exception.ResourceNotFoundException;
+import com.tikal.api.exception.UnauthorizedException;
 import com.tikal.api.model.dto.calendar.*;
 import com.tikal.api.model.entity.*;
+import com.tikal.api.model.entity.enumerated.EventType;
 import com.tikal.api.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -40,19 +44,19 @@ public class CalendarEventService {
         // Linked entities logic
         if (request.getProjectId() != null) {
             Project project = projectRepository.findById(request.getProjectId())
-                    .orElseThrow(() -> new RuntimeException("No existe el proyecto con el id que se ha buscado"));
+                    .orElseThrow(() -> new ResourceNotFoundException("No existe el proyecto con el id que se ha buscado"));
             event.setProject(project);
         }
 
         if (request.getStageId() != null) {
             Stage stage = stageRepository.findById(request.getStageId())
-                    .orElseThrow(() -> new RuntimeException("No existe la fase con el id que se ha buscado"));
+                    .orElseThrow(() -> new ResourceNotFoundException("No existe la fase con el id que se ha buscado"));
             event.setStage(stage);
         }
 
         if (request.getTaskId() != null) {
             Task task = taskRepository.findById(request.getTaskId())
-                    .orElseThrow(() -> new RuntimeException("No existe la fase con el id que se ha buscado"));
+                    .orElseThrow(() -> new ResourceNotFoundException("No existe la fase con el id que se ha buscado"));
             event.setTask(task);
         }
 
@@ -64,10 +68,10 @@ public class CalendarEventService {
     public CalendarEventDTO updateEvent(Integer id, CalendarEventRequest request) {
         User user = userService.getAuthenticatedUser();
         CalendarEvent event = calendarEventRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Evento no encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Evento no encontrado"));
 
         if (!event.getUser().getId().equals(user.getId())) {
-            throw new RuntimeException("No tienes permiso para editar este evento");
+            throw new ForbiddenAccessException("No tienes permiso para editar este evento");
         }
 
         mapRequestToEntity(request, event);
@@ -75,19 +79,20 @@ public class CalendarEventService {
         // Linked entities logic
         if (request.getProjectId() != null) {
             Project project = projectRepository.findById(request.getProjectId())
-                    .orElseThrow(() -> new RuntimeException("No existe el proyecto con el id que se ha buscado"));
+                    .orElseThrow(() -> new ResourceNotFoundException("No existe el proyecto con el id que se ha buscado"));;
             event.setProject(project);
         }
 
         if (request.getStageId() != null) {
             Stage stage = stageRepository.findById(request.getStageId())
-                    .orElseThrow(() -> new RuntimeException("No existe la fase con el id que se ha buscado"));
+                    .orElseThrow(() -> new ResourceNotFoundException("No existe la fase con el id que se ha buscado"));
             event.setStage(stage);
+            event.setCustomColour(stage.getColour());
         }
 
         if (request.getTaskId() != null) {
             Task task = taskRepository.findById(request.getTaskId())
-                    .orElseThrow(() -> new RuntimeException("No existe la fase con el id que se ha buscado"));
+                    .orElseThrow(() -> new ResourceNotFoundException("No existe la tarea con el id que se ha buscado"));
             event.setTask(task);
         }
 
@@ -98,10 +103,10 @@ public class CalendarEventService {
     public CalendarEventDTO changeEventTime(Integer id, ChangeTimeRequest request) {
         User user = userService.getAuthenticatedUser();
         CalendarEvent event = calendarEventRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Evento no encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Evento no encontrado"));
 
         if (!event.getUser().getId().equals(user.getId())) {
-            throw new RuntimeException("No tienes permiso");
+            throw new ForbiddenAccessException("No tienes permiso");
         }
 
         event.setInitDateTime(request.getInitDateTime());
@@ -114,10 +119,10 @@ public class CalendarEventService {
     public void deleteEvent(Integer id) {
         User user = userService.getAuthenticatedUser();
         CalendarEvent event = calendarEventRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Evento no encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Evento no encontrado"));;
 
         if (!event.getUser().getId().equals(user.getId())) {
-            throw new RuntimeException("No tienes permiso");
+            throw new ForbiddenAccessException("No tienes permiso");
         }
 
         calendarEventRepository.delete(event);
@@ -134,10 +139,22 @@ public class CalendarEventService {
         event.setEndDateTime(request.getEndDateTime());
         event.setIsActivateTracker(request.getIsActivateTracker() != null ? request.getIsActivateTracker() : false);
         event.setCustomColour(request.getCustomColour());
-        event.setEventType(request.getEventType());
+        event.setEventType(request.getEventType() != null ? request.getEventType() : EventType.GENERAL);
     }
 
     private CalendarEventDTO toDto(CalendarEvent event) {
+
+        String idLinkedEntity = null;
+        if (event.getProject() != null && event.getProject().getId() != null) {
+            idLinkedEntity = "p_" + event.getProject().getId();
+        }
+        if (event.getStage() != null && event.getStage().getId() != null) {
+            idLinkedEntity = "f_" + event.getStage().getId();
+        }
+        if (event.getTask() != null && event.getTask().getId() != null) {
+            idLinkedEntity = "t_" + event.getTask().getId();
+        }
+
         return CalendarEventDTO.builder()
                 .id(event.getId())
                 .name(event.getName())
@@ -145,7 +162,10 @@ public class CalendarEventService {
                 .initDateTime(event.getInitDateTime())
                 .endDateTime(event.getEndDateTime())
                 .isActivateTracker(event.getIsActivateTracker())
-                .colour(event.getStage() != null ? event.getStage().getColour() : null)
+                .colour(event.getCustomColour())
+                .eventType(event.getEventType())
+                .logo(event.getProject() != null ? event.getProject().getLogoUrl() : null)
+                .linkedEntity(idLinkedEntity)
                 .build();
     }
 }

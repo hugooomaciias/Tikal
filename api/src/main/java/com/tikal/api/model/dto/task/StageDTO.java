@@ -1,5 +1,6 @@
 package com.tikal.api.model.dto.task;
 
+import com.tikal.api.model.entity.enumerated.ProjectType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -21,4 +22,5 @@ public class StageDTO {
     private Integer templeLoggedMinutes;
     private String logo;
     private Boolean addToCalendar;
+    private ProjectType type;
 }

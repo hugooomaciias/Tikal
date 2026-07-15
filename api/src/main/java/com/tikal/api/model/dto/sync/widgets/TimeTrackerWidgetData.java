@@ -3,13 +3,18 @@ package com.tikal.api.model.dto.sync.widgets;
 import lombok.Builder;
 import lombok.Data;
 
+import java.time.LocalDateTime;
+
 @Data
 @Builder
 public class TimeTrackerWidgetData implements WidgetData {
     private Integer taskId;
+    private Integer stageId;
+    private Integer projectId;
 
-    private String taskName;
-    private String subtaskName;
-    private String parentColor;
+    private String entityName;
+    private String colour;
     private String logo;
+    private LocalDateTime initDateTime;
+    private Long accumulatedSeconds;
 }

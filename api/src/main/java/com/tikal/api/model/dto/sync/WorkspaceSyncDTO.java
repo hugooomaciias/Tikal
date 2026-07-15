@@ -1,8 +1,10 @@
 package com.tikal.api.model.dto.sync;
 
 import com.tikal.api.model.dto.UserSettingsDTO;
+import com.tikal.api.model.dto.calendar.CalendarEventDTO;
 import com.tikal.api.model.dto.sync.domain.ProjectSyncDTO;
 import com.tikal.api.model.dto.sync.widgets.WidgetData;
+import com.tikal.api.model.entity.enumerated.EventType;
 import com.tikal.api.model.entity.enumerated.TypeOfGoal;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -18,7 +20,7 @@ public class WorkspaceSyncDTO {
     private UserProfileSyncDTO userProfile;
     private UserSettingsDTO settings;
     private TempleSyncDTO templeMode;
-    private List<CalendarEventSyncDTO> calendarEvents;
+    private List<CalendarEventDTO> calendarEvents;
 
     private List<HeaderInformation> homeGeneralInformation;
     private Map<String, WidgetData> homeWidgetsData;
@@ -82,23 +84,7 @@ public class WorkspaceSyncDTO {
     }
 
     // ==========================================
-    // 4. CALENDAR
-    // ==========================================
-    @Data
-    @Builder
-    public static class CalendarEventSyncDTO {
-        private Integer id;
-        private String logo;
-        private String linkedEntity;
-        private String title;
-        private String description;
-        private LocalDateTime startDate;
-        private LocalDateTime endDate;
-        private String color;
-    }
-
-    // ==========================================
-    // 5. GENERAL HEADER INFORMATION
+    // 4. GENERAL HEADER INFORMATION
     // ==========================================
     @Data
     @Builder

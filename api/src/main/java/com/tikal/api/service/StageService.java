@@ -1,6 +1,7 @@
 package com.tikal.api.service;
 
-import com.tikal.api.exception.ProjectAccessDeniedException;
+import com.tikal.api.exception.ForbiddenAccessException;
+import com.tikal.api.exception.ResourceNotFoundException;
 import com.tikal.api.model.dto.task.StageDTO;
 import com.tikal.api.model.dto.task.StageRequest;
 import com.tikal.api.model.entity.*;
@@ -44,7 +45,7 @@ public class StageService {
         User user = userService.getAuthenticatedUser();
 
         Project project = projectRepository.findById(projectId)
-                .orElseThrow(() -> new RuntimeException("Debe existir el proyecto por el que se quieren listar las fases"));
+                .orElseThrow(() -> new ResourceNotFoundException("Proyecto", projectId));
 
         validateStagePermissions(project, user, "ver");
 
@@ -63,7 +64,7 @@ public class StageService {
     public StageDTO createStage(StageRequest request) {
         User user = userService.getAuthenticatedUser();
         Project project = projectRepository.findById(request.getProjectId())
-                .orElseThrow(() -> new RuntimeException("El proyecto adjunto debe de existir"));
+                .orElseThrow(() -> new ResourceNotFoundException("Proyecto", request.getProjectId()));
 
         validateStagePermissions(project, user, "crear");
 
@@ -91,7 +92,7 @@ public class StageService {
     public void deleteStage(Integer id) {
         User user = userService.getAuthenticatedUser();
         Stage stage = stageRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("No existe la fase que se quiere eliminar"));
+                .orElseThrow(() -> new ResourceNotFoundException("Fase", id));
 
         validateStagePermissions(stage.getProject(), user, "borrar");
 
@@ -102,7 +103,7 @@ public class StageService {
     public StageDTO updateStage(Integer stageId, StageRequest request) {
         User user = userService.getAuthenticatedUser();
         Stage stage = stageRepository.findById(stageId)
-                .orElseThrow(() -> new RuntimeException("No existe la fase que se quiere editar"));
+                .orElseThrow(() -> new ResourceNotFoundException("Fase", stageId));
 
         validateStagePermissions(stage.getProject(), user, "actualizar");
 
@@ -134,7 +135,7 @@ public class StageService {
                         .isPresent();
 
                 if (!isMember) {
-                    throw new ProjectAccessDeniedException("Debes ser miembro del equipo para ver las fases de este proyecto.");
+                    throw new ForbiddenAccessException("Debes ser miembro del equipo para ver las fases de este proyecto.");
                 }
             } else {
                 List<TeamMember> adminMembers = teamMemberRepository.findTeamAdmins(project.getTeam().getId());
@@ -142,12 +143,12 @@ public class StageService {
                         .anyMatch(member -> member.getUser().getId().equals(user.getId()));
 
                 if (!isCurrentUserAdmin) {
-                    throw new ProjectAccessDeniedException("Solo los administradores del equipo pueden " + action + " una fase para este proyecto.");
+                    throw new ForbiddenAccessException("Solo los administradores del equipo pueden " + action + " una fase para este proyecto.");
                 }
             }
         } else {
             if (project.getUserOwner() == null || !project.getUserOwner().getId().equals(user.getId())) {
-                throw new ProjectAccessDeniedException("No tienes permiso para " + action + " una fase en este proyecto personal.");
+                throw new ForbiddenAccessException("No tienes permiso para " + action + " una fase en este proyecto personal.");
             }
         }
     }
@@ -219,6 +220,7 @@ public class StageService {
                 .totalLoggedMinutes(stage.getTotalLoggedMinutes())
                 .logo(stage.getProject().getLogoUrl())
                 .addToCalendar(addToCalendar)
+                .type(stage.getProject().getProjectType())
                 .build();
     }
 }

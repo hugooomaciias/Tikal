@@ -74,6 +74,9 @@ public class DateUtils {
      * Examples: 2021-05-03T18:15:44.923163 -> "18:15"
      */
     public static String formatLocalDateTime (LocalDateTime dateTime) {
+        if (dateTime == null) {
+            return null;
+        }
         return  dateTime.format(DateTimeFormatter.ofPattern("HH:mm"));
     }
 

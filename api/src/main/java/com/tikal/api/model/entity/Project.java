@@ -1,5 +1,6 @@
 package com.tikal.api.model.entity;
 
+import com.tikal.api.model.entity.enumerated.ProjectType;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -49,6 +50,11 @@ public class Project {
     /* --- Time spent specifically in Temple Mode (in minutes) --- */
     @Column(name = "temple_logged_minutes", columnDefinition = "INT DEFAULT 0")
     private Integer templeLoggedMinutes = 0;
+
+    /* --- Type of visual container -> project or list (for now) --- */
+    @Enumerated(EnumType.STRING)
+    @Column(name = "project_type", nullable = false)
+    private ProjectType projectType = ProjectType.PROJECT;
 
     /* --- User relation ==> Many projects can belong to the same User --- */
     @ManyToOne(optional = true)

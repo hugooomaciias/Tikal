@@ -1,6 +1,6 @@
 package com.tikal.api.service;
 
-import com.tikal.api.exception.NotFoundUserException;
+import com.tikal.api.exception.ResourceNotFoundException;
 import com.tikal.api.model.dto.UserSettingsDTO;
 import com.tikal.api.model.entity.User;
 import com.tikal.api.model.entity.UserSettings;
@@ -55,7 +55,7 @@ public class SettingsService {
     // --- Auxiliary method ---
     private UserSettings createDefaultConfiguration(Integer userId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(NotFoundUserException::new);
+                .orElseThrow(() -> new ResourceNotFoundException("No se ha encontrado ningún usuario con esas credenciales"));
 
         UserSettings defaults = new UserSettings();
         defaults.setUser(user);

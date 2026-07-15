@@ -1,97 +1,117 @@
 package com.tikal.api.exception;
 
+import com.tikal.api.exception.dto.ErrorResponse;
 import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.security.SignatureException;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.support.MethodArgumentNotValidException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
-    // Conflict 409: conflicts with the current rules of the database
-    @ExceptionHandler(ResourceAlreadyExistsException.class)
-    public ResponseEntity<Map<String, String>> handleResourceAlreadyExists(ResourceAlreadyExistsException ex) {
-        Map<String, String> errorResponse = new HashMap<>();
-        errorResponse.put("error", ex.getErrorCode());
-        errorResponse.put("message", ex.getMessage());
 
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(errorResponse);
+    // ==========================================
+    // CONFLICT (HTTP 409)
+    // ==========================================
+    @ExceptionHandler(ConflictException.class)
+    public ResponseEntity<ErrorResponse> handleConflict(ConflictException ex, HttpServletRequest request) {
+        return buildResponse(HttpStatus.CONFLICT, ex.getMessage(), ex.getCustomCode(), request);
     }
 
-    // Bad request 400: the client is not sending the information correctly
-    @ExceptionHandler({InvalidUserPlanException.class, IllegalArgumentException.class, IllegalOtpException.class,
-            MethodArgumentNotValidException.class, TeamBadRequestException.class})
-    public ResponseEntity<Map<String, String>> handleInvalidArgumentFromClient(RuntimeException ex) {
-        Map<String, String> error = new HashMap<>();
-        error.put("error", "Invalid data");
-        error.put("message", ex.getMessage());
+    // ==========================================
+    // VALIDATION MANAGER @NotBlank, @NotNull... (HTTP 400)
+    // ==========================================
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ErrorResponse> handleValidationExceptions(
+            MethodArgumentNotValidException ex, HttpServletRequest request) {
 
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+        Map<String, String> errors = new HashMap<>();
+
+        // Extraction of each field which failed and the message
+        for (FieldError error : ex.getBindingResult().getFieldErrors()) {
+            errors.put(error.getField(), error.getDefaultMessage());
+        }
+
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .timestamp(LocalDateTime.now())
+                .status(HttpStatus.BAD_REQUEST.value())
+                .error("Validation Failed")
+                .message("Hay errores en los datos enviados.")
+                .path(request.getRequestURI())
+                .validationErrors(errors)
+                .build();
+
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
 
-    // Not found 404: what the client is looking for doesn't exist on the database
-    @ExceptionHandler({NotFoundUserException.class, UsernameNotFoundException.class, NotFoundProjectException.class,
-            NotFoundTeamMemberException.class, NotFoundRankException.class, NotFoundStageException.class,
-            NotFoundTaskException.class})
-    public ResponseEntity<Map<String, String>> handleNotFound(RuntimeException ex) {
-        Map<String, String> errorResponse = new HashMap<>();
-        errorResponse.put("error", "Not found");
-        errorResponse.put("message", ex.getMessage());
-
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
+    // ==========================================
+    // GENERAL BAD REQUEST (HTTP 400)
+    // ==========================================
+    @ExceptionHandler({BadRequestException.class, IllegalArgumentException.class})
+    public ResponseEntity<ErrorResponse> handleBadRequest(Exception ex, HttpServletRequest request) {
+        return buildResponse(HttpStatus.BAD_REQUEST, ex.getMessage(), null, request);
     }
 
-    // Unauthorized 401: I don't know who you are or the token is revoked/expired
-    @ExceptionHandler({InvalidTokenException.class, WrongOtpException.class})
-    public ResponseEntity<Map<String, String>> handleUnauthorized(RuntimeException ex) {
-        Map<String, String> errorResponse = new HashMap<>();
-        errorResponse.put("error", "Authentication failed");
-        errorResponse.put("message", ex.getMessage());
-
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
+    // ==========================================
+    // RESOURCE NOT FOUND (HTTP 404)
+    // ==========================================
+    @ExceptionHandler({ResourceNotFoundException.class, UsernameNotFoundException.class})
+    public ResponseEntity<ErrorResponse> handleNotFound(Exception ex, HttpServletRequest request) {
+        return buildResponse(HttpStatus.NOT_FOUND, ex.getMessage(), null, request);
     }
 
-    @ExceptionHandler(ExpiredJwtException.class)
-    public ResponseEntity<Map<String, String>> handleExpiredJwtException(ExpiredJwtException ex) {
-        Map<String, String> errorResponse = new HashMap<>();
-        errorResponse.put("error", "Token expired");
-        errorResponse.put("message", "El token de acceso ha caducado. Actualice su sesión.");
-
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
+    // ==========================================
+    // 3. FORBIDDEN ACCESS (HTTP 403)
+    // ==========================================
+    @ExceptionHandler({AccessDeniedException.class, ForbiddenAccessException.class})
+    public ResponseEntity<ErrorResponse> handleForbidden(Exception ex, HttpServletRequest request) {
+        String message = ex instanceof AccessDeniedException
+                ? "Tu plan actual no te permite acceder a esta función. Actualiza a COMUNITARIO."
+                : ex.getMessage();
+        return buildResponse(HttpStatus.FORBIDDEN, message, null, request);
     }
 
-    @ExceptionHandler(BadCredentialsException.class)
-    public ResponseEntity<Map<String, String>> handleBadCredentials(BadCredentialsException ex) {
-        Map<String, String> error = new HashMap<>();
-        error.put("error", "Authentication failed");
-        error.put("message", "La contraseña es incorrecta. Por favor, inténtalo de nuevo.");
+    // ==========================================
+    // AUTHENTICATION ERRORS - 401 UNAUTHORIZED
+    // ==========================================
+    @ExceptionHandler({UnauthorizedException.class, BadCredentialsException.class, ExpiredJwtException.class, SignatureException.class})
+    public ResponseEntity<ErrorResponse> handleUnauthorized(Exception ex, HttpServletRequest request) {
 
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
+        String message = ex instanceof BadCredentialsException
+                ? "La contraseña es incorrecta. Por favor, inténtalo de nuevo."
+                : ex.getMessage();
+        if (ex instanceof  ExpiredJwtException) {
+            message = "Tu sesión ha expirado. Por favor, inicia sesión nuevamente para continuar.";
+        } else if (ex instanceof SignatureException) {
+            message = "El token proporcionado no es válido. Por favor, inicia sesión nuevamente.";
+        }
+        return buildResponse(HttpStatus.UNAUTHORIZED, message, null, request);
     }
 
-    // Forbidden 403: I know who you are, but you are not authorized to access
-    @ExceptionHandler(AccessDeniedException.class)
-    public ResponseEntity<Map<String, String>> handleAccessDenied(AccessDeniedException ex) {
-        Map<String, String> error = new HashMap<>();
-        error.put("error", "Access denied");
-        error.put("message", "Tu plan actual no te permite acceder a esta función. Actualiza a COMUNITARIO.");
+    // ==========================================
+    //            AUXILIAR METHOD
+    // ==========================================
+    private ResponseEntity<ErrorResponse> buildResponse(HttpStatus status, String message, String customCode, HttpServletRequest request) {
+        ErrorResponse error = ErrorResponse.builder()
+                .timestamp(LocalDateTime.now())
+                .status(status.value())
+                .error(status.getReasonPhrase())
+                .message(message)
+                .customCode(customCode)
+                .path(request.getRequestURI())
+                .build();
 
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(error);
-    }
-
-    @ExceptionHandler(ProjectAccessDeniedException.class)
-    public ResponseEntity<Map<String, String>> handleAccessDenied(ProjectAccessDeniedException ex) {
-        Map<String, String> error = new HashMap<>();
-        error.put("error", "Access denied");
-        error.put("message", ex.getMessage());
-
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(error);
+        return new ResponseEntity<>(error, status);
     }
 }

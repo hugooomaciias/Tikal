@@ -1,11 +1,6 @@
 package com.tikal.api.config;
 
-import com.tikal.api.exception.InvalidTokenException;
-import com.tikal.api.model.entity.RefreshToken;
-import com.tikal.api.model.entity.User;
-import com.tikal.api.repository.TokenRepository;
-import com.tikal.api.repository.UserRepository;
-import io.jsonwebtoken.ExpiredJwtException;
+import com.tikal.api.exception.UnauthorizedException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -13,7 +8,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -24,7 +18,6 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 
 import java.io.IOException;
-import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
@@ -59,7 +52,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
             final String tokenType = jwtService.extractTokenType(jwt);
             if ("REFRESH".equals(tokenType)) {
-                throw new InvalidTokenException("Acceso denegado: El Refresh Token solo puede usarse para renovar credenciales, no para acceder a los recursos.");
+                throw new UnauthorizedException("Acceso denegado: El Refresh Token solo puede usarse para renovar credenciales, no para acceder a los recursos.");
             }
 
             if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {

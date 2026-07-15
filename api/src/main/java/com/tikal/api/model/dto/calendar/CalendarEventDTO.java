@@ -17,7 +17,6 @@ public class CalendarEventDTO {
     private Boolean isActivateTracker;
     private String colour;
     private EventType eventType;
-    private Boolean isTrackerProcessed;
     private String logo;
     private String linkedEntity;
 }

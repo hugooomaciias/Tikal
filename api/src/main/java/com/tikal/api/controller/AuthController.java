@@ -50,23 +50,26 @@ public class AuthController {
     }
 
     @PostMapping("/forgot-password")
-    public ResponseEntity<String> forgotPassword(@Valid @RequestBody ForgotPasswordRequest request) {
+    public ResponseEntity<MessageResponse> forgotPassword(@Valid @RequestBody ForgotPasswordRequest request) {
         service.forgotPassword(request);
-        return ResponseEntity.ok("Se ha enviado un código a tu correo");
+        MessageResponse message = MessageResponse.builder().message("Se ha enviado un código a tu correo").build();
+        return ResponseEntity.ok(message);
     }
 
     // Verify the opt code to change your password.
     @PostMapping("/verify-otp")
-    public ResponseEntity<String> verifyOtp(@Valid @RequestBody VerifyOtpRequest request) {
+    public ResponseEntity<MessageResponse> verifyOtp(@Valid @RequestBody VerifyOtpRequest request) {
         service.verifyOtp(request);
-        return ResponseEntity.ok("Código verificado correctamente");
+        MessageResponse message = MessageResponse.builder().message("Código verificado correctamente").build();
+        return ResponseEntity.ok(message);
     }
 
     // Change your password permanently
     @PostMapping("/reset-password")
-    public ResponseEntity<String> resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
+    public ResponseEntity<MessageResponse> resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
         service.resetPassword(request);
-        return ResponseEntity.ok("Contraseña actualizada con éxito");
+        MessageResponse message = MessageResponse.builder().message("Contraseña actualizada con éxito").build();
+        return ResponseEntity.ok(message);
     }
 
     @PostMapping("/google")
