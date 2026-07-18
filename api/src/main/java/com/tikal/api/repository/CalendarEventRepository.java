@@ -1,5 +1,6 @@
 package com.tikal.api.repository;
 
+import java.util.Collection;
 import java.util.List;
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -59,5 +60,15 @@ public interface CalendarEventRepository extends JpaRepository<CalendarEvent, In
     List<CalendarEvent> findByTaskIdInAndEventType(List<Integer> mainTaskIds, EventType eventType);
 
     /* --- Obtain all events of a user and filtered between two dates --- */
-    List<CalendarEvent> findByUserIdAndInitDateTimeGreaterThanEqualAndEndDateTimeLessThanEqual(Integer id, LocalDateTime start, LocalDateTime end);
+    List<CalendarEvent> findByUserIdAndInitDateTimeGreaterThanEqualAndEndDateTimeLessThanEqual(Integer id,
+                                                                                               LocalDateTime start,
+                                                                                               LocalDateTime end);
+    /* --- Fetch of all deadlines for stages and tasks in one query --- */
+    @Query("SELECT ce FROM CalendarEvent ce " +
+            "WHERE (ce.project.id IN :projectIds OR ce.stage.id IN :stageIds OR ce.task.id IN :taskIds) " +
+            "AND ce.eventType = :eventType")
+    List<CalendarEvent> findDeadlinesByProyectIdsOrStageIdsOrTaskIds(@Param("projectIds") Collection<Integer> projectIds,
+                                                         @Param("stageIds") Collection<Integer> stageIds,
+                                                         @Param("taskIds") Collection<Integer> taskIds,
+                                                         @Param("eventType") EventType eventType);
 }

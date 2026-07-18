@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 
 /**
@@ -69,15 +70,15 @@ public class TimeLog {
      * Calculates the total minutes between initDateTime and endDateTime
      * @return number of minutes, or 0 if endDateTime is null or before initDateTime
      */
-    public long getMinutes() {
+    public int getMinutes() {
         if (initDateTime == null || endDateTime == null) {
-            return 0L;
+            return 0;
         }
 
         if (endDateTime.isBefore(initDateTime)) {
-            return 0L; // Invalid case: end time is before start time
+            return 0; // Invalid case: end time is before start time
         }
 
-        return java.time.Duration.between(initDateTime, endDateTime).toMinutes();
+        return (int)Duration.between(initDateTime, endDateTime).toMinutes();
     }
 }

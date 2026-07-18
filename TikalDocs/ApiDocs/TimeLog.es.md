@@ -1,41 +1,34 @@
-<a id="top"\>\</a\>
+# ⏱️ Documentación de Endpoints de Time Log
 
-# ⏱️ Documentación de endpoints de Time Log
+Este documento describe todos los endpoints correspondientes a la gestión de registros de tiempo (Time Logs) y el **Time Tracker Dinámico** para la API. Aquí encontrarás los formatos de solicitud requeridos y las respuestas esperadas para las operaciones CRUD estándar y las operaciones de control de tiempo en vivo (Start, Pause, Stop).
 
-Este documento describe todos los endpoints correspondientes a la gestión de registros de tiempo (Time Logs) para la API. Aquí encontrarás los formatos de solicitud requeridos y las respuestas esperadas para las operaciones de consulta por día, creación, actualización y eliminación de registros de tiempo.
+*Nota: Todos los endpoints de este controlador requieren autenticación, ya que las operaciones están estrictamente vinculadas al usuario activo de la sesión.*
 
-*Nota: Todos los endpoints de este controlador requieren autenticación, ya que las operaciones están vinculadas al usuario activo de la sesión.*
-
------
+---
 
 ## 📋 Índice
 
-  - [Time Log Controller](#time-log-controller)
-      - [1. Obtener Registros por Día](#1-obtener-registros-por-día-get-apitime_loglist_by_day)
-      - [2. Crear Registro de Tiempo](#2-crear-registro-de-tiempo-post-apitime_log)
-      - [3. Actualizar Registro de Tiempo](#3-actualizar-registro-de-tiempo-put-apitime_logid)
-      - [4. Eliminar Registro de Tiempo](#4-eliminar-registro-de-tiempo-delete-apitime_logid)
+* [1. Obtener Registros por Día](#1-obtener-registros-por-día-get-apitime_loglist_by_day)
+* [2. Obtener Timer Activo (Widget)](#2-obtener-timer-activo-widget-get-apitime_logactive)
+* [3. Iniciar / Reanudar Timer (Start)](#3-iniciar--reanudar-timer-start-post-apitime_logstart)
+* [4. Pausar Timer (Pause)](#4-pausar-timer-pause-patch-apitime_logidpause)
+* [5. Detener y Sellar Timer (Stop)](#5-detener-y-sellar-timer-stop-patch-apitime_logstop)
+* [6. Crear Registro de Tiempo (Manual)](#6-crear-registro-de-tiempo-manual-post-apitime_log)
+* [7. Actualizar Registro de Tiempo](#7-actualizar-registro-de-tiempo-put-apitime_logid)
+* [8. Eliminar Registro de Tiempo](#8-eliminar-registro-de-tiempo-delete-apitime_logid)
 
------
+---
 
-## Time Log Controller
+### 1. Obtener Registros por Día (`GET /api/time_log/list_by_day`)
 
-### 1\. Obtener Registros por Día (`Get /api/time_log/list_by_day`)
-
-**Propósito**: Recuperar todos los registros de tiempo asociados al usuario autenticado para un día en específico. El sistema filtra desde el inicio del día (00:00:00) hasta el final del mismo (23:59:59) y mapea los resultados calculando el nombre de la tarea (basándose en si es un proyecto, fase o tarea específica) y su respectivo color y logo.
-
-**Request (Headers)**:
-
-  - `Content-Type: application/json`
-  - `Authorization: Bearer <access_token>`
+**Propósito**: Recuperar todos los registros de tiempo asociados al usuario autenticado para un día específico. Filtra desde el inicio del día (00:00:00) hasta el final del mismo (23:59:59).
 
 **Request (Query Params)**:
 
-  - `day` (LocalDate, formato `YYYY-MM-DD`): La fecha de la que se quieren obtener los registros.
-
+* `day` (LocalDate, formato `YYYY-MM-DD`): La fecha de la que se quieren obtener los registros. *(Obligatorio)*
 
 ```http
-GET /api/time_log/list_by_day?day=2023-10-25 HTTP/1.1
+GET /api/time_log/list_by_day?day=2026-05-15 HTTP/1.1
 ```
 
 **Response (200 OK)**:
@@ -44,127 +37,175 @@ GET /api/time_log/list_by_day?day=2023-10-25 HTTP/1.1
 [
   {
     "id": 15,
-    "initTime": "2023-10-25 09:00:00",
-    "endTime": "2023-10-25 10:30:00",
+    "initTime": "2026-05-15T09:00:00",
+    "endTime": "2026-05-15T10:30:00",
     "minutes": 90,
-    "logo": "https://ejemplo.com/logo-proyecto.png",
-    "color": "y5",
+    "logo": "IconCode",
+    "color": "blue",
     "taskName": "Desarrollo de API REST"
-  },
-  {
-    "id": 16,
-    "initTime": "2023-10-25 11:00:00",
-    "endTime": "2023-10-25 11:45:00",
-    "minutes": 45,
-    "logo": null,
-    "color": "b3",
-    "taskName": "Reunión de equipo"
   }
 ]
+
 ```
 
-*(Nota: El campo `taskName` tomará el nombre de la Tarea si existe; si no, tomará el de la Fase (Stage); y si no hay Fase, tomará el nombre del Proyecto).*
+---
 
-### 2\. Crear Registro de Tiempo (`Post /api/time_log`)
+### 2. Obtener Timer Activo (Widget) (`GET /api/time_log/active`)
 
-**Propósito**: Crear un nuevo registro de tiempo vinculado al usuario autenticado. Permite asociar el registro a un Proyecto, una Fase (Stage) o una Tarea de forma opcional (si se envían sus IDs). Si el campo `isTempleMode` no se envía, por defecto se guardará como `false`.
+**Propósito**: Endpoint optimizado para el *Widget del Time Tracker* en el Frontend. Calcula si el usuario tiene un *batch* (lote) de tiempo corriendo actualmente o en pausa, devolviendo el tiempo acumulado de pausas anteriores y la información visual para pintar el componente.
 
-**Request (Headers)**:
+```http
+GET /api/time_log/active HTTP/1.1
 
-  - `Content-Type: application/json`
-  - `Authorization: Bearer <access_token>`
-
-**Request (Body)**:
-
-```json
-{
-  "initDateTime": "2023-10-25T09:00:00",
-  "endDateTime": "2023-10-25T10:30:00",
-  "targetTime": 120,
-  "isTempleMode": false,
-  "activityDescription": "Programación del controlador de autenticación",
-  "projectId": 3,
-  "stageId": 12,
-  "taskId": 45
-}
 ```
-
-*(Nota: Los campos `stageId` y `taskId` son opcionales, pero si se envían, deben existir en la base de datos, el campo `projectId` es obligatorio).*
-
-**Response (201 CREATED)**:
-
-```json
-{
-  "id": 17,
-  "initTime": "2023-10-25 09:00:00",
-  "endTime": "2023-10-25 10:30:00",
-  "minutes": 90,
-  "logo": "https://ejemplo.com/logo-proyecto.png",
-  "color": "y5",
-  "taskName": "Implementación de Login"
-}
-```
-
-### 3\. Actualizar Registro de Tiempo (`Put /api/time_log/{id}`)
-
-**Propósito**: Modificar un registro de tiempo existente. Verifica previamente que el registro pertenezca al usuario autenticado. A diferencia de la creación, **durante la actualización es obligatorio enviar un `projectId`**, ya que el sistema exige que el registro pertenezca al menos a un proyecto/lista.
-
-**Request (Headers)**:
-
-  - `Content-Type: application/json`
-  - `Authorization: Bearer <access_token>`
-
-**Request (Path Variables)**:
-
-  - `id` (Integer): El ID del registro de tiempo que se desea actualizar.
-
-**Request (Body)**:
-
-```json
-{
-  "initDateTime": "2023-10-25T09:30:00",
-  "endDateTime": "2023-10-25T11:00:00",
-  "targetTime": 90,
-  "isTempleMode": true,
-  "activityDescription": "Revisión de PRs y refactorización",
-  "projectId": 3,
-  "stageId": 12,
-  "taskId": null
-}
-```
-
-*(Nota: Si se envía `null` en `stageId` o `taskId`, se desvincularán del registro).*
 
 **Response (200 OK)**:
+Si hay un timer activo o en pausa:
 
 ```json
 {
-  "id": 17,
-  "initTime": "2023-10-25 09:30:00",
-  "endTime": "2023-10-25 11:00:00",
-  "minutes": 90,
-  "logo": "https://ejemplo.com/logo-proyecto.png",
-  "color": "y5",
-  "taskName": "Fase de Pruebas"
+  "id": 42,
+  "colour": "green",
+  "logo": "IconBook",
+  "entityName": "Hacer práctica 1",
+  "initDateTime": "2026-05-15T10:15:00",
+  "accumulatedSeconds": 1450
 }
+
 ```
 
-### 4\. Eliminar Registro de Tiempo (`Delete /api/time_log/{id}`)
+*(Nota: Si `initDateTime` es `null`, significa que el timer está pausado y el Frontend solo debe mostrar los `accumulatedSeconds` estáticos).*
 
-**Propósito**: Eliminar permanentemente un registro de tiempo específico. Antes de proceder, el sistema valida que el registro exista y que pertenezca al usuario que está realizando la petición.
+**Response Alternativa (200 OK)**:
+Si el usuario no tiene ninguna actividad en curso, devolverá un cuerpo vacío (`null`).
 
-**Request (Headers)**:
+---
 
-  - `Content-Type: application/json`
-  - `Authorization: Bearer <access_token>`
+### 3. Iniciar / Reanudar Timer (Start) (`POST /api/time_log/start`)
+
+**Propósito**: Arranca un nuevo contador de tiempo. Implementa lógica de **seguridad anti-trampas**: si se intenta iniciar una nueva Tarea/Fase/Proyecto mientras otro distinto estaba corriendo, el sistema cerrará automáticamente el anterior (con descripción nula y marcado como completado) antes de iniciar el nuevo.
+
+**Jerarquía Bottom-Up**: Solo es estrictamente necesario enviar el ID del nivel más profundo que se desea medir. Por ejemplo, si envías `taskId`, el Backend deducirá automáticamente su Fase y Proyecto.
+
+**Request (Body)**:
+
+```json
+{
+  "initDateTime": "2026-05-15T10:15:00",
+  "targetTime": 120,
+  "isTempleMode": false,
+  "taskId": 45
+}
+
+```
+
+**Response (201 CREATED)**:
+Devuelve el `TimeLogDTO` del nuevo registro de tiempo creado.
+
+---
+
+### 4. Pausar Timer (Pause) (`PATCH /api/time_log/{id}/pause`)
+
+**Propósito**: Pausa un registro de tiempo que estaba corriendo, asignándole una fecha de fin, pero dejándolo abierto para el *Batch* (`isCompleted = false`).
 
 **Request (Path Variables)**:
 
-  - `id` (Integer): El ID del registro de tiempo que se desea eliminar.
+* `id`: ID del TimeLog específico que está corriendo.
+
+**Request (Body)**:
+
+```json
+{
+  "endDateTime": "2026-05-15T10:45:00",
+  "activityDescription": "Pausa para café"
+}
+
+```
+
+**Response (200 OK)**:
+Devuelve el `TimeLogDTO` actualizado con la fecha de fin.
+
+---
+
+### 5. Detener y Sellar Timer (Stop) (`PATCH /api/time_log/stop`)
+
+**Propósito**: Detiene un timer activo (si se envía ID) y sella todo el *Batch* de registros asociados a la misma actividad, marcándolos todos como completados (`isCompleted = true`) y unificándolos con una descripción de actividad final.
+
+**Request (Body)**:
+
+```json
+{
+  "id": 42,
+  "endDateTime": "2026-05-15T11:30:00",
+  "activityDescription": "Refactorización completada y pruebas pasadas"
+}
+
+```
+
+*(Nota: El `id` y `endDateTime` son opcionales y solo se envían si el timer se paró directamente desde el estado "Play". Si se paró desde "Pausa", basta con enviar la `activityDescription`).*
+
+**Response (200 OK)**:
+Devuelve un array con todos los `TimeLogDTO` que formaban parte del *Batch* y que acaban de ser completados.
+
+---
+
+### 6. Crear Registro de Tiempo (Manual) (`POST /api/time_log`)
+
+**Propósito**: A diferencia del `start`, este endpoint se usa para insertar manualmente registros de tiempo en el pasado (que ya están finalizados).
+
+**Request (Body)**:
+
+```json
+{
+  "initDateTime": "2026-05-14T16:00:00",
+  "endDateTime": "2026-05-14T18:00:00",
+  "targetTime": 120,
+  "isTempleMode": false,
+  "activityDescription": "Trabajo manual off-line",
+  "stageId": 12
+}
+
+```
+
+**Response (201 CREATED)**:
+Devuelve el `TimeLogDTO` insertado.
+
+---
+
+### 7. Actualizar Registro de Tiempo (`PUT /api/time_log/{id}`)
+
+**Propósito**: Modificar un registro de tiempo existente. Valida permisos del usuario.
+*Importante*: Durante la actualización es **obligatorio enviar al menos un `projectId`**, ya que el sistema exige que el registro no quede huérfano.
+
+**Request (Body)**:
+
+```json
+{
+  "initDateTime": "2026-05-14T16:30:00",
+  "endDateTime": "2026-05-14T18:00:00",
+  "isCompleted": true,
+  "activityDescription": "Corrección de tiempo",
+  "projectId": 3,
+  "stageId": null,
+  "taskId": null
+}
+
+```
+
+*(Nota: Si se envía `null` en `stageId` o `taskId`, el registro se elevará de jerarquía y quedará asociado únicamente al Proyecto, por el contrario si se pone se queda null `pojectId` y `stageId` no, en el backend se calculará cual es su `projectId` correspondiente, al igual con pasa con el resto de entidades).*
+
+**Response (200 OK)**:
+Devuelve el `TimeLogDTO` actualizado.
+
+---
+
+### 8. Eliminar Registro de Tiempo (`DELETE /api/time_log/{id}`)
+
+**Propósito**: Eliminar permanentemente un registro de tiempo específico. El sistema valida que pertenezca al usuario autenticado.
+
+**Request (Path Variables)**:
+
+* `id`: El ID del registro de tiempo a eliminar.
 
 **Response (204 NO CONTENT)**:
-*(Cuerpo vacío, solo el código HTTP confirmando que el recurso ha sido eliminado con éxito)*
-
-<p align="right"\>
-<a href="\#top"\>⬆️ Volver arriba\</a\>
-</p\>
+*(Cuerpo vacío)*

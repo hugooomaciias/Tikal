@@ -9,14 +9,15 @@ import com.tikal.api.model.dto.sync.domain.StageSyncDTO;
 import com.tikal.api.model.dto.sync.domain.SubtaskSyncDTO;
 import com.tikal.api.model.dto.sync.domain.TaskSyncDTO;
 import com.tikal.api.model.dto.sync.widgets.*;
-import com.tikal.api.model.dto.task.ProjectDTO;
 import com.tikal.api.model.entity.*;
 import com.tikal.api.model.entity.enumerated.EventType;
 import com.tikal.api.model.entity.enumerated.TimeRangeSetting;
 import com.tikal.api.model.entity.metadata.LayoutsDashboardMetadata;
 import com.tikal.api.repository.*;
+import com.tikal.api.service.cache.PreFetchedDashboardData;
 import com.tikal.api.utils.DateUtils;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,6 +30,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class DashboardService {
 
     private final UserService userService;
@@ -42,6 +44,7 @@ public class DashboardService {
     private final StatisticsService statisticsService;
     private final TimeLogRepository timeLogRepository;
     private final ProjectRepository projectRepository;
+    private final PreFetchedDashboardData preFetchedData;
 
     /**
      * Build the giant JSON for starting the application.
@@ -51,17 +54,19 @@ public class DashboardService {
         User user = userService.getAuthenticatedUser();
         Integer userId = user.getId();
         UserSettings settings = settingsService.getSettingsByUserId(userId);
+        preFetchTimeLogsForDashboard(user.getId(), settings);
 
         UserProfileSyncDTO userProfile = buildUserProfile(user);
         UserSettingsDTO userSettings = settingsService.mapToDTO(settings);
         TempleSyncDTO templeMode = buildTempleMode(user);
 
+        // Widgets builders
         LayoutsDashboardMetadata layout = settings.getLayoutsDashboards();
         List<LayoutsDashboardMetadata.WidgetPosition> homeLayout = layout != null ? layout.getHome() : null;
         List<LayoutsDashboardMetadata.WidgetPosition> statsLayout = layout != null ? layout.getStatistics() : null;
 
-        Map<String, WidgetData> homeWidgets = buildDashboardWidgetsMap(homeLayout, userId, settings);
-        Map<String, WidgetData> statsWidgets = buildDashboardWidgetsMap(statsLayout, userId, settings);
+        Map<String, WidgetData> homeWidgets = buildDashboardWidgetsMap(homeLayout, user, settings);
+        Map<String, WidgetData> statsWidgets = buildDashboardWidgetsMap(statsLayout, user, settings);
 
         return WorkspaceSyncDTO.builder()
                 .userProfile(userProfile)
@@ -81,7 +86,7 @@ public class DashboardService {
     // ==========================================
     private Map<String, WidgetData> buildDashboardWidgetsMap(
             List<LayoutsDashboardMetadata.WidgetPosition> layoutPositions,
-            Integer userId,
+            User user,
             UserSettings settings) {
 
         Map<String, WidgetData> widgetsMap = new HashMap<>();
@@ -92,7 +97,7 @@ public class DashboardService {
 
         for (LayoutsDashboardMetadata.WidgetPosition pos : layoutPositions) {
             String widgetId = pos.getI();
-            WidgetData data = widgetBuilderService.buildSingleWidget(widgetId, userId, settings);
+            WidgetData data = widgetBuilderService.buildSingleWidget(widgetId, user, settings);
 
             if (data != null) {
                 widgetsMap.put(widgetId, data);
@@ -100,6 +105,101 @@ public class DashboardService {
         }
 
         return widgetsMap;
+    }
+
+    // ===================================================
+    //  DATA PRE-FETCHING FOR DASHBOARD (OPTIMIZATION)
+    // ===================================================
+    private void preFetchTimeLogsForDashboard(Integer userId, UserSettings settings) {
+        LocalDateTime todayStart = LocalDate.now().atStartOfDay();
+        LocalDateTime todayEnd = LocalDate.now().atTime(LocalTime.MAX);
+        List<TimeLog> todayLogs = timeLogRepository.findByUserIdAndInitDateTimeBetween(userId, todayStart, todayEnd);
+        preFetchedData.setTodayTotalMinutes(sumMinutes(todayLogs));
+
+        // Pre-fetch current aligned week
+        LocalDateTime weekStart = PreFetchedDashboardData.getWeekStart(settings);
+        LocalDateTime weekEnd = weekStart.plusDays(6).with(LocalTime.MAX);
+        List<TimeLog> weekLogs = timeLogRepository.findByUserIdAndInitDateTimeBetween(userId, weekStart, weekEnd);
+        preFetchedData.setCurrentWeekTotalMinutes(sumMinutes(weekLogs));
+        preFetchedData.setCurrentWeekTempleMinutes(sumTempleMinutes(weekLogs));
+        preFetchedData.setWeekConcentrationPercentage(computeDailyConcentration(weekLogs));
+        preFetchedData.setWeekDailyMinutes(groupByDate(weekLogs));
+
+        // Pre‑fetch previous aligned week
+        LocalDateTime prevWeekStart = weekStart.minusWeeks(1);
+        LocalDateTime prevWeekEnd = weekStart.minusWeeks(1);
+        List<TimeLog> prevWeekLogs = timeLogRepository.findByUserIdAndInitDateTimeBetween(userId, prevWeekStart, prevWeekEnd);
+        preFetchedData.setPrevWeekTotalMinutes(sumMinutes(prevWeekLogs));
+        preFetchedData.setPrevWeekTempleMinutes(sumTempleMinutes(prevWeekLogs));
+
+        LocalDate endDate = LocalDate.now();
+        LocalDate startDate = endDate.minusDays(6);
+        LocalDateTime rollingStart = startDate.atStartOfDay();
+        LocalDateTime rollingEnd = endDate.atTime(23, 59, 59);
+        List<TimeLog> rollingWeekLogs = timeLogRepository.findByUserIdAndInitDateTimeBetween(userId, rollingStart, rollingEnd);
+        preFetchedData.setRollingWeekDailyMinutes(groupByDate(rollingWeekLogs));
+
+        log.info("Pre fetch");
+        LocalDateTime monthStart = LocalDate.now().withDayOfMonth(1).atStartOfDay();
+        LocalDateTime monthEnd = LocalDate.now().with(TemporalAdjusters.lastDayOfMonth()).atTime(LocalTime.MAX);
+        List<TimeLog> monthLogs = timeLogRepository.findByUserIdAndInitDateTimeBetween(userId, monthStart, monthEnd);
+        preFetchedData.setMonthLogs(monthLogs);
+        preFetchedData.setCurrentMonthTotalMinutes(sumMinutes(monthLogs));
+        preFetchedData.setCurrentMonthTempleMinutes(sumTempleMinutes(monthLogs));
+        preFetchedData.setMonthDailyMinutes(groupByDate(monthLogs));
+        preFetchedData.setMonthConcentrationPercentage(computeDailyConcentration(monthLogs));
+        log.info("Post fetch");
+
+        // Pre‑fetch previous month
+        LocalDate prevMonthStartDate = monthStart.minusMonths(1).toLocalDate();
+        LocalDateTime prevMonthStart = prevMonthStartDate.atStartOfDay();
+        LocalDateTime prevMonthEnd = prevMonthStartDate.with(TemporalAdjusters.lastDayOfMonth()).atTime(LocalTime.MAX);
+        List<TimeLog> prevMonthLogs = timeLogRepository.findByUserIdAndInitDateTimeBetween(userId, prevMonthStart, prevMonthEnd);
+        preFetchedData.setPrevMonthTotalMinutes(sumMinutes(prevMonthLogs));
+        preFetchedData.setPrevMonthTempleMinutes(sumTempleMinutes(prevMonthLogs));
+
+        Integer globalTempleMinutes = timeLogRepository.sumMinutesInTempleModeByUserId(userId);
+        preFetchedData.setGlobalTempleMinutes(globalTempleMinutes == null ? 0 : globalTempleMinutes);
+        Integer globalTotalMinutes = timeLogRepository.getHistoricalTotalMinutes(userId);
+        preFetchedData.setGlobalTotalMinutes(globalTotalMinutes == null ? 0 : globalTotalMinutes);
+    }
+
+    private int sumMinutes(List<TimeLog> logs) {
+        return logs.stream().mapToInt(TimeLog::getMinutes).sum();
+    }
+
+    private int sumTempleMinutes(List<TimeLog> logs) {
+        return logs.stream().filter(TimeLog::getIsTempleMode).mapToInt(TimeLog::getMinutes).sum();
+    }
+
+    private Map<LocalDate, Integer> groupByDate(List<TimeLog> logs) {
+        return logs.stream().collect(Collectors.groupingBy(
+                tl -> tl.getInitDateTime().toLocalDate(),
+                Collectors.summingInt(TimeLog::getMinutes)
+        ));
+    }
+
+    private Map<LocalDate, Double> computeDailyConcentration(List<TimeLog> logs) {
+        // Group by date, compute total minutes and temple minutes, then percentage
+        Map<LocalDate, int[]> dailyStats = logs.stream().collect(Collectors.groupingBy(
+                tl -> tl.getInitDateTime().toLocalDate(),
+                Collectors.collectingAndThen(
+                        Collectors.toList(),
+                        list -> {
+                            int total = list.stream().mapToInt(TimeLog::getMinutes).sum();
+                            int temple = list.stream().filter(TimeLog::getIsTempleMode).mapToInt(TimeLog::getMinutes).sum();
+                            return new int[]{total, temple};
+                        }
+                )
+        ));
+        Map<LocalDate, Double> result = new HashMap<>();
+        for (Map.Entry<LocalDate, int[]> entry : dailyStats.entrySet()) {
+            int total = entry.getValue()[0];
+            int temple = entry.getValue()[1];
+            double pct = total > 0 ? (temple * 100.0 / total) : 0.0;
+            result.put(entry.getKey(), Math.round(pct * 10.0) / 10.0);
+        }
+        return result;
     }
 
     // ==========================================
@@ -140,8 +240,8 @@ public class DashboardService {
                 .rank(user.getCurrentRank().getId())
                 .templeName(user.getCurrentRank().getTempleName())
                 .awardedTitle(user.getCurrentRank().getAwardedTitle())
-                .requiredHours(user.getCurrentRank().getRequiredHours())
-                .currentHours(gamificationService.getTotalTempleTime(user.getId()))
+                .requiredHours(user.getCurrentRank().getNextHours())
+                .currentHours(preFetchedData.getGlobalTempleMinutes() / 60)
                 .badgeImageUrl(user.getCurrentRank().getBadgeImageUrl())
                 .clockImageUrl(user.getCurrentRank().getClockImageUrl())
                 .templeImageUrl(user.getCurrentRank().getTempleImageUrl())
@@ -176,58 +276,62 @@ public class DashboardService {
     }
 
     private List<ProjectSyncDTO> buildProjectsList(Integer userId) {
-        // 1. PROJECTS
-        List<ProjectDTO> projects = projectService.getMyProjects();
-        if (projects.isEmpty()) return Collections.emptyList();
+        // 1. Fetch projects, stages, tasks in ONE query
+        List<Project> projectsWithStagesAndTasks = projectRepository.findProjectsWithStage(userId);
 
-        List<Integer> projectIds = projects.stream().map(ProjectDTO::getId).toList();
+        if (projectsWithStagesAndTasks.isEmpty()) return Collections.emptyList();
 
-        // 2. STAGES
-        List<Stage> allStages = stageRepository.findByProject_IdIn(projectIds);
-        List<Integer> stagesIds = allStages.stream().map(Stage::getId).toList();
+        // 2. Collect all stage IDs and task IDs for deadline query
+        Set<Integer> projectIds = new HashSet<>();
+        Set<Integer> stageIds = new HashSet<>();
+        for (Project p : projectsWithStagesAndTasks) {
+            projectIds.add(p.getId());
+            for (Stage s : p.getStages()) {
+                stageIds.add(s.getId());
+            }
+        }
 
-        // -> SEARCH THE DEADLINES OF THE STAGES
-        List<CalendarEvent> stageDeadlines = stagesIds.isEmpty() ? Collections.emptyList() :
-                calendarEventRepository.findByStageIdInAndEventTypeAndTaskIsNull(stagesIds, EventType.DEADLINE);
+        List<Task> allTasks = taskRepository.findByStage_IdIn(stageIds.stream().toList());
 
-        Set<Integer> stagesWithDeadline = stageDeadlines.stream()
-                .filter(event -> event.getStage() != null)
-                .map(event -> event.getStage().getId())
+        Map<Integer, List<Task>> tasksByStage = new HashMap<>();
+        Map<Integer, List<Task>> subtaskByParent = new HashMap<>();
+        Set<Integer> taskIds = new HashSet<>();
+
+        for (Task t : allTasks) {
+            Stage stage = t.getStage();
+            if (stage != null) {
+                tasksByStage.computeIfAbsent(stage.getId(), k -> new ArrayList<>()).add(t);
+            }
+            if (t.getParentTask() == null) {
+                taskIds.add(t.getId());
+            } else {
+                subtaskByParent.computeIfAbsent(t.getParentTask().getId(), k -> new ArrayList<>())
+                        .add(t);
+            }
+        }
+
+        // 3. Fetch all deadlines in ONE query
+        List<CalendarEvent> allDeadlines = calendarEventRepository
+                .findDeadlinesByProyectIdsOrStageIdsOrTaskIds(projectIds, stageIds, taskIds, EventType.DEADLINE);
+
+        // 4. Build in‑memory sets for quick lookup
+        Set<Integer> projectsWithDeadline = allDeadlines.stream()
+                .filter(ce -> ce.getProject() != null && ce.getStage() == null && ce.getTask() == null)
+                .map(ce -> ce.getProject().getId())
+                .collect(Collectors.toSet());
+        Set<Integer> stagesWithDeadline = allDeadlines.stream()
+                .filter(ce -> ce.getStage() != null && ce.getTask() == null)
+                .map(ce -> ce.getStage().getId())
+                .collect(Collectors.toSet());
+        Set<Integer> tasksWithDeadline = allDeadlines.stream()
+                .filter(ce -> ce.getTask() != null)
+                .map(ce -> ce.getTask().getId())
                 .collect(Collectors.toSet());
 
-        // 3. TASKS
-        List<Task> allTasks = stagesIds.isEmpty() ? Collections.emptyList() :
-                taskRepository.findByStage_IdIn(stagesIds);
-
-        // -> SEARCH THE DEADLINES OF THE MAIN TASKS (not subtasks)
-        List<Integer> mainTaskIds = allTasks.stream()
-                .filter(task -> task.getParentTask() == null)
-                .map(Task::getId).toList();
-
-        List<CalendarEvent> taskDeadlines = mainTaskIds.isEmpty() ? Collections.emptyList() :
-                calendarEventRepository.findByTaskIdInAndEventType(mainTaskIds, EventType.DEADLINE);
-
-        Set<Integer> tasksWithDeadline = taskDeadlines.stream()
-                .filter(event -> event.getTask() != null)
-                .map(event -> event.getTask().getId())
-                .collect(Collectors.toSet());
-
-        // 4. MEMORIAL GROUPS (O(1) y O(N))
-        Map<Integer, List<Stage>> stagesByProject = allStages.stream()
-                .collect(Collectors.groupingBy(stage -> stage.getProject().getId()));
-
-        Map<Integer, List<Task>> mainTaskByStage = allTasks.stream()
-                .filter(task -> task.getParentTask() == null)
-                .collect(Collectors.groupingBy(task -> task.getStage().getId()));
-
-        Map<Integer, List<Task>> subtaskByParent = allTasks.stream()
-                .filter(task -> task.getParentTask() != null)
-                .collect(Collectors.groupingBy(task -> task.getParentTask().getId()));
-
-        // 5. WE MAP BY PASSING THE MEMORY SETS
-        return projects.stream()
+        // 6. Map to DTOs (same as before, but now using the fetched entities)
+        return projectsWithStagesAndTasks.stream()
                 .map(project -> mapProjectToProjectSyncDTO(
-                        project, stagesByProject, mainTaskByStage, subtaskByParent,
+                        project, projectsWithDeadline, tasksByStage, subtaskByParent,
                         stagesWithDeadline, tasksWithDeadline))
                 .collect(Collectors.toList());
     }
@@ -293,9 +397,7 @@ public class DashboardService {
         Integer pendingTasks = taskRepository.countPendingTasks(userId);
 
         // 2. Minutos trabajados HOY
-        LocalDateTime startOfToday = LocalDate.now().atStartOfDay();
-        LocalDateTime endOfToday = LocalDate.now().atTime(LocalTime.MAX);
-        Integer todayMinutesWrapper = timeLogRepository.getTotalMinutesBetweenDates(userId, startOfToday, endOfToday);
+        Integer todayMinutesWrapper = preFetchedData.getTodayTotalMinutes();
         int todayMinutes = todayMinutesWrapper != null ? todayMinutesWrapper : 0;
         String hoursAndMins = DateUtils.formatMinutes(todayMinutes);
 
@@ -334,7 +436,7 @@ public class DashboardService {
         Integer userId = user.getId();
 
         // 1. Total Hours Register
-        Integer totalHistoricalMinutes = timeLogRepository.getHistoricalTotalMinutes(userId);
+        Integer totalHistoricalMinutes = preFetchedData.getGlobalTotalMinutes();
         int totalMins = (totalHistoricalMinutes != null ? totalHistoricalMinutes : 0);
         String hoursAndMins = DateUtils.formatMinutes(totalMins);
 
@@ -375,40 +477,43 @@ public class DashboardService {
     // ==========================================
     //      MAP TO DTO METHODS
     // ==========================================
-    private ProjectSyncDTO mapProjectToProjectSyncDTO (ProjectDTO project,
-                                                       Map<Integer, List<Stage>> stagesByProject,
-                                                       Map<Integer, List<Task>> mainTaskByStage,
+    private ProjectSyncDTO mapProjectToProjectSyncDTO (Project project,
+                                                       Set<Integer> projectsWithDeadline,
+                                                       Map<Integer, List<Task>> tasksByStage,
                                                        Map<Integer, List<Task>> subtaskByParent,
                                                        Set<Integer> stagesWithDeadline,
                                                        Set<Integer> tasksWithDeadline) {
-
-        List<Stage> myStages = stagesByProject.getOrDefault(project.getId(), Collections.emptyList());
-
-        List<StageSyncDTO> stageDTOs = myStages.stream()
+        List<StageSyncDTO> stageDTOs = project.getStages().stream()
                 .map(stage -> mapStageToStageSyncDTO(
-                        stage, mainTaskByStage, subtaskByParent,
-                        stagesWithDeadline, tasksWithDeadline))
+                        stage,
+                        tasksByStage,
+                        subtaskByParent,
+                        stagesWithDeadline,
+                        tasksWithDeadline))
                 .collect(Collectors.toList());
 
         return ProjectSyncDTO.builder()
                 .id(project.getId())
                 .name(project.getName())
-                .logo(project.getLogo())
+                .logo(project.getLogoUrl())
                 .description(project.getDescription())
                 .deadline(project.getDeadline())
-                .addToCalendar(project.getAddToCalendar())
-                .type(project.getType())
+                .addToCalendar(projectsWithDeadline.contains(project.getId()))
+                .type(project.getProjectType())
                 .stages(stageDTOs)
                 .build();
     }
 
     private StageSyncDTO mapStageToStageSyncDTO (Stage stage,
-                                                 Map<Integer, List<Task>> mainTaskByStage,
+                                                 Map<Integer, List<Task>> tasksByStage,
                                                  Map<Integer, List<Task>> subtaskByParent,
                                                  Set<Integer> stagesWithDeadline,
                                                  Set<Integer> tasksWithDeadline) {
 
-        List<Task> myTasks = mainTaskByStage.getOrDefault(stage.getId(), Collections.emptyList());
+        List<Task> myTasks = tasksByStage.getOrDefault(stage.getId(), Collections.emptyList())
+                .stream()
+                .filter(task -> task.getParentTask() == null)
+                .toList();
 
         String colour = stage.getColour();
         String logo = stage.getProject().getLogoUrl();

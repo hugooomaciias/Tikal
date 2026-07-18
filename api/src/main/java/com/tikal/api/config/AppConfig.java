@@ -23,13 +23,9 @@ public class AppConfig {
     @Bean
     public UserDetailsService userDetailsService() {
         return username -> {
-            final User user = userRepository.findByEmail(username)
+            User user = userRepository.findByEmailWithRank(username)
                     .orElseThrow(() -> new UsernameNotFoundException("User not found"));
-            return org.springframework.security.core.userdetails.User.builder()
-                    .username(user.getEmail())
-                    .password(user.getPassword())
-                    .roles(user.getSubscriptionPlan().name()) // It will be saved as "ROLE_COMUNITARIO"
-                    .build();
+            return new CustomUserDetails(user);
         };
     }
 
