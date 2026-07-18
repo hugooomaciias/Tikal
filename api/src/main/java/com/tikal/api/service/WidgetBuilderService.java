@@ -5,6 +5,7 @@ import com.tikal.api.exception.ResourceNotFoundException;
 import com.tikal.api.model.dto.sync.widgets.*;
 import com.tikal.api.model.entity.*;
 import com.tikal.api.repository.*;
+import com.tikal.api.service.cache.PreFetchedDashboardData;
 import com.tikal.api.utils.DateUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -22,46 +23,36 @@ public class WidgetBuilderService {
 
     private final TaskRepository taskRepository;
     private final TimeLogRepository timeLogRepository;
-    private final UserRepository userRepository;
     private final ProjectRepository projectRepository;
     private final StageRepository stageRepository;
+    private final PreFetchedDashboardData preFetchedData;
 
-    public WidgetData buildSingleWidget(String widgetId, Integer userId, UserSettings settings) {
+    public WidgetData buildSingleWidget(String widgetId, User user, UserSettings settings) {
         return switch (widgetId) {
-            case "weeklyProgressWidget" -> buildWeeklyProgress(userId);
-            case "timeTrackerWidget" -> buildTimeTracker(userId);
-            case "templeModeWidget" -> buildTempleModeWidget(userId, settings);
-            case "taskWidget" -> buildTaskWidget(userId, settings);
+            case "weeklyProgressWidget" -> buildWeeklyProgress(user.getId());
+            case "timeTrackerWidget" -> buildTimeTracker(user.getId());
+            case "templeModeWidget" -> buildTempleModeWidget(user, settings);
+            case "taskWidget" -> buildTaskWidget(user.getId(), settings);
             case "calendarWidget" -> buildCalendarWidgetData(settings);
 
-            case "solarChartWidget" -> buildSolarChartBase(userId, settings);
-            case "concentrationHeatmapWidget" -> buildConcentrationHeatmap(userId, settings);
-            case "effectivenessChartWidget" -> buildEffectivenessChart(userId, settings);
-            case "timeGoalWidget" -> buildTimeGoalWidget(userId, settings);
-            case "comparisonWidget" -> buildComparisonWidget(userId, settings);
-            case "iaAdviceWidget" -> buildIaAdviceWidget(userId);
+            case "solarChartWidget" -> buildSolarChartBase(user.getId(), settings);
+            case "concentrationHeatmapWidget" -> buildConcentrationHeatmap(user.getId(), settings);
+            case "effectivenessChartWidget" -> buildEffectivenessChart(user.getId(), settings);
+            case "timeGoalWidget" -> buildTimeGoalWidget(user.getId(), settings);
+            case "comparisonWidget" -> buildComparisonWidget(user.getId(), settings);
+            case "iaAdviceWidget" -> buildIaAdviceWidget(user.getId());
             default -> null;
         };
     }
 
     private WidgetData buildWeeklyProgress(Integer userId) {
+        Map<LocalDate, Integer> minutesByDate = preFetchedData.getRollingWeekDailyMinutes();
+
         LocalDate endDate = LocalDate.now();
         LocalDate startDate = endDate.minusDays(6);
 
-        LocalDateTime startDateTime = startDate.atStartOfDay();
-        LocalDateTime endDateTime = endDate.atTime(23, 59, 59);
-
         // Subtitle generation
         String subtitle = DateUtils.formatDateRange(startDate, endDate, false);
-
-        List<Object[]> dbResults = timeLogRepository.getDailyTotalMinutesBetweenDates(userId, startDateTime, endDateTime);
-
-        Map<LocalDate, Integer> minutesByDate = new HashMap<>();
-        for (Object[] row : dbResults) {
-            java.sql.Date sqlDate = (java.sql.Date) row[0];
-            Integer minutes = ((Number) row[1]).intValue();
-            minutesByDate.put(sqlDate.toLocalDate(), minutes);
-        }
 
         List<WeeklyProgressWidgetData.DailyProgress> daysList = new ArrayList<>();
 
@@ -173,12 +164,23 @@ public class WidgetBuilderService {
         return "Actividad Desconocida";
     }
 
-    private WidgetData buildTempleModeWidget(Integer userId, UserSettings settings) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("No se ha encontrado ningún usuario con esas credenciales"));
+    private WidgetData buildTempleModeWidget(User user, UserSettings settings) {
         RankList userRank = user.getCurrentRank();
         Integer defaultSession = settings.getFocusSessionMinutes() != null ? settings.getFocusSessionMinutes() : 25;
 
-        int globalTempleMinutes = timeLogRepository.getHistoricalTempleMinutes(userId);
+        double percentage = getPercentage(userRank);
+        return TempleModeWidgetData.builder()
+                .rank(user.getCurrentRank().getId())
+                .rankTitle(user.getCurrentRank().getAwardedTitle())
+                .rankPercentage(percentage)
+                .colour(userRank.getColour())
+                .logo(userRank.getBadgeImageUrl())
+                .defaultFocusSessionMinutes(defaultSession)
+                .build();
+    }
+
+    private double getPercentage(RankList userRank) {
+        int globalTempleMinutes = preFetchedData.getGlobalTempleMinutes();
         double percentage = 0;
         if (userRank.getId() == 0) {
             percentage = 100;
@@ -190,14 +192,7 @@ public class WidgetBuilderService {
         }
 
         percentage = Math.round(percentage * 10.0) / 10.0;
-        return TempleModeWidgetData.builder()
-                .rank(user.getCurrentRank().getId())
-                .rankTitle(user.getCurrentRank().getAwardedTitle())
-                .rankPercentage(percentage)
-                .colour(userRank.getColour())
-                .logo(userRank.getBadgeImageUrl())
-                .defaultFocusSessionMinutes(defaultSession)
-                .build();
+        return percentage;
     }
 
     // ==========================================
@@ -658,18 +653,9 @@ public class WidgetBuilderService {
         int year = currentMonth.getYear();
         int month = currentMonth.getMonthValue();
 
-        LocalDateTime startDate = currentMonth.atDay(1).atStartOfDay();
-        LocalDateTime endDate = currentMonth.plusMonths(1).atDay(1).atStartOfDay();
-
-        // 3. Ejecutar la consulta optimizada que creamos en TimeLogRepository
-        List<Object[]> dbResults = timeLogRepository.getHeatmapDataForMonth(userId, startDate, endDate);
-
-        // 4. Mapear resultados a memoria para búsquedas instantáneas O(1)
-        Map<Integer, Integer> minutesByDay = new HashMap<>();
-        for (Object[] row : dbResults) {
-            Integer dayOfMonth = ((Number) row[0]).intValue();
-            Integer minutes = ((Number) row[1]).intValue();
-            minutesByDay.put(dayOfMonth, minutes);
+       Map<LocalDate, Integer> dailyMinutes = preFetchedData.getMonthDailyMinutes();
+        if (dailyMinutes == null) {
+            dailyMinutes = Collections.emptyMap();
         }
 
         List<ConcentrationHeatmapWidgetData.HeatmapDay> daysList = new ArrayList<>();
@@ -678,7 +664,7 @@ public class WidgetBuilderService {
         for (int day = 1; day <= lengthOfMonth; day++) {
             LocalDate currentDate = currentMonth.atDay(day);
 
-            Integer minutes = minutesByDay.getOrDefault(day, 0);
+            Integer minutes = dailyMinutes.getOrDefault(currentDate, 0);
 
             daysList.add(ConcentrationHeatmapWidgetData.HeatmapDay.builder()
                     .date(currentDate)
@@ -720,24 +706,24 @@ public class WidgetBuilderService {
     private EffectivenessChartWidgetData buildEffectivenessChart(Integer userId, UserSettings settings) {
         return buildEffectivenessChartDynamic(userId,
                 EffectivenessChartWidgetData.MetricType.CONCENTRATION,
-                EffectivenessChartWidgetData.TimeRange.WEEKLY);
+                EffectivenessChartWidgetData.TimeRange.WEEKLY,
+                settings);
     }
 
     // A dynamic method for your controller to call when the user changes the chart type
     public EffectivenessChartWidgetData buildEffectivenessChartDynamic(
             Integer userId,
             EffectivenessChartWidgetData.MetricType metric,
-            EffectivenessChartWidgetData.TimeRange range) {
+            EffectivenessChartWidgetData.TimeRange range,
+            UserSettings settings) {
 
         LocalDate startDate;
         LocalDate endDate;
 
         if (range == EffectivenessChartWidgetData.TimeRange.WEEKLY) {
-            // Lunes a Domingo de la semana actual
-            startDate = LocalDate.now().with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+            startDate = PreFetchedDashboardData.getWeekStart(settings).toLocalDate();
             endDate = startDate.plusDays(6);
         } else {
-            // Día 1 al último día del mes actual
             YearMonth currentMonth = YearMonth.now();
             startDate = currentMonth.atDay(1);
             endDate = currentMonth.atEndOfMonth();
@@ -746,27 +732,26 @@ public class WidgetBuilderService {
         LocalDateTime startDateTime = startDate.atStartOfDay();
         LocalDateTime endDateTime = endDate.atTime(LocalTime.MAX);
 
-        // 2. Obtener datos de BD y mapearlos
+        // Data obtention
         Map<LocalDate, Double> percentMap = new HashMap<>();
 
         if (metric == EffectivenessChartWidgetData.MetricType.CONCENTRATION) {
-
-            // CONCENTRACIÓN: Usamos el porcentaje directo de SQL
-            List<Object[]> dbResults = timeLogRepository.getDailyConcentrationPercentage(userId, startDateTime, endDateTime);
-            for (Object[] row : dbResults) {
-                LocalDate date = ((java.sql.Date) row[0]).toLocalDate();
-                Double pct = row[1] != null ? ((Number) row[1]).doubleValue() : 0.0;
-                percentMap.put(date, pct);
+            Map<LocalDate, Double> weeklyConc = preFetchedData.getWeekConcentrationPercentage();
+            if (weeklyConc != null) {
+                percentMap = weeklyConc;
+            } else {
+                // fallback to DB (should not happen on initial load)
+                List<Object[]> dbResults = timeLogRepository.getDailyConcentrationPercentage(userId, startDateTime, endDateTime);
+                percentMap = mapConcentrationResults(dbResults);
             }
-
         } else {
 
-            // RENTABILIDAD: Lógica del "Mejor Día"
+            // PROFITABILITY: Best day logic "Mejor Día"
             List<Object[]> dbResults = timeLogRepository.getDailyProfitability(userId, startDateTime, endDateTime);
             Map<LocalDate, Double> rawProfitMap = new HashMap<>();
             double maxProfit = 0.0;
 
-            // Primero guardamos los valores brutos (€/min) y buscamos el máximo
+            // Save the values (€/min) and searching the maximum
             for (Object[] row : dbResults) {
                 LocalDate date = ((java.sql.Date) row[0]).toLocalDate();
                 Double profitPerMin = row[1] != null ? ((Number) row[1]).doubleValue() : 0.0;
@@ -777,7 +762,7 @@ public class WidgetBuilderService {
                 }
             }
 
-            // Luego calculamos el porcentaje en base a ese máximo
+            // Calculation of the percentage in base of the maximum
             for (Map.Entry<LocalDate, Double> entry : rawProfitMap.entrySet()) {
                 double pct = (maxProfit > 0) ? (entry.getValue() / maxProfit) * 100.0 : 0.0;
                 percentMap.put(entry.getKey(), pct);
@@ -806,9 +791,19 @@ public class WidgetBuilderService {
                 .build();
     }
 
+    private Map<LocalDate, Double> mapConcentrationResults(List<Object[]> dbResults) {
+        Map<LocalDate, Double> map = new HashMap<>();
+        for (Object[] row : dbResults) {
+            LocalDate date = ((java.sql.Date) row[0]).toLocalDate();
+            Double pct = row[1] != null ? ((Number) row[1]).doubleValue() : 0.0;
+            map.put(date, pct);
+        }
+        return map;
+    }
+
     private String formatChartLabel(LocalDate date, EffectivenessChartWidgetData.TimeRange range) {
         if (range == EffectivenessChartWidgetData.TimeRange.WEEKLY) {
-            // Devuelve la inicial del día (L, M, X, J, V, S, D)
+            // Returns the day initial (L, M, X, J, V, S, D)
             return switch (date.getDayOfWeek()) {
                 case MONDAY -> "L";
                 case TUESDAY -> "M";
@@ -819,7 +814,7 @@ public class WidgetBuilderService {
                 case SUNDAY -> "D";
             };
         } else {
-            // Para el mes, devuelve el número del día (1, 2, 3... 31)
+            // For the month it returns the number of the day (1, 2, 3... 31)
             return String.valueOf(date.getDayOfMonth());
         }
     }
@@ -829,21 +824,7 @@ public class WidgetBuilderService {
     // TIME GOAL WIDGET
     // ==========================================
     public WidgetData buildTimeGoalWidget(Integer userId, UserSettings settings) {
-
-        LocalDate startDate;
-        if (settings.getFirstDayOfWeek() != null && settings.getFirstDayOfWeek().name().equalsIgnoreCase("DOMINGO")) {
-            startDate = LocalDate.now().with(TemporalAdjusters.previousOrSame(DayOfWeek.SUNDAY));
-        } else {
-            startDate = LocalDate.now().with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
-        }
-
-        LocalDate endDate = startDate.plusDays(6);
-
-        LocalDateTime startDateTime = startDate.atStartOfDay();
-        LocalDateTime endDateTime = endDate.atTime(LocalTime.MAX);
-
-        Integer currentMinutesWrapper = timeLogRepository.getTotalMinutesBetweenDates(userId, startDateTime, endDateTime);
-        int currentMinutes = currentMinutesWrapper != null ? currentMinutesWrapper : 0;
+        int currentMinutes = preFetchedData.getCurrentWeekTotalMinutes();
         String currentMinutesSubtitle = DateUtils.formatMinutes(currentMinutes);
         int goalHours = settings.getHoursGoal() != null ? settings.getHoursGoal() : 40;
         int goalMinutes = goalHours * 60;
@@ -857,7 +838,10 @@ public class WidgetBuilderService {
         }
         completionPercentage = Math.round(completionPercentage * 10.0) / 10.0;
 
-        // 2. Construcción del subtítulo dinámico
+        // Dynamic subtitle construction
+        LocalDate startDate = PreFetchedDashboardData.getWeekStart(settings).toLocalDate();
+        LocalDate endDate = startDate.plusDays(6);
+
         String subtitle = DateUtils.formatDateRange(startDate, endDate, true);
 
         return TimeGoalWidgetData.builder()
@@ -896,14 +880,24 @@ public class WidgetBuilderService {
         String month = format.split(" ")[1];
 
         // 2. Extract the ACTUAL data
-        int currTotalMins = getSafeInt(timeLogRepository.getTotalMinutesBetweenDates(userId, currentStart, currentEnd));
-        int currTempleMins = getSafeInt(timeLogRepository.getTempleMinutesBetweenDates(userId, currentStart, currentEnd));
-        int currTasks = getSafeInt(taskRepository.countCompletedTasksBetweenDates(userId, currentStart, currentEnd));
+        int currTotalMins, currTempleMins, currTasks;
+        int prevTotalMins, prevTempleMins, prevTasks;
 
-        // 3. Extract the PREVIOUS data
-        int prevTotalMins = getSafeInt(timeLogRepository.getTotalMinutesBetweenDates(userId, previousStart, previousEnd));
-        int prevTempleMins = getSafeInt(timeLogRepository.getTempleMinutesBetweenDates(userId, previousStart, previousEnd));
-        int prevTasks = getSafeInt(taskRepository.countCompletedTasksBetweenDates(userId, previousStart, previousEnd));
+        if (filter == ComparisonWidgetData.TimeRangeFilter.THIS_WEEK) {
+            currTotalMins = preFetchedData.getCurrentWeekTotalMinutes();
+            currTempleMins = preFetchedData.getCurrentWeekTempleMinutes();
+
+            prevTotalMins = preFetchedData.getPrevWeekTotalMinutes();
+            prevTempleMins = preFetchedData.getPrevWeekTempleMinutes();
+        } else { // THIS_MONTH
+            currTotalMins = preFetchedData.getCurrentMonthTotalMinutes();
+            currTempleMins = preFetchedData.getCurrentMonthTempleMinutes();
+
+            prevTotalMins = preFetchedData.getPrevMonthTotalMinutes();
+            prevTempleMins = preFetchedData.getPrevMonthTempleMinutes();
+        }
+        currTasks = getSafeInt(taskRepository.countCompletedTasksBetweenDates(userId, currentStart, currentEnd));
+        prevTasks = getSafeInt(taskRepository.countCompletedTasksBetweenDates(userId, previousStart, previousEnd));
 
         // 4. Metrics constructor
         List<ComparisonWidgetData.ComparisonMetric> metrics = new ArrayList<>();

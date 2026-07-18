@@ -1,17 +1,20 @@
 package com.tikal.api.service;
 
+import com.tikal.api.config.CustomUserDetails;
 import com.tikal.api.exception.ResourceNotFoundException;
 import com.tikal.api.exception.UnauthorizedException;
 import com.tikal.api.model.dto.UserDTO;
 import com.tikal.api.model.entity.User;
 import com.tikal.api.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class UserService {
     private final UserRepository userRepository;
 
@@ -20,13 +23,16 @@ public class UserService {
      */
     public User getAuthenticatedUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
         if (authentication == null || !authentication.isAuthenticated() || authentication.getPrincipal().equals("anonymousUser")) {
-            throw new UnauthorizedException("There is no authenticated user in the context.");
+            throw new UnauthorizedException("No authenticated user");
         }
-        String email = authentication.getName();
 
-        return userRepository.findByEmail(email).orElseThrow(() -> new ResourceNotFoundException("No se ha encontrado ningún usuario con esas credenciales"));
+        Object principal = authentication.getPrincipal();
+        if (principal instanceof CustomUserDetails) {
+            return ((CustomUserDetails) principal).getUser();
+        }
+
+        throw new UnauthorizedException("Invalid principal type");
     }
 
     /**

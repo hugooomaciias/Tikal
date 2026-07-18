@@ -10,6 +10,8 @@ import com.tikal.api.repository.TaskRepository;
 import com.tikal.api.repository.TimeLogRepository;
 import com.tikal.api.repository.TotemInventoryRepository;
 import com.tikal.api.repository.TotemListRepository;
+import com.tikal.api.service.cache.PreFetchedDashboardData;
+import com.tikal.api.service.cache.SyncCache;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -21,9 +23,9 @@ import java.util.List;
 public class GamificationService {
     private final TotemInventoryRepository totemInventoryRepository;
     private final TotemListRepository totemListRepository;
-    private final TimeLogRepository timeLogRepository;
     private final TaskRepository taskRepository;
     private final StatisticsService statisticsService;
+    private final PreFetchedDashboardData preFetchedDashboardData;
 
     public List<TotemInventory> obtainUserTotemInventory(Integer userId) {
         return totemInventoryRepository.findByUser_Id(userId);
@@ -46,8 +48,8 @@ public class GamificationService {
     public WorkspaceSyncDTO.ProgressData obtainCurrentUserProgress(Integer userId, TypeOfGoal typeOfGoal) {
         switch (typeOfGoal) {
             case CONCENTRATION:
-                Integer totalHours = getTotalTempleTime(userId);
-                return new WorkspaceSyncDTO.ProgressData(totalHours, "Horas de concentración acumuladas");
+                Integer totalHours = preFetchedDashboardData.getGlobalTempleMinutes();
+                return new WorkspaceSyncDTO.ProgressData(totalHours / 60, "Horas de concentración acumuladas");
 
             case PLANNING_ACCURACY:
                 Integer planningAccuracy = statisticsService.planningAccuracy(userId, TimeRangeSetting.GLOBAL);
@@ -58,14 +60,14 @@ public class GamificationService {
                 return new WorkspaceSyncDTO.ProgressData(globalEffectiveness, "Porcentaje de efectividad global");
 
             case PLANNING_ACCURACY_WITH_TASKS:
-                Integer accuracy = statisticsService.planningAccuracy(userId, TimeRangeSetting.GLOBAL);
+                Integer planningAccuracy1 = statisticsService.planningAccuracy(userId, TimeRangeSetting.GLOBAL);
                 Integer tasksWithEstimate = statisticsService.countTasksWithEstimate(userId, TimeRangeSetting.GLOBAL);
-                return new WorkspaceSyncDTO.ProgressData(accuracy, "tasks:" + tasksWithEstimate);
+                return new WorkspaceSyncDTO.ProgressData(planningAccuracy1, "tasks:" + tasksWithEstimate);
 
             case EFFECTIVENESS_WITH_TASKS:
-                Integer effectiveness = statisticsService.globalEffectiveness(userId, TimeRangeSetting.GLOBAL);
+                Integer globalEffectiveness1 = statisticsService.globalEffectiveness(userId, TimeRangeSetting.GLOBAL);
                 Integer completedTasks = statisticsService.countCompletedTasks(userId, TimeRangeSetting.GLOBAL);
-                return new WorkspaceSyncDTO.ProgressData(effectiveness, "tasks:" + completedTasks);
+                return new WorkspaceSyncDTO.ProgressData(globalEffectiveness1, "tasks:" + completedTasks);
 
             case EFFECTIVENESS_WITH_STREAK:
                 Integer currentEffectiveness = statisticsService.globalEffectiveness(userId, TimeRangeSetting.GLOBAL);
@@ -73,9 +75,9 @@ public class GamificationService {
                 return new WorkspaceSyncDTO.ProgressData(currentEffectiveness, "streak:" + streakDays);
 
             case PLANNING_AND_EFFECTIVENESS:
-                Integer planning = statisticsService.planningAccuracy(userId, TimeRangeSetting.GLOBAL);
+                Integer planningAccuracy2 = statisticsService.planningAccuracy(userId, TimeRangeSetting.GLOBAL);
                 Integer effectiveness1 = statisticsService.globalEffectiveness(userId, TimeRangeSetting.GLOBAL);
-                return new WorkspaceSyncDTO.ProgressData(planning, "effectiveness:" + effectiveness1);
+                return new WorkspaceSyncDTO.ProgressData(planningAccuracy2, "effectiveness:" + effectiveness1);
 
             case ALL_PREVIOUS_TOTEMS:
                 Integer unlockedTotems = countUserTotems(userId);
@@ -117,10 +119,5 @@ public class GamificationService {
         }
 
         return streak;
-    }
-
-    public Integer getTotalTempleTime(Integer userId) {
-        Integer totalMinutes = timeLogRepository.sumMinutesInTempleModeByUserId(userId);
-        return totalMinutes != null ? totalMinutes : 0;
     }
 }

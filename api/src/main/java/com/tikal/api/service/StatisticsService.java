@@ -1,10 +1,9 @@
 package com.tikal.api.service;
 
 import com.tikal.api.model.entity.Task;
-import com.tikal.api.model.entity.TimeLog;
 import com.tikal.api.model.entity.enumerated.TimeRangeSetting;
 import com.tikal.api.repository.TaskRepository;
-import com.tikal.api.repository.TimeLogRepository;
+import com.tikal.api.service.cache.SyncCache;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -15,14 +14,20 @@ import java.util.List;
 @RequiredArgsConstructor
 public class StatisticsService {
     private final TaskRepository taskRepository;
+    private final SyncCache requestCache;
 
     // =====================================================
     // 1. PLANNING ACCURACY
     // =====================================================
     public Integer planningAccuracy(Integer userId, TimeRangeSetting range) {
-        LocalDateTime since = getStartDate(range);
+        String key = "stats_planningAccuracy_" + userId + "_" +  range.name();
+        return requestCache.get(key, () -> {
+            return computePlanningAccuracy(userId, range);
+        });
+    }
 
-        List<Task> completedTasks = taskRepository.findCompletedTasksWithEstimateByUserAndDate(userId, since);
+    private Integer computePlanningAccuracy(Integer userId, TimeRangeSetting range) {
+        List<Task> completedTasks = getCompletedTasksWithEstimate(userId, range);
 
         if (completedTasks.isEmpty()) return 0;
 
@@ -32,7 +37,7 @@ public class StatisticsService {
         for (Task task : completedTasks) {
             Integer estimated = task.getEstimatedTime();
             Integer actual = task.getTotalLoggedMinutes();
-            
+
             if (actual == null || actual <= 0) continue;
 
             double accuracy = getAccuracy(actual, estimated);
@@ -70,8 +75,14 @@ public class StatisticsService {
     // 2. GLOBAL EFFECTIVENESS
     // =====================================================
     public Integer globalEffectiveness(Integer userId, TimeRangeSetting range) {
-        LocalDateTime since = getStartDate(range);
-        List<Task> completedTasks = taskRepository.findCompletedTasksWithEstimateByUserAndDate(userId, since);
+        String key = "stat_globalEffectiveness_" + userId + "_" + range.name();
+        return requestCache.get(key, () -> {
+            return computeGlobalEffectiveness(userId, range);
+        });
+    }
+
+    private Integer computeGlobalEffectiveness(Integer userId, TimeRangeSetting range) {
+        List<Task> completedTasks = getCompletedTasksWithEstimate(userId, range);
 
         if (completedTasks.isEmpty()) return 0;
 
@@ -99,20 +110,34 @@ public class StatisticsService {
         return validTasks == 0 ? 0 : (int) Math.round(totalEffectiveness / validTasks);
     }
 
+    private List<Task> getCompletedTasksWithEstimate(Integer userId, TimeRangeSetting range) {
+        LocalDateTime since = getStartDate(range);
+        String key = "completedTasks_" + userId + "_" + since.toString();
+        return requestCache.get(key, () ->
+                taskRepository.findCompletedTasksWithEstimateByUserAndDate(userId, since)
+        );
+    }
+
     // =====================================================
     // 3. COUNT TASKS WITH ESTIMATE
     // =====================================================
     public Integer countTasksWithEstimate(Integer userId, TimeRangeSetting range) {
-        LocalDateTime since = getStartDate(range);
-        return taskRepository.countTasksWithEstimateByUserAndDate(userId, since);
+        String key = "stat_countTasksWithEstimate_" + userId + "_" + range.name();
+        return requestCache.get(key, () -> {
+            LocalDateTime since = getStartDate(range);
+            return taskRepository.countTasksWithEstimateByUserAndDate(userId, since);
+        });
     }
 
     // =====================================================
     // 4. COUNT COMPLETED TASKS
     // =====================================================
     public Integer countCompletedTasks(Integer userId, TimeRangeSetting range) {
-        LocalDateTime since = getStartDate(range);
-        return taskRepository.countCompletedTasksByUserAndDate(userId, since);
+        String key = "stat_countCompletedTasks_" + userId + "_" + range.name();
+        return requestCache.get(key, () -> {
+            LocalDateTime since = getStartDate(range);
+            return taskRepository.countCompletedTasksByUserAndDate(userId, since);
+        });
     }
 
     // =====================================================

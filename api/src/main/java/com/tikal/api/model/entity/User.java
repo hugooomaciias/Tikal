@@ -46,7 +46,7 @@ public class User {
     private String avatarUrl;
 
     /* --- Rank relation ==> Many users may have the same Rank --- */
-    @ManyToOne(optional = true, fetch = FetchType.EAGER)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "current_rank", columnDefinition = "INT DEFAULT 1")
     private RankList currentRank;
     

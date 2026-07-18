@@ -201,13 +201,6 @@ public interface TimeLogRepository extends JpaRepository<TimeLog, Integer> {
     // HEADERS METHODS
     // ==========================================
 
-    /* --- Add up all the minutes in temple mode (total history) --- */
-    @Query(value = "SELECT COALESCE(SUM(TIMESTAMPDIFF(MINUTE, init_date_time, end_date_time)), 0) " +
-            "FROM time_logs " +
-            "WHERE user_id = :userId AND is_temple_mode = 1 AND end_date_time IS NOT NULL",
-            nativeQuery = true)
-    Integer getHistoricalTempleMinutes(@Param("userId") Integer userId);
-
     /* --- Add up total minutes played --- */
     @Query(value = "SELECT COALESCE(SUM(TIMESTAMPDIFF(MINUTE, init_date_time, end_date_time)), 0) " +
             "FROM time_logs " +

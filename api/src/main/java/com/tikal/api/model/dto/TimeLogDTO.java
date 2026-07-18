@@ -9,7 +9,7 @@ public class TimeLogDTO {
     private Integer id;
     private String initTime;
     private String endTime;
-    private Long minutes;
+    private Integer minutes;
     private String logo;
     private String color;
     private String taskName;

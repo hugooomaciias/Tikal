@@ -49,3 +49,13 @@ INSERT IGNORE INTO totem_lists (id, name, goal_description, target_progress, typ
                                                                                                                                (18, 'ETZNAB', 'Alcanza 1000 horas totales de concentración', 1000, 'CONCENTRATION', 4, '/images/totems/etznab.svg'),
                                                                                                                                (19, 'KAWAK', 'Alcanza precisión de planificación > 90% y efectividad global > 90%', 90, 'PLANNING_AND_EFFECTIVENESS', 4, '/images/totems/kawak.svg'),
                                                                                                                                (20, 'AJAW', 'Desbloquea todos los tótems anteriores', 20, 'ALL_PREVIOUS_TOTEMS', 4, '/images/totems/ajaw.svg');
+
+
+-- ==========================================
+-- INDEXES FOR PERFORMANCE OPTIMIZATION
+-- ==========================================
+-- CREATE INDEX IF NOT EXISTS idx_time_logs_user_init ON time_logs(user_id, init_date_time);
+-- CREATE INDEX IF NOT EXISTS idx_time_logs_user_temple ON time_logs(user_id, is_temple_mode, end_date_time);
+-- CREATE INDEX IF NOT EXISTS idx_time_logs_user_completed ON time_logs(user_id, is_completed);
+-- CREATE INDEX IF NOT EXISTS idx_tasks_user_completed_estimate ON tasks(assigned_user_id, is_completed, estimated_time);
+-- sCREATE INDEX IF NOT EXISTS idx_tasks_parent_completed ON tasks(parent_task_id, is_completed);
