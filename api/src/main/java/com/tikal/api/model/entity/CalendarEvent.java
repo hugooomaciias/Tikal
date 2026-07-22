@@ -4,8 +4,9 @@ import com.tikal.api.model.entity.enumerated.EventType;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.JdbcTypeCode;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 /**
  * This class represents the Calendar Event entity. It maps to the calendar_event
@@ -31,12 +32,14 @@ public class CalendarEvent {
     private String description;
 
     /* --- Init time of the event --- */
+    @JdbcTypeCode(org.hibernate.type.SqlTypes.TIMESTAMP_UTC)
     @Column(name = "init_date_time", nullable = false, columnDefinition = "DATETIME")
-    private LocalDateTime initDateTime;
+    private Instant initDateTime;
 
     /* --- End time of the event --- */
+    @JdbcTypeCode(org.hibernate.type.SqlTypes.TIMESTAMP_UTC)
     @Column(name = "end_date_time", nullable = false, columnDefinition = "DATETIME")
-    private LocalDateTime endDateTime;
+    private Instant endDateTime;
 
     /* --- If you want to activate the time tracker automatically, this is 'True' --- */
     @Column(name = "is_activate_tracker", columnDefinition = "TINYINT(1) DEFAULT 0")
@@ -53,6 +56,10 @@ public class CalendarEvent {
     /* --- Security flag for the automatic tracker --- */
     @Column(name = "is_tracker_processed", columnDefinition = "TINYINT(1) DEFAULT 0")
     private Boolean isTrackerProcessed = false;
+
+    /* --- Security flag for the automatic tracker --- */
+    @Column(name = "is_complete_day", columnDefinition = "TINYINT(1) DEFAULT 0")
+    private Boolean isCompleteDay = false;
 
     /* --- User relation ==> Many events can belong to the same User --- */
     @ManyToOne(optional = false)

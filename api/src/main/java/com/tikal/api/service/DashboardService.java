@@ -24,6 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.ZoneOffset;
 import java.time.temporal.TemporalAdjusters;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -36,8 +37,6 @@ public class DashboardService {
     private final UserService userService;
     private final SettingsService settingsService;
     private final GamificationService gamificationService;
-    private final ProjectService projectService;
-    private final StageRepository stageRepository;
     private final TaskRepository taskRepository;
     private final WidgetBuilderService widgetBuilderService;
     private final CalendarEventRepository calendarEventRepository;
@@ -174,7 +173,7 @@ public class DashboardService {
 
     private Map<LocalDate, Integer> groupByDate(List<TimeLog> logs) {
         return logs.stream().collect(Collectors.groupingBy(
-                tl -> tl.getInitDateTime().toLocalDate(),
+                tl -> LocalDate.ofInstant(tl.getInitDateTime(), ZoneOffset.UTC),
                 Collectors.summingInt(TimeLog::getMinutes)
         ));
     }
@@ -182,7 +181,7 @@ public class DashboardService {
     private Map<LocalDate, Double> computeDailyConcentration(List<TimeLog> logs) {
         // Group by date, compute total minutes and temple minutes, then percentage
         Map<LocalDate, int[]> dailyStats = logs.stream().collect(Collectors.groupingBy(
-                tl -> tl.getInitDateTime().toLocalDate(),
+                tl -> LocalDate.ofInstant(tl.getInitDateTime(), ZoneOffset.UTC),
                 Collectors.collectingAndThen(
                         Collectors.toList(),
                         list -> {

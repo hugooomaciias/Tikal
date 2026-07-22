@@ -1,5 +1,6 @@
 package com.tikal.api.service;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.Duration;
 import java.util.List;
@@ -211,7 +212,7 @@ public class TimeService {
         TimeLog timeLog = new TimeLog();
         timeLog.setUser(user);
         timeLog.setProject(project);
-        timeLog.setInitDateTime(LocalDateTime.now());
+        timeLog.setInitDateTime(Instant.now());
         timeLog.setTargetTime(targetTime);
         timeLog.setIsTempleMode(isTempleMode != null ? isTempleMode : false);
         
@@ -230,7 +231,7 @@ public class TimeService {
         TimeLog timeLog = new TimeLog();
         timeLog.setUser(user);
         timeLog.setStage(stage);
-        timeLog.setInitDateTime(LocalDateTime.now());
+        timeLog.setInitDateTime(Instant.now());
         timeLog.setTargetTime(targetTime);
         timeLog.setIsTempleMode(isTempleMode != null ? isTempleMode : false);
         
@@ -249,7 +250,7 @@ public class TimeService {
         TimeLog timeLog = new TimeLog();
         timeLog.setUser(user);
         timeLog.setTask(task);
-        timeLog.setInitDateTime(LocalDateTime.now());
+        timeLog.setInitDateTime(Instant.now());
         timeLog.setTargetTime(targetTime);
         timeLog.setIsTempleMode(isTempleMode != null ? isTempleMode : false);
         
@@ -267,7 +268,7 @@ public class TimeService {
         
         if (timeLog.isPresent()) {
             TimeLog log = timeLog.get();
-            log.setEndDateTime(LocalDateTime.now());
+            log.setEndDateTime(Instant.now());
             log.setActivityDescription(activityDescription);
 
             timeLogRepo.save(log);
@@ -295,7 +296,7 @@ public class TimeService {
         
         if (timeLog.isPresent()) {
             TimeLog log = timeLog.get();
-            LocalDateTime endTime = log.getEndDateTime() != null ? log.getEndDateTime() : LocalDateTime.now();
+            Instant endTime = log.getEndDateTime() != null ? log.getEndDateTime() : Instant.now();
             return Duration.between(log.getInitDateTime(), endTime).getSeconds();
         }
         

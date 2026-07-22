@@ -3,8 +3,10 @@ package com.tikal.api.model.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.JdbcTypeCode;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -45,16 +47,18 @@ public class Task {
     private Boolean isCompleted = false;
 
     /* --- Timestamp when the task was marked as completed --- */
+    @JdbcTypeCode(org.hibernate.type.SqlTypes.TIMESTAMP_UTC)
     @Column(name = "completion_date", columnDefinition = "DATETIME")
-    private LocalDateTime completionDate;
+    private Instant completionDate;
 
     /* --- Estimated profit obtained upon completion of the Task --- */
     @Column(name = "estimated_profit", precision = 10, scale = 2)
     private BigDecimal estimatedProfit;
 
     /* --- Deadline for completing the Task --- */
+    @JdbcTypeCode(org.hibernate.type.SqlTypes.TIMESTAMP_UTC)
     @Column(name = "deadline", columnDefinition = "DATETIME")
-    private LocalDateTime deadline;
+    private Instant deadline;
 
     /* --- Total time spent in minutes --- */
     @Column(name = "total_logged_minutes", columnDefinition = "INT DEFAULT 0")

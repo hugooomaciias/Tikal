@@ -14,6 +14,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -173,7 +174,7 @@ public class StageService {
     private void createDeadlineEvent(Stage stage, User user) {
         CalendarEvent event = new CalendarEvent();
         event.setName("Entrega: " + stage.getName());
-        event.setInitDateTime(stage.getDeadline().minusHours(1));
+        event.setInitDateTime(stage.getDeadline().minus(1, ChronoUnit.HOURS));
         event.setEndDateTime(stage.getDeadline());
         event.setEventType(EventType.DEADLINE);
         event.setUser(user);
@@ -194,7 +195,7 @@ public class StageService {
                 // Case A: The user want in calendar, and it already existed -> We update the date and name in case it changed
                 CalendarEvent event = existingEventOpt.get();
                 event.setName("Entrega: " + stage.getName());
-                event.setInitDateTime(stage.getDeadline().minusHours(1));
+                event.setInitDateTime(stage.getDeadline().minus(1, ChronoUnit.HOURS));
                 event.setEndDateTime(stage.getDeadline());
                 calendarEventRepository.save(event);
             } else {

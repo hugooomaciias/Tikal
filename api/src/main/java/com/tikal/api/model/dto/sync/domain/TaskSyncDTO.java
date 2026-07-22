@@ -4,7 +4,7 @@ import lombok.Builder;
 import lombok.Data;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 
 @Data
@@ -16,7 +16,7 @@ public class TaskSyncDTO {
     private Integer estimatedTime;
     private Character timeUnit;
     private BigDecimal estimatedProfit;
-    private LocalDateTime deadline;
+    private Instant deadline;
     private Boolean isCompleted;
     private Integer numberOfSubTask;
     private String logo;

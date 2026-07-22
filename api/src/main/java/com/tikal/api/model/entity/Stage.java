@@ -5,7 +5,9 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.JdbcTypeCode;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -42,8 +44,9 @@ public class Stage {
     private String colour;
 
     /* --- Deadline for completing the stage --- */
+    @JdbcTypeCode(org.hibernate.type.SqlTypes.TIMESTAMP_UTC)
     @Column(name = "deadline", columnDefinition = "DATETIME")
-    private LocalDateTime deadline;
+    private Instant deadline;
 
     /* --- Total time spent in minutes --- */
     @Column(name = "total_logged_minutes", columnDefinition = "INT DEFAULT 0")

@@ -3,13 +3,13 @@ package com.tikal.api.model.dto.timer;
 import lombok.Builder;
 import lombok.Data;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Data
 @Builder
 public class TimeLogRequest {
-    private LocalDateTime initDateTime;
-    private LocalDateTime endDateTime;
+    private Instant initDateTime;
+    private Instant endDateTime;
     private Integer targetTime;
     private Boolean isTempleMode;
     private String activityDescription;

@@ -17,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -190,7 +191,7 @@ public class ProjectService {
     private void createDeadlineEvent(Project project, User user) {
         CalendarEvent event = new CalendarEvent();
         event.setName("Entrega: " + project.getName());
-        event.setInitDateTime(project.getDeadline().minusHours(1));
+        event.setInitDateTime(project.getDeadline().minus(1, ChronoUnit.HOURS));
         event.setEndDateTime(project.getDeadline());
         event.setEventType(EventType.DEADLINE);
         event.setUser(user);
@@ -210,7 +211,7 @@ public class ProjectService {
                 // Case A: The user want in calendar, and it already existed -> We update the date and name in case it changed
                 CalendarEvent event = existingEventOpt.get();
                 event.setName("Entrega: " + project.getName());
-                event.setInitDateTime(project.getDeadline().minusHours(1));
+                event.setInitDateTime(project.getDeadline().minus(1, ChronoUnit.HOURS));
                 event.setEndDateTime(project.getDeadline());
                 calendarEventRepository.save(event);
             } else {

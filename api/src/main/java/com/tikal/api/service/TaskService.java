@@ -10,7 +10,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -182,7 +183,7 @@ public class TaskService {
         validateTaskPermissions(task.getStage().getProject(), currentUser, "actualizar");
 
         boolean newStatus = !task.getIsCompleted();
-        LocalDateTime completionDate = newStatus ? LocalDateTime.now() : null;
+        Instant completionDate = newStatus ? Instant.now() : null;
 
         task.setIsCompleted(newStatus);
         task.setCompletionDate(completionDate);
@@ -241,7 +242,7 @@ public class TaskService {
     private void createDeadlineEvent(Task task, User user) {
         CalendarEvent event = new CalendarEvent();
         event.setName("Entrega Tarea: " + task.getName());
-        event.setInitDateTime(task.getDeadline().minusHours(1));
+        event.setInitDateTime(task.getDeadline().minus(1, ChronoUnit.HOURS));
         event.setEndDateTime(task.getDeadline());
         event.setEventType(EventType.DEADLINE);
         event.setUser(user);
@@ -261,7 +262,7 @@ public class TaskService {
             if (existingEventOpt.isPresent()) {
                 CalendarEvent event = existingEventOpt.get();
                 event.setName("Entrega Tarea: " + task.getName());
-                event.setInitDateTime(task.getDeadline().minusHours(1));
+                event.setInitDateTime(task.getDeadline().minus(1, ChronoUnit.HOURS));
                 event.setEndDateTime(task.getDeadline());
                 calendarEventRepository.save(event);
             } else {
