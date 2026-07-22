@@ -6,6 +6,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Data;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 
 @Data
@@ -16,13 +17,14 @@ public class CalendarEventRequest {
     private String name;
     private String description;
     @NotNull
-    private LocalDateTime initDateTime;
+    private Instant initDateTime;
     @NotNull
-    private LocalDateTime endDateTime;
+    private Instant endDateTime;
     private Boolean isActivateTracker;
-    private String customColour;
+    private String colour;
     @NotNull
     private EventType eventType;
+    private Boolean isCompleteDay;
 
     // Relations (Opcional)
     private Integer projectId;

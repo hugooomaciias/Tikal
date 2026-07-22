@@ -3,8 +3,10 @@ package com.tikal.api.model.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.JdbcTypeCode;
 
 import java.time.Duration;
+import java.time.Instant;
 import java.time.LocalDateTime;
 
 /**
@@ -23,12 +25,14 @@ public class TimeLog {
     private Integer id;
 
     /* --- Date when you start the time tracker --- */
+    @JdbcTypeCode(org.hibernate.type.SqlTypes.TIMESTAMP_UTC)
     @Column(name = "init_date_time", nullable = false, columnDefinition = "DATETIME")
-    private LocalDateTime initDateTime;
+    private Instant initDateTime;
 
     /* --- Date when you finish the time tracker --- */
+    @JdbcTypeCode(org.hibernate.type.SqlTypes.TIMESTAMP_UTC)
     @Column(name = "end_date_time", columnDefinition = "DATETIME")
-    private LocalDateTime endDateTime;
+    private Instant endDateTime;
 
     /* --- Target time for focusing on a Task --- */
     @Column(name = "target_time")

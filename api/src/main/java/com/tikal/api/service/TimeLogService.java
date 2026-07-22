@@ -10,15 +10,14 @@ import com.tikal.api.model.dto.timer.TimeLogPause;
 import com.tikal.api.model.dto.timer.TimeLogRequest;
 import com.tikal.api.model.entity.*;
 import com.tikal.api.repository.*;
-import com.tikal.api.utils.DateUtils;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -235,7 +234,7 @@ public class TimeLogService {
 
             for (TimeLog oldLog : previousUncompletedLogs) {
                 if (oldLog.getEndDateTime() == null) {
-                    oldLog.setEndDateTime(LocalDateTime.now());
+                    oldLog.setEndDateTime(Instant.now());
                 }
 
                 if (!isSameBatch) {
@@ -402,8 +401,8 @@ public class TimeLogService {
 
         return TimeLogDTO.builder()
                 .id(timeLog.getId())
-                .initTime(DateUtils.formatLocalDateTime(timeLog.getInitDateTime()))
-                .endTime(DateUtils.formatLocalDateTime(timeLog.getEndDateTime()))
+                .initDateTime(timeLog.getInitDateTime())
+                .endDateTime(timeLog.getEndDateTime())
                 .minutes(timeLog.getMinutes())
                 .logo(timeLog.getProject().getLogoUrl())
                 .color(color)

@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAdjusters;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -261,12 +262,13 @@ public class WidgetBuilderService {
             List<Task> pendingTasks,
             Map<Integer, Integer> subtasksCountMap) {
 
-        LocalDate today = LocalDate.now();
-        LocalDateTime endOfToday = LocalDate.now().atTime(23, 59, 59);
-        LocalDateTime inThreeDays = endOfToday.plusDays(3);
-        LocalDateTime inOneWeek = endOfToday.plusDays(10);
+        LocalDate today = LocalDate.now(ZoneOffset.UTC);
 
-        // Subtitle formatter
+        Instant startOfToday = today.atStartOfDay().toInstant(ZoneOffset.UTC);
+        Instant startOfTomorrow = today.plusDays(1).atStartOfDay().toInstant(ZoneOffset.UTC);
+        Instant inThreeDays = startOfTomorrow.plus(3, ChronoUnit.DAYS);
+        Instant inOneWeek = startOfTomorrow.plus(10, ChronoUnit.DAYS);
+
         String subtitlePrevious = "Antes del " + DateUtils.formatSingleDate(today);
         String subtitleToday = DateUtils.formatSingleDate(today);
         String subtitleThreeDays = DateUtils.formatDateRange(today.plusDays(1), today.plusDays(3), false);
@@ -286,27 +288,23 @@ public class WidgetBuilderService {
             if (task.getDeadline() == null) continue;
 
             TaskWidgetData.TaskItem item = mapToTaskItem(task, subtasksCountMap);
+            Instant deadline = task.getDeadline();
 
-            if (task.getDeadline().isBefore(today.atStartOfDay())){
+            if (deadline.isBefore(startOfToday)) {
                 previousTasks.add(item);
-                if (task.getIsCompleted()) {
-                    previousTasksCompleted++;
-                }
-            } else if (task.getDeadline().isEqual(endOfToday)) {
+                if (task.getIsCompleted()) previousTasksCompleted++;
+
+            } else if (deadline.isBefore(startOfTomorrow)) {
                 todayTasks.add(item);
-                if (task.getIsCompleted()) {
-                    todayTasksCompleted++;
-                }
-            } else if (task.getDeadline().isBefore(inThreeDays)) {
+                if (task.getIsCompleted()) todayTasksCompleted++;
+
+            } else if (deadline.isBefore(inThreeDays)) {
                 threeDaysTasks.add(item);
-                if (task.getIsCompleted()) {
-                    threeDaysTasksCompleted++;
-                }
-            } else if (task.getDeadline().isBefore(inOneWeek)) {
+                if (task.getIsCompleted()) threeDaysTasksCompleted++;
+
+            } else if (deadline.isBefore(inOneWeek)) {
                 nextWeekTasks.add(item);
-                if (task.getIsCompleted()) {
-                    nextWeekTasksCompleted++;
-                }
+                if (task.getIsCompleted()) nextWeekTasksCompleted++;
             }
         }
 

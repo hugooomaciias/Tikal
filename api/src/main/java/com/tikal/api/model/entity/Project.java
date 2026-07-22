@@ -4,7 +4,9 @@ import com.tikal.api.model.entity.enumerated.ProjectType;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.JdbcTypeCode;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -40,8 +42,9 @@ public class Project {
     private Boolean isGroupBased = false;
 
     /* --- Deadline for completing the project --- */
+    @JdbcTypeCode(org.hibernate.type.SqlTypes.TIMESTAMP_UTC)
     @Column(name = "deadline", columnDefinition = "DATETIME")
-    private LocalDateTime deadline;
+    private Instant deadline;
 
     /* --- Total time spent in minutes --- */
     @Column(name = "total_logged_minutes", columnDefinition = "INT DEFAULT 0")

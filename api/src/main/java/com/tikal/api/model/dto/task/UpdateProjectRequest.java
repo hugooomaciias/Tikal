@@ -5,7 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Data
 @NoArgsConstructor
@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 public class UpdateProjectRequest {
     private String name;
     private String description;
-    private LocalDateTime deadline;
+    private Instant deadline;
     private String logo;
     private Boolean addToCalendar;
     private ProjectType type;

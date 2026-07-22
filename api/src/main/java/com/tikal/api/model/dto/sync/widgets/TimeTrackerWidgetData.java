@@ -3,7 +3,7 @@ package com.tikal.api.model.dto.sync.widgets;
 import lombok.Builder;
 import lombok.Data;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Data
 @Builder
@@ -15,6 +15,6 @@ public class TimeTrackerWidgetData implements WidgetData {
     private String entityName;
     private String colour;
     private String logo;
-    private LocalDateTime initDateTime;
+    private Instant initDateTime;
     private Long accumulatedSeconds;
 }

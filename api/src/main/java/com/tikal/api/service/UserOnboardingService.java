@@ -9,7 +9,9 @@ import com.tikal.api.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
+import java.time.ZoneOffset;
+import java.time.temporal.ChronoUnit;
 
 @Service
 public class UserOnboardingService {
@@ -63,7 +65,7 @@ public class UserOnboardingService {
     }
 
     private void generateSampleData(User user) {
-        LocalDateTime now = LocalDateTime.now();
+        Instant now = Instant.now();
 
         // ==========================================
         // 1. TUTORIAL PROJECT
@@ -118,13 +120,20 @@ public class UserOnboardingService {
         task2.setDescription("Esta tarea tiene una fecha límite y se ha añadido a tu calendario automáticamente.");
         task2.setStage(stageTodo);
         task2.setAssignedUser(user);
-        task2.setDeadline(now.plusDays(1).withHour(18).withMinute(0));
+        Instant deadline = now.atZone(ZoneOffset.UTC)
+                .plusDays(1)
+                .withHour(18)
+                .withMinute(0)
+                .withSecond(0)
+                .withNano(0)
+                .toInstant();
+        task2.setDeadline(deadline);
         task2 = taskRepository.save(task2);
 
         // -> We create the deadline event for the task
         CalendarEvent calendarEvent = new CalendarEvent();
         calendarEvent.setName("Entrega Tarea: " + task2.getName());
-        calendarEvent.setInitDateTime(task2.getDeadline().minusHours(1));
+        calendarEvent.setInitDateTime(task2.getDeadline().minus(1, ChronoUnit.HOURS));
         calendarEvent.setEndDateTime(task2.getDeadline());
         calendarEvent.setEventType(EventType.DEADLINE);
         calendarEvent.setUser(user);

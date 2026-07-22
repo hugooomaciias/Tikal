@@ -5,7 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Data
 @Builder
@@ -15,7 +15,7 @@ public class StageRequest {
     private String name;
     private String description;
     private String colour;
-    private LocalDateTime deadline;
+    private Instant deadline;
     private Integer projectId;
     private Boolean addToCalendar;
 }

@@ -6,7 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 
 @Data
@@ -20,9 +20,9 @@ public class TaskDTO {
     private Integer estimatedTime;
     private Character timeUnit;
     private Boolean isCompleted;
-    private LocalDateTime completionDate;
+    private Instant completionDate;
     private BigDecimal estimatedProfit;
-    private LocalDateTime deadline;
+    private Instant deadline;
     private Integer totalLoggedMinutes;
     private Integer templeLoggedMinutes;
     private Integer subtasksCount;
