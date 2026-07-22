@@ -26,7 +26,7 @@ public class CalendarEventService {
     private final StageRepository stageRepository;
     private final TaskRepository taskRepository;
 
-    public List<CalendarEventDTO> getEventsBetweenDates(LocalDateTime start, LocalDateTime end) {
+    public List<CalendarEventDTO> getEventsBetweenDates(Instant start, Instant end) {
         User user = userService.getAuthenticatedUser();
 
         List<CalendarEvent> events = calendarEventRepository

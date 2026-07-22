@@ -10,6 +10,7 @@ import com.tikal.api.repository.TeamMemberRepository;
 import com.tikal.api.repository.UserRepository;
 import com.tikal.api.repository.TeamRepository;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -163,7 +164,7 @@ public class ChatService {
      * @param lastReadDate the date after which to count unread messages
      * @return the count of unread messages
      */
-    public Long getUnreadTeamMessageCount(Integer teamId, LocalDateTime lastReadDate) {
+    public Long getUnreadTeamMessageCount(Integer teamId, Instant lastReadDate) {
         return messageRepo.countUnreadTeamMessages(teamId, lastReadDate);
     }
 

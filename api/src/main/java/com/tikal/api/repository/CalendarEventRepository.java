@@ -1,5 +1,6 @@
 package com.tikal.api.repository;
 
+import java.time.Instant;
 import java.util.Collection;
 import java.util.List;
 import java.time.LocalDateTime;
@@ -19,7 +20,7 @@ public interface CalendarEventRepository extends JpaRepository<CalendarEvent, In
     List<CalendarEvent> findByUserIdOrderByInitDateTimeAsc(Integer userId);
 
     /* --- Obtain orderly the user calendar events which are between two dateTimes --- */
-    List<CalendarEvent> findByUserIdAndInitDateTimeBetweenOrderByInitDateTimeAsc(Integer userId, LocalDateTime start, LocalDateTime end);
+    List<CalendarEvent> findByUserIdAndInitDateTimeBetweenOrderByInitDateTimeAsc(Integer userId, Instant start, Instant end);
 
     /* --- Obtain the user calendar events ordered depends on the initial event datetime --- */
     @Query("SELECT c FROM CalendarEvent c WHERE c.user.id = :userId " +
@@ -38,8 +39,8 @@ public interface CalendarEventRepository extends JpaRepository<CalendarEvent, In
             "ORDER BY c.initDateTime ASC")
     List<CalendarEvent> findEventsInWindow(
             @Param("userId") Integer userId,
-            @Param("startDate") LocalDateTime startDate,
-            @Param("endDate") LocalDateTime endDate);
+            @Param("startDate") Instant startDate,
+            @Param("endDate") Instant endDate);
 
     /* --- To check whether a project already has a DEADLINE event --- */
     Optional<CalendarEvent> findByProjectIdAndEventTypeAndStageIsNullAndTaskIsNull(Integer id, EventType eventType);
@@ -61,8 +62,8 @@ public interface CalendarEventRepository extends JpaRepository<CalendarEvent, In
 
     /* --- Obtain all events of a user and filtered between two dates --- */
     List<CalendarEvent> findByUserIdAndInitDateTimeGreaterThanEqualAndEndDateTimeLessThanEqual(Integer id,
-                                                                                               LocalDateTime start,
-                                                                                               LocalDateTime end);
+                                                                                               Instant start,
+                                                                                               Instant end);
     /* --- Fetch of all deadlines for stages and tasks in one query --- */
     @Query("SELECT ce FROM CalendarEvent ce " +
             "WHERE (ce.project.id IN :projectIds OR ce.stage.id IN :stageIds OR ce.task.id IN :taskIds) " +

@@ -364,7 +364,7 @@ public class TimeService {
      * @param end The end date and time
      * @return List of calendar events in the time range
      */
-    public List<CalendarEvent> getCalendarEventsByUserAndDateRange(Integer userId, LocalDateTime start, LocalDateTime end) {
+    public List<CalendarEvent> getCalendarEventsByUserAndDateRange(Integer userId, Instant start, Instant end) {
         return calendarRepo.findByUserIdAndInitDateTimeBetweenOrderByInitDateTimeAsc(userId, start, end);
     }
     

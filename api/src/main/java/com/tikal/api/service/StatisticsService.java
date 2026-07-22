@@ -7,7 +7,9 @@ import com.tikal.api.service.cache.SyncCache;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneOffset;
 import java.util.List;
 
 @Service
@@ -111,7 +113,7 @@ public class StatisticsService {
     }
 
     private List<Task> getCompletedTasksWithEstimate(Integer userId, TimeRangeSetting range) {
-        LocalDateTime since = getStartDate(range);
+        Instant since = getStartDate(range);
         String key = "completedTasks_" + userId + "_" + since.toString();
         return requestCache.get(key, () ->
                 taskRepository.findCompletedTasksWithEstimateByUserAndDate(userId, since)
@@ -124,7 +126,7 @@ public class StatisticsService {
     public Integer countTasksWithEstimate(Integer userId, TimeRangeSetting range) {
         String key = "stat_countTasksWithEstimate_" + userId + "_" + range.name();
         return requestCache.get(key, () -> {
-            LocalDateTime since = getStartDate(range);
+            Instant since = getStartDate(range);
             return taskRepository.countTasksWithEstimateByUserAndDate(userId, since);
         });
     }
@@ -135,7 +137,7 @@ public class StatisticsService {
     public Integer countCompletedTasks(Integer userId, TimeRangeSetting range) {
         String key = "stat_countCompletedTasks_" + userId + "_" + range.name();
         return requestCache.get(key, () -> {
-            LocalDateTime since = getStartDate(range);
+            Instant since = getStartDate(range);
             return taskRepository.countCompletedTasksByUserAndDate(userId, since);
         });
     }
@@ -143,14 +145,14 @@ public class StatisticsService {
     // =====================================================
     // UTILS
     // =====================================================
-    private LocalDateTime getStartDate(TimeRangeSetting range) {
-        LocalDateTime now = LocalDateTime.now();
+    private Instant getStartDate(TimeRangeSetting range) {
+        LocalDate today = LocalDate.now(ZoneOffset.UTC);
         return switch (range) {
-            case SEMANAL -> now.minusWeeks(1);
-            case MENSUAL -> now.minusMonths(1);
-            case TRIMESTRAL -> now.minusMonths(3);
-            case ANUAL -> now.minusYears(1);
-            case GLOBAL -> LocalDateTime.of(2010, 1, 1, 0, 0);
+            case SEMANAL -> today.minusWeeks(1).atStartOfDay().toInstant(ZoneOffset.UTC);
+            case MENSUAL -> today.minusMonths(1).atStartOfDay().toInstant(ZoneOffset.UTC);
+            case TRIMESTRAL -> today.minusMonths(3).atStartOfDay().toInstant(ZoneOffset.UTC);
+            case ANUAL -> today.minusYears(1).atStartOfDay().toInstant(ZoneOffset.UTC);
+            case GLOBAL -> Instant.parse("2010-01-01T00:00:00Z");
         };
     }
 }

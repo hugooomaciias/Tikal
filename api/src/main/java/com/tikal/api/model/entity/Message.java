@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import org.hibernate.annotations.CreationTimestamp;
 
 /**
@@ -29,7 +29,7 @@ public class Message {
     /* --- Date when you send the message --- */
     @CreationTimestamp
     @Column(name = "send_date", updatable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
-    private LocalDateTime sendDate;
+    private Instant sendDate;
 
     /* --- If the Message is read, this attribute has to be 'True' --- */
     @Column(name = "is_read", columnDefinition = "TINYINT(1) DEFAULT 0")

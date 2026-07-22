@@ -1,5 +1,6 @@
 package com.tikal.api.repository;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -46,8 +47,8 @@ public interface TimeLogRepository extends JpaRepository<TimeLog, Integer> {
             nativeQuery = true)
     Integer getTotalMinutesBetweenDates(
             @Param("userId") Integer userId,
-            @Param("startDate") LocalDateTime startDate,
-            @Param("endDate") LocalDateTime endDate);
+            @Param("startDate") Instant startDate,
+            @Param("endDate") Instant endDate);
 
     /* --- Get the total minutes in Temple Mode within a date range --- */
     @Query(value = "SELECT COALESCE(SUM(TIMESTAMPDIFF(MINUTE, init_date_time, end_date_time)), 0) " +
@@ -59,8 +60,8 @@ public interface TimeLogRepository extends JpaRepository<TimeLog, Integer> {
             nativeQuery = true)
     Integer getTempleMinutesBetweenDates(
             @Param("userId") Integer userId,
-            @Param("startDate") LocalDateTime startDate,
-            @Param("endDate") LocalDateTime endDate);
+            @Param("startDate") Instant startDate,
+            @Param("endDate") Instant endDate);
 
     // ==========================================
     // SOLAR CHART (The 3 layers of drill-down)
@@ -79,8 +80,8 @@ public interface TimeLogRepository extends JpaRepository<TimeLog, Integer> {
                     "ORDER BY totalMinutes DESC",
             nativeQuery = true)
     List<Object[]> getSolarChartProjectData(@Param("userId") Integer userId,
-                                            @Param("startDate") LocalDateTime startDate,
-                                            @Param("endDate") LocalDateTime endDate);
+                                            @Param("startDate") Instant startDate,
+                                            @Param("endDate") Instant endDate);
 
     /* --- Solar Chart Capa 2: Total time grouped by Stage (Phase) --- */
     @Query(value =
@@ -95,8 +96,8 @@ public interface TimeLogRepository extends JpaRepository<TimeLog, Integer> {
                     "ORDER BY totalMinutes DESC",
             nativeQuery = true)
     List<Object[]> getSolarChartStageData(@Param("projectId") Integer projectId,
-                                          @Param("startDate") LocalDateTime startDate,
-                                          @Param("endDate") LocalDateTime endDate);
+                                          @Param("startDate") Instant startDate,
+                                          @Param("endDate") Instant endDate);
 
     /* --- Solar Chart Capa 3: Total time grouped by Task --- */
     @Query(value =
@@ -111,8 +112,8 @@ public interface TimeLogRepository extends JpaRepository<TimeLog, Integer> {
                     "ORDER BY totalMinutes DESC",
             nativeQuery = true)
     List<Object[]> getSolarChartTaskData(@Param("stageId") Integer stageId,
-                                         @Param("startDate") LocalDateTime startDate,
-                                         @Param("endDate") LocalDateTime endDate);
+                                         @Param("startDate") Instant startDate,
+                                         @Param("endDate") Instant endDate);
 
     // ==========================================
     // CONCENTRATION HEATMAP
@@ -130,8 +131,8 @@ public interface TimeLogRepository extends JpaRepository<TimeLog, Integer> {
             nativeQuery = true)
     List<Object[]> getHeatmapDataForMonth(
             @Param("userId") Integer userId,
-            @Param("startDate") LocalDateTime startDate,
-            @Param("endDate") LocalDateTime endDate);
+            @Param("startDate") Instant startDate,
+            @Param("endDate") Instant endDate);
 
     // ==========================================
     // EFFECTIVENESS CHART
@@ -151,8 +152,8 @@ public interface TimeLogRepository extends JpaRepository<TimeLog, Integer> {
             nativeQuery = true)
     List<Object[]> getDailyConcentrationPercentage(
             @Param("userId") Integer userId,
-            @Param("startDate") LocalDateTime startDate,
-            @Param("endDate") LocalDateTime endDate);
+            @Param("startDate") Instant startDate,
+            @Param("endDate") Instant endDate);
 
     /* --- EffectivenessChart: profit grouped by day --- */
     @Query(value =
@@ -165,8 +166,8 @@ public interface TimeLogRepository extends JpaRepository<TimeLog, Integer> {
             nativeQuery = true)
     List<Object[]> getDailyProfitability(
             @Param("userId") Integer userId,
-            @Param("startDate") LocalDateTime startDate,
-            @Param("endDate") LocalDateTime endDate);
+            @Param("startDate") Instant startDate,
+            @Param("endDate") Instant endDate);
 
     /* --- Weekly Progress: Total minutes grouped by exact Date --- */
     @Query(value =
@@ -180,8 +181,8 @@ public interface TimeLogRepository extends JpaRepository<TimeLog, Integer> {
             nativeQuery = true)
     List<Object[]> getDailyTotalMinutesBetweenDates(
             @Param("userId") Integer userId,
-            @Param("startDate") LocalDateTime startDate,
-            @Param("endDate") LocalDateTime endDate);
+            @Param("startDate") Instant startDate,
+            @Param("endDate") Instant endDate);
 
     /* --- Obtain the total minutes spent in temple mode by a specific user strictly today --- */
     @Query(value =
@@ -194,8 +195,8 @@ public interface TimeLogRepository extends JpaRepository<TimeLog, Integer> {
             nativeQuery = true)
     Integer sumTempleMinutesToday(
             @Param("userId") Integer userId,
-            @Param("startOfDay") LocalDateTime startOfDay,
-            @Param("endOfDay") LocalDateTime endOfDay);
+            @Param("startOfDay") Instant startOfDay,
+            @Param("endOfDay") Instant endOfDay);
 
     // ==========================================
     // HEADERS METHODS
@@ -209,7 +210,7 @@ public interface TimeLogRepository extends JpaRepository<TimeLog, Integer> {
     Integer getHistoricalTotalMinutes(@Param("userId") Integer userId);
 
     /* --- Find all the time logs of the user between two dates --- */
-    List<TimeLog> findByUserIdAndInitDateTimeBetween(Integer currentUser, LocalDateTime startOfDay, LocalDateTime endOfDay);
+    List<TimeLog> findByUserIdAndInitDateTimeBetween(Integer currentUser, Instant startOfDay, Instant endOfDay);
 
     /* --- Obtain the time logs of the last batch --- */
     @Query("SELECT t FROM TimeLog t WHERE t.isCompleted = false AND t.user.id = :userId")
