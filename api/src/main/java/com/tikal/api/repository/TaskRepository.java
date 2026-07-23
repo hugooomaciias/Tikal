@@ -1,5 +1,6 @@
 package com.tikal.api.repository;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -44,8 +45,8 @@ public interface TaskRepository extends JpaRepository<Task, Integer>{
             "AND t.completionDate >= :startDate AND t.completionDate <= :endDate")
     Integer countCompletedTasksBetweenDates(
             @Param("userId") Integer userId,
-            @Param("startDate") LocalDateTime startDate,
-            @Param("endDate") LocalDateTime endDate);
+            @Param("startDate") Instant startDate,
+            @Param("endDate") Instant endDate);
 
     /* --- Show main tasks (without a parent) that are pending or have been recently completed --- */
     @Query("SELECT t FROM Task t " +
@@ -55,7 +56,7 @@ public interface TaskRepository extends JpaRepository<Task, Integer>{
             "AND (t.isCompleted = false OR (t.isCompleted = true AND t.completionDate >= :since))")
     List<Task> findMainTasksPendingOrCompletedSince(
             @Param("userId") Integer userId,
-            @Param("since") LocalDateTime since);
+            @Param("since") Instant since);
 
     /* --- Count pending subtasks grouped by their parent task --- */
     @Query("SELECT t.parentTask.id, COUNT(t.id) FROM Task t " +
@@ -73,7 +74,7 @@ public interface TaskRepository extends JpaRepository<Task, Integer>{
             "AND t.parentTask IS NULL")
     List<Task> findCompletedTasksWithEstimateByUserAndDate(
             @Param("userId") Integer userId,
-            @Param("since") LocalDateTime since);
+            @Param("since") Instant since);
 
     /* --- Obtain the total number of completed parent tasks with a valid time estimate for a specific user since a given date --- */
     @Query("SELECT COUNT(t) FROM Task t " +
@@ -85,7 +86,7 @@ public interface TaskRepository extends JpaRepository<Task, Integer>{
             "AND t.parentTask IS NULL")
     Integer countTasksWithEstimateByUserAndDate(
             @Param("userId") Integer userId,
-            @Param("since") LocalDateTime since);
+            @Param("since") Instant since);
 
     /* --- Obtain the total number of completed parent tasks for a specific user since a given date --- */
     @Query("SELECT COUNT(t) FROM Task t " +
@@ -95,7 +96,7 @@ public interface TaskRepository extends JpaRepository<Task, Integer>{
             "AND t.parentTask IS NULL")
     Integer countCompletedTasksByUserAndDate(
             @Param("userId") Integer userId,
-            @Param("since") LocalDateTime since);
+            @Param("since") Instant since);
 
     /* --- Obtain the daily average effectiveness percentage based on actual versus estimated time for a specific user --- */
     @Query("SELECT DATE(t.completionDate), AVG(" +

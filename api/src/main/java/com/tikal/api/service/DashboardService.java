@@ -21,10 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.ZoneOffset;
+import java.time.*;
 import java.time.temporal.TemporalAdjusters;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -110,37 +107,58 @@ public class DashboardService {
     //  DATA PRE-FETCHING FOR DASHBOARD (OPTIMIZATION)
     // ===================================================
     private void preFetchTimeLogsForDashboard(Integer userId, UserSettings settings) {
-        LocalDateTime todayStart = LocalDate.now().atStartOfDay();
-        LocalDateTime todayEnd = LocalDate.now().atTime(LocalTime.MAX);
+        // Obtenemos el 'hoy' base en UTC
+        LocalDate today = LocalDate.now(ZoneOffset.UTC);
+
+        // 1. TODAY
+        Instant todayStart = today.atStartOfDay().toInstant(ZoneOffset.UTC);
+        Instant todayEnd = today.atTime(23, 59, 59).toInstant(ZoneOffset.UTC);
+
         List<TimeLog> todayLogs = timeLogRepository.findByUserIdAndInitDateTimeBetween(userId, todayStart, todayEnd);
         preFetchedData.setTodayTotalMinutes(sumMinutes(todayLogs));
 
-        // Pre-fetch current aligned week
-        LocalDateTime weekStart = PreFetchedDashboardData.getWeekStart(settings);
-        LocalDateTime weekEnd = weekStart.plusDays(6).with(LocalTime.MAX);
+        // 2. CURRENT ALIGNED WEEK
+        // Asumiendo que getWeekStart devuelve LocalDateTime. Lo dejamos local temporalmente para sumar días.
+        LocalDateTime weekStartLocal = PreFetchedDashboardData.getWeekStart(settings);
+        LocalDateTime weekEndLocal = weekStartLocal.plusDays(6).withHour(23).withMinute(59).withSecond(59);
+
+        Instant weekStart = weekStartLocal.toInstant(ZoneOffset.UTC);
+        Instant weekEnd = weekEndLocal.toInstant(ZoneOffset.UTC);
+
         List<TimeLog> weekLogs = timeLogRepository.findByUserIdAndInitDateTimeBetween(userId, weekStart, weekEnd);
         preFetchedData.setCurrentWeekTotalMinutes(sumMinutes(weekLogs));
         preFetchedData.setCurrentWeekTempleMinutes(sumTempleMinutes(weekLogs));
         preFetchedData.setWeekConcentrationPercentage(computeDailyConcentration(weekLogs));
         preFetchedData.setWeekDailyMinutes(groupByDate(weekLogs));
 
-        // Pre‑fetch previous aligned week
-        LocalDateTime prevWeekStart = weekStart.minusWeeks(1);
-        LocalDateTime prevWeekEnd = weekStart.minusWeeks(1);
+        // 3. PREVIOUS ALIGNED WEEK (¡Bug de fechas idénticas corregido!)
+        LocalDateTime prevWeekStartLocal = weekStartLocal.minusWeeks(1);
+        LocalDateTime prevWeekEndLocal = prevWeekStartLocal.plusDays(6).withHour(23).withMinute(59).withSecond(59);
+
+        Instant prevWeekStart = prevWeekStartLocal.toInstant(ZoneOffset.UTC);
+        Instant prevWeekEnd = prevWeekEndLocal.toInstant(ZoneOffset.UTC);
+
         List<TimeLog> prevWeekLogs = timeLogRepository.findByUserIdAndInitDateTimeBetween(userId, prevWeekStart, prevWeekEnd);
         preFetchedData.setPrevWeekTotalMinutes(sumMinutes(prevWeekLogs));
         preFetchedData.setPrevWeekTempleMinutes(sumTempleMinutes(prevWeekLogs));
 
-        LocalDate endDate = LocalDate.now();
-        LocalDate startDate = endDate.minusDays(6);
-        LocalDateTime rollingStart = startDate.atStartOfDay();
-        LocalDateTime rollingEnd = endDate.atTime(23, 59, 59);
+        // 4. ROLLING WEEK (Últimos 7 días)
+        LocalDate startDate = today.minusDays(6);
+
+        Instant rollingStart = startDate.atStartOfDay().toInstant(ZoneOffset.UTC);
+        Instant rollingEnd = today.atTime(23, 59, 59).toInstant(ZoneOffset.UTC);
+
         List<TimeLog> rollingWeekLogs = timeLogRepository.findByUserIdAndInitDateTimeBetween(userId, rollingStart, rollingEnd);
         preFetchedData.setRollingWeekDailyMinutes(groupByDate(rollingWeekLogs));
 
         log.info("Pre fetch");
-        LocalDateTime monthStart = LocalDate.now().withDayOfMonth(1).atStartOfDay();
-        LocalDateTime monthEnd = LocalDate.now().with(TemporalAdjusters.lastDayOfMonth()).atTime(LocalTime.MAX);
+
+        // 5. CURRENT MONTH
+        LocalDate monthStartDate = today.withDayOfMonth(1);
+
+        Instant monthStart = monthStartDate.atStartOfDay().toInstant(ZoneOffset.UTC);
+        Instant monthEnd = monthStartDate.with(TemporalAdjusters.lastDayOfMonth()).atTime(23, 59, 59).toInstant(ZoneOffset.UTC);
+
         List<TimeLog> monthLogs = timeLogRepository.findByUserIdAndInitDateTimeBetween(userId, monthStart, monthEnd);
         preFetchedData.setMonthLogs(monthLogs);
         preFetchedData.setCurrentMonthTotalMinutes(sumMinutes(monthLogs));
@@ -149,16 +167,20 @@ public class DashboardService {
         preFetchedData.setMonthConcentrationPercentage(computeDailyConcentration(monthLogs));
         log.info("Post fetch");
 
-        // Pre‑fetch previous month
-        LocalDate prevMonthStartDate = monthStart.minusMonths(1).toLocalDate();
-        LocalDateTime prevMonthStart = prevMonthStartDate.atStartOfDay();
-        LocalDateTime prevMonthEnd = prevMonthStartDate.with(TemporalAdjusters.lastDayOfMonth()).atTime(LocalTime.MAX);
+        // 6. PREVIOUS MONTH
+        LocalDate prevMonthStartDate = monthStartDate.minusMonths(1);
+
+        Instant prevMonthStart = prevMonthStartDate.atStartOfDay().toInstant(ZoneOffset.UTC);
+        Instant prevMonthEnd = prevMonthStartDate.with(TemporalAdjusters.lastDayOfMonth()).atTime(23, 59, 59).toInstant(ZoneOffset.UTC);
+
         List<TimeLog> prevMonthLogs = timeLogRepository.findByUserIdAndInitDateTimeBetween(userId, prevMonthStart, prevMonthEnd);
         preFetchedData.setPrevMonthTotalMinutes(sumMinutes(prevMonthLogs));
         preFetchedData.setPrevMonthTempleMinutes(sumTempleMinutes(prevMonthLogs));
 
+        // 7. GLOBALES
         Integer globalTempleMinutes = timeLogRepository.sumMinutesInTempleModeByUserId(userId);
         preFetchedData.setGlobalTempleMinutes(globalTempleMinutes == null ? 0 : globalTempleMinutes);
+
         Integer globalTotalMinutes = timeLogRepository.getHistoricalTotalMinutes(userId);
         preFetchedData.setGlobalTotalMinutes(globalTotalMinutes == null ? 0 : globalTotalMinutes);
     }
@@ -336,13 +358,19 @@ public class DashboardService {
     }
 
     private List<CalendarEventDTO> buildCalendarEvents(Integer userId) {
-        LocalDateTime now = LocalDateTime.now();
+        LocalDate today = LocalDate.now(ZoneOffset.UTC);
 
         // First day of the previous month
-        LocalDateTime windowStart = now.minusMonths(1).withDayOfMonth(1).with(LocalTime.MIN);
+        Instant windowStart = today.minusMonths(1)
+                .withDayOfMonth(1)
+                .atStartOfDay()
+                .toInstant(ZoneOffset.UTC);
 
         // Last day in 3 months
-        LocalDateTime windowEnd = now.plusMonths(3).with(TemporalAdjusters.lastDayOfMonth()).with(LocalTime.MAX);
+        Instant windowEnd = today.plusMonths(3)
+                .with(TemporalAdjusters.lastDayOfMonth())
+                .atTime(23, 59, 59)
+                .toInstant(ZoneOffset.UTC);
 
         List<CalendarEvent> eventsInWindow = calendarEventRepository.findEventsInWindow(userId, windowStart, windowEnd);
 

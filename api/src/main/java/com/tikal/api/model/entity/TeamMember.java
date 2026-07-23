@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import org.hibernate.annotations.CreationTimestamp;
 
 /**
@@ -34,12 +34,12 @@ public class TeamMember {
     /* --- Date of joining the Team --- */
     @CreationTimestamp
     @Column(name = "joining_date", updatable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
-    private LocalDateTime joiningDate;
+    private Instant joiningDate;
 
     /* --- Last date of reading messages from the Team --- */
     @CreationTimestamp
     @Column(name = "last_read_date", updatable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
-    private LocalDateTime lastReadDate;
+    private Instant lastReadDate;
 
     /* --- User relation ==> The same User can be a member of different teams --- */
     @ManyToOne(optional = false)

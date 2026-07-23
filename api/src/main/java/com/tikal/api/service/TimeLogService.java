@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
 
 @Service
@@ -34,8 +35,8 @@ public class TimeLogService {
         }
         User currentUser = userService.getAuthenticatedUser();
 
-        LocalDateTime startOfDay = day.atStartOfDay();
-        LocalDateTime endOfDay = day.atTime(23, 59, 59);
+        Instant startOfDay = day.atStartOfDay().toInstant(ZoneOffset.UTC);
+        Instant endOfDay = day.atTime(23, 59, 59).toInstant(ZoneOffset.UTC);
 
         List<TimeLog> timeLogs = timeLogRepository.findByUserIdAndInitDateTimeBetween(
                 currentUser.getId(),

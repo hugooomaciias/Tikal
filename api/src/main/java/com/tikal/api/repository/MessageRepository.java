@@ -1,5 +1,6 @@
 package com.tikal.api.repository;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.List;
 import org.springframework.stereotype.Repository;
@@ -32,7 +33,7 @@ public interface MessageRepository extends JpaRepository<Message, Integer> {
     @Query("SELECT COUNT(m) FROM Message m WHERE " +
            "m.targetTeam.id = :teamId AND m.sendDate > :lastReadDate")
     Long countUnreadTeamMessages(@Param("teamId") Integer teamId, 
-                                 @Param("lastReadDate") LocalDateTime lastReadDate);
+                                 @Param("lastReadDate") Instant lastReadDate);
 
     /* --- Get the last messages received from everyone ordered (dashboard chat) --- */
     @Query("SELECT m FROM Message m WHERE " +

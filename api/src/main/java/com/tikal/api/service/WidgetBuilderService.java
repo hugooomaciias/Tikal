@@ -207,7 +207,10 @@ public class WidgetBuilderService {
 
         // NOTE: To avoid overloading the system, we should ideally create a method that retrieves the
         // pending and completed tasks from the last 4 days.
-        LocalDateTime daysAgo = LocalDateTime.now().minusDays(4);
+        Instant daysAgo = LocalDate.now(ZoneOffset.UTC)
+                .minusDays(4)
+                .atStartOfDay()
+                .toInstant(ZoneOffset.UTC);
         List<Task> sampleTasks = taskRepository.findMainTasksPendingOrCompletedSince(userId, daysAgo);
 
         // Sort by: 1. Uncompleted, 2. Completed. Within each group, by deadline in ascending order.
@@ -426,7 +429,7 @@ public class WidgetBuilderService {
     private WidgetData buildSolarChartBase(Integer userId, UserSettings settings) {
         SolarChartWidgetData.TimeRangeFilter filter = SolarChartWidgetData.TimeRangeFilter.GLOBAL;
 
-        LocalDateTime[] dateRange = resolveDateRange(filter, null);
+        Instant[] dateRange = resolveDateRange(filter, null);
         List<Object[]> dbResults = timeLogRepository.getSolarChartProjectData(userId, dateRange[0], dateRange[1]);
 
         return assembleSolarChartWidget("PROJECT", null, filter, null, dbResults);
@@ -444,7 +447,7 @@ public class WidgetBuilderService {
 
         LocalDate startDate = null;
         LocalDate endDate = null;
-        LocalDateTime[] dateRange;
+        Instant[] dateRange;
 
         if (filter == SolarChartWidgetData.TimeRangeFilter.CUSTOM) {
             // Validate that custom dates are provided
@@ -465,9 +468,9 @@ public class WidgetBuilderService {
                 throw new BadRequestException("Start date cannot be after end date: start=" + startDate + ", end=" + endDate);
             }
 
-            dateRange = new LocalDateTime[]{
-                    startDate.atStartOfDay(),
-                    endDate.atTime(23, 59, 59)
+            dateRange = new Instant[]{
+                    startDate.atStartOfDay().toInstant(ZoneOffset.UTC),
+                    endDate.atTime(23, 59, 59).toInstant(ZoneOffset.UTC)
             };
         } else {
             // For non-CUSTOM filters, ignore customStart/customEnd if provided (or you could log a warning)
@@ -494,7 +497,7 @@ public class WidgetBuilderService {
 
         LocalDate startDate = null;
         LocalDate endDate = null;
-        LocalDateTime[] dateRange;
+        Instant[] dateRange;
 
         if (filter == SolarChartWidgetData.TimeRangeFilter.CUSTOM) {
             // Validate that custom dates are provided
@@ -515,9 +518,9 @@ public class WidgetBuilderService {
                 throw new BadRequestException("Start date cannot be after end date: start=" + startDate + ", end=" + endDate);
             }
 
-            dateRange = new LocalDateTime[]{
-                    startDate.atStartOfDay(),
-                    endDate.atTime(23, 59, 59)
+            dateRange = new Instant[]{
+                    startDate.atStartOfDay().toInstant(ZoneOffset.UTC),
+                    endDate.atTime(23, 59, 59).toInstant(ZoneOffset.UTC)
             };
         } else {
             // For non-CUSTOM filters, ignore customStart/customEnd if provided (or you could log a warning)
@@ -610,36 +613,42 @@ public class WidgetBuilderService {
                 .build();
     }
 
-    private LocalDateTime[] resolveDateRange(SolarChartWidgetData.TimeRangeFilter filter, SolarChartWidgetData.CustomDateRange customRange) {
-        LocalDateTime now = LocalDateTime.now();
-        LocalDateTime startDate;
-        LocalDateTime endDate = now;
+    private Instant[] resolveDateRange(SolarChartWidgetData.TimeRangeFilter filter, SolarChartWidgetData.CustomDateRange customRange) {
+        LocalDate today = LocalDate.now(ZoneOffset.UTC);
+        Instant now = Instant.now();
+
+        Instant startDate;
+        Instant endDate = now; // Por defecto, el límite superior es el instante actual
 
         switch (filter) {
             case DAILY -> {
-                startDate = LocalDate.now().atStartOfDay();
+                startDate = today.atStartOfDay().toInstant(ZoneOffset.UTC);
             }
             case WEEKLY -> {
-                startDate = LocalDate.now().with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY)).atStartOfDay();
+                startDate = today.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
+                        .atStartOfDay().toInstant(ZoneOffset.UTC);
             }
             case MONTHLY -> {
-                startDate = LocalDate.now().withDayOfMonth(1).atStartOfDay();
+                startDate = today.withDayOfMonth(1)
+                        .atStartOfDay().toInstant(ZoneOffset.UTC);
             }
             case GLOBAL -> {
-                startDate = LocalDateTime.of(2010, 1, 1, 0, 0);
+                // Parseo directo a Instant (Zulu time)
+                startDate = Instant.parse("2010-01-01T00:00:00Z");
             }
             case CUSTOM -> {
                 if (customRange != null && customRange.getStartDate() != null && customRange.getEndDate() != null) {
-                    startDate = customRange.getStartDate().atStartOfDay();
-                    endDate = customRange.getEndDate().atTime(23, 59, 59);
+                    startDate = customRange.getStartDate().atStartOfDay().toInstant(ZoneOffset.UTC);
+                    endDate = customRange.getEndDate().atTime(23, 59, 59).toInstant(ZoneOffset.UTC);
                 } else {
-                    startDate = LocalDate.now().atStartOfDay();
+                    startDate = today.atStartOfDay().toInstant(ZoneOffset.UTC);
                 }
             }
-            default -> startDate = LocalDate.now().with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY)).atStartOfDay();
+            default -> startDate = today.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
+                    .atStartOfDay().toInstant(ZoneOffset.UTC);
         }
 
-        return new LocalDateTime[]{startDate, endDate};
+        return new Instant[]{startDate, endDate};
     }
     // ==========================================
 
@@ -727,8 +736,8 @@ public class WidgetBuilderService {
             endDate = currentMonth.atEndOfMonth();
         }
 
-        LocalDateTime startDateTime = startDate.atStartOfDay();
-        LocalDateTime endDateTime = endDate.atTime(LocalTime.MAX);
+        Instant startDateTime = startDate.atStartOfDay().toInstant(ZoneOffset.UTC);
+        Instant endDateTime = endDate.atTime(23, 59, 59).toInstant(ZoneOffset.UTC);
 
         // Data obtention
         Map<LocalDate, Double> percentMap = new HashMap<>();
@@ -867,13 +876,16 @@ public class WidgetBuilderService {
             UserSettings settings) {
 
         // 1. Calculation of the time limits (Actual vs Previous)
-        LocalDateTime[] periods = calculateComparisonPeriods(filter, settings);
-        LocalDateTime currentStart = periods[0];
-        LocalDateTime currentEnd = periods[1];
-        LocalDateTime previousStart = periods[2];
-        LocalDateTime previousEnd = periods[3];
+        Instant[] periods = calculateComparisonPeriods(filter, settings);
+        Instant currentStart = periods[0];
+        Instant currentEnd = periods[1];
+        Instant previousStart = periods[2];
+        Instant previousEnd = periods[3];
 
-        String format = DateUtils.formatDateRangeMinimal(currentStart, currentEnd);
+        LocalDateTime uiStart = LocalDateTime.ofInstant(currentStart, ZoneOffset.UTC);
+        LocalDateTime uiEnd = LocalDateTime.ofInstant(currentEnd, ZoneOffset.UTC);
+
+        String format = DateUtils.formatDateRangeMinimal(uiStart, uiEnd);
         String week = format.split(" ")[0];
         String month = format.split(" ")[1];
 
@@ -912,31 +924,43 @@ public class WidgetBuilderService {
     }
 
     // --- Helpers de Fechas ---
-    private LocalDateTime[] calculateComparisonPeriods(ComparisonWidgetData.TimeRangeFilter filter, UserSettings settings) {
-        LocalDateTime now = LocalDateTime.now();
-        LocalDateTime currentStart, currentEnd, previousStart, previousEnd;
+    private Instant[] calculateComparisonPeriods(ComparisonWidgetData.TimeRangeFilter filter, UserSettings settings) {
+        LocalDate today = LocalDate.now(ZoneOffset.UTC);
+
+        LocalDate currentStartLocal;
+        LocalDate currentEndLocal;
+        LocalDate previousStartLocal;
+        LocalDate previousEndLocal;
 
         if (filter == ComparisonWidgetData.TimeRangeFilter.THIS_WEEK) {
             // Actual Week
             DayOfWeek firstDay = (settings != null && settings.getFirstDayOfWeek() != null && settings.getFirstDayOfWeek().name().equalsIgnoreCase("DOMINGO"))
                     ? DayOfWeek.SUNDAY : DayOfWeek.MONDAY;
 
-            currentStart = now.with(TemporalAdjusters.previousOrSame(firstDay)).with(LocalTime.MIN);
-            currentEnd = currentStart.plusDays(6).with(LocalTime.MAX);
+            currentStartLocal = today.with(TemporalAdjusters.previousOrSame(firstDay));
+            currentEndLocal = currentStartLocal.plusDays(6);
 
             // Previous week
-            previousStart = currentStart.minusWeeks(1);
-            previousEnd = currentEnd.minusWeeks(1);
+            previousStartLocal = currentStartLocal.minusWeeks(1);
+            previousEndLocal = currentEndLocal.minusWeeks(1);
+
         } else {
             // Actual month
-            currentStart = now.withDayOfMonth(1).with(LocalTime.MIN);
-            currentEnd = now.with(TemporalAdjusters.lastDayOfMonth()).with(LocalTime.MAX);
+            currentStartLocal = today.withDayOfMonth(1);
+            currentEndLocal = today.with(TemporalAdjusters.lastDayOfMonth());
 
             // Previous month
-            previousStart = currentStart.minusMonths(1);
-            previousEnd = previousStart.with(TemporalAdjusters.lastDayOfMonth()).with(LocalTime.MAX);
+            previousStartLocal = currentStartLocal.minusMonths(1);
+            previousEndLocal = previousStartLocal.with(TemporalAdjusters.lastDayOfMonth());
         }
-        return new LocalDateTime[]{currentStart, currentEnd, previousStart, previousEnd};
+
+        Instant currentStart = currentStartLocal.atStartOfDay().toInstant(ZoneOffset.UTC);
+        Instant currentEnd = currentEndLocal.atTime(23, 59, 59).toInstant(ZoneOffset.UTC);
+
+        Instant previousStart = previousStartLocal.atStartOfDay().toInstant(ZoneOffset.UTC);
+        Instant previousEnd = previousEndLocal.atTime(23, 59, 59).toInstant(ZoneOffset.UTC);
+
+        return new Instant[]{currentStart, currentEnd, previousStart, previousEnd};
     }
 
     // --- Metrics constructor ---
