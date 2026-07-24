@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 
 import java.time.Instant;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.JdbcTypeCode;
 
 /**
  * This class represents the Message entity, which facilitates the communication
@@ -28,6 +29,7 @@ public class Message {
 
     /* --- Date when you send the message --- */
     @CreationTimestamp
+    @JdbcTypeCode(org.hibernate.type.SqlTypes.TIMESTAMP_UTC)
     @Column(name = "send_date", updatable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private Instant sendDate;
 
