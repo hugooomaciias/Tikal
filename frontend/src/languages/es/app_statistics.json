@@ -37,16 +37,6 @@
                 "y": "Eje Y"
             },
             "tabs": {
-                "axisX": {
-                    "weekly": "Sem.",
-                    "monthly": "Mens."
-                },
-                "axisY": {
-                    "concentration": "Conc.",
-                    "profitability": "Rent."
-                }
-            },
-            "tooltip": {
                 "concentration": "Concentración",
                 "profitability": "Rentabilidad"
             }

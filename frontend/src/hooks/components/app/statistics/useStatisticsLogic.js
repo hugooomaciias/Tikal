@@ -31,7 +31,7 @@ const WIDGET_CONFIG = {
     weeklyProgressWidget: {
         component: WeeklyProgressWidget,
         titleKey: "widgets.weekly_progress.title",
-        pageLink: "/statistics",
+        actions: false,
         textColor: "text-quaternary-700",
         borderColor: "border-primary-500",
         isResizable: false,

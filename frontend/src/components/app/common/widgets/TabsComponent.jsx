@@ -1,5 +1,5 @@
 /** React & Third-Party Libraries */
-import React, { useState } from "react";
+import { useState, useEffect } from "react";
 
 /** Icons */
 import {
@@ -29,6 +29,16 @@ export const TabsComponent = ({ widget, props = [], value, onChange, t }) => {
     // --- 2. Local State ---
 
     /**
+     * Mobile Viewport State
+     *
+     * Tracks whether the current viewport width corresponds to a mobile device (< 768px, matching Tailwind's 'md' breakpoint).
+     * Used to dynamically toggle between horizontal and vertical layouts.
+     */
+    const [isMobile, setIsMobile] = useState(() => {
+        return typeof window !== "undefined" ? window.innerWidth < 768 : false;
+    });
+
+    /**
      * Internal Tab State
      *
      * Tracks the selected tab when the component is used in an uncontrolled manner
@@ -48,6 +58,13 @@ export const TabsComponent = ({ widget, props = [], value, onChange, t }) => {
     });
 
     // --- 3. Derived Variables ---
+
+    /**
+     * Vertical Mode Flag
+     *
+     * Determines if the tabs should render in a vertical stack (top/bottom) instead of horizontal (left/right).
+     */
+    const isVertical = widget === "EffectivenessY" && !isMobile;
 
     /**
      * First Tab Identifier
@@ -91,6 +108,23 @@ export const TabsComponent = ({ widget, props = [], value, onChange, t }) => {
      */
     const currentValue = value !== undefined ? value : internalValue;
 
+    // --- 4. Side Effects ---
+
+    /**
+     * Viewport Resize Listener
+     *
+     * Listens to window resize events to update the `isMobile` state dynamically,
+     * ensuring the tabs adapt their orientation if the user rotates their device or resizes the browser.
+     */
+    useEffect(() => {
+        const handleResize = () => {
+            setIsMobile(window.innerWidth < 768);
+        };
+
+        window.addEventListener("resize", handleResize);
+        return () => window.removeEventListener("resize", handleResize);
+    }, []);
+
     // --- 5. Event Handlers & Functions ---
 
     /**
@@ -122,28 +156,10 @@ export const TabsComponent = ({ widget, props = [], value, onChange, t }) => {
         if (widget === "Task") return t("widgets.tasks.tabs.day");
         if (widget === "Comparison") return props.week;
 
-        if (widget === "Calendar") {
-            return (
-                <div className="flex items-center gap-1.5 justify-center">
-                    <IconLayoutKanbanFilled className="h-5 w-5 md:hidden -rotate-90" stroke={2.5} />
-                    <span className="hidden md:block">{t("widgets.calendar.tabs.event")}</span>
-                </div>
-            );
-        }
-
-        if (widget === "EffectivenessX") {
-            return (
-                <div className="flex items-center gap-1.5 justify-center">
-                    <IconCalendarWeekFilled className="h-5 w-5 md:hidden" stroke={2.5} />
-                    <span className="hidden md:block">{t("widgets.effectiveness_chart.tabs.axisX.weekly")}</span>
-                </div>
-            );
-        }
-
         return (
             <div className="flex items-center gap-1.5 justify-center">
                 <IconTarget className="h-5 w-5 md:hidden" stroke={2.5} />
-                <span className="hidden md:block">{t("widgets.effectiveness_chart.tabs.axisY.concentration")}</span>
+                <span className="hidden md:block">{t("widgets.effectiveness_chart.tabs.concentration")}</span>
             </div>
         );
     };
@@ -160,28 +176,10 @@ export const TabsComponent = ({ widget, props = [], value, onChange, t }) => {
         if (widget === "Task") return t("widgets.tasks.tabs.project");
         if (widget === "Comparison") return props.month;
 
-        if (widget === "Calendar") {
-            return (
-                <div className="flex items-center gap-1.5 justify-center">
-                    <IconLayoutKanbanFilled className="h-5 w-5 md:hidden" stroke={2.5} />
-                    <span className="hidden md:block">{t("widgets.calendar.tabs.project")}</span>
-                </div>
-            );
-        }
-
-        if (widget === "EffectivenessX") {
-            return (
-                <div className="flex items-center gap-1.5 justify-center">
-                    <IconCalendarMonthFilled className="h-5 w-5 md:hidden" stroke={2.5} />
-                    <span className="hidden md:block">{t("widgets.effectiveness_chart.tabs.axisX.monthly")}</span>
-                </div>
-            );
-        }
-
         return (
             <div className="flex items-center gap-1.5 justify-center">
                 <IconCoin className="h-5 w-5 md:hidden" stroke={2.5} />
-                <span className="hidden md:block">{t("widgets.effectiveness_chart.tabs.axisY.profitability")}</span>
+                <span className="hidden md:block">{t("widgets.effectiveness_chart.tabs.profitability")}</span>
             </div>
         );
     };
@@ -189,26 +187,40 @@ export const TabsComponent = ({ widget, props = [], value, onChange, t }) => {
     // --- 6. Render ---
 
     return (
-        <div className="inline-grid grid-cols-2 items-center justify-center bg-primary-100 rounded-full relative overflow-hidden px-1">
+        <div
+            className={`inline-grid items-center justify-center bg-primary-100 relative overflow-hidden p-1 ${
+                isVertical ? "grid-rows-2 grid-cols-1 rounded-2xl" : "grid-cols-2 rounded-full"
+            }`}
+        >
             {/* Animated Slider Background */}
             <div
-                className={`absolute top-1 bottom-1 w-[calc(50%-6px)] bg-primary rounded-full shadow-sm transition-all duration-300 ease-out z-0 ${currentValue === firstTabType ? "left-1.5" : "left-[calc(50%+1.5px)]"}`}
+                className={`absolute bg-primary rounded-full shadow-sm transition-all duration-300 ease-out z-0 ${
+                    isVertical
+                        ? /* Estilos para animación Vertical (Top/Bottom) */
+                          `left-1 right-1 h-[calc(50%-6px)] ${
+                              currentValue === firstTabType ? "top-1" : "top-[calc(50%+2px)]"
+                          }`
+                        : /* Estilos para animación Horizontal (Left/Right) */
+                          `top-1 bottom-1 w-[calc(50%-6px)] ${
+                              currentValue === firstTabType ? "left-1.5" : "left-[calc(50%+1.5px)]"
+                          }`
+                }`}
             ></div>
 
-            {/* Left Tab Button */}
+            {/* First Tab Button (Left or Top) */}
             <button
                 type="button"
                 onClick={() => handleTabClick(firstTabType)}
-                className="relative z-10 flex-1 py-1.5 px-2 text-sm text-primary-500 font-semibold transition-colors duration-300"
+                className="relative z-10 flex-1 py-1.5 px-2 text-sm text-primary-500 font-semibold transition-colors duration-300 flex items-center justify-center"
             >
                 {renderFirstTabContent()}
             </button>
 
-            {/* Right Tab Button */}
+            {/* Second Tab Button (Right or Bottom) */}
             <button
                 type="button"
                 onClick={() => handleTabClick(secondTabType)}
-                className="relative z-10 flex-1 py-1.5 px-2 text-sm text-primary-500 font-semibold transition-colors duration-300"
+                className="relative z-10 flex-1 py-1.5 px-2 text-sm text-primary-500 font-semibold transition-colors duration-300 flex items-center justify-center"
             >
                 {renderSecondTabContent()}
             </button>

@@ -101,8 +101,8 @@ export const EffectivenessChartWidget = ({ props, setCustomActions }) => {
      */
     const tooltipLabel =
         metric === "concentration"
-            ? t("widgets.effectiveness_chart.tooltip.concentration")
-            : t("widgets.effectiveness_chart.tooltip.profitability");
+            ? t("widgets.effectiveness_chart.tabs.concentration")
+            : t("widgets.effectiveness_chart.tabs.profitability");
 
     /**
      * Inject Header Actions Effect
@@ -113,16 +113,7 @@ export const EffectivenessChartWidget = ({ props, setCustomActions }) => {
      */
     useEffect(() => {
         const actions = (
-            <div className="flex flex-col items-center justify-end gap-1.5 text-sm text-quaternary-700 font-bold">
-                <div className="flex items-center gap-2">
-                    <span className="text-nowrap">{t("widgets.effectiveness_chart.axis.x")}</span>
-                    <TabsComponent
-                        widget="EffectivenessX"
-                        value={timeRange}
-                        onChange={(newValue) => setTimeRange(newValue)}
-                        t={t}
-                    />
-                </div>
+            <div className="text-sm text-quaternary-700 font-bold">
                 <div className="flex items-center gap-2">
                     <span className="text-nowrap">{t("widgets.effectiveness_chart.axis.y")}</span>
                     <TabsComponent

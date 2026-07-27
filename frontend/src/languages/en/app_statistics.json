@@ -37,16 +37,6 @@
                 "y": "Y-axis"
             },
             "tabs": {
-                "axisX": {
-                    "weekly": "Wkly.",
-                    "monthly": "Mth."
-                },
-                "axisY": {
-                    "concentration": "Conc.",
-                    "profitability": "Prof."
-                }
-            },
-            "tooltip": {
                 "concentration": "Concentration",
                 "profitability": "Profitability"
             }

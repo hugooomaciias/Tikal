@@ -91,6 +91,8 @@ export const ComparisonWidget = ({ props, setCustomActions }) => {
         return null;
     }
 
+    console.log(metrics);
+
     return (
         <div className="h-full flex flex-col items-start justify-between w-full">
             {/* Dynamic Metrics List Layout */}
@@ -100,7 +102,7 @@ export const ComparisonWidget = ({ props, setCustomActions }) => {
                 return (
                     <div key={index} className="flex items-center gap-4 text-quaternary-700">
                         {/* Status Icon Compartment */}
-                        <div className={`${bg} p-3 md:p-2.5 rounded-2xl shadow-sm flex-shrink-0`}>
+                        <div className={`${bg} p-2 rounded-xl shadow-sm flex-shrink-0`}>
                             <Icon className={`h-5 w-5 md:h-7 md:w-7 text-primary`} />
                         </div>
 

@@ -102,12 +102,13 @@ export const MainDataHeaderComponent = ({ data }) => {
                          * Retrieves the precise Tabler Icon element mapped to the given string key.
                          */
                         const IconComponent = ICON_MAP[option.logo];
+                        const isRank = IconComponent === IconBadgesFilled;
 
                         return (
                             <div key={index} className="flex items-center gap-3 md:gap-4 text-quaternary-700 min-w-0">
                                 {/* Left-Aligned Graphic Compartment */}
                                 <div className="bg-primary-300 p-2.5 rounded-2xl shadow-sm flex-shrink-0">
-                                    <IconComponent className={`h-5 w-5 md:h-8 md:w-8 text-primary ${option.custom}`} />
+                                    <IconComponent className={`h-5 w-5 md:h-8 md:w-8 text-primary ${isRank ? "rotate-180" : ""}`} />
                                 </div>
 
                                 {/* Right-Aligned Typography Column */}
