@@ -40,7 +40,10 @@
                 },
                 "edit": "Save changes"
             },
-            "error": "Please enter a project name"
+            "error": {
+                "name": "Please enter a project name",
+                "date": "Please enter a date to add it to the calendar"
+            }
         }
     },
     "stages": {
@@ -83,7 +86,10 @@
                 },
                 "edit": "Save changes"
             },
-            "error": "Please enter a stage name"
+            "error": {
+                "name": "Please enter a stage name",
+                "date": "Please enter a date to add it to the calendar"
+            }
         }
     },
     "tasks": {
@@ -132,7 +138,10 @@
                 "new": "Create task",
                 "edit": "Save changes"
             },
-            "error": "Please enter a task name"
+            "error": {
+                "name": "Please enter a task name",
+                "date": "Please enter a date to add it to the calendar"
+            }
         }
     }
 }

@@ -74,6 +74,7 @@ export const useTasksPopUpLogic = (initialData, onClose, projectId, stageId, t) 
                 : [{ id: null, name: "" }],
         note: initialData?.description || "",
         date: initialData?.deadline ? new Date(initialData.deadline) : null,
+        addToCalendar: initialData ? initialData.addToCalendar : false,
     });
 
     /**
@@ -101,16 +102,6 @@ export const useTasksPopUpLogic = (initialData, onClose, projectId, stageId, t) 
      */
     const [, setProfitUnit] = useState(() => {
         return initialData && initialData.profit ? initialData.profit.replace(/[\d.\s,]/g, "") || "€" : "€";
-    });
-
-    /**
-     * Deadline Toggle State
-     *
-     * Tracks whether the user has toggled the option to insert a deadline.
-     * Automatically true if initial data contains a date.
-     */
-    const [insertDeadline, setInsertDeadline] = useState(() => {
-        return Boolean(initialData && initialData.date);
     });
 
     /**
@@ -307,18 +298,23 @@ export const useTasksPopUpLogic = (initialData, onClose, projectId, stageId, t) 
      *
      * @returns {boolean} True if the form is valid, false otherwise.
      */
-    const validateForm = useCallback(() => {
+    const validateForm = () => {
         let tempErrors = {};
         let isValid = true;
 
         if (!formData.task.trim()) {
-            tempErrors.task = t("tasks.popup.error");
+            tempErrors.task = t("tasks.popup.error.name");
+            isValid = false;
+        }
+
+        if (formData.addToCalendar && !formData.date) {
+            tempErrors.date = t("tasks.popup.error.date");
             isValid = false;
         }
 
         setErrors(tempErrors);
         return isValid;
-    }, [formData.task, t]);
+    };
 
     /**
      * Input Change Handler
@@ -424,6 +420,7 @@ export const useTasksPopUpLogic = (initialData, onClose, projectId, stageId, t) 
                         estimatedTime: parseTime(formData.time),
                         estimatedProfit: parseProfit(formData.profit),
                         deadline: finalDeadline,
+                        addToCalendar: formData.addToCalendar,
                         stageId: stageId,
                         subtasks: subtasksPayload,
                         timeUnit: timeUnit,
@@ -496,12 +493,15 @@ export const useTasksPopUpLogic = (initialData, onClose, projectId, stageId, t) 
     /**
      * Toggle Deadline Handler
      *
-     * Triggers a toggle of the user's preference for adding a deadline.
+     * Directly updates the addToCalendar property inside the unified form data state.
      *
      * @returns {void}
      */
     const handleToggleDeadline = useCallback(() => {
-        setInsertDeadline((prev) => !prev);
+        setFormData((prev) => ({
+            ...prev,
+            addToCalendar: !prev.addToCalendar,
+        }));
     }, []);
 
     /**
@@ -677,7 +677,7 @@ export const useTasksPopUpLogic = (initialData, onClose, projectId, stageId, t) 
     // --- 6. Return Object ---
 
     return {
-        tasksPopUpStates: { hoveredTooltip, formData, errors, timeUnit, insertDeadline, focusedInput, isLoading, apiError, isVisible },
+        tasksPopUpStates: { hoveredTooltip, formData, errors, timeUnit, focusedInput, isLoading, apiError, isVisible },
         tasksPopUpData: { isEditing },
         tasksPopUpActions: {
             handleTimeUnitChange,

@@ -53,7 +53,7 @@ const tailwindColors = fullConfig.theme.colors;
  * @param {Function} props.t - Translation function from i18next.
  * @returns {JSX.Element|null} The rendered stages card, or null if data is invalid.
  */
-export const StagesCardComponent = ({ data, projectId, selectedId, onSelect, handleBackNavigation, formatShortDate, t }) => {
+export const StagesCardComponent = ({ data, projectId, selectedId, onSelect, handleBackNavigation, formatShortDate, projectType, t }) => {
     // --- 1. Logic Hook Extraction ---
 
     /**
@@ -249,6 +249,7 @@ export const StagesCardComponent = ({ data, projectId, selectedId, onSelect, han
                     onClose={handleClosePopUp}
                     initialData={stageToEdit === "new" ? null : stageToEdit}
                     projectId={projectId}
+                    projectType={projectType}
                     t={t}
                 />
             )}

@@ -16,11 +16,14 @@ import { PHASE_COLOURS } from "../../../../constants/phase_colours.js";
  * @param {Function} props.setFormData - Function to update the parent's form data state.
  * @param {Function} props.setSelected - Function to update the currently selected icon/color in the parent.
  * @param {string} props.fieldToUpdate - The key in `formData` that the tabs govern.
+ * @param {string|null} [props.disabledType] - The string value of the tab type that should be disabled and locked.
  * @param {Function} props.t - The i18n translation function.
  * @returns {JSX.Element} The rendered tabs component.
  */
-export const TabsComponent = ({ page, formData, onChangeType, onChangeSelected, fieldToUpdate, t }) => {
+export const TabsComponent = ({ page, formData, onChangeType, onChangeSelected, fieldToUpdate, disabledType = null, t }) => {
     // --- 1. Local UI Logic ---
+
+    const normalizedPage = page?.toLowerCase() || "";
 
     /**
      * Tab Type Identifiers
@@ -29,9 +32,9 @@ export const TabsComponent = ({ page, formData, onChangeType, onChangeSelected, 
      * and right (second) tabs based on the contextual `page` prop.
      */
     const firstTabType =
-        page === "Project" ? "project" : page === "Stage" ? "stage" : page === "Tasks" ? "details" : "linked";
+        normalizedPage === "project" ? "project" : normalizedPage === "stage" ? "stage" : normalizedPage === "tasks" ? "details" : "linked";
     const secondTabType =
-        page === "Project" ? "list" : page === "Stage" ? "sublist" : page === "Tasks" ? "subtasks" : "unlinked";
+        normalizedPage === "project" ? "list" : normalizedPage === "stage" ? "sublist" : normalizedPage === "tasks" ? "subtasks" : "unlinked";
 
     /**
      * Current Selection State
@@ -50,18 +53,19 @@ export const TabsComponent = ({ page, formData, onChangeType, onChangeSelected, 
      * @param {string} newType - The newly selected type string.
      */
     const handleTypeChange = (newType) => {
+        if (newType === disabledType) return;
         onChangeType(newType);
 
         let newDefault;
         let defaultId;
 
-        if (page === "Project") {
+        if (normalizedPage === "project") {
             defaultId = newType === "project" ? "presentation" : "checklist";
             newDefault = PROJECTS_ICONS.find((icon) => icon.id === defaultId);
-        } else if (page === "Stage") {
+        } else if (normalizedPage === "stage") {
             defaultId = newType === "stage" ? "pri-100" : "sec-100";
             newDefault = PHASE_COLOURS.find((colour) => colour.id === defaultId);
-        } else if (page === "Tasks") {
+        } else if (normalizedPage === "tasks") {
             defaultId = newType === "details" ? "pri-100" : "sec-100";
             newDefault = PHASE_COLOURS.find((colour) => colour.id === defaultId);
         } else {
@@ -86,31 +90,43 @@ export const TabsComponent = ({ page, formData, onChangeType, onChangeSelected, 
             {/* Left / First Tab Button */}
             <button
                 type="button"
+                disabled={firstTabType === disabledType}
                 onClick={() => handleTypeChange(firstTabType)}
-                className="relative z-10 flex-1 py-2 text-sm text-primary-500 font-semibold transition-colors duration-300"
+                className={`relative z-10 flex-1 py-2 text-primary-500 text-sm font-semibold transition-all duration-300 ${
+                    firstTabType === disabledType
+                        ? "opacity-80 cursor-not-allowed"
+                        : "cursor-pointer"
+                }`}
             >
-                {page === "Project"
+                {normalizedPage === "project"
                     ? t("projects.popup.tabs.project")
-                    : page === "Stage"
+                    : normalizedPage === "stage"
                       ? t("stages.popup.tabs.stage")
-                      : page === "Tasks"
+                      : normalizedPage === "tasks"
                         ? t("tasks.popup.tabs.details")
-                        : t("popup.tabs.linked")}
+                        : t("popup.tabs.linked")
+                }
             </button>
 
             {/* Right / Second Tab Button */}
             <button
                 type="button"
+                disabled={secondTabType === disabledType}
                 onClick={() => handleTypeChange(secondTabType)}
-                className="relative z-10 flex-1 py-2 text-sm text-primary-500 font-semibold transition-colors duration-300"
+                className={`relative z-10 flex-1 py-2 text-primary-500 text-sm font-semibold transition-all duration-300 ${
+                    secondTabType === disabledType
+                        ? "opacity-80 cursor-not-allowed"
+                        : "cursor-pointer"
+                }`}
             >
-                {page === "Project"
+                {normalizedPage === "project"
                     ? t("projects.popup.tabs.list")
-                    : page === "Stage"
+                    : normalizedPage === "stage"
                       ? t("stages.popup.tabs.sublist")
-                      : page === "Tasks"
+                      : normalizedPage === "tasks"
                         ? t("tasks.popup.tabs.subtasks")
-                        : t("popup.tabs.unlinked")}
+                        : t("popup.tabs.unlinked")
+                }
             </button>
         </div>
     );

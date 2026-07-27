@@ -57,7 +57,7 @@ export const TaskPopUpComponent = ({ onClose, initialData, projectId, stageId, t
         t,
     );
 
-    const { hoveredTooltip, formData, errors, timeUnit, insertDeadline, focusedInput, isLoading, apiError, isVisible } =
+    const { hoveredTooltip, formData, errors, timeUnit, focusedInput, isLoading, apiError, isVisible } =
         tasksPopUpStates;
     const { isEditing } = tasksPopUpData;
     const {
@@ -251,17 +251,24 @@ export const TaskPopUpComponent = ({ onClose, initialData, projectId, stageId, t
                             {/* Deadline Selection Section */}
                             <div className="flex flex-col gap-3">
                                 {/* Conditional Datepicker Selection Overlay */}
-                                <div className="transition-all duration-300">
+                                <div className="relative w-full transition-all duration-300">
                                     <DatePickerComponent
                                         value={formData.date}
                                         onChange={handleDateChange}
                                         className={getInputClass("date")}
                                         label={t("stages.popup.deadline")}
                                     />
+
+                                    {/* Title Validation Error Message */}
+                                    {errors.date && (
+                                        <span className="absolute -bottom-5 left-0 text-tertiary-200 text-xs font-semibold">
+                                            {errors.date}
+                                        </span>
+                                    )}
                                 </div>
 
                                 {/* Toggle Switch for Adding a Deadline */}
-                                <div className="flex items-center justify-between px-2">
+                                <div className={`flex items-center justify-between ${errors.date ? "mt-2" : ""}`}>
                                     <span className="text-primary-500 text-sm font-bold">
                                         {t("stages.popup.add_deadline")}
                                     </span>
@@ -270,12 +277,12 @@ export const TaskPopUpComponent = ({ onClose, initialData, projectId, stageId, t
                                         type="button"
                                         onClick={handleToggleDeadline}
                                         className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-300 focus:outline-none ${
-                                            insertDeadline ? "bg-primary-400" : "bg-primary-100"
+                                            formData.addToCalendar ? "bg-primary-400" : "bg-primary-100"
                                         }`}
                                     >
                                         <span
                                             className={`inline-block h-4 w-4 rounded-full bg-primary transform transition-transform duration-300 ${
-                                                insertDeadline ? "translate-x-6" : "translate-x-1"
+                                                formData.addToCalendar ? "translate-x-6" : "translate-x-1"
                                             }`}
                                         />
                                     </button>

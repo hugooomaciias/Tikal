@@ -21,7 +21,19 @@ import { PHASE_COLOURS } from "../../../../constants/phase_colours.js";
  * @param {Function} t - Translation function for i18n text rendering.
  * @returns {Object} A structured payload containing states, derived data, and action handlers.
  */
-export const useStagesPopUpLogic = (initialData, onClose, projectId, t) => {
+export const useStagesPopUpLogic = (initialData, onClose, projectId, projectType, t) => {
+    // --- 1. Derived Hierarchy Rules ---
+
+    /**
+     * Parent Constraint Computation
+     *
+     * Evaluates the parent project type to determine the enforced stage type and
+     * identify which tab must be visually and functionally locked.
+     */
+    const isParentList = projectType?.toLowerCase() === "list";
+    const defaultStageType = isParentList ? "sublist" : "stage";
+    const disabledTabType = isParentList ? "stage" : "sublist";
+    
     // --- 2. Local UI State ---
 
     /**
@@ -38,25 +50,16 @@ export const useStagesPopUpLogic = (initialData, onClose, projectId, t) => {
     });
 
     /**
-     * Deadline Toggle State
-     *
-     * Tracks the boolean state of the visual toggle switch. Determines whether the date picker
-     * is active and if a deadline should be included in the submission payload.
-     */
-    const [insertDeadline, setInsertDeadline] = useState(() => {
-        return Boolean(initialData && initialData.date);
-    });
-
-    /**
      * Form Data State
      *
      * Tracks the controlled inputs of the modal form in a centralized object.
      * Initializes with `initialData` to seamlessly support the edit mode workflow.
      */
     const [formData, setFormData] = useState({
-        type: "stage",
+        type: defaultStageType,
         stage: initialData ? initialData.name : "",
         date: initialData && initialData.deadline ? new Date(initialData.deadline) : null,
+        addToCalendar: initialData ? initialData.addToCalendar : false,
         note: initialData ? initialData.description : "",
     });
 
@@ -135,18 +138,23 @@ export const useStagesPopUpLogic = (initialData, onClose, projectId, t) => {
      *
      * @returns {boolean} True if the form payload is valid, otherwise false.
      */
-    const validateForm = useCallback(() => {
+    const validateForm = () => {
         let tempErrors = {};
         let isValid = true;
 
         if (!formData.stage.trim()) {
-            tempErrors.stage = t("stages.popup.error");
+            tempErrors.stage = t("stages.popup.error.name");
+            isValid = false;
+        }
+
+        if (formData.addToCalendar && !formData.date) {
+            tempErrors.date = t("stages.popup.error.date");
             isValid = false;
         }
 
         setErrors(tempErrors);
         return isValid;
-    }, [formData.stage, t]);
+    };
 
     /**
      * Input Change Handler
@@ -221,6 +229,7 @@ export const useStagesPopUpLogic = (initialData, onClose, projectId, t) => {
                         name: formData.stage,
                         description: formData.note,
                         deadline: finalDeadline,
+                        addToCalendar: formData.addToCalendar,
                         colour: selectedColour.id,
                     };
 
@@ -256,14 +265,17 @@ export const useStagesPopUpLogic = (initialData, onClose, projectId, t) => {
     );
 
     /**
-     * Deadline Toggle Handler
+     * Toggle Deadline Handler
      *
-     * Triggers an inversion of the deadline inclusion state flag.
+     * Directly updates the addToCalendar property inside the unified form data state.
      *
      * @returns {void}
      */
     const handleToggleDeadline = useCallback(() => {
-        setInsertDeadline((prev) => !prev);
+        setFormData((prev) => ({
+            ...prev,
+            addToCalendar: !prev.addToCalendar,
+        }));
     }, []);
 
     /**
@@ -329,8 +341,8 @@ export const useStagesPopUpLogic = (initialData, onClose, projectId, t) => {
     // --- 6. Return Object ---
 
     return {
-        stagesPopUpStates: { selectedColour, insertDeadline, formData, errors, isLoading, apiError, isVisible },
-        stagesPopUpData: { isEditing },
+        stagesPopUpStates: { selectedColour, formData, errors, isLoading, apiError, isVisible },
+        stagesPopUpData: { isEditing, disabledTabType },
         stagesPopUpActions: {
             handleChange,
             handleSubmit,

@@ -48,23 +48,15 @@ export const useProjectsPopUpLogic = (t, initialData, onClose) => {
     });
 
     /**
-     * Deadline Toggle State
-     *
-     * Manages the visual toggle switch indicating whether the user wants to attach a deadline date.
-     */
-    const [insertDeadline, setInsertDeadline] = useState(() => {
-        return Boolean(initialData && initialData.deadline);
-    });
-
-    /**
      * Form Data State
      *
      * Manages the controlled input values for the project metadata (type, name, date, description).
      */
     const [formData, setFormData] = useState({
-        type: "project",
+        type: initialData ? initialData.type.toLowerCase() : "project",
         project: initialData ? initialData.name : "",
         date: initialData && initialData.deadline ? new Date(initialData.deadline) : null,
+        addToCalendar: initialData ? initialData.addToCalendar : false,
         note: initialData ? initialData.description : "",
     });
 
@@ -143,7 +135,12 @@ export const useProjectsPopUpLogic = (t, initialData, onClose) => {
         let isValid = true;
 
         if (!formData.project.trim()) {
-            tempErrors.project = t("projects.popup.error");
+            tempErrors.project = t("projects.popup.error.name");
+            isValid = false;
+        }
+
+        if (formData.addToCalendar && !formData.date) {
+            tempErrors.date = t("projects.popup.error.date");
             isValid = false;
         }
 
@@ -202,9 +199,11 @@ export const useProjectsPopUpLogic = (t, initialData, onClose) => {
                 }
 
                 const projectPayload = {
+                    type: formData.type,
                     name: formData.project,
                     description: formData.note,
                     deadline: finalDeadline,
+                    addToCalendar: formData.addToCalendar,
                     logo: selectedIcon.id,
                 };
 
@@ -248,13 +247,16 @@ export const useProjectsPopUpLogic = (t, initialData, onClose) => {
     /**
      * Toggle Deadline Handler
      *
-     * Toggles the user's preference for adding a deadline to the project.
+     * Directly updates the addToCalendar property inside the unified form data state.
      *
      * @returns {void}
      */
-    const handleToggleDeadline = () => {
-        setInsertDeadline((prev) => !prev);
-    };
+    const handleToggleDeadline = useCallback(() => {
+        setFormData((prev) => ({
+            ...prev,
+            addToCalendar: !prev.addToCalendar,
+        }));
+    }, []);
 
     /**
      * Dynamic Input Styling Helper
@@ -318,7 +320,7 @@ export const useProjectsPopUpLogic = (t, initialData, onClose) => {
     // --- 6. Return Object ---
 
     return {
-        projectsPopUpStates: { selectedIcon, insertDeadline, formData, errors, isLoading, apiError, isVisible },
+        projectsPopUpStates: { selectedIcon, formData, errors, isLoading, apiError, isVisible },
         projectsPopUpData: { isEditing },
         projectsPopUpActions: {
             handleChange,

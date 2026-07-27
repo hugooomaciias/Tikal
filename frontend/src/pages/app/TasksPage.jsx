@@ -81,6 +81,7 @@ export const TasksPage = () => {
                             onSelect={handleStageSelect}
                             handleBackNavigation={handleBackNavigation}
                             formatShortDate={formatShortDate}
+                            projectType={selectedProject ? selectedProject.type : "project"}
                             t={t}
                         />
                     </div>

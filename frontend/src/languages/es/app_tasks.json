@@ -40,7 +40,10 @@
                 },
                 "edit": "Guardar cambios"
             },
-            "error": "Por favor, introduce un nombre de proyecto"
+            "error": {
+                "name": "Por favor, introduce un nombre de proyecto",
+                "date": "Por favor, introduce una fecha para añadirla al calendario"
+            }
         }
     },
     "stages": {
@@ -83,7 +86,10 @@
                 },
                 "edit": "Guardar cambios"
             },
-            "error": "Por favor, introduce un nombre de fase"
+            "error": {
+                "name": "Por favor, introduce un nombre de fase",
+                "date": "Por favor, introduce una fecha para añadirla al calendario"
+            }
         }
     },
     "tasks": {
@@ -132,7 +138,10 @@
                 "new": "Crear tarea",
                 "edit": "Guardar cambios"
             },
-            "error": "Por favor, introduce un nombre de tarea"
+            "error": {
+                "name": "Por favor, introduce un nombre de tarea",
+                "date": "Por favor, introduce una fecha para añadirla al calendario"
+            }
         }
     }
 }
