@@ -63,7 +63,7 @@ export const PHASE_COLOURS = [
     { id: "p1", hex: "#f3aeb4", light: "#FDF3F4", alt: "#c93947", text: colors.quaternary[700] },
     { id: "p2", hex: "#E8B2C1", light: "#FCF4F6", alt: "#b64871", text: colors.quaternary[700] },
     { id: "p3", hex: "#F2C6DE", light: "#FCF3F8", alt: "#d75d96", text: colors.quaternary[700] },
-    { id: "p4", hex: "#D7BDE2", light: "#FBF8FC", alt: "#a06ab3", text: colors.quaternary[700] },
-    { id: "p5", hex: "#C3B1E1", light: "#F8F6FC", alt: "#8256ab", text: colors.quaternary[50] },
+    { id: "p4", hex: "#D7BDE2", light: "#FBF8FC", alt: "#a06ab3", text: colors.quaternary[500] },
+    { id: "p5", hex: "#C3B1E1", light: "#F8F6FC", alt: "#8256ab", text: colors.quaternary.DEFAULT },
     { id: "p6", hex: "#d5c2f0", light: "#F8F5FD", alt: "#9d5acd", text: colors.quaternary[700] },
 ];

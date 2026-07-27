@@ -7,6 +7,10 @@ import { ScrollingText } from "../../../components/app/common/ScrollingText.jsx"
 /** Icons */
 import { IconDotsVerticalFilled } from "@tabler/icons-react";
 
+/** Config, Constants & Utils */
+import { PHASE_COLOURS } from "../../../constants/phase_colours.js";
+import { PROJECTS_ICONS } from "../../../constants/projects_icons.js";
+
 /**
  * Custom DatePicker Day Content Renderer
  *
@@ -74,11 +78,11 @@ export const renderCustomDayContents = (dayOfMonth, date, eventsColorMap) => {
             {totalEvents > 0 && (
                 <div className="absolute bottom-[4px] flex gap-[2px]">
                     {/* Inline Loop Rendering Individual Color Nodes */}
-                    {displayColors.map((colour, index) => (
+                    {displayColors.map((color, index) => (
                         <div
                             key={index}
                             className="custom-event-dot w-[4px] h-[4px] rounded-full transition-colors"
-                            style={{ backgroundColor: colour.hex }}
+                            style={{ backgroundColor: color.hex }}
                         />
                     ))}
 
@@ -125,7 +129,17 @@ export const renderEventContent = (eventInfo, handleContextMenu) => {
      * Identifies the primary color signature explicitly bound to the target event via extended metadata.
      * Required for synchronizing borders, texts, and background tokens dynamically.
      */
-    const colour = event.extendedProps.color;
+    const color = event.extendedProps.color || PHASE_COLOURS[0];
+
+    /**
+     * Project Logo Resolution
+     *
+     * Evaluates the event metadata to extract the associated project logo identifier.
+     * Matches the key against the static `PROJECTS_ICONS` registry to retrieve the corresponding SVG component,
+     * safely defaulting to the primary fallback icon or null if undefined.
+     */
+    const LogoComponent = event.extendedProps.logo
+            ? PROJECTS_ICONS.find((i) => i.id === event.extendedProps.logo) || PROJECTS_ICONS[0] : null;
 
     /**
      * Context Menu Propagation Interceptor
@@ -145,54 +159,45 @@ export const renderEventContent = (eventInfo, handleContextMenu) => {
 
     // --- 2. Render ---
 
-    {
-        /* View-Specific Conditional Rendering Block: Month */
-    }
+    {/* View-Specific Conditional Rendering Block: Month */}
     if (view.type === "dayGridMonth") {
         return (
-            <div className="flex items-center w-full overflow-hidden px-1 h-full">
-                {/* Visual Label Dot */}
-                <div className="w-2 h-2 rounded-full mr-1.5 shrink-0" style={{ backgroundColor: colour.hex }} />
+            <div className="h-full min-h-[28px] w-full flex items-center gap-2 overflow-hidden py-1 px-3 rounded-lg" style={{ backgroundColor: color.hex, color: color.text }}>
+                {LogoComponent && (
+                    <LogoComponent.component className="w-5 h-5" />
+                )}
 
                 {/* Animated Horizontal Title Marquee */}
-                <ScrollingText text={event.title} className="text-xs font-semibold leading-tight text-quaternary-700" />
+                <ScrollingText text={event.title} className="text-xs font-semibold leading-tight" />
             </div>
         );
     }
 
-    {
-        /* View-Specific Conditional Rendering Block: Week */
-    }
+    {/* View-Specific Conditional Rendering Block: Week */}
     if (view.type === "timeGridWeek") {
         return (
-            <div className="flex flex-col items-start w-full overflow-hidden p-1 h-full" style={{ color: colour.text }}>
+            <div className="flex flex-col items-start w-full overflow-hidden p-1 h-full" style={{ color: color.text }}>
                 {/* Text-Based Time Header Label */}
                 {timeText && <div className="text-[10px] font-medium opacity-80 mb-0.5">{timeText}</div>}
 
                 {/* Primary Animated Title Marquee */}
-                <ScrollingText text={event.title} className="text-xs font-bold leading-tight" />
-
-                {/* Sub-Headline Description Injector */}
-                {event.extendedProps?.description && (
-                    <div className="opacity-70 w-full mt-0.5">
-                        <ScrollingText
-                            text={event.extendedProps.description}
-                            className="text-[10px] font-medium leading-tight"
-                        />
-                    </div>
-                )}
+                <div className="flex items-center gap-2">
+                    {LogoComponent && (
+                        <LogoComponent.component className="w-5 h-5" />
+                    )}
+                    
+                    <ScrollingText text={event.title} className="text-xs font-bold leading-tight" />
+                </div>
             </div>
         );
     }
 
-    {
-        /* View-Specific Conditional Rendering Block: Day */
-    }
+    {/* View-Specific Conditional Rendering Block: Day */}
     if (view.type === "timeGridDay") {
         return (
             <div
-                className="flex flex-col items-start w-full overflow-hidden p-2 h-full gap-1"
-                style={{ color: colour.text }}
+                className="flex flex-col items-start w-full overflow-hidden px-2 h-full gap-1"
+                style={{ color: color.text }}
             >
                 {/* Horizontal Alignment Header Layout */}
                 <div className="flex items-center justify-between w-full">
@@ -201,21 +206,18 @@ export const renderEventContent = (eventInfo, handleContextMenu) => {
                 </div>
 
                 {/* Bold Standard Target Title Wrapper */}
-                <span className="text-sm font-extrabold leading-tight">{event.title}</span>
+                <div className="flex items-center gap-2">
+                    {LogoComponent && (
+                        <LogoComponent.component className="w-5 h-5" />
+                    )}
 
-                {/* Multi-Line Visual Description Block */}
-                {event.extendedProps?.description && (
-                    <p className="text-xs opacity-80 line-clamp-3 whitespace-normal">
-                        {event.extendedProps.description}
-                    </p>
-                )}
+                    <span className="text-sm font-extrabold leading-tight">{event.title}</span>
+                </div>
             </div>
         );
     }
 
-    {
-        /* Default Fallback Render Block: Generic List */
-    }
+    {/* Default Fallback Render Block: Generic List */}
     return (
         <div className="flex items-center justify-between w-full overflow-hidden">
             {/* Primary Event Headline */}

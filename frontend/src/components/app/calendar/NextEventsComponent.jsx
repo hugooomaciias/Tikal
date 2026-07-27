@@ -61,18 +61,26 @@ export const NextEventsComponent = ({ groupedEvents, handleEventClick, handleCon
      * @returns {string} The localized time display string (e.g., "10:00 - 11:30" or "Todo el día").
      */
     const formatTimeDisplay = (event) => {
-        let timeDisplay = "Todo el día";
-
-        if (event.start.includes("T") && event.end && event.end.includes("T")) {
-            const startTime = event.start.split("T")[1].substring(0, 5);
-            const endTime = event.end.split("T")[1].substring(0, 5);
-            timeDisplay = `${startTime} - ${endTime}`;
-        } else if (event.start.includes("T")) {
-            const startTime = event.start.split("T")[1].substring(0, 5);
-            timeDisplay = `Desde las ${startTime}`;
+        if (event.allDay || event.extendedProps?.allDay) {
+            return "Todo el día";
         }
 
-        return timeDisplay;
+        if (!event.start) return "Todo el día";
+
+        const startDate = new Date(event.start);
+        const endDate = event.end ? new Date(event.end) : null;
+
+        if (isNaN(startDate.getTime())) return "Todo el día";
+
+        const options = { hour: "2-digit", minute: "2-digit", hour12: false };
+        const startTime = startDate.toLocaleTimeString([], options);
+
+        if (endDate && !isNaN(endDate.getTime()) && endDate.getTime() !== startDate.getTime()) {
+            const endTime = endDate.toLocaleTimeString([], options);
+            return `${startTime} - ${endTime}`;
+        }
+
+        return `Desde las ${startTime}`;
     };
 
     /**
@@ -84,7 +92,12 @@ export const NextEventsComponent = ({ groupedEvents, handleEventClick, handleCon
      * @param {Object} event - The specific calendar event payload.
      */
     const onEventClick = (event) => {
-        handleEventClick(event);
+        const normalizedEvent = {
+            ...event,
+            start: event.start ? new Date(event.start) : new Date(),
+            end: event.end ? new Date(event.end) : (event.start ? new Date(event.start) : new Date())
+        };
+        handleEventClick(normalizedEvent);
     };
 
     /**
@@ -97,7 +110,12 @@ export const NextEventsComponent = ({ groupedEvents, handleEventClick, handleCon
      * @param {Object} event - The specific calendar event payload.
      */
     const onEventContextMenu = (e, event) => {
-        handleContextMenu(e, event);
+        const normalizedEvent = {
+            ...event,
+            start: event.start ? new Date(event.start) : new Date(),
+            end: event.end ? new Date(event.end) : (event.start ? new Date(event.start) : new Date())
+        };
+        handleContextMenu(e, normalizedEvent);
     };
 
     // --- 2. Render ---
@@ -131,6 +149,8 @@ export const NextEventsComponent = ({ groupedEvents, handleEventClick, handleCon
                                     ? PROJECTS_ICONS.find((i) => i.id === event.extendedProps.logo) || PROJECTS_ICONS[0]
                                     : null;
 
+                                const color = event.extendedProps.color;
+
                                 return (
                                     /* Event Card Interactive Wrapper */
                                     <div
@@ -139,21 +159,22 @@ export const NextEventsComponent = ({ groupedEvents, handleEventClick, handleCon
                                         onContextMenu={(e) => onEventContextMenu(e, event)}
                                         className="flex flex-col p-3 rounded-xl shadow-sm cursor-pointer"
                                         style={{
-                                            backgroundColor: `${event.backgroundColor}15`,
-                                            borderLeft: `4px solid ${event.borderColor}`,
+                                            backgroundColor: `${color.hex}20`,
+                                            borderLeft: `4px solid ${color.hex}`,
                                         }}
                                     >
-                                        {/* Event Core Identifiers (Logo & Title) */}
-                                        <div className="flex items-center gap-2 text-quaternary-700">
-                                            {event.extendedProps.logo && (
-                                                <LogoComponent.component className="w-5 h-5" />
-                                            )}
-                                            <span className="text-xs font-bold">{event.title}</span>
-                                        </div>
                                         {/* Event Timing Details */}
                                         <span className="text-xs font-medium text-quaternary-500 mt-1">
                                             {formatTimeDisplay(event)}
                                         </span>
+
+                                        {/* Event Core Identifiers (Logo & Title) */}
+                                        <div className="flex items-center gap-2 text-quaternary-700">
+                                            {LogoComponent && (
+                                                <LogoComponent.component className="w-5 h-5" />
+                                            )}
+                                            <span className="text-xs font-bold">{event.title}</span>
+                                        </div>
                                     </div>
                                 );
                             })}

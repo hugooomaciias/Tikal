@@ -140,7 +140,7 @@ export const TasksCardComponent = ({
                 {/* Header Section: Title & Interactive Search Bar */}
                 <div className="h-10 w-full flex items-center justify-between text-quaternary-700">
                     <div className="flex items-center gap-2">
-                        {!isTaskSearchOpen && <span className="text-2xl font-bold">2</span>}
+                        {!isTaskSearchOpen && <span className="text-2xl font-bold">{filteredTasks.length}</span>}
                         {!isTaskSearchOpen && <span className="text-2xl font-bold">{t("tasks.title")}</span>}
                     </div>
 

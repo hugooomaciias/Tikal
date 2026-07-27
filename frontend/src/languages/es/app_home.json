@@ -5,9 +5,6 @@
         "third_stat": "Proyectos pendientes"
     },
     "widgets": {
-        "weekly_progress": {
-            "title": "Progreso"
-        },
         "temple_mode": {
             "title": "Modo templo"
         },

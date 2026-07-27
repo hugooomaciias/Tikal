@@ -96,7 +96,7 @@ export const useContextMenu = (handleEventClick) => {
     const getNormalizedEntityData = (rawEventData) => {
         if (!rawEventData) return null;
 
-        const isFromCalendar = Boolean(rawEventData.event);
+        const isFromCalendar = rawEventData.event;
         const entity = isFromCalendar ? rawEventData.event : rawEventData;
 
         const entityTitle = entity.title || entity.name || "";

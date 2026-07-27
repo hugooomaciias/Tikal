@@ -51,10 +51,6 @@
     @apply text-2xl font-bold text-quaternary-700 !important;
 }
 
-.main-calendar-theme .fc-event {
-    @apply rounded-md border-none px-1 py-0.5 !important;
-}
-
 .main-calendar-theme .fc .fc-timegrid-slot-label-frame {
     @apply flex justify-start items-start text-left !important;
 }
@@ -119,7 +115,6 @@
     @apply bg-quaternary-300;
 }
 
-/* Quitar todos los bordes para el efecto "flotante" */
 .calendar-widget-container .fc,
 .calendar-widget-container .fc-scrollgrid,
 .calendar-widget-container .fc-scrollgrid th,
@@ -146,46 +141,117 @@
     @apply p-[1px] !important;
 }
 
+.main-calendar-theme .fc-scroller,
 .calendar-widget-container .fc-scroller {
-    @apply custom-scrollbar;
+    scrollbar-width: none !important; 
+    -ms-overflow-style: none !important;
 }
 
-/* Contenedor principal de la lista */
+.main-calendar-theme .fc-scroller::-webkit-scrollbar,
+.calendar-widget-container .fc-scroller::-webkit-scrollbar {
+    display: none !important;
+    width: 0px !important;
+    height: 0px !important;
+}
+
 .main-calendar-theme .fc-list {
     @apply rounded-[1rem] overflow-hidden !important;
 }
 
-/* Encabezado del día (Fila que separa los días) */
 .main-calendar-theme .fc .fc-list-day-cushion {
     @apply bg-primary-100 px-4 py-3 !important;
 }
 
-/* Texto del día (Izquierda: Lunes) */
 .main-calendar-theme .fc .fc-list-day-text {
     @apply no-underline text-sm font-bold text-primary-600 uppercase tracking-wide !important;
 }
 
-/* Texto lateral/fecha (Derecha: 25 abr.) */
 .main-calendar-theme .fc .fc-list-day-side-text {
     @apply no-underline text-sm font-medium text-primary-600 !important;
 }
 
-/* Celdas de la lista (quitar bordes internos excesivos) */
 .main-calendar-theme .fc-list-event td {
     @apply border-none py-4 align-middle !important;
 }
 
-/* El punto de color del evento */
 .main-calendar-theme .fc-list-event-dot {
     @apply border-[6px] rounded-full !important;
 }
 
-/* Texto del título del evento */
 .main-calendar-theme .fc-list-event-title {
     @apply pr-2 text-sm font-bold text-quaternary-700 !important;
 }
 
-/* Texto de la hora del evento */
 .main-calendar-theme .fc-list-event-time {
     @apply text-sm font-medium text-quaternary-500 !important;
+}
+
+.main-calendar-theme .fc-event,
+.main-calendar-theme .fc-daygrid-event,
+.main-calendar-theme .fc-timegrid-event {
+    @apply rounded-md border-none shadow-none !important;
+    box-sizing: border-box !important;
+}
+
+.main-calendar-theme .fc-daygrid-event {
+    width: calc(100% - 6px) !important;
+    max-width: calc(100% - 6px) !important;
+    margin: 1.5px 3px !important;
+}
+
+.main-calendar-theme .fc-daygrid-event .fc-event-main {
+    @apply h-full w-full flex items-center overflow-hidden !important;
+    min-width: 0 !important;
+}
+
+.main-calendar-theme .fc-timegrid-event {
+    border-radius: 6px !important;
+}
+
+.main-calendar-theme .fc-timegrid-event .fc-event-main {
+    @apply w-full h-full flex flex-col justify-start items-start p-1.5 overflow-hidden !important;
+}
+
+.main-calendar-theme .fc-daygrid-day-events,
+.main-calendar-theme .fc-daygrid-event-harness,
+.main-calendar-theme .fc-timegrid-event-harness {
+    overflow-x: hidden !important;
+    overflow-y: visible !important;
+}
+
+.main-calendar-theme .fc-event:hover,
+.main-calendar-theme .fc-daygrid-event:hover,
+.main-calendar-theme .fc-timegrid-event:hover {
+    @apply shadow-none opacity-100 !important;
+    transform: none !important;
+}
+
+.main-calendar-theme .fc-event-resizer {
+    @apply overflow-hidden max-w-[4px] !important;
+}
+
+.main-calendar-theme .fc-more-link,
+.calendar-widget-container .fc-more-link {
+    @apply min-h-[28px] text-center text-xs font-bold text-primary-700 bg-primary-100 rounded-md pt-[6px] transition-colors !important;
+    width: calc(100% - 5px) !important;
+    margin: 2px 3px !important;
+    box-sizing: border-box !important;
+    text-decoration: none !important;
+}
+
+.main-calendar-theme .fc-more-link:hover,
+.calendar-widget-container .fc-more-link:hover {
+    @apply bg-primary-600 text-primary-100 !important;
+}
+
+.main-calendar-theme .fc-timegrid-event,
+.main-calendar-theme .fc-timegrid-event .fc-event-main,
+.main-calendar-theme .fc-timegrid-event .fc-event-main-frame {
+    overflow: hidden !important;
+}
+
+.main-calendar-theme .fc-timegrid-event .fc-event-title {
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
 }

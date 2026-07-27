@@ -1,8 +1,12 @@
 /** React & Third-Party Libraries */
 import { useState, useRef, useEffect, useMemo, useCallback } from "react";
 
+/** Contexts, Hooks & Services */
+import { useCalendarEvents } from "../../../controllers/calendar/useCalendar.js";
+
 /** Config, Constants & Utils */
 import { PHASE_COLOURS } from "../../../../constants/phase_colours.js";
+import { resolveColorObject, safeParseDate, formatDateTimeISO, resolveLinkPayload } from "../../../../utils/calendar/calendarUtils.js";
 
 /**
  * Event Pop-Up Logic Hook
@@ -18,7 +22,9 @@ import { PHASE_COLOURS } from "../../../../constants/phase_colours.js";
  * @returns {Object} A structured payload containing grouped DOM refs, state variables, derived data, and interaction handlers.
  */
 export const useEventPopUpLogic = (initialData, onClose, cascadingOptions) => {
-    // --- 1. DOM Refs & Layout State ---
+    // --- 1. Contexts & DOM Refs ---
+
+    const { createCalendarEvent, updateCalendarEvent } = useCalendarEvents();
 
     /**
      * Start Time DOM Reference
@@ -59,14 +65,13 @@ export const useEventPopUpLogic = (initialData, onClose, cascadingOptions) => {
      * Initializes with pre-existing `initialData` if in edit mode, otherwise applies smart defaults.
      */
     const [formData, setFormData] = useState({
-        type: "linked",
-        title: initialData?.title || "",
-        linkId: initialData?.linkId || "",
-        linkType: initialData?.linkType || "",
+        type: initialData?.type === "linked" ? "linked" : "general",
+        name: initialData?.title || "",
+        linkedEntity: initialData?.linkedEntity || "",
         autoTracker: initialData?.autoTracker || false,
         color: initialData?.color || PHASE_COLOURS[0].id,
-        initDate: initialData?.date ? initialData.date : new Date().toISOString(),
-        endDate: initialData?.date ? initialData.date : new Date().toISOString(),
+        initDate: safeParseDate(initialData?.date),
+        endDate: safeParseDate(initialData?.endDate || initialData?.date),
         startTime: initialData?.startTime ? initialData.startTime : "10:00",
         endTime: initialData?.endTime ? initialData.endTime : "11:00",
         allDay: initialData?.allDay || false,
@@ -99,18 +104,8 @@ export const useEventPopUpLogic = (initialData, onClose, cascadingOptions) => {
      * which enforces mandatory inherited colours.
      */
     const isColourLocked = useMemo(() => {
-        return formData.type === "linked" && (formData.linkType === "phase" || formData.linkType === "task");
-    }, [formData.type, formData.linkType]);
-
-    /**
-     * Selected Colour Object
-     *
-     * Memoized to prevent redundant array lookups on every keystroke. Derives the complete
-     * hexadecimal colour object payload from the static constants array using the active form colour ID.
-     */
-    const selectedColourObj = useMemo(() => {
-        return PHASE_COLOURS.find((c) => c.id === formData.color) || PHASE_COLOURS[0];
-    }, [formData.color]);
+        return formData.type === "linked" && (formData.linkedEntity.startsWith("f_") || formData.linkedEntity.startsWith("t_"));
+    }, [formData.type, formData.linkedEntity]);
 
     // --- 4. Side Effects ---
 
@@ -165,27 +160,22 @@ export const useEventPopUpLogic = (initialData, onClose, cascadingOptions) => {
      *
      * @param {Object} option - The dynamically selected hierarchy option payload.
      */
-    const handleCascadingSelection = useCallback(
-        (option) => {
-            let newColorId = option.color;
+    const handleCascadingSelection = useCallback((option) => {
+        let newColorObj = option.color;
 
-            if (option.type === "task") {
-                const parentPhase = cascadingOptions.find((opt) => opt.id === option.phaseId);
-                newColorId = parentPhase ? parentPhase.color : PHASE_COLOURS[0].id;
-            }
+        if (option.type === "task") {
+            const parentPhase = cascadingOptions.find((opt) => opt.id === option.phaseId);
+            newColorObj = parentPhase ? parentPhase.color : null;
+        }
 
-            setFormData((prev) => {
-                const validColorId = newColorId || prev.color || PHASE_COLOURS[0].id;
-                return {
-                    ...prev,
-                    linkId: option.id,
-                    linkType: option.type,
-                    color: validColorId,
-                };
-            });
-        },
-        [cascadingOptions],
-    );
+        setFormData((prev) => {
+            return {
+                ...prev,
+                linkedEntity: option.id,
+                color: resolveColorObject(newColorObj || prev.color),
+            };
+        });
+    }, [cascadingOptions]);
 
     /**
      * Form Field Change Handler
@@ -216,7 +206,7 @@ export const useEventPopUpLogic = (initialData, onClose, cascadingOptions) => {
      * @param {Object} newColourObj - The specific hex/id object corresponding to the user selection.
      */
     const handleColorChange = useCallback((newColourObj) => {
-        setFormData((prev) => ({ ...prev, color: newColourObj.id }));
+        setFormData((prev) => ({ ...prev, color: newColourObj }));
     }, []);
 
     /**
@@ -228,7 +218,7 @@ export const useEventPopUpLogic = (initialData, onClose, cascadingOptions) => {
      * @param {string|Date} date - The newly validated ISO string or Date instance.
      */
     const handleInitDateChange = useCallback((date) => {
-        setFormData((prev) => ({ ...prev, initDate: date }));
+        setFormData((prev) => ({ ...prev, initDate: safeParseDate(date) }));
     }, []);
 
     /**
@@ -240,7 +230,7 @@ export const useEventPopUpLogic = (initialData, onClose, cascadingOptions) => {
      * @param {string|Date} date - The newly validated ISO string or Date instance.
      */
     const handleEndDateChange = useCallback((date) => {
-        setFormData((prev) => ({ ...prev, endDate: date ? new Date(date).toISOString() : "" }));
+        setFormData((prev) => ({ ...prev, endDate: safeParseDate(date) }));
     }, []);
 
     /**
@@ -334,37 +324,65 @@ export const useEventPopUpLogic = (initialData, onClose, cascadingOptions) => {
         let tempErrors = {};
         let isValid = true;
 
-        if (!formData.title?.trim()) {
-            tempErrors.title = "Por favor, introduce un título para el evento";
+        if (!formData.name?.trim()) {
+            tempErrors.name = "Por favor, introduce un nombre para el evento";
             isValid = false;
         }
 
-        if (formData.type === "linked" && !formData.linkId?.trim()) {
-            tempErrors.linkId = "Por favor, selecciona una vinculación";
+        if (formData.type === "linked" && !formData.linkedEntity?.trim()) {
+            tempErrors.linkedEntity = "Por favor, selecciona una vinculación";
             isValid = false;
         }
 
         setErrors(tempErrors);
         return isValid;
-    }, [formData.title, formData.type, formData.linkId]);
+    }, [formData.name, formData.type, formData.linkId]);
 
     /**
-     * Final Form Submission Logic
+     * Form Submission Logic
      *
-     * Memoized action dispatcher that triggers the validation sequence. Upon success,
-     * it sanitizes specific temporary fields and calls the injected `onClose` routine.
+     * Memoized async action dispatcher that validates the UI state, transforms
+     * the local data into the strict backend DTO schema (combining dates/times and
+     * resolving hierarchical IDs), and calls either `updateCalendarEvent` or
+     * `createCalendarEvent` on the controller before closing the modal.
      *
+     * @async
      * @param {React.FormEvent} e - The native HTML form submission event.
      */
     const handleSubmit = useCallback(
-        (e) => {
+        async (e) => {
             e.preventDefault();
-            if (validateForm()) {
+            if (!validateForm()) return; 
+            
+            try {
+                const initDateTime = formatDateTimeISO(formData.initDate, formData.startTime);
+                const endDateTime = formatDateTimeISO(formData.endDate, formData.endTime);
+                const linkPayload = resolveLinkPayload(formData.type, formData.linkedEntity);
+
+                const payload = {
+                    name: formData.name,
+                    description: formData.note,
+                    initDateTime,
+                    endDateTime,
+                    isActivateTracker: formData.autoTracker,
+                    colour: formData.color.id,
+                    isCompleteDay: formData.allDay,
+                    ...linkPayload
+                }
+
+                if (isEditing && initialData?.id) {
+                    await updateCalendarEvent(initialData.id, payload);
+                } else {
+                    await createCalendarEvent(payload);
+                }
+
                 setFormData((prev) => ({ ...prev, project: "", note: prev.note || "" }));
                 onClose();
+            } catch (error) {
+                console.error("Error procesando el evento de calendario:", error);
             }
         },
-        [validateForm, onClose],
+        [validateForm, formData, isEditing, initialData, updateCalendarEvent, createCalendarEvent, onClose],
     );
 
     /**
@@ -415,7 +433,6 @@ export const useEventPopUpLogic = (initialData, onClose, cascadingOptions) => {
         eventPopUpData: {
             isEditing,
             isColourLocked,
-            selectedColourObj,
         },
         eventPopUpActions: {
             handleModalClick,

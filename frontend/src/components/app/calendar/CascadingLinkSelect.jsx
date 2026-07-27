@@ -2,8 +2,8 @@
 import { useState, useRef, useEffect } from "react";
 
 /** Assets, Utils & Constants */
-import { PHASE_COLOURS } from "../../../constants/phase_colours.js";
 import { PROJECTS_ICONS } from "../../../constants/projects_icons.js";
+import { resolveColorObject } from "../../../utils/calendar/calendarUtils.js";
 
 /**
  * Cascading Link Select Component
@@ -181,8 +181,8 @@ export const CascadingLinkSelect = ({ cascadingOptions = [], currentLinkId, onSe
             {/* Primary Action Input Trigger */}
             <input
                 type="text"
-                id="linkId"
-                name="linkId"
+                id="linkedEntity"
+                name="linkedEntity"
                 placeholder=" "
                 value={currentSelectedItem?.name || ""}
                 readOnly
@@ -192,7 +192,7 @@ export const CascadingLinkSelect = ({ cascadingOptions = [], currentLinkId, onSe
 
             {/* Floating Input Text Label */}
             <label
-                htmlFor="linkId"
+                htmlFor="linkedEntity"
                 className="input-label input-textarea-label-primary cursor-pointer truncate max-w-[90%]"
             >
                 {t("popup.linked.name")}
@@ -267,7 +267,7 @@ export const CascadingLinkSelect = ({ cascadingOptions = [], currentLinkId, onSe
                              *
                              * Looks up the precise hex object reference from the predefined constant array.
                              */
-                            const color = PHASE_COLOURS.find((c) => c.id === option.color);
+                            const color = resolveColorObject(option.color);
 
                             return (
                                 <button
@@ -283,7 +283,7 @@ export const CascadingLinkSelect = ({ cascadingOptions = [], currentLinkId, onSe
                                     {option.color && (
                                         <div
                                             className="w-3 h-3 rounded-full shrink-0 border-2 border-primary-50"
-                                            style={{ backgroundColor: color?.hex }}
+                                            style={{ backgroundColor: color.hex }}
                                         ></div>
                                     )}
 

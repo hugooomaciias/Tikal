@@ -5,9 +5,6 @@
         "third_stat": "Pending projects"
     },
     "widgets": {
-        "weekly_progress": {
-            "title": "Progress"
-        },
         "temple_mode": {
             "title": "Temple mode"
         },

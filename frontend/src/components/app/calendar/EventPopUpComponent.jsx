@@ -12,34 +12,7 @@ import { IconCircleXFilled, IconNote } from "@tabler/icons-react";
 
 /** Assets, Utils & Constants */
 import { PHASE_COLOURS } from "../../../constants/phase_colours.js";
-
-/**
- * Generate Time Options Helper
- *
- * Creates an array of time strings in 'HH:MM' format, spaced by 15-minute intervals,
- * spanning a full 24-hour period. Used for time picker dropdowns.
- *
- * @returns {Array<string>} An array of formatted time strings.
- */
-const generateTimeOptions = () => {
-    const times = [];
-    for (let h = 0; h < 24; h++) {
-        for (let m = 0; m < 60; m += 15) {
-            const hour = h.toString().padStart(2, "0");
-            const min = m.toString().padStart(2, "0");
-            times.push(`${hour}:${min}`);
-        }
-    }
-    return times;
-};
-
-/**
- * Pre-computed Time Segment Options
- *
- * A static constant storing the generated 15-minute interval time options
- * to avoid recalculation on subsequent component renders.
- */
-const TIME_OPTIONS = generateTimeOptions();
+import { TIME_OPTIONS } from "../../../utils/calendar/calendarUtils.js";
 
 /**
  * Event PopUp Presentational Component
@@ -77,7 +50,7 @@ export const EventPopUpComponent = ({ onClose, initialData, cascadingOptions = [
 
     const { startTimeRef, endTimeRef } = eventPopUpRefs;
     const { isStartTimeOpen, isEndTimeOpen, formData, errors } = eventPopUpStates;
-    const { isEditing, isColourLocked, selectedColourObj } = eventPopUpData;
+    const { isEditing, isColourLocked } = eventPopUpData;
     const {
         handleModalClick,
         handleCascadingSelection,
@@ -135,10 +108,10 @@ export const EventPopUpComponent = ({ onClose, initialData, cascadingOptions = [
                             {/* Recursive Path Selector Component */}
                             <CascadingLinkSelect
                                 cascadingOptions={cascadingOptions}
-                                currentLinkId={formData.linkId}
+                                currentLinkId={formData.linkedEntity}
                                 onSelect={handleCascadingSelection}
-                                error={errors.linkId}
-                                inputClass={getInputClass("linkId")}
+                                error={errors.linkedEntity}
+                                inputClass={getInputClass("linkedEntity")}
                                 t={t}
                             />
 
@@ -165,7 +138,7 @@ export const EventPopUpComponent = ({ onClose, initialData, cascadingOptions = [
                         {/* Event Distinctive Palette Selector */}
                         <PickerComponent
                             items={PHASE_COLOURS}
-                            selectedItem={selectedColourObj}
+                            selectedItem={formData.color}
                             disabled={isColourLocked}
                             pickerType="colour"
                             onChange={handleColorChange}
@@ -175,21 +148,21 @@ export const EventPopUpComponent = ({ onClose, initialData, cascadingOptions = [
                         <div className="relative w-full">
                             <input
                                 type="text"
-                                id="title"
-                                name="title"
+                                id="name"
+                                name="name"
                                 placeholder=" "
-                                value={formData.title}
+                                value={formData.name}
                                 onChange={handleChange}
-                                className={getInputClass("title")}
+                                className={getInputClass("name")}
                             />
-                            <label htmlFor="title" className="input-label input-textarea-label-primary">
+                            <label htmlFor="name" className="input-label input-textarea-label-primary">
                                 {t("popup.name")}
                             </label>
 
                             {/* Inline Title Contextual Error Display */}
-                            {errors.title && (
+                            {errors.name && (
                                 <span className="absolute -bottom-5 left-0 text-tertiary-200 text-xs font-semibold">
-                                    {errors.title}
+                                    {errors.name}
                                 </span>
                             )}
                         </div>

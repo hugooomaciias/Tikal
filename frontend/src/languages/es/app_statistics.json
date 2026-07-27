@@ -51,8 +51,8 @@
                 "profitability": "Rentabilidad"
             }
         },
-        "time_goal": {
-            "title": "Objetivo temporal"
+        "weekly_progress": {
+            "title": "Progreso"
         },
         "concentration_heatmap": {
             "title": "Concentración"
@@ -60,8 +60,8 @@
         "comparison": {
             "title": "Comparación"
         },
-        "tips": {
-            "title": "Consejos"
+        "time_goal": {
+            "title": "Objetivo temporal"
         }
     }
 }

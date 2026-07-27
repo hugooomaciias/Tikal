@@ -6,7 +6,6 @@ import { useTranslation } from "react-i18next";
 import { useSync } from "../../../core/useSync.js";
 
 /** Components & Layouts */
-import { WeeklyProgressWidget } from "../../../../components/app/home/widgets/WeeklyProgressWidget.jsx";
 import { TimeTrackerWidget } from "../../../../components/app/home/widgets/TimeTrackerWidget.jsx";
 import { TempleModeWidget } from "../../../../components/app/home/widgets/TempleModeWidget.jsx";
 import { TaskWidget } from "../../../../components/app/home/widgets/TaskWidget.jsx";
@@ -22,14 +21,6 @@ import { CalendarWidget } from "../../../../components/app/home/widgets/Calendar
  * React components, localization keys, routing links, and design tokens.
  */
 const WIDGET_CONFIG = {
-    weeklyProgressWidget: {
-        component: WeeklyProgressWidget,
-        titleKey: "widgets.weekly_progress.title",
-        pageLink: "/statistics",
-        textColor: "text-quaternary-700",
-        borderColor: "border-primary-500",
-        isResizable: false,
-    },
     timeTrackerWidget: {
         component: TimeTrackerWidget,
         titleKey: "Time tracker",

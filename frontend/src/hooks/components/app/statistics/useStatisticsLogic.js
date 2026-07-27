@@ -6,11 +6,12 @@ import { useTranslation } from "react-i18next";
 import { useSync } from "../../../core/useSync.js";
 
 /** Components & Layouts */
-import { TimeGoalWidget } from "../../../../components/app/statistics/widgets/TimeGoalWidget.jsx";
-import { ConcentrationHeatmapWidget } from "../../../../components/app/statistics/widgets/ConcentrationHeatmapWidget.jsx";
-import { EffectivenessChartWidget } from "../../../../components/app/statistics/widgets/EffectivenessChartWidget.jsx";
-import { ComparisonWidget } from "../../../../components/app/statistics/widgets/ComparisonWidget.jsx";
 import { SolarChartWidget } from "../../../../components/app/statistics/widgets/SolarChart/SolarChartWidget.jsx";
+import { EffectivenessChartWidget } from "../../../../components/app/statistics/widgets/EffectivenessChartWidget.jsx";
+import { WeeklyProgressWidget } from "../../../../components/app/home/widgets/WeeklyProgressWidget.jsx";
+import { ConcentrationHeatmapWidget } from "../../../../components/app/statistics/widgets/ConcentrationHeatmapWidget.jsx";
+import { ComparisonWidget } from "../../../../components/app/statistics/widgets/ComparisonWidget.jsx";
+import { TimeGoalWidget } from "../../../../components/app/statistics/widgets/TimeGoalWidget.jsx";
 
 /** Config, Constants & Utils */
 const WIDGET_CONFIG = {
@@ -27,12 +28,12 @@ const WIDGET_CONFIG = {
         actions: false,
         textColor: "text-quaternary-700",
     },
-    timeGoalWidget: {
-        component: TimeGoalWidget,
-        titleKey: "widgets.time_goal.title",
-        subtitle: "22-28 Sept, 2025",
-        actions: false,
+    weeklyProgressWidget: {
+        component: WeeklyProgressWidget,
+        titleKey: "widgets.weekly_progress.title",
+        pageLink: "/statistics",
         textColor: "text-quaternary-700",
+        borderColor: "border-primary-500",
         isResizable: false,
     },
     concentrationHeatmapWidget: {
@@ -48,11 +49,13 @@ const WIDGET_CONFIG = {
         textColor: "text-quaternary-700",
         isResizable: false,
     },
-    aiAdviceWidget: {
+    timeGoalWidget: {
         component: TimeGoalWidget,
-        titleKey: "widgets.tips.title",
-        pageLink: "/statistics",
+        titleKey: "widgets.time_goal.title",
+        subtitle: "22-28 Sept, 2025",
+        actions: false,
         textColor: "text-quaternary-700",
+        isResizable: false,
     },
 };
 

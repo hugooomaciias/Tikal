@@ -162,7 +162,6 @@ export const useTaskWidgetLogic = ({ props }) => {
                 return { ...prevData, cards: updatedCards };
             });
 
-            console.log(task);
             try {
                 await toggleTaskCompletion(task.projectId, task.stageId, task.taskId);
             } catch (error) {

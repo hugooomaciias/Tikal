@@ -46,7 +46,7 @@ export const CalendarPage = () => {
     const { t, calendarRef, calendarStates, calendarData, calendarActions } = useCalendarLogic();
 
     const { isDataLoaded, selectedDate, eventToEdit, isMobile } = calendarStates;
-    const { events, highlightDates, eventsColorMap, groupedEvents, cascadingOptions } = calendarData;
+    const { events, highlightDates, eventsColorMap, groupedEvents, cascadingOptions, hasAllDayEvents } = calendarData;
     const {
         openNewEventModal,
         closeEventModal,
@@ -55,6 +55,10 @@ export const CalendarPage = () => {
         handleDatesSet,
         handleMiniCalendarChange,
         handleMonthChange,
+        handleEventDrop,
+        handleEventResize,
+        handleEditEvent,
+        handleDeleteEvent
     } = calendarActions;
 
     const { contextMenuRef, contextMenuStates, contextMenuActions } = useContextMenu(handleEventClick);
@@ -150,13 +154,19 @@ export const CalendarPage = () => {
                                     omitZeroMinute: false,
                                     meridiem: false,
                                 }}
-                                allDaySlot={false}
+                                allDaySlot={hasAllDayEvents}
+                                allDayText=""
                                 dateClick={handleDateClick}
                                 eventClick={handleEventClick}
                                 editable={true}
+                                eventResizableFromStart={true}
+                                eventDrop={handleEventDrop}
+                                eventResize={handleEventResize}
                                 selectable={true}
                                 selectMirror={true}
-                                dayMaxEvents={false}
+                                dayMaxEvents={2}
+                                moreLinkText={(num) => i18n.language === "es" ? `+${num} más` : `+${num} more`}
+                                moreLinkClick="timeGridDay"
                                 height="100%"
                                 datesSet={handleDatesSet}
                                 eventDidMount={(info) => {
@@ -192,9 +202,7 @@ export const CalendarPage = () => {
                 <RenameComponent
                     onClose={closeRenameModal}
                     data={entityToRename}
-                    onRename={(id, newTitle) => {
-                        console.log("Guardar nuevo nombre:", newTitle, "para el evento:", id);
-                    }}
+                    onRename={(id, newTitle) => { handleEditEvent(id, newTitle); }}
                     t={t}
                 />
             )}
@@ -204,9 +212,7 @@ export const CalendarPage = () => {
                 <DeleteComponent
                     onClose={closeDeleteModal}
                     data={entityToDelete}
-                    onDelete={(id) => {
-                        console.log("Eliminando el evento con ID:", id);
-                    }}
+                    onDelete={(id) => {handleDeleteEvent(id)}}
                 />
             )}
         </div>

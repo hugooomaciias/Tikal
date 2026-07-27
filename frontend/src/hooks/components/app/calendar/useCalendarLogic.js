@@ -4,9 +4,11 @@ import { useTranslation } from "react-i18next";
 
 /** Contexts, Hooks & Services */
 import { useSync } from "../../../core/useSync.js";
+import { useCalendarEvents } from "../../../controllers/calendar/useCalendar.js";
 
 /** Config, Constants & Utils */
 import { PHASE_COLOURS } from "../../../../constants/phase_colours.js";
+import { resolveColorObject, extractDtoFromLinkedEntity } from "../../../../utils/calendar/calendarUtils.js";
 import tailwindConfig from "../../../../../tailwind.config.js";
 import resolveConfig from "tailwindcss/resolveConfig";
 
@@ -30,7 +32,9 @@ const tailwindColors = fullConfig.theme.colors;
  * @returns {Object} A structured payload containing internationalization, DOM refs, component states, derived data, and handler functions.
  */
 export const useCalendarLogic = () => {
-    // --- 1. DOM Refs & Layout State ---
+    // --- 1. Contexts & DOM Refs ---
+
+    const { updateCalendarEvent, updateCalendarEventDates, deleteCalendarEvent } = useCalendarEvents();
 
     /**
      * Main Context Hook
@@ -95,32 +99,41 @@ export const useCalendarLogic = () => {
     /**
      * Parsed Events Collection
      *
-     * Memoized to prevent executing expensive mapping and filtering operations on the mock dataset
-     * during standard React renders. Transmutes backend-formatted event payloads into structures
-     * compatible with the FullCalendar API.
+     * Memoized to prevent executing expensive mapping and filtering operations on the dataset
+     * during standard React renders. Transmutes backend-formatted event payloads (handling
+     * both DTO keys like initDateTime/name and legacy keys) into structures compatible with
+     * the FullCalendar API.
      */
     const events = useMemo(() => {
         const backendEvents = getCalendarEvents();
 
-        return backendEvents.map((event) => {
-            const colour = PHASE_COLOURS.find((c) => c.id === event.color) || PHASE_COLOURS[0];
-            const eventDate = event.startDate ? event.startDate.split("T")[0] : "";
+        if (Array.isArray(backendEvents) && backendEvents.length > 0) {
+            return backendEvents.map((event) => {
+                const colourObj = resolveColorObject(event.colour);
+                const startStr = event.initDateTime || event.startDate || "";
+                const endStr = event.endDateTime || event.endDate || startStr;
+                const eventDate = startStr ? startStr.split("T")[0] : "";
 
-            return {
-                id: event.id.toString(),
-                title: event.title,
-                extendedProps: {
-                    description: event.description,
-                    eventDate: eventDate,
-                    color: colour,
-                    logo: event.logo || "",
-                },
-                start: event.startDate,
-                end: event.endDate,
-                backgroundColor: colour?.hex || tailwindColors.primary[500],
-                borderColor: colour?.hex || tailwindColors.primary[500],
-            };
-        });
+                return {
+                    id: event.id.toString(),
+                    title: event.name || "Sin título",
+                    start: startStr,
+                    end: endStr,
+                    allDay: event.isCompleteDay,
+                    backgroundColor: colourObj.hex || tailwindColors.primary[500],
+                    borderColor: colourObj.hex || tailwindColors.primary[500],
+                    extendedProps: {
+                        description: event.description || "",
+                        eventDate: eventDate,
+                        color: colourObj,
+                        logo: event.logo || "",
+                        linkedEntity: event.linkedEntity || null,
+                    },
+                };
+            });
+        }
+
+        return [];
     }, [getCalendarEvents]);
 
     /**
@@ -162,13 +175,9 @@ export const useCalendarLogic = () => {
 
         events.forEach((event) => {
             const eventDate = event.extendedProps.eventDate;
-
             if (!eventDate) return;
 
-            if (!colorMap[eventDate]) {
-                colorMap[eventDate] = [];
-            }
-
+            if (!colorMap[eventDate]) colorMap[eventDate] = [];
             colorMap[eventDate].push(event.extendedProps.color);
 
             if (eventDate >= today) {
@@ -194,6 +203,7 @@ export const useCalendarLogic = () => {
      */
     const cascadingOptions = useMemo(() => {
         const tasks = getTasksData ? getTasksData() : [];
+
         if (!tasks || tasks.length === 0) return [];
 
         const options = [];
@@ -232,6 +242,10 @@ export const useCalendarLogic = () => {
 
         return options;
     }, [getTasksData]);
+
+    const hasAllDayEvents = useMemo(() => {
+        return events.some(event => event.allDay === true);
+    }, [events]);
 
     // --- 4. Side Effects ---
 
@@ -286,13 +300,25 @@ export const useCalendarLogic = () => {
      */
     const handleDateClick = (arg) => {
         setSelectedDate(arg.date);
-        const date = arg.date.toISOString();
+
+        let startTime = "10:00";
+        let endTime = "11:00";
+
+        if (!arg.allDay) {
+            const h = String(arg.date.getHours()).padStart(2, "0");
+            const m = String(arg.date.getMinutes()).padStart(2, "0");
+            startTime = `${h}:${m}`;
+            
+            const endD = new Date(arg.date.getTime() + 60 * 60 * 1000);
+            endTime = `${String(endD.getHours()).padStart(2, "0")}:${String(endD.getMinutes()).padStart(2, "0")}`;
+        }
 
         setEventToEdit({
             isNew: true,
-            date: date,
-            startTime: "10:00",
-            endTime: "11:00",
+            date: arg.date.toISOString(),
+            startTime: startTime,
+            endTime: endTime,
+            color: PHASE_COLOURS[0],
         });
     };
 
@@ -308,40 +334,37 @@ export const useCalendarLogic = () => {
     const handleEventClick = useCallback((eventObj) => {
         const isFromCalendar = Boolean(eventObj.event);
         const event = isFromCalendar ? eventObj.event : eventObj;
+        const linkedEntity = event.extendedProps?.linkedEntity || null;
 
-        let startDate = isFromCalendar ? event.startStr : event.start;
-        let endDate = isFromCalendar ? event.endStr || event.startStr : event.end || event.start;
+        let startObj = event.start || new Date();
+        let endObj = event.end || startObj;
 
-        if (event.start) {
-            setSelectedDate(new Date(event.start));
-        }
+        setSelectedDate(startObj);
 
         let startTime = "10:00";
         let endTime = "11:00";
 
-        if (startDate && startDate.includes("T")) {
-            startTime = startDate.split("T")[1].substring(0, 5);
-            startDate = startDate.split("T")[0];
+        if (!event.allDay && event.start) {
+            startTime = `${String(startObj.getHours()).padStart(2, "0")}:${String(startObj.getMinutes()).padStart(2, "0")}`;
         }
-        if (endDate && endDate.includes("T")) {
-            endTime = endDate.split("T")[1].substring(0, 5);
-        }
-
-        let colorObj = PHASE_COLOURS[0];
-        if (event.extendedProps && event.extendedProps.color) {
-            colorObj = event.extendedProps.color;
+        if (!event.allDay && event.end) {
+            endTime = `${String(endObj.getHours()).padStart(2, "0")}:${String(endObj.getMinutes()).padStart(2, "0")}`;
         }
 
         setEventToEdit({
             id: event.id,
             title: event.title,
             description: event.extendedProps?.description,
-            date: startDate,
+            initDate: startObj,
+            date: startObj,
+            endDate: endObj,
             startTime: startTime,
             endTime: endTime,
-            color: colorObj,
+            color: event.extendedProps.color,
             allDay: event.allDay || false,
             isNew: false,
+            linkedEntity: linkedEntity,
+            type: linkedEntity ? "linked" : "general",
         });
     }, []);
 
@@ -358,7 +381,12 @@ export const useCalendarLogic = () => {
         const isViewChange = currentView !== dateInfo.view.type;
         setCurrentView(dateInfo.view.type);
 
-        if (isViewChange) return;
+        if (isViewChange) {
+            if (dateInfo.view.type.toLowerCase().includes("day")) {
+                setSelectedDate(dateInfo.view.currentStart);
+            }
+            return;
+        }
 
         const isSelectedVisible = selectedDate >= dateInfo.view.currentStart && selectedDate < dateInfo.view.currentEnd;
 
@@ -422,6 +450,117 @@ export const useCalendarLogic = () => {
         }
     };
 
+    /**
+     * Drag-and-Drop Event Relocation Handler
+     *
+     * Intercepts drag-and-drop interactions within the calendar grid. Computes the modified start
+     * and end ISO timestamps and dispatches an asynchronous mutation request to update the backend.
+     * Automatically reverts the UI state if the persistence operation fails.
+     *
+     * @param {Object} dropInfo - FullCalendar mutation payload containing the updated event structure and rollback callback.
+     */
+    const handleEventDrop = useCallback(async (dropInfo) => {
+        const { event, revert } = dropInfo;
+        
+        const initDateTime = event.start ? event.start.toISOString() : new Date().toISOString();
+        const endDateTime = event.end ? event.end.toISOString() : initDateTime;
+
+        try {
+            await updateCalendarEventDates(event.id, {
+                initDateTime: initDateTime,
+                endDateTime: endDateTime,
+            });
+        } catch (error) {
+            console.error("Error al mover el evento:", error);
+            revert();
+        }
+    }, [updateCalendarEventDates]);
+
+    /**
+     * Event Boundary Resize Handler
+     *
+     * Captures temporal resizing actions (stretching or shrinking event blocks). Extracts the updated
+     * boundary timestamps and triggers the boundary update controller. Reverts the visual modification
+     * on API failure.
+     *
+     * @param {Object} resizeInfo - FullCalendar mutation payload containing the resized event bounds and rollback callback.
+     */
+    const handleEventResize = useCallback(async (resizeInfo) => {
+        const { event, revert } = resizeInfo;
+        
+        const initDateTime = event.start.toISOString();
+        const endDateTime = (event.end || event.start).toISOString();
+
+        try {
+            await updateCalendarEventDates(event.id, {
+                initDateTime: initDateTime,
+                endDateTime: endDateTime,
+            });
+        } catch (error) {
+            console.error("Error al redimensionar el evento:", error);
+            revert();
+        }
+    }, [updateCalendarEventDates]);
+
+    /**
+     * Inline Event Renaming Handler
+     *
+     * Resolves the full backend entity from the local state array using the stringified ID, extracts
+     * relational DTO mappings, and dispatches a full entity update payload to rename the target event
+     * without opening the modal workflow.
+     *
+     * @param {string|number} id - The unique identifier of the target calendar event.
+     * @param {string} newTitle - The newly inputted textual title to persist.
+     */
+    const handleEditEvent = useCallback(async (id, newTitle) => {
+        const rawEvents = getCalendarEvents();
+        const existingEvent = rawEvents.find((e) => e.id.toString() === id.toString());
+        const entityDto = extractDtoFromLinkedEntity(existingEvent.linkedEntity);
+
+        if (!existingEvent) return;
+
+        const payload = {
+            name: newTitle,
+            description: existingEvent.note || "",
+            initDateTime: existingEvent.initDateTime,
+            endDateTime: existingEvent.endDateTime,
+            isActivateTracker: existingEvent.isActivateTracker,
+            colour: existingEvent.colour,
+            isCompleteDay: existingEvent.allDay,
+            eventType: existingEvent.eventType || "GENERAL",
+            projectId: entityDto.projectId || null,
+            stageId: entityDto.stageId || null,
+            taskId: entityDto.taskId || null,
+        };
+
+        try {
+            await updateCalendarEvent(id, payload);
+        } catch (error) {
+            console.error("Error al renombrar el evento:", error);
+        }
+    }, [getCalendarEvents, updateCalendarEvent]);
+
+    /**
+     * Event Deletion Handler
+     *
+     * Asynchronously removes the specified calendar event from persistent storage via the controller API.
+     *
+     * @param {string|number} id - The unique identifier of the target event to be purged.
+     */
+    const handleDeleteEvent = useCallback(async (id) => {
+        try {
+            await deleteCalendarEvent(id);
+        } catch (error) {
+            console.error("Error al eliminar el evento:", error);
+        }
+    }, [deleteCalendarEvent]);
+
+    /**
+     * New Event Modal Trigger
+     *
+     * Programmatically initializes a blank event schema marked with `isNew: true`,
+     * forcing the modal overlay to open in creation mode without pre-populated coordinate constraints.
+     */
     const openNewEventModal = () => {
         setEventToEdit({ isNew: true });
     };
@@ -441,7 +580,7 @@ export const useCalendarLogic = () => {
         t,
         calendarRef,
         calendarStates: { isDataLoaded, selectedDate, eventToEdit, isMobile },
-        calendarData: { events, highlightDates, eventsColorMap, groupedEvents, cascadingOptions },
+        calendarData: { events, highlightDates, eventsColorMap, groupedEvents, cascadingOptions, hasAllDayEvents },
         calendarActions: {
             openNewEventModal,
             closeEventModal,
@@ -450,6 +589,10 @@ export const useCalendarLogic = () => {
             handleDatesSet,
             handleMiniCalendarChange,
             handleMonthChange,
+            handleEventDrop,
+            handleEventResize,
+            handleEditEvent,
+            handleDeleteEvent
         },
     };
 };
