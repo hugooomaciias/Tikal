@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 
 import java.time.Instant;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.JdbcTypeCode;
 
 /**
  * This class represents the Team Member entity. It functions as an association
@@ -33,11 +34,13 @@ public class TeamMember {
 
     /* --- Date of joining the Team --- */
     @CreationTimestamp
+    @JdbcTypeCode(org.hibernate.type.SqlTypes.TIMESTAMP_UTC)
     @Column(name = "joining_date", updatable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private Instant joiningDate;
 
     /* --- Last date of reading messages from the Team --- */
     @CreationTimestamp
+    @JdbcTypeCode(org.hibernate.type.SqlTypes.TIMESTAMP_UTC)
     @Column(name = "last_read_date", updatable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private Instant lastReadDate;
 

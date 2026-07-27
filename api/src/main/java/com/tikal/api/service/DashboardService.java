@@ -414,6 +414,7 @@ public class DashboardService {
                     .colour(eventColour)
                     .eventType(event.getEventType())
                     .isActivateTracker(event.getIsActivateTracker())
+                    .isCompleteDay(event.getIsCompleteDay())
                     .build();
 
         }).collect(Collectors.toList());
