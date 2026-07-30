@@ -28,7 +28,7 @@ export const DynamicIslandComponent = () => {
      */
     const { dynamicIslandStates, dynamicIslandData, dynamicIslandActions } = useDynamicIslandLogic();
 
-    const { isActive, secs, ProjectIcon, taskName, toggleTimer, stopTimer, isTrackerExpanded, isFullyExpanded } =
+    const { isActive, secs, taskName, toggleTimer, stopTimer, isTrackerExpanded, isFullyExpanded } =
         dynamicIslandStates;
     const { hours, minutes, seconds, darkColor, lightColor, headerTimeString, DisplayIcon } = dynamicIslandData;
     const { handleBackdropClick, handleMouseEnter, handleMouseLeave, handleTouchStart, handleTouchEnd } =

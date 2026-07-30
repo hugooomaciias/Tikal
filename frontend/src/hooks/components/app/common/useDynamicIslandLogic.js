@@ -11,6 +11,7 @@ import { IconDatabase } from "@tabler/icons-react";
 import resolveConfig from "tailwindcss/resolveConfig";
 import tailwindConfig from "../../../../../tailwind.config.js";
 import { PHASE_COLOURS } from "../../../../constants/phase_colours.js";
+import { PROJECTS_ICONS } from "../../../../constants/projects_icons.js";
 
 /**
  * Tailwind Configuration Resolver
@@ -40,16 +41,22 @@ export const useDynamicIslandLogic = () => {
      *
      * Retrieves global time tracking state and methods to safely interact with the active timer session.
      */
-    const {
-        isActive,
-        secs,
-        activeColorId,
-        projectIcon: ProjectIcon,
-        taskName,
-        toggleTimer,
-        stopTimer,
-        getParsedTime,
-    } = useTimeLog();
+    const { trackerStates, trackerActions } = useTimeLog();
+    const { 
+        isTimerRunning: isActive, 
+        accumulatedSeconds: secs, 
+        activeWidgetData 
+    } = trackerStates;
+
+    const { 
+        handleStartTask, 
+        handlePauseTask, 
+        handleTriggerStopSequence 
+    } = trackerActions;
+
+    const activeColorId = activeWidgetData?.colour;
+    const taskName = activeWidgetData?.entityName || "Sin tarea";
+    const iconIdentifier = activeWidgetData?.logo;
 
     /**
      * Long Press Timeout Reference
@@ -113,8 +120,17 @@ export const useDynamicIslandLogic = () => {
      * and leftover seconds. Updates exactly once per active tick.
      */
     const { hours, minutes, seconds, hasHours } = useMemo(() => {
-        return getParsedTime(secs);
-    }, [secs, getParsedTime]);
+        const h = Math.floor(secs / 3600);
+        const m = Math.floor((secs % 3600) / 60);
+        const s = secs % 60;
+        
+        return {
+            hours: h,
+            minutes: m.toString().padStart(2, '0'),
+            seconds: s.toString().padStart(2, '0'),
+            hasHours: h > 0
+        };
+    }, [secs]);
 
     /**
      * Compact Header Time Format
@@ -133,8 +149,12 @@ export const useDynamicIslandLogic = () => {
      * a database marker as a safety fallback if none exists.
      */
     const DisplayIcon = useMemo(() => {
-        return ProjectIcon || IconDatabase;
-    }, [ProjectIcon]);
+        if (!iconIdentifier) return IconDatabase;
+        const iconObj = PROJECTS_ICONS.find(
+            (i) => i.id === iconIdentifier || i.component?.name === iconIdentifier
+        );
+        return iconObj ? iconObj.component : IconDatabase;
+    }, [iconIdentifier]);
 
     // --- 4. Side Effects ---
 
@@ -158,6 +178,46 @@ export const useDynamicIslandLogic = () => {
     }, [isTrackerExpanded]);
 
     // --- 5. Interaction Handlers ---
+
+    /**
+     * Toggle Timer State
+     *
+     * Memoized interaction handler that flips the global timer status. If a session 
+     * is currently active, it dispatches a pause command. If inactive (and a valid task 
+     * context exists), it triggers a start/resume command utilizing the strictly cached task credentials.
+     *
+     * @function
+     * @returns {void}
+     */
+    const toggleTimer = useCallback(() => {
+        if (isActive) {
+            handlePauseTask();
+        } else if (activeWidgetData?.taskId) {
+            console.log(activeWidgetData);
+            handleStartTask(
+                activeWidgetData.taskId, 
+                activeWidgetData.entityName, 
+                activeWidgetData.colour, 
+                activeWidgetData.logo
+            );
+        }
+    }, [isActive, activeWidgetData, handlePauseTask, handleStartTask]);
+
+    /**
+     * Trigger Stop Sequence
+     *
+     * Memoized interaction handler that intercepts the click event to prevent bubbling 
+     * (e.g., stopping the island from collapsing), and delegates the termination flow to 
+     * the global controller, which typically mounts the confirmation and logging modal.
+     *
+     * @function
+     * @param {React.MouseEvent|Event} e - The UI event object used to halt propagation.
+     * @returns {void}
+     */
+    const stopTimer = useCallback((e) => {
+        if (e) e.stopPropagation();
+        handleTriggerStopSequence();
+    }, [handleTriggerStopSequence]);
 
     /**
      * Backdrop Click Handler
@@ -244,7 +304,6 @@ export const useDynamicIslandLogic = () => {
         dynamicIslandStates: {
             isActive,
             secs,
-            ProjectIcon,
             taskName,
             toggleTimer,
             stopTimer,

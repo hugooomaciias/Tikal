@@ -5,7 +5,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-d
 /** Contexts, Hooks & Services */
 import { AuthProvider } from "./context/AuthContext";
 import { SyncProvider } from "./context/SyncContext";
-import { TimeLogProvider } from "./context/TimeLogContext";
+import { TimeLogProvider } from "./context/TimeLogContext.jsx";
 
 /** Components & Layouts */
 import { ProtectedRoute } from "./components/security/ProtectedRoute.jsx";
@@ -20,6 +20,7 @@ import { HomePage } from "./pages/app/HomePage";
 import { TasksPage } from "./pages/app/TasksPage";
 import { CalendarPage } from "./pages/app/CalendarPage";
 import { StatisticsPage } from "./pages/app/StatisticsPage";
+import { TempleModePage } from "./pages/app/TempleModePage";
 
 /** Assets, Utils & Constants */
 import "./i18n";
@@ -96,6 +97,15 @@ function App() {
                                 element={
                                     <ProtectedRoute>
                                         <StatisticsPage />
+                                    </ProtectedRoute>
+                                }
+                            />
+
+                            <Route
+                                path="/temple-mode"
+                                element={
+                                    <ProtectedRoute>
+                                        <TempleModePage />
                                     </ProtectedRoute>
                                 }
                             />

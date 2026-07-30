@@ -112,6 +112,20 @@ export const SyncProvider = ({ children }) => {
     }, [navigate, isSyncing]);
 
     /**
+     * Get Tasks Data
+     *
+     * Retrieves the comprehensive tasks data payload (which typically includes projects, 
+     * phases, and individual task structures) from the globally synced dashboard state. 
+     * This acts as the primary data selector for task-related components and hooks.
+     *
+     * @function
+     * @returns {Object|null} The hierarchical tasks data object, or null if the dashboard data is not yet loaded.
+     */
+    const getTasksData = useCallback(() => {
+        return rawDashboardData?.tasks || null;
+    }, [rawDashboardData]);
+
+    /**
      * Get User Profile
      *
      * Retrieves the user profile information from the synced dashboard data.
@@ -208,6 +222,19 @@ export const SyncProvider = ({ children }) => {
     }, [rawDashboardData]);
 
     /**
+     * Get Temple Mode Data
+     *
+     * Retrieves the specific configuration and state payload for the "Temple Mode" 
+     * (deep focus/zen mode) from the globally synced dashboard data.
+     *
+     * @function
+     * @returns {Object|null} The Temple Mode data object, or null if not loaded.
+     */
+    const getTempleModeData = useCallback(() => {
+        return rawDashboardData?.templeMode || null;
+    }, [rawDashboardData]);
+
+    /**
      * Update Context Data (The Golden Key)
      *
      * Allows custom hooks to surgically update specific parts of the global
@@ -240,6 +267,7 @@ export const SyncProvider = ({ children }) => {
                 sync,
                 updateContextData,
                 rawDashboardData,
+                getTasksData,
                 getUserProfile,
                 getHomeGeneralInformation,
                 getHomeLayout,
@@ -248,6 +276,7 @@ export const SyncProvider = ({ children }) => {
                 getStatisticsLayout,
                 getStatisticsWidgetsData,
                 getCalendarEvents,
+                getTempleModeData,
                 isDataLoaded: !!rawDashboardData,
                 refreshData: sync,
             }}

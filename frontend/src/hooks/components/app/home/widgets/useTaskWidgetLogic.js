@@ -37,7 +37,9 @@ export const useTaskWidgetLogic = ({ props }) => {
      *
      * Accesses the global time tracking state and methods to play, stop, and set active tasks.
      */
-    const { isActive, taskId, taskName, playTimer, stopTimer, setActiveTask } = useTimeLog();
+    const { trackerStates, trackerActions } = useTimeLog();
+    const { isTimerRunning, activeWidgetData, accumulatedSeconds } = trackerStates;
+    const { handleStartTask, handlePauseTask, handleTriggerStopSequence } = trackerActions;
 
     /**
      * Tasks Controller
@@ -204,26 +206,36 @@ export const useTaskWidgetLogic = ({ props }) => {
      */
     const handlePlayTask = useCallback(
         (task) => {
-            if (isActive && taskName === task.name) {
-                stopTimer();
-                return;
-            } else if (!isActive && taskName === task.name) {
-                playTimer();
-                return;
+            const isThisTaskActive = activeWidgetData?.taskId === task.taskId;
+
+            if (isTimerRunning && isThisTaskActive) {
+                handlePauseTask();
             } else {
-                const IconComponent = getIconComponent(task.logo);
-                setActiveTask(null, null, task.taskId, task.color, IconComponent, task.name, "");
+                handleStartTask(task.taskId, task.name, task.color, task.logo);
             }
         },
-        [isActive, taskName, stopTimer, playTimer, getIconComponent, setActiveTask],
+        [isTimerRunning, activeWidgetData, handlePauseTask, handleStartTask],
     );
 
     // --- 6. Return Object ---
 
     return {
         t,
-        taskWidgetStates: { isActive, taskId, taskData, activeIndex },
+        taskWidgetStates: { 
+            isActive: isTimerRunning,
+            taskId: activeWidgetData?.taskId,
+            isAnyTaskInContext: Boolean(activeWidgetData?.id) || accumulatedSeconds > 0,
+            taskData,
+            activeIndex
+        },
         taskWidgetData: { currentCard, prevIndex1, prevIndex2, cardsBehind, canGoNext },
-        taskWidgetActions: { getIconComponent, handleToggleTask, handleNextCard, jumpToCard, handlePlayTask },
+        taskWidgetActions: {
+            getIconComponent,
+            handleToggleTask,
+            handleNextCard,
+            jumpToCard,
+            handlePlayTask,
+            handleStopTask: handleTriggerStopSequence
+        },
     };
 };

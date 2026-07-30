@@ -61,6 +61,30 @@ export const useTasksCardLogic = (data, projectId, stageId, isCompletedFilter, s
     });
 
     /**
+     * Tasks Controller Context
+     *
+     * Extracts global methods for task mutation (update, delete, toggle completion)
+     * to synchronize local UI interactions directly with the backend API.
+     */
+    const { deleteTask, updateTask, toggleTaskCompletion } = useTasks();
+
+    /**
+     * Global Time Tracker Context
+     *
+     * Retrieves the global timer state and mutation actions to tightly couple 
+     * the local tasks list with the application's global time logging system.
+     */
+    const { trackerStates, trackerActions } = useTimeLog();
+    const { 
+        isTimerRunning: isGlobalTimerActive, 
+        activeWidgetData, 
+        accumulatedSeconds: secs 
+    } = trackerStates;
+    const { handleStartTask, handlePauseTask, handleTriggerStopSequence } = trackerActions;
+
+    // --- 2. Local UI State ---
+
+    /**
      * Active Task State
      *
      * Tracks the ID of the currently highlighted/expanded task row, driving the subtask view UI.
@@ -99,19 +123,20 @@ export const useTasksCardLogic = (data, projectId, stageId, isCompletedFilter, s
     // --- 3. Derived UI Data ---
 
     /**
-     * Global Hooks Integration
+     * Active Global Task ID
      *
-     * Extracts global methods for task mutation and global time logging.
+     * Derives the unique identifier of the task currently being tracked by the global timer.
+     * Used to highlight the "playing" state on the specific task row.
      */
-    const { deleteTask, updateTask, toggleTaskCompletion } = useTasks();
-    const {
-        setActiveTask,
-        secs,
-        isActive: isGlobalTimerActive,
-        taskId: activeGlobalTaskId,
-        toggleTimer,
-        stopTimer,
-    } = useTimeLog();
+    const activeGlobalTaskId = activeWidgetData?.taskId;
+
+    /**
+     * Contextual Task Indicator
+     *
+     * Evaluates whether there is any active task footprint in the global context,
+     * either via an explicitly selected backend task or an active running timer.
+     */
+    const isAnyTaskInContext = Boolean(activeWidgetData?.id) || secs > 0;
 
     /**
      * Filtered Tasks Array
@@ -386,19 +411,15 @@ export const useTasksCardLogic = (data, projectId, stageId, isCompletedFilter, s
             e.stopPropagation();
             const isThisTaskCurrentlyActive = String(activeGlobalTaskId) === String(task.id);
 
-            if (isThisTaskCurrentlyActive) {
-                toggleTimer();
+            if (isGlobalTimerActive && isThisTaskCurrentlyActive) {
+                // Si esta tarea ya está corriendo, la pausamos
+                handlePauseTask();
             } else {
-                const iconIdentifier = task.logo;
-                const iconObj = PROJECTS_ICONS.find(
-                    (i) => i.id === iconIdentifier || i.component?.name === iconIdentifier,
-                );
-                const IconComp = iconObj ? iconObj.component : IconDatabase;
-
-                setActiveTask(projectId, stageId, task.id, task.colour, IconComp, task.name, stageName);
+                // Si es una nueva o estaba pausada, la reanudamos
+                handleStartTask(task.id, task.name, task.colour, task.logo);
             }
         },
-        [activeGlobalTaskId, toggleTimer, projectId, stageId, stageName, setActiveTask],
+        [activeGlobalTaskId, isGlobalTimerActive, handlePauseTask, handleStartTask],
     );
 
     /**
@@ -412,9 +433,10 @@ export const useTasksCardLogic = (data, projectId, stageId, isCompletedFilter, s
     const handleStopTask = useCallback(
         (e) => {
             e.stopPropagation();
-            stopTimer();
+            // Disparamos la secuencia de guardado del modal
+            handleTriggerStopSequence();
         },
-        [stopTimer],
+        [handleTriggerStopSequence],
     );
 
     /**
@@ -481,9 +503,9 @@ export const useTasksCardLogic = (data, projectId, stageId, isCompletedFilter, s
 
     return {
         tasksCardStates: {
-            secs,
             isGlobalTimerActive,
             activeGlobalTaskId,
+            isAnyTaskInContext,
             contextMenuRef,
             contextMenuStates,
             contextMenuActions,

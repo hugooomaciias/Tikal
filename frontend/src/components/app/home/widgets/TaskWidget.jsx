@@ -7,6 +7,7 @@ import { TabsComponent } from "../../common/widgets/TabsComponent.jsx";
 /** Icons */
 import {
     IconPlayerPlayFilled,
+    IconPlayerPauseFilled,
     IconPlayerStopFilled,
     IconCircleCheckFilled,
     IconCircleCheck,
@@ -49,9 +50,9 @@ export const TaskWidget = ({ props }) => {
      */
     const { t, taskWidgetStates, taskWidgetData, taskWidgetActions } = useTaskWidgetLogic({ props });
 
-    const { isActive, taskId, taskData, activeIndex } = taskWidgetStates;
+    const { isActive, taskId, isAnyTaskInContext, taskData, activeIndex } = taskWidgetStates;
     const { currentCard, prevIndex1, prevIndex2, cardsBehind, canGoNext } = taskWidgetData;
-    const { getIconComponent, handleToggleTask, handleNextCard, jumpToCard, handlePlayTask } = taskWidgetActions;
+    const { getIconComponent, handleToggleTask, handleNextCard, jumpToCard, handlePlayTask, handleStopTask } = taskWidgetActions;
 
     // --- 2. Render ---
 
@@ -126,6 +127,8 @@ export const TaskWidget = ({ props }) => {
                             const colors = foundColor
                                 ? { bg: foundColor.hex, text: foundColor.text }
                                 : { bg: tailwindColors.primary[600], text: tailwindColors.primary["DEFAULT"] };
+                            const isThisTaskInContext = taskId === task.taskId && isAnyTaskInContext;
+                            const isThisTaskTimerRunning = isActive && taskId === task.taskId;
 
                             return (
                                 <div
@@ -154,22 +157,32 @@ export const TaskWidget = ({ props }) => {
                                             onClick={() => handlePlayTask(task)}
                                             className="flex items-center justify-center bg-primary-50 text-primary-600 rounded-full p-1.5"
                                         >
-                                            {isActive && taskId === task.taskId ? (
-                                                <IconPlayerStopFilled className="h-5 w-5" />
+                                            {isThisTaskTimerRunning ? (
+                                                <IconPlayerPauseFilled className="h-5 w-5" />
                                             ) : (
                                                 <IconPlayerPlayFilled className="h-5 w-5" />
                                             )}
                                         </button>
-                                        <button
-                                            className="flex items-center justify-center bg-primary-50 text-primary-600 rounded-full p-1.5"
-                                            onClick={() => handleToggleTask(task)}
-                                        >
-                                            {task.isCompleted ? (
-                                                <IconCircleCheckFilled className="h-5 w-5" />
-                                            ) : (
-                                                <IconCircleCheck className="h-5 w-5" />
-                                            )}
-                                        </button>
+
+                                        {isThisTaskInContext ? (
+                                            <button
+                                                className="flex items-center justify-center bg-primary-50 text-primary-600 rounded-full p-1.5"
+                                                onClick={() => handleStopTask()}
+                                            >
+                                                <IconPlayerStopFilled className="h-5 w-5" />
+                                            </button>
+                                        ) : (
+                                            <button
+                                                className="flex items-center justify-center bg-primary-50 text-primary-600 rounded-full p-1.5"
+                                                onClick={() => handleToggleTask(task)}
+                                            >
+                                                {task.isCompleted ? (
+                                                    <IconCircleCheckFilled className="h-5 w-5" />
+                                                ) : (
+                                                    <IconCircleCheck className="h-5 w-5" />
+                                                )}
+                                            </button>
+                                        )}
                                     </div>
                                 </div>
                             );

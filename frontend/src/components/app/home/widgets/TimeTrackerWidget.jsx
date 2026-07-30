@@ -1,119 +1,61 @@
-/** React & Third-Party Libraries */
-import React from "react";
-
 /** Contexts, Hooks & Services */
 import { useTimeLog } from "../../../../hooks/core/useTimeLog.js";
+import { useTimeTrackerWidgetLogic } from "../../../../hooks/components/app/home/widgets/useTimeTrackerWidget.js";
 
 /** Components & Layouts */
 import { ScrollingText } from "../../common/ScrollingText.jsx";
 
 /** Icons */
-import { IconDatabase, IconPlayerPlayFilled, IconPlayerPauseFilled, IconPlayerStopFilled } from "@tabler/icons-react";
-
-/** Assets, Utils & Constants */
-import { PHASE_COLOURS } from "../../../../constants/phase_colours.js";
-import tailwindConfig from "../../../../../tailwind.config.js";
-import resolveConfig from "tailwindcss/resolveConfig";
-
-/**
- * Tailwind Configuration Resolver
- *
- * Resolves the Tailwind configuration to extract the defined color palette,
- * ensuring the color constants match the application's global design tokens.
- */
-const fullConfig = resolveConfig(tailwindConfig);
-const tailwindColors = fullConfig.theme.colors;
+import { IconPlayerPlayFilled, IconPlayerPauseFilled, IconPlayerStopFilled } from "@tabler/icons-react";
 
 /**
  * Time Tracker Widget Component
  *
- * This component is primarily visual, rendering a widget for tracking time spent on specific tasks.
- * It manages minimal local state exclusively for UI interactions (e.g., retrieving timer context and 
- * resolving layout colors) without the need for a separate headless hook.
+ * A purely visual dashboard widget that acts as the primary interface for the global 
+ * time tracking system. It delegates all state derivation, theme resolution, and 
+ * interaction logic to its dedicated headless hook (`useTimeTrackerWidgetLogic`), 
+ * keeping this file strictly focused on UI presentation and layout.
  *
  * @component
- * @returns {JSX.Element} The rendered time tracker widget.
+ * @returns {JSX.Element} The rendered time tracker dashboard widget.
  */
 export const TimeTrackerWidget = () => {
-    // --- 1. Local UI Logic ---
+    // --- 1. Logic Hook Extraction ---
 
     /**
-     * Time Tracker Context
+     * Time Tracker Widget Data & Action Handlers
      *
-     * Retrieves current timer state, formatting functions, and control actions
-     * to interact with the global time tracker.
+     * Extracts the pre-calculated dynamic styling (colors), parsed time segments (hours, minutes, seconds),
+     * running states, and memoized interaction handlers directly from the headless logic hook.
      */
-    const { isActive, secs, toggleTimer, stopTimer, getParsedTime, activeColorId, taskName, subtaskName, projectIcon } =
-        useTimeLog();
+    const { timeTrackerWidgetStates, timeTrackerWidgetData, timeTrackerWidgetActions } = useTimeTrackerWidgetLogic();
 
-    /**
-     * Display Task Name
-     *
-     * Provides a fallback string if no task name is currently active.
-     */
-    const displayTaskName = taskName || "No se ha seleccionado ninguna tarea";
-
-    /**
-     * Display Subtask Name
-     *
-     * Fallback for the subtask name, empty string if none.
-     */
-    const displaySubTaskName = subtaskName || "";
-
-    /**
-     * Display Icon
-     *
-     * Retrieves the project icon from context, falling back to a generic database icon.
-     */
-    const DisplayIcon = projectIcon || IconDatabase;
-
-    /**
-     * Widget Colors Configuration
-     *
-     * Resolves the primary background and text colors based on the active project's phase color,
-     * falling back to default brand primary colors if not found.
-     */
-    const foundColor = PHASE_COLOURS.find((c) => c.id === activeColorId);
-    const colors = foundColor
-        ? { dark: foundColor.hex, light: foundColor.light }
-        : { dark: tailwindColors.primary[600], light: tailwindColors.primary.DEFAULT };
-
-    /**
-     * Parsed Time
-     *
-     * Converts raw seconds into an object containing formatted hours, minutes, and seconds.
-     */
-    const { hours, minutes, seconds } = getParsedTime(secs);
+    const { isTimerRunning, accumulatedSeconds, displayTaskName } = timeTrackerWidgetStates;
+    const { hours, minutes, seconds, colors, DisplayIcon } = timeTrackerWidgetData;
+    const { handleToggleClick, handleTriggerStopSequence } = timeTrackerWidgetActions;
 
     // --- 2. Render ---
 
     return (
         <div className="h-full w-full flex flex-col items-center justify-end gap-2">
             {/* Header: Task Info & Icon */}
-            <div
-                className={`w-full flex ${displaySubTaskName ? "items-start" : "items-center"} justify-between gap-3 shrink-0`}
-                style={{ color: colors.light }}
-            >
+            <div className="w-full flex items-center justify-between gap-3 shrink-0" style={{ color: colors.light }}>
                 {/* Scrolling Titles */}
                 <div className="min-w-0 flex flex-1 flex-col items-start text-xl">
                     <ScrollingText text={displayTaskName} className="font-semibold" />
-                    {displaySubTaskName && <ScrollingText text={displaySubTaskName} className="font-thin" />}
                 </div>
 
                 {/* Project Icon */}
-                <div
-                    className={`${displaySubTaskName ? "mt-1" : ""} mr-1`}
-                    style={{ backgroundColor: `${colors.dark}15` }}
-                >
+                <div className="mr-1 p-1.5 rounded-xl" style={{ backgroundColor: `${colors.dark}15` }}>
                     <DisplayIcon className="w-6 h-6" />
                 </div>
             </div>
 
             {/* Timer & Controls Section */}
-            <div className={`h-[100px] w-full flex items-end justify-between ${displaySubTaskName ? "" : "mt-2"}`}>
+            <div className="h-[100px] w-full flex items-end justify-between mt-2">
                 {/* Timer Display */}
                 <div
-                    className="h-full flex flex-col items-start justify-center rounded-2xl p-3"
+                    className="h-full flex flex-col items-start justify-center rounded-2xl p-3 min-w-[110px]"
                     style={{ backgroundColor: colors.light, color: colors.dark }}
                 >
                     <span className="text-3xl font-semibold leading-none tabular-nums">{hours}h</span>
@@ -126,26 +68,27 @@ export const TimeTrackerWidget = () => {
                 <div className="h-full flex flex-col justify-between">
                     {/* Play / Pause Toggle Button */}
                     <button
-                        className="flex items-center justify-center rounded-full p-2 transition-transform duration-100 hover:scale-105 cursor-pointer"
+                        className="flex items-center justify-center rounded-full p-2 transition-transform duration-100 hover:scale-105 cursor-pointer border-none outline-none"
                         style={{ backgroundColor: colors.light, color: colors.dark }}
                         type="button"
-                        onClick={() => toggleTimer()}
+                        onClick={handleToggleClick}
                     >
-                        {isActive ? (
-                            <IconPlayerPauseFilled className="w-full h-full" />
+                        {isTimerRunning ? (
+                            <IconPlayerPauseFilled className="w-6 h-6" />
                         ) : (
-                            <IconPlayerPlayFilled className="w-full h-full" />
+                            <IconPlayerPlayFilled className="w-6 h-6" />
                         )}
                     </button>
 
                     {/* Stop Button */}
                     <button
                         type="button"
-                        className="flex items-center justify-center rounded-full p-2 transition-transform duration-100 hover:scale-105 cursor-pointer"
+                        className="flex items-center justify-center rounded-full p-2 transition-transform duration-100 hover:scale-105 cursor-pointer border-none outline-none disabled:opacity-40 disabled:cursor-not-allowed"
                         style={{ backgroundColor: colors.light, color: colors.dark }}
-                        onClick={stopTimer}
+                        onClick={handleTriggerStopSequence}
+                        disabled={accumulatedSeconds === 0}
                     >
-                        <IconPlayerStopFilled className="w-full h-full" />
+                        <IconPlayerStopFilled className="w-6 h-6" />
                     </button>
                 </div>
             </div>

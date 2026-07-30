@@ -65,14 +65,29 @@ export const HeroComponent = () => {
      * properly within the Hero visual showcase without throwing context errors.
      */
     const mockTimeTrackerData = {
-        isActive: false,
-        toggleTimer: () => {},
-        stopTimer: () => {},
-        getParsedTime: () => ({ hours: "01", minutes: "20", seconds: "35" }),
-        activeColorId: "b3",
-        taskName: "Desarrollo Landing",
-        subtaskName: "Optimizando UI",
-        projectIcon: null,
+        trackerStates: {
+            isTimerRunning: false,
+            accumulatedSeconds: 4835, 
+            activeWidgetData: {
+                id: "mock-log-id-1",
+                taskId: "mock-task-id-101",
+                entityName: "Desarrollo Landing",
+                projectOrPhaseName: "Optimizando UI",
+                colour: "b3",
+                logo: null,
+                initDateTime: null,
+            },
+            showStopModal: false,
+            activityDescription: "",
+        },
+        trackerActions: {
+            handleStartTask: () => {},
+            handlePauseTask: () => {},
+            handleTriggerStopSequence: () => {},
+            handleConfirmStop: () => {},
+            setShowStopModal: () => {},
+            setActivityDescription: () => {},
+        },
     };
 
     /**

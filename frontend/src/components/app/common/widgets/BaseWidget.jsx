@@ -69,10 +69,9 @@ export const BaseWidget = ({
     /**
      * Time Tracker Context
      *
-     * Provides access to the global time tracking state, including the currently active
-     * phase color ID.
+     * Provides access to the global time tracking state.
      */
-    const timeLogContext = useTimeLog();
+    const { trackerStates } = useTimeLog();
 
     // --- 2. Local State ---
 
@@ -90,7 +89,7 @@ export const BaseWidget = ({
      *
      * Extracts the active color ID from the time tracker context if available.
      */
-    const activeColorId = timeLogContext?.activeColorId || null;
+    const activeColorId = trackerStates?.activeWidgetData?.colour || 'b3';
 
     /**
      * Children With Injected Props
