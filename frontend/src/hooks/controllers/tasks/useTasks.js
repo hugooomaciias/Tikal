@@ -272,6 +272,23 @@ export const useTasks = () => {
                 });
             });
 
+            if (!parentId) {
+                updateContextData("homeGeneralInformation", (currentInfo = []) => {
+                    return currentInfo.map((item) => {
+                        if (item.title === "Tareas pendientes") {
+                            const currentValue = parseInt(item.value, 10) || 0;
+                            
+                            const newValue = updatedTask.isCompleted 
+                                ? Math.max(0, currentValue - 1) 
+                                : currentValue + 1;
+                                
+                            return { ...item, value: String(newValue) };
+                        }
+                        return item;
+                    });
+                });
+            }
+
             return updatedTask;
         } catch (error) {
             console.error("Error completando la tarea:", error);

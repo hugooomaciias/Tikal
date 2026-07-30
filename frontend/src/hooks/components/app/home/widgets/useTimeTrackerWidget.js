@@ -5,9 +5,9 @@ import { useMemo, useCallback } from "react";
 import { useTimeLog } from "../../../../core/useTimeLog.js";
 
 /** Assets, Utils & Constants */
-import { PHASE_COLOURS } from "../../../../constants/phase_colours.js";
+import { PHASE_COLOURS } from "../../../../../constants/phase_colours.js";
 import { PROJECTS_ICONS } from "../../../../../constants/projects_icons.js";
-import tailwindConfig from "../../../../../tailwind.config.js";
+import tailwindConfig from "../../../../../../tailwind.config.js";
 import resolveConfig from "tailwindcss/resolveConfig";
 
 /**

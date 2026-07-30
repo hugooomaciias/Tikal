@@ -1,5 +1,4 @@
 /** Contexts, Hooks & Services */
-import { useTimeLog } from "../../../../hooks/core/useTimeLog.js";
 import { useTimeTrackerWidgetLogic } from "../../../../hooks/components/app/home/widgets/useTimeTrackerWidget.js";
 
 /** Components & Layouts */

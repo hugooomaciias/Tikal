@@ -125,6 +125,22 @@ public interface TaskRepository extends JpaRepository<Task, Integer>{
             "AND t.parentTask IS NULL " +
             "AND t.deadline IS NOT NULL")
     Integer countPendingTasks(@Param("userId")  Integer userId);
+    
+    /* --- Count the user's pending tasks --- */
+    @Query("""
+        SELECT COUNT(t)
+        FROM Task t
+        WHERE t.stage.project.userOwner.id = :userId
+        AND t.isCompleted = false
+        AND t.parentTask IS NULL
+        AND t.deadline >= :startOfDay
+        AND t.deadline < :endOfDay
+        """)
+    Integer countTodayPendingTasks(
+        @Param("userId") Integer userId,
+        @Param("startOfDay") Instant startOfDay,
+        @Param("endOfDay") Instant endOfDay
+    );
 
     /* --- Count the total number of tasks completed by the user --- */
     Integer countByAssignedUser_IdAndIsCompletedTrue(Integer userId);

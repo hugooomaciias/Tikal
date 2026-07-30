@@ -193,7 +193,6 @@ export const useDynamicIslandLogic = () => {
         if (isActive) {
             handlePauseTask();
         } else if (activeWidgetData?.taskId) {
-            console.log(activeWidgetData);
             handleStartTask(
                 activeWidgetData.taskId, 
                 activeWidgetData.entityName, 

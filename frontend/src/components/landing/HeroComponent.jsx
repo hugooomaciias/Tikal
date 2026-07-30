@@ -12,8 +12,6 @@ import { BaseWidget } from "../app/common/widgets/BaseWidget";
 import { TimeTrackerWidget } from "../app/home/widgets/TimeTrackerWidget";
 import { SolarChartWidget } from "../app/statistics/widgets/SolarChart/SolarChartWidget.jsx";
 
-/** Icons */
-
 /** Assets, Utils & Constants */
 import tailwindConfig from "../../../tailwind.config.js";
 
@@ -74,7 +72,7 @@ export const HeroComponent = () => {
                 entityName: "Desarrollo Landing",
                 projectOrPhaseName: "Optimizando UI",
                 colour: "b3",
-                logo: null,
+                logo: "IconDatabase",
                 initDateTime: null,
             },
             showStopModal: false,

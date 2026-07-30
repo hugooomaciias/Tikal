@@ -423,38 +423,43 @@ public class DashboardService {
     private List<HeaderInformation> buildHomeHeaders(Integer userId) {
         // 1. Tareas Pendientes
         Integer pendingTasks = taskRepository.countPendingTasks(userId);
+        
+        // 3. Tareas pendientes para hoy
+        Instant startOfDay = LocalDate.now(ZoneOffset.UTC).atStartOfDay().toInstant(ZoneOffset.UTC);
+        Instant endOfDay = LocalDate.now(ZoneOffset.UTC).plusDays(1).atStartOfDay().toInstant(ZoneOffset.UTC);
+        Integer todayTasks = taskRepository.countTodayPendingTasks(userId, startOfDay, endOfDay);
+        
+        // 2. Proyectos (Ajusta la llamada a tu repositorio de proyectos)
+        Integer totalProjects = projectRepository.countByUserOwnerId(userId);
 
-        // 2. Minutos trabajados HOY
+        // 4. Minutos trabajados HOY
         Integer todayMinutesWrapper = preFetchedData.getTodayTotalMinutes();
         int todayMinutes = todayMinutesWrapper != null ? todayMinutesWrapper : 0;
         String hoursAndMins = DateUtils.formatMinutes(todayMinutes);
-
-        // 3. Proyectos (Ajusta la llamada a tu repositorio de proyectos)
-        Integer totalProjects = projectRepository.countByUserOwnerId(userId);
 
         return List.of(
                 WorkspaceSyncDTO.HeaderInformation.builder()
                         .title("Tareas pendientes")
                         .value(String.valueOf(pendingTasks != null ? pendingTasks : 0))
-                        .logo("IconTrendingUp")
+                        .logo("IconListFilled")
+                        .custom("")
+                        .build(),
+                WorkspaceSyncDTO.HeaderInformation.builder()
+                        .title("Proyectos totales")
+                        .value(String.valueOf(totalProjects != null ? totalProjects : 0))
+                        .logo("IconClipboardTextFilled")
+                        .custom("")
+                        .build(),
+                WorkspaceSyncDTO.HeaderInformation.builder()
+                        .title("Tareas hoy")
+                        .value(String.valueOf(todayTasks != null ? todayTasks : 0))
+                        .logo("IconCalendarDue")
                         .custom("")
                         .build(),
                 WorkspaceSyncDTO.HeaderInformation.builder()
                         .title("Tiempo hoy")
                         .value(hoursAndMins)
                         .logo("IconClockHour3Filled")
-                        .custom("")
-                        .build(),
-                WorkspaceSyncDTO.HeaderInformation.builder()
-                        .title("Proyectos totales")
-                        .value(String.valueOf(totalProjects != null ? totalProjects : 0))
-                        .logo("IconClipboardTextFilled")
-                        .custom("")
-                        .build(),
-                WorkspaceSyncDTO.HeaderInformation.builder()
-                        .title("Proyectos totales")
-                        .value(String.valueOf(totalProjects != null ? totalProjects : 0))
-                        .logo("IconClipboardTextFilled")
                         .custom("")
                         .build()
         );

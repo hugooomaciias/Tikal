@@ -91,8 +91,6 @@ export const ComparisonWidget = ({ props, setCustomActions }) => {
         return null;
     }
 
-    console.log(metrics);
-
     return (
         <div className="h-full flex flex-col items-start justify-between w-full">
             {/* Dynamic Metrics List Layout */}

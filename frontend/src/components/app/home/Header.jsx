@@ -3,9 +3,10 @@ import { useHeaderLogic } from "../../../hooks/components/app/home/useHeaderLogi
 
 /** Icons */
 import {
-    IconTrendingUp,
+    IconListFilled,
     IconClockHour3Filled,
     IconClipboardTextFilled,
+    IconCalendarDue,
     IconEditFilled,
     IconSquareRoundedXFilled,
     IconSquareRoundedCheckFilled,
@@ -23,9 +24,10 @@ import logoSabidurIA from "../../../assets/ia/sabidurIAIcon.svg";
  * Declared outside the component to prevent unnecessary object recreation during re-renders.
  */
 const ICON_MAP = {
-    IconTrendingUp: IconTrendingUp,
+    IconListFilled: IconListFilled,
     IconClockHour3Filled: IconClockHour3Filled,
     IconClipboardTextFilled: IconClipboardTextFilled,
+    IconCalendarDue: IconCalendarDue
 };
 
 /**

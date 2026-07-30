@@ -73,17 +73,18 @@ export const CalendarWidget = ({ props, setCustomActions }) => {
      *
      * Maps backend event objects to FullCalendar compatible formats, applying consistent phase colors.
      */
+    console.log(props);
     const events = useMemo(() => {
         const backendEvents = props?.events || [];
 
         return backendEvents.map((event) => {
-            const matchedColor = PHASE_COLOURS.find((c) => c.id === event.color) || PHASE_COLOURS[0];
+            const matchedColor = PHASE_COLOURS.find((c) => c.id === event.colour) || PHASE_COLOURS[0];
 
             return {
                 id: event.id.toString(),
-                title: event.title,
-                start: event.startDate,
-                end: event.endDate,
+                title: event.name,
+                start: event.initDateTime,
+                end: event.endDateTime,
                 extendedProps: {
                     description: event.description,
                     colorId: matchedColor.id,
