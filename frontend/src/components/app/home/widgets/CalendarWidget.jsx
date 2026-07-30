@@ -73,7 +73,6 @@ export const CalendarWidget = ({ props, setCustomActions }) => {
      *
      * Maps backend event objects to FullCalendar compatible formats, applying consistent phase colors.
      */
-    console.log(props);
     const events = useMemo(() => {
         const backendEvents = props?.events || [];
 

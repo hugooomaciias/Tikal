@@ -91,7 +91,6 @@ export const PaymentPage = () => {
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-primary-300">
-            /* Main Content Constraining Container */
             <div className="w-full max-w-6xl mx-auto flex items-center justify-items-center gap-16 p-12 md:p-8 mt-28 md:mt-0">
                 {/* Fixed Navigation Header Bar */}
                 <header className="fixed z-50 top-0 right-0 left-0 bg-primary-300 bg-opacity-80 backdrop-blur-md transition-all duration-500 ease-in-out">

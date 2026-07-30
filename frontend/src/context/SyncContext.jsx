@@ -1,5 +1,5 @@
 /** React & Context */
-import { createContext, useState, useCallback, useEffect } from "react";
+import { createContext, useState, useCallback, useEffect, useRef } from "react";
 
 /** Routing & Navigation */
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
@@ -42,6 +42,8 @@ export const SyncProvider = ({ children }) => {
      */
     const [isSyncing, setIsSyncing] = useState(false);
 
+    const isSyncingRef = useRef(false);
+
     /**
      * Navigation Hook
      *
@@ -56,26 +58,7 @@ export const SyncProvider = ({ children }) => {
      */
     const location = useLocation();
 
-    // --- 2. Initialization & Effects ---
-
-    /**
-     * Initial Load Effect
-     *
-     * Determines when to automatically trigger the `sync` process. It fires when
-     * a token exists, no data has been loaded, the user is not on a public page,
-     * and a sync is not already in progress.
-     */
-    useEffect(() => {
-        const token = localStorage.getItem("accessToken");
-        const isPublicPage = location.pathname === "/login" || location.pathname === "/loading";
-
-        if (token && !rawDashboardData && !isPublicPage && !isSyncing) {
-            sync();
-        }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [location.pathname, rawDashboardData, isSyncing]);
-
-    // --- 3. API & Action Methods ---
+    // --- 2. Synchronization method ---
 
     /**
      * Executes the initial synchronization flow.
@@ -90,11 +73,12 @@ export const SyncProvider = ({ children }) => {
      * @returns {Promise<Object|void>} The synchronized dashboard data, or void if halted.
      */
     const sync = useCallback(async () => {
-        if (isSyncing) return;
+        if (isSyncingRef.current) return;
 
         const token = localStorage.getItem("accessToken");
         if (!token) return;
 
+        isSyncingRef.current = true;
         setIsSyncing(true);
 
         try {
@@ -107,9 +91,30 @@ export const SyncProvider = ({ children }) => {
             }
             throw error;
         } finally {
+            isSyncingRef.current = false;
             setIsSyncing(false);
         }
-    }, [navigate, isSyncing]);
+    }, [navigate]);
+
+    // --- 3. Initialization & Effects ---
+
+    /**
+     * Initial Load Effect
+     *
+     * Determines when to automatically trigger the `sync` process. It fires when
+     * a token exists, no data has been loaded, the user is not on a public page,
+     * and a sync is not already in progress.
+     */
+    useEffect(() => {
+        const token = localStorage.getItem("accessToken");
+        const isPublicPage = location.pathname === "/login" || location.pathname === "/loading";
+
+        if (token && !isPublicPage) {
+            sync();
+        }
+    }, [location.pathname, sync]);
+
+    // --- 4. API & Action Methods ---
 
     /**
      * Get Tasks Data
@@ -259,7 +264,7 @@ export const SyncProvider = ({ children }) => {
         });
     }, []);
 
-    // --- 4. Context Provider ---
+    // --- 5. Context Provider ---
 
     return (
         <SyncContext.Provider
