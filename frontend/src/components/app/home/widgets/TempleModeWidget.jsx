@@ -2,32 +2,7 @@
 import React from "react";
 
 /** Assets, Utils & Constants */
-const RANK_OPTIONS = {
-    1: {
-        name: "text-primary-50/80",
-        primary: "bg-primary-300",
-        secondary: "bg-primary-50/80",
-        border: "group-hover:border-primary-300",
-    },
-    2: {
-        name: "text-secondary-50/80",
-        primary: "bg-secondary-400",
-        secondary: "bg-secondary-50/80",
-        border: "group-hover:border-secondary-400",
-    },
-    3: {
-        name: "text-tertiary-50/80",
-        primary: "bg-tertiary-400",
-        secondary: "bg-tertiary-50/80",
-        border: "group-hover:border-tertiary-400",
-    },
-    4: {
-        name: "text-red-50/80",
-        primary: "bg-red-400",
-        secondary: "bg-red-100/80",
-        border: "group-hover:border-red-400",
-    },
-};
+import { RANK_THEMES } from "../../../../constants/rank_themes.js";
 
 /**
  * Temple Mode Widget Component
@@ -62,7 +37,7 @@ export const TempleModeWidget = ({ props }) => {
      * Retrieves the specific styling and configuration options (colors, text classes)
      * corresponding to the user's current rank, falling back to rank 1.
      */
-    const rank_options = RANK_OPTIONS[rank] || RANK_OPTIONS[1];
+    const theme = RANK_THEMES[rank] || RANK_THEMES[1];
 
     // --- 2. Render ---
 
@@ -71,7 +46,7 @@ export const TempleModeWidget = ({ props }) => {
     return (
         <div className="h-full w-full flex flex-col justify-end gap-3">
             {/* Rank Title */}
-            <p className={`${rank_options.name} font-passero font-semibold tracking-[0.4em] uppercase`}>
+            <p className={`${theme.title} font-passero font-semibold tracking-[0.4em] uppercase`}>
                 {props.rankTitle}
             </p>
 
@@ -85,12 +60,29 @@ export const TempleModeWidget = ({ props }) => {
                         </span>
                         <span className="text-2xl font-light text-quaternary-200">min</span>
                     </div>
+                    
                     {/* Progress Bar Container */}
-                    <div className={`h-1.5 w-full ${rank_options.secondary} rounded-full mt-2 overflow-hidden`}>
-                        <div
-                            className={`h-full ${rank_options.primary} transition-all duration-500 ease-out`}
-                            style={{ width: `${props.rankPercentage}%` }}
-                        />
+                    <div className="w-full flex items-center gap-2 mt-1">
+                        <div className="relative flex-1 group/progress cursor-pointer">
+                            {/* Barra de Progreso */}
+                            <div className={`h-2 rounded-full overflow-hidden ${theme.widget.track}`}>
+                                <div
+                                    className={`h-full rounded-full transition-all duration-700 ease-out ${theme.progress}`}
+                                    style={{ width: `${props.rankPercentage}%` }}
+                                />
+                            </div>
+                            
+                            {/* Tooltip Flotante */}
+                            <div 
+                                className={`absolute -top-8 -translate-x-1/2 px-2.5 py-1 rounded-lg text-xs font-mono font-bold whitespace-nowrap opacity-0 scale-95 group-hover/progress:opacity-100 group-hover/progress:scale-100 transition-all duration-200 pointer-events-none z-10 shadow-xl backdrop-blur-md border border-white/10 ${theme.progress} ${theme.title}`}
+                                style={{ left: `${props.rankPercentage}%` }}
+                            >
+                                {props.rankPercentage}%
+                                
+                                {/* Triangulito del Tooltip */}
+                                <div className={`absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 rotate-45 ${theme.progress} border-b border-r border-white/10`} />
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -99,14 +91,14 @@ export const TempleModeWidget = ({ props }) => {
                     {[...Array(4)].map((_, i) => (
                         <div
                             key={i}
-                            className={`w-2 h-2 rounded-sm rotate-45 ${i < rank ? rank_options.primary : rank_options.secondary}`}
+                            className={`w-2 h-2 rounded-sm rotate-45 ${i < rank ? theme.progress : theme.widget.track}`}
                         />
                     ))}
                 </div>
 
                 {/* Masked Rank Icon Container */}
                 <div
-                    className={`w-20 h-20 rounded-2xl bg-gradient-to-br from-quaternary-700 to-quaternary-900 border-2 border-quaternary-500/50 flex items-center justify-center p-2 group transition-all ${rank_options.border}`}
+                    className={`w-20 h-20 rounded-2xl bg-gradient-to-br from-quaternary-700 to-quaternary-900 border-2 border-quaternary-500/50 flex items-center justify-center p-2 group transition-all ${theme.widget.borderLogoWidget}`}
                 >
                     <div
                         className={`w-full h-full bg-quaternary-200`}

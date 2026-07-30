@@ -1,0 +1,27 @@
+{
+    "temple-mode_title": "Modo templo",
+    "subheader": {
+        "rank_badge": {
+            "label": "Rango",
+            "totems": "Tótems"
+        },
+        "totem_badge": {
+            "label": {
+                "hasMoreTotems": "Siguiente objetivo",
+                "noMoreTotems": "Nivel completado"
+            },
+            "menu": {
+                "totem_types": {
+                    "concentration": "Concentración",
+                    "planning_accuracy": "Precisión de planificación",
+                    "global_effectiveness": "Eficacia global",
+                    "planning_accuracy_with_tasks": "Planificación con tareas",
+                    "effectiveness_with_tasks": "Eficacia con tareas",
+                    "effectiveness_with_streak": "Eficacia en tacha",
+                    "planning_and_effectiveness": "Planificación y eficacia",
+                    "all_previous_totems": "Maestría Total"
+                }
+            }
+        }
+    }
+}

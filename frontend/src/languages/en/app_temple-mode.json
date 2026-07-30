@@ -1,0 +1,27 @@
+{
+    "temple-mode_title": "Temple mode",
+    "subheader": {
+        "rank_badge": {
+            "label": "Rank",
+            "totems": "Totems"
+        },
+        "totem_badge": {
+            "label": {
+                "hasMoreTotems": "Next target",
+                "noMoreTotems": "Complete level"
+            },
+            "menu": {
+                "totem_types": {
+                    "concentration": "Concentration",
+                    "planning_accuracy": "Planning accuracy",
+                    "global_effectiveness": "Global efectiveness",
+                    "planning_accuracy_with_tasks": "Accuracy with tasks",
+                    "effectiveness_with_tasks": "Effectiveness with tasks",
+                    "effectiveness_with_streak": "Effectiveness with streak",
+                    "planning_and_effectiveness": "Planning and effectiveness",
+                    "all_previous_totems": "Maestría Total"
+                }
+            }
+        }
+    }
+}

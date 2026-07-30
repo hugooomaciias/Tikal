@@ -31,7 +31,7 @@ import logoSabidurIA from "../../../assets/ia/sabidurIAIcon.svg";
  * @param {Function} props.t - The i18n translation function.
  * @returns {JSX.Element} The rendered header component.
  */
-export const HeaderComponent = ({ page, primaryState, secondaryState, onTogglePrimary, onToggleSecondary, t }) => {
+export const HeaderComponent = ({ page, primaryState, secondaryState, onTogglePrimary, onToggleSecondary, theme = {}, t }) => {
     // --- 1. Local UI Logic ---
 
     /**
@@ -61,11 +61,14 @@ export const HeaderComponent = ({ page, primaryState, secondaryState, onTogglePr
                 {/* Page Title & Time Tracker Section */}
                 <div className="h-full w-fit flex items-center gap-2 md:gap-4 rounded-full">
                     {/* Active Page Indicator */}
-                    <div className="h-full w-fit bg-primary flex items-center px-5 py-3 rounded-full shadow-md">
-                        <h2 className="text-2xl text-primary-600 font-bold">{page}</h2>
+                    <div className="h-full w-fit bg-primary flex items-center px-5 py-3 rounded-full shadow-md text-2xl font-bold text-primary-600">
+                        {theme ? (
+                            <h2 className={`${theme.header}`}>{page}</h2>
+                        ) : (
+                            <h2>{page}</h2>
+                        )}
                     </div>
 
-                    {/* Dynamic Time Tracker Island */}
                     <DynamicIslandComponent />
                 </div>
 
@@ -141,9 +144,23 @@ export const HeaderComponent = ({ page, primaryState, secondaryState, onTogglePr
                     )}
 
                     {/* AI Assistant Global Action */}
-                    <button className="h-fit w-fit bg-primary p-3 rounded-full shadow-md">
-                        <img className="w-10 h-10" src={logoSabidurIA} alt="Icono Dios de la Sabiduría" />
-                    </button>
+                    <div className="h-full w-fit flex items-center gap-6">
+                        <button className="h-fit w-fit bg-primary p-3 rounded-full shadow-md">
+                            <div
+                                className={`w-10 h-10 bg-primary-600 ${theme ? theme.headerIA : ""}`}
+                                style={{
+                                    maskImage: `url(${logoSabidurIA})`,
+                                    WebkitMaskImage: `url(${logoSabidurIA})`,
+                                    maskRepeat: "no-repeat",
+                                    WebkitMaskRepeat: "no-repeat",
+                                    maskSize: "contain",
+                                    WebkitMaskSize: "contain",
+                                    maskPosition: "center",
+                                    WebkitMaskPosition: "center",
+                                }}
+                            />
+                        </button>
+                    </div>
                 </div>
             </div>
         </>

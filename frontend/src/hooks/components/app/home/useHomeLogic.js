@@ -31,7 +31,7 @@ const WIDGET_CONFIG = {
     templeModeWidget: {
         component: TempleModeWidget,
         titleKey: "widgets.temple_mode.title",
-        pageLink: "/home",
+        pageLink: "/temple-mode",
         textColor: "text-quaternary-50",
     },
     taskWidget: {
