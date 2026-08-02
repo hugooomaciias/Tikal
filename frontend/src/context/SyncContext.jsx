@@ -42,6 +42,15 @@ export const SyncProvider = ({ children }) => {
      */
     const [isSyncing, setIsSyncing] = useState(false);
 
+    /**
+     * Syncing Reference Lock
+     *
+     * A mutable ref object used as a synchronous concurrency lock. Unlike the `isSyncing` 
+     * React state, updating this ref is strictly synchronous and does not trigger re-renders. 
+     * It prevents overlapping or duplicate sync requests (race conditions) if the sync 
+     * function is called multiple times rapidly before the state has had time to batch update.
+     * @type {React.MutableRefObject<boolean>}
+     */
     const isSyncingRef = useRef(false);
 
     /**

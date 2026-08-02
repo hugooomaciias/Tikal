@@ -2,6 +2,7 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 
 /** Contexts, Hooks & Services */
+import { useSync } from "../../../core/useSync.js";
 import { useStages } from "../../../controllers/tasks/useStages.js";
 
 /** Config, Constants & Utils */
@@ -22,7 +23,9 @@ import { PHASE_COLOURS } from "../../../../constants/phase_colours.js";
  * @returns {Object} A structured payload containing states, derived data, and action handlers.
  */
 export const useStagesPopUpLogic = (initialData, onClose, projectId, projectType, t) => {
-    // --- 1. Derived Hierarchy Rules ---
+    // --- 1. DOM Refs & Layout State ---
+
+    const { getTempleModeData } = useSync();
 
     /**
      * Parent Constraint Computation
@@ -101,6 +104,28 @@ export const useStagesPopUpLogic = (initialData, onClose, projectId, projectType
      * Memoized to prevent recalculation, ensuring stable conditional rendering logic.
      */
     const isEditing = useMemo(() => Boolean(initialData), [initialData]);
+
+    /**
+     * Global Gamification Data Extraction
+     *
+     * Retrieves the current user's synced context, specifically tracking their global rank
+     * to determine which UI features or cosmetic options should be unlocked.
+     */
+    const data = getTempleModeData();
+
+    /**
+     * Gamified Dynamic Colours Array
+     *
+     * Maps over the static `PHASE_COLOURS` configuration to dynamically inject an `isLocked` boolean.
+     * Evaluates the user's current rank against the intrinsic minimum rank required for each colour.
+     * Memoized to prevent array recreation on every render unless the user's rank changes.
+     */
+    const gamifiedColours = useMemo(() => {
+        return PHASE_COLOURS.map((colour) => ({
+            ...colour,
+            isLocked: data.rank < (colour.minRank)
+        }));
+    }, [data.rank]);
 
     // --- 4. Side Effects ---
 
@@ -342,7 +367,7 @@ export const useStagesPopUpLogic = (initialData, onClose, projectId, projectType
 
     return {
         stagesPopUpStates: { selectedColour, formData, errors, isLoading, apiError, isVisible },
-        stagesPopUpData: { isEditing, disabledTabType },
+        stagesPopUpData: { isEditing, disabledTabType, gamifiedColours },
         stagesPopUpActions: {
             handleChange,
             handleSubmit,

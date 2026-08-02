@@ -2,6 +2,7 @@
 import { useState, useRef, useEffect, useMemo, useCallback } from "react";
 
 /** Contexts, Hooks & Services */
+import { useSync } from "../../../core/useSync.js";
 import { useCalendarEvents } from "../../../controllers/calendar/useCalendar.js";
 
 /** Config, Constants & Utils */
@@ -21,9 +22,10 @@ import { resolveColorObject, safeParseDate, formatDateTimeISO, resolveLinkPayloa
  * @param {Array<Object>} cascadingOptions - Injected nested hierarchical data array (projects, phases, tasks) for the link dropdown.
  * @returns {Object} A structured payload containing grouped DOM refs, state variables, derived data, and interaction handlers.
  */
-export const useEventPopUpLogic = (initialData, onClose, cascadingOptions) => {
+export const useEventPopUpLogic = (initialData, onClose, cascadingOptions, t) => {
     // --- 1. Contexts & DOM Refs ---
 
+    const { getTempleModeData } = useSync();
     const { createCalendarEvent, updateCalendarEvent } = useCalendarEvents();
 
     /**
@@ -106,6 +108,28 @@ export const useEventPopUpLogic = (initialData, onClose, cascadingOptions) => {
     const isColourLocked = useMemo(() => {
         return formData.type === "linked" && (formData.linkedEntity.startsWith("f_") || formData.linkedEntity.startsWith("t_"));
     }, [formData.type, formData.linkedEntity]);
+
+    /**
+     * Global Gamification Data Extraction
+     *
+     * Retrieves the current user's synced context, specifically tracking their global rank
+     * to determine which UI features or cosmetic options should be unlocked.
+     */
+    const data = getTempleModeData();
+
+    /**
+     * Gamified Dynamic Colours Array
+     *
+     * Maps over the static `PHASE_COLOURS` configuration to dynamically inject an `isLocked` boolean.
+     * Evaluates the user's current rank against the intrinsic minimum rank required for each colour.
+     * Memoized to prevent array recreation on every render unless the user's rank changes.
+     */
+    const gamifiedColours = useMemo(() => {
+        return PHASE_COLOURS.map((colour) => ({
+            ...colour,
+            isLocked: data.rank < (colour.minRank)
+        }));
+    }, [data.rank]);
 
     // --- 4. Side Effects ---
 
@@ -325,12 +349,12 @@ export const useEventPopUpLogic = (initialData, onClose, cascadingOptions) => {
         let isValid = true;
 
         if (!formData.name?.trim()) {
-            tempErrors.name = "Por favor, introduce un nombre para el evento";
+            tempErrors.name = t("popup.error.name");
             isValid = false;
         }
 
         if (formData.type === "linked" && !formData.linkedEntity?.trim()) {
-            tempErrors.linkedEntity = "Por favor, selecciona una vinculación";
+            tempErrors.linkedEntity = t("popup.error.linkedEntity");
             isValid = false;
         }
 
@@ -433,6 +457,7 @@ export const useEventPopUpLogic = (initialData, onClose, cascadingOptions) => {
         eventPopUpData: {
             isEditing,
             isColourLocked,
+            gamifiedColours,
         },
         eventPopUpActions: {
             handleModalClick,

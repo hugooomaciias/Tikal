@@ -9,9 +9,6 @@ import { PickerComponent } from "../common/popups/PickerComponent.jsx";
 /** Icons */
 import { IconCircleXFilled, IconNote, IconLoader } from "@tabler/icons-react";
 
-/** Assets, Utils & Constants */
-import { PHASE_COLOURS } from "../../../constants/phase_colours.js";
-
 /**
  * Stage PopUp Component
  *
@@ -45,7 +42,7 @@ export const StagePopUpComponent = ({ onClose, initialData, projectId, projectTy
     );
 
     const { selectedColour, formData, errors, isLoading, apiError, isVisible } = stagesPopUpStates;
-    const { isEditing, disabledTabType } = stagesPopUpData;
+    const { isEditing, disabledTabType, gamifiedColours } = stagesPopUpData;
     const {
         handleChange,
         handleSubmit,
@@ -120,7 +117,7 @@ export const StagePopUpComponent = ({ onClose, initialData, projectId, projectTy
                     {/* Form Section: Colour Picker & Title Input Row */}
                     <div className="flex items-center gap-3">
                         <PickerComponent
-                            items={PHASE_COLOURS}
+                            items={gamifiedColours}
                             selectedItem={selectedColour}
                             pickerType="colour"
                             onChange={handleDefaultColourSelection}

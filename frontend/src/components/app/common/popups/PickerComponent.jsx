@@ -4,6 +4,9 @@ import { useState, useRef, useEffect } from "react";
 /** Assets, Utils & Constants */
 import { PHASE_COLOURS } from "../../../../constants/phase_colours.js";
 
+/** Icons */
+import { IconLock } from "@tabler/icons-react";
+
 /**
  * Reusable Picker Component
  *
@@ -21,7 +24,7 @@ import { PHASE_COLOURS } from "../../../../constants/phase_colours.js";
  * @param {string} [props.pickerType="colour"] - Determines the rendering logic ("colour" or "icon").
  * @returns {JSX.Element} The rendered picker component.
  */
-export const PickerComponent = ({ items, selectedItem, onChange, disabled = false, pickerType = "colour" }) => {
+export const PickerComponent = ({ items, rank, selectedItem, onChange, disabled = false, pickerType = "colour" }) => {
     // --- 1. Local UI Logic ---
 
     /**
@@ -83,6 +86,8 @@ export const PickerComponent = ({ items, selectedItem, onChange, disabled = fals
      * @param {Object} item - The selected object from the picker grid.
      */
     const handleSelection = (item) => {
+        if (item.isLocked) return;
+
         onChange(item);
         setIsOpen(false);
     };
@@ -114,26 +119,45 @@ export const PickerComponent = ({ items, selectedItem, onChange, disabled = fals
             {/* Dropdown Grid Menu */}
             {isOpen && !disabled && (
                 <div className="absolute top-full left-0 h-48 w-60 max-h-48 bg-primary-400 rounded-xl shadow-xl p-3 mt-2 z-50 overflow-y-auto animate-fade-in custom-scrollbar">
-                    <div className={`grid ${pickerType === "colour" ? "grid-cols-5 gap-3" : "grid-cols-5 gap-1"}`}>
-                        {items.map((item) => (
-                            <button
-                                key={item.id}
-                                type="button"
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleSelection(item);
-                                }}
-                                className={
-                                    pickerType === "colour"
-                                        ? `w-7 h-7 rounded-full transition-all transform hover:scale-110 shadow-sm ${selectedItem?.id === item.id ? "ring-2 ring-primary ring-offset-2 ring-offset-primary-400" : "ring-1 ring-black/10"}`
-                                        : `h-fit w-fit flex items-center justify-center p-2 rounded-full transition-all transform ${selectedItem?.id === item.id ? "bg-primary-50 text-primary-500" : "text-primary hover:bg-primary-100/70 hover:scale-110"}`
-                                }
-                                style={pickerType === "colour" ? { backgroundColor: item.hex } : {}}
-                            >
-                                {/* Dynamic Grid Item Content */}
-                                {pickerType === "icon" && item.component && <item.component className="w-5 h-5" />}
-                            </button>
-                        ))}
+                    <div className={`grid ${pickerType === "colour" ? "grid-cols-6 gap-3" : "grid-cols-6 gap-1"}`}>
+                        {items.map((item) => {
+                            const isLocked = item.isLocked;
+                            const isSelected = selectedItem?.id === item.id;
+
+                            return (
+                                <button
+                                    key={item.id}
+                                    type="button"
+                                    disabled={isLocked}
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleSelection(item);
+                                    }}
+                                    className={`relative flex items-center justify-center transition-all transform
+                                        ${pickerType === "colour"
+                                            ? `w-7 h-7 rounded-full shadow-sm 
+                                               ${isSelected ? "ring-2 ring-primary ring-offset-2 ring-offset-primary-400" : "ring-1 ring-black/10"}
+                                               ${isLocked ? "opacity-30 cursor-not-allowed grayscale" : "hover:scale-110 cursor-pointer"}`
+                                            : `h-fit w-fit p-2 rounded-full
+                                               ${isSelected ? "bg-primary-50 text-primary-500" : "text-primary"}
+                                               ${isLocked ? "opacity-40 cursor-not-allowed" : "hover:bg-primary-100/70 hover:scale-110 cursor-pointer"}`
+                                        }
+                                    `}
+                                    style={pickerType === "colour" ? { backgroundColor: item.hex } : {}}
+                                >
+                                    {/* Dynamic Grid Item Content */}
+                                    {isLocked && (
+                                        <div className="absolute inset-0 flex items-center justify-center bg-black/20 rounded-full">
+                                            <span className="text-primary text-sm font-bold">{item.minRank}</span>
+                                        </div>
+                                    )}
+
+                                    {pickerType === "icon" && item.component && !isLocked && (
+                                        <item.component className="w-5 h-5" />
+                                    )}
+                                </button>
+                            )
+                        })}
                     </div>
                 </div>
             )}

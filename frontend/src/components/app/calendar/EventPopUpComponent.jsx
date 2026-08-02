@@ -2,7 +2,7 @@
 import { useEventPopUpLogic } from "../../../hooks/components/app/calendar/useEventPopUpLogic.js";
 
 /** Components & Layouts */
-import { CascadingLinkSelect } from "./CascadingLinkSelect.jsx";
+import { CascadingLinkSelect } from "../common/popups/CascadingLinkSelect.jsx";
 import { TabsComponent } from "../common/popups/TabsComponent.jsx";
 import { DatePickerComponent } from "../common/popups/DatePickerComponent.jsx";
 import { PickerComponent } from "../common/popups/PickerComponent.jsx";
@@ -11,7 +11,6 @@ import { PickerComponent } from "../common/popups/PickerComponent.jsx";
 import { IconCircleXFilled, IconNote } from "@tabler/icons-react";
 
 /** Assets, Utils & Constants */
-import { PHASE_COLOURS } from "../../../constants/phase_colours.js";
 import { TIME_OPTIONS } from "../../../utils/calendar/calendarUtils.js";
 
 /**
@@ -46,11 +45,12 @@ export const EventPopUpComponent = ({ onClose, initialData, cascadingOptions = [
         initialData,
         onClose,
         cascadingOptions,
+        t,
     );
 
     const { startTimeRef, endTimeRef } = eventPopUpRefs;
     const { isStartTimeOpen, isEndTimeOpen, formData, errors } = eventPopUpStates;
-    const { isEditing, isColourLocked } = eventPopUpData;
+    const { isEditing, isColourLocked, gamifiedColours } = eventPopUpData;
     const {
         handleModalClick,
         handleCascadingSelection,
@@ -137,7 +137,7 @@ export const EventPopUpComponent = ({ onClose, initialData, cascadingOptions = [
                     <div className="flex items-center gap-3">
                         {/* Event Distinctive Palette Selector */}
                         <PickerComponent
-                            items={PHASE_COLOURS}
+                            items={gamifiedColours}
                             selectedItem={formData.color}
                             disabled={isColourLocked}
                             pickerType="colour"
