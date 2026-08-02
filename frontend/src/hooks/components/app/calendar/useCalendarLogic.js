@@ -8,7 +8,7 @@ import { useCalendarEvents } from "../../../controllers/calendar/useCalendar.js"
 
 /** Config, Constants & Utils */
 import { PHASE_COLOURS } from "../../../../constants/phase_colours.js";
-import { resolveColorObject, extractDtoFromLinkedEntity } from "../../../../utils/calendar/calendarUtils.js";
+import { resolveColorObject, extractDtoFromLinkedEntity, generateCascadingOptions } from "../../../../utils/calendar/calendarUtils.js";
 import tailwindConfig from "../../../../../tailwind.config.js";
 import resolveConfig from "tailwindcss/resolveConfig";
 
@@ -34,6 +34,12 @@ const tailwindColors = fullConfig.theme.colors;
 export const useCalendarLogic = () => {
     // --- 1. Contexts & DOM Refs ---
 
+    /**
+     * Calendar Event Mutations
+     *
+     * Extracts asynchronous controller methods responsible for persisting event
+     * modifications (updates, date shifts, and deletions) to the backend server.
+     */
     const { updateCalendarEvent, updateCalendarEventDates, deleteCalendarEvent } = useCalendarEvents();
 
     /**
@@ -199,50 +205,19 @@ export const useCalendarLogic = () => {
      * Cascading Dropdown Selectors
      *
      * Memoized to optimize the parsing of deeply nested hierarchical task and project structures.
-     * Translates raw context arrays into standardized relational tags for modal forms.
+     * Translates raw context arrays into standardized relational tags for modal forms using an external utility.
      */
     const cascadingOptions = useMemo(() => {
         const tasks = getTasksData ? getTasksData() : [];
-
-        if (!tasks || tasks.length === 0) return [];
-
-        const options = [];
-
-        tasks.forEach((project) => {
-            options.push({
-                id: `p_${project.id}`,
-                type: "project",
-                name: project.name,
-                logo: project.logo,
-            });
-
-            if (project.stages && project.stages.length > 0) {
-                project.stages.forEach((stage) => {
-                    options.push({
-                        id: `f_${stage.id}`,
-                        type: "phase",
-                        name: stage.name,
-                        color: stage.colour,
-                        projectId: `p_${project.id}`,
-                    });
-
-                    if (stage.tasks && stage.tasks.length > 0) {
-                        stage.tasks.forEach((task) => {
-                            options.push({
-                                id: `t_${task.id}`,
-                                type: "task",
-                                name: task.name,
-                                phaseId: `f_${stage.id}`,
-                            });
-                        });
-                    }
-                });
-            }
-        });
-
-        return options;
+        return generateCascadingOptions(tasks);
     }, [getTasksData]);
 
+    /**
+     * Calendar Event Mutations
+     *
+     * Extracts asynchronous controller methods responsible for persisting event
+     * modifications (updates, date shifts, and deletions) to the backend server.
+     */
     const hasAllDayEvents = useMemo(() => {
         return events.some(event => event.allDay === true);
     }, [events]);

@@ -152,3 +152,53 @@ export const extractDtoFromLinkedEntity = (linkedEntity) => {
 
     return resolveLinkPayload("linked", targetId);
 };
+
+/**
+ * Generate Cascading Options
+ *
+ * Transmuta un array jerárquico de proyectos, fases y tareas en un array plano
+ * estandarizado con prefijos de ID (p_, f_, t_) y punteros relacionales,
+ * listo para ser consumido por componentes como CascadingLinkSelect.
+ *
+ * @param {Array} tasksData - Array crudo de proyectos proveniente del backend/contexto.
+ * @returns {Array} Array plano formateado para el selector en cascada.
+ */
+export const generateCascadingOptions = (tasksData = []) => {
+    if (!tasksData || tasksData.length === 0) return [];
+
+    const options = [];
+
+    tasksData.forEach((project) => {
+        options.push({
+            id: `p_${project.id}`,
+            type: "project",
+            name: project.name,
+            logo: project.logo,
+        });
+
+        if (project.stages && project.stages.length > 0) {
+            project.stages.forEach((stage) => {
+                options.push({
+                    id: `f_${stage.id}`,
+                    type: "phase",
+                    name: stage.name,
+                    color: stage.colour,
+                    projectId: `p_${project.id}`,
+                });
+
+                if (stage.tasks && stage.tasks.length > 0) {
+                    stage.tasks.forEach((task) => {
+                        options.push({
+                            id: `t_${task.id}`,
+                            type: "task",
+                            name: task.name,
+                            phaseId: `f_${stage.id}`,
+                        });
+                    });
+                }
+            });
+        }
+    });
+
+    return options;
+};

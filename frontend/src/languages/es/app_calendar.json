@@ -34,6 +34,10 @@
         "button": {
             "new": "Crear evento",
             "edit": "Guardar cambios"
+        },
+        "error": {
+            "name": "Por favor, introduce un nombre para el evento",
+            "linkedEntity": "Por favor, selecciona una vinculación"
         }
     }
 }

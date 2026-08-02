@@ -34,6 +34,10 @@
         "button": {
             "new": "Create event",
             "edit": "Save changes"
+        },
+        "error": {
+            "name": "Please enter a event name",
+            "linkedEntity": "Please select a link"
         }
     }
 }

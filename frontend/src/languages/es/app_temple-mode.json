@@ -23,5 +23,25 @@
                 }
             }
         }
+    },
+    "stopSessionButton": "Finalizar sesión",
+    "popup": {
+        "title": {
+            "timer": "Modo concentración",
+            "chrono": "Modo cronómetro"
+        },
+        "linked": {
+            "name": "Seleccionar vinculación",
+            "projects": "Proyectos",
+            "stages": "Fases",
+            "tasks": "Tareas",
+            "no_options": "No hay opciones en este nivel",
+            "button_message": {
+                "confirm": "Confirmar",
+                "cancel": "Cerrar"
+            }
+        },
+        "button": "Comenzar sesión",
+        "error": "Por favor, selecciona una entidad para concentrarte"
     }
 }

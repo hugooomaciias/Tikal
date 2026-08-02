@@ -2,8 +2,8 @@
 import { useState, useRef, useEffect } from "react";
 
 /** Assets, Utils & Constants */
-import { PROJECTS_ICONS } from "../../../constants/projects_icons.js";
-import { resolveColorObject } from "../../../utils/calendar/calendarUtils.js";
+import { PROJECTS_ICONS } from "../../../../constants/projects_icons.js";
+import { resolveColorObject } from "../../../../utils/calendar/calendarUtils.js";
 
 /**
  * Cascading Link Select Component
@@ -23,7 +23,7 @@ import { resolveColorObject } from "../../../utils/calendar/calendarUtils.js";
  * @param {Function} props.t - Internationalization translation function provided by i18next.
  * @returns {JSX.Element} The rendered cascading select dropdown component.
  */
-export const CascadingLinkSelect = ({ cascadingOptions = [], currentLinkId, onSelect, error, inputClass, t }) => {
+export const CascadingLinkSelect = ({ cascadingOptions = [], currentLinkId, onSelect, error, inputClass, theme, t }) => {
     // --- 1. Local UI Logic ---
 
     /**
@@ -174,6 +174,24 @@ export const CascadingLinkSelect = ({ cascadingOptions = [], currentLinkId, onSe
         return "w-[calc(100%-12px)]";
     };
 
+    /**
+     * Dynamic Theme Styles Configuration
+     *
+     * Extracts and maps the nested cascading link styles from the globally provided `theme` object.
+     * Implements a robust fallback mechanism using the logical OR operator (`||`) to default to standard
+     * 'primary' utility classes if the theme prop is undefined or lacks specific keys. This ensures
+     * the component gracefully degrades in non-gamified contexts without breaking the UI.
+     */
+    const styles = {
+        bg: theme?.cascading?.bg || "bg-primary-400",
+        pill: theme?.cascading?.pill || "bg-primary-50",
+        textActive: theme?.cascading?.textActive || "text-primary-400",
+        itemActive: theme?.cascading?.itemActive || "bg-primary-800/50",
+        itemHover: theme?.cascading?.itemHover || "hover:bg-primary-800/20",
+        border: theme?.cascading?.border || "border-primary-50",
+        btnConfirmBg: theme?.cascading?.btnConfirmBg || "bg-primary-50"
+    };
+
     // --- 2. Render ---
 
     return (
@@ -193,7 +211,7 @@ export const CascadingLinkSelect = ({ cascadingOptions = [], currentLinkId, onSe
             {/* Floating Input Text Label */}
             <label
                 htmlFor="linkedEntity"
-                className="input-label input-textarea-label-primary cursor-pointer truncate max-w-[90%]"
+                className={`input-label ${theme.input.placeholder} ${theme.input.labelFocus} cursor-pointer truncate max-w-[90%]`}
             >
                 {t("popup.linked.name")}
             </label>
@@ -205,20 +223,20 @@ export const CascadingLinkSelect = ({ cascadingOptions = [], currentLinkId, onSe
 
             {/* Animated Options Overlay Menu */}
             <div
-                className={`absolute left-0 lg:right-0 lg:left-auto mt-2 w-full origin-top bg-primary-400 rounded-2xl shadow-xl text-primary z-50 overflow-hidden transition-all duration-200 ${isOpen ? "scale-100 opacity-100" : "scale-95 opacity-0 pointer-events-none"}`}
+                className={`absolute left-0 lg:right-0 lg:left-auto mt-2 w-full origin-top ${styles.bg} rounded-2xl shadow-xl z-50 overflow-hidden transition-all duration-200 ${isOpen ? "scale-100 opacity-100" : "scale-95 opacity-0 pointer-events-none"}`}
             >
                 {/* Horizontal Level Selection Header */}
-                <div className="flex items-center justify-center w-full p-1.5 rounded-t-2xl relative overflow-hidden bg-primary-400">
+                <div className={`flex items-center justify-center w-full p-1.5 rounded-t-2xl relative overflow-hidden ${styles.bg}`}>
                     {/* Animated Tab Background Pill */}
                     <div
-                        className={`absolute top-1.5 bottom-1.5 left-1.5 bg-primary-50 rounded-xl shadow-sm transition-all duration-300 ease-out z-0 ${getPillWidth()}`}
+                        className={`absolute top-1.5 bottom-1.5 left-1.5 ${styles.pill} rounded-xl shadow-sm transition-all duration-300 ease-out z-0 ${getPillWidth()}`}
                     ></div>
 
                     {/* Level 1: Project Tab Button */}
                     <button
                         type="button"
                         onClick={(e) => handleTabSelect(e, "project")}
-                        className={`relative z-10 flex-1 py-2 text-sm font-semibold transition-colors duration-300 ${activeLinkTab === "project" || activeLinkTab === "phase" || activeLinkTab === "task" ? "text-primary-400" : "text-primary"}`}
+                        className={`relative z-10 flex-1 py-2 text-sm font-semibold transition-colors duration-300 ${activeLinkTab === "project" || activeLinkTab === "phase" || activeLinkTab === "task" ? styles.textActive : "text-primary"}`}
                     >
                         {t("popup.linked.projects")}
                     </button>
@@ -228,7 +246,7 @@ export const CascadingLinkSelect = ({ cascadingOptions = [], currentLinkId, onSe
                         type="button"
                         disabled={!cascadingPath.project}
                         onClick={(e) => handleTabSelect(e, "phase")}
-                        className={`relative z-10 flex-1 py-2 text-sm font-semibold transition-colors duration-300 ${activeLinkTab === "phase" || activeLinkTab === "task" ? "text-primary-400" : "text-primary"} ${!cascadingPath.project ? "opacity-70 cursor-not-allowed" : ""}`}
+                        className={`relative z-10 flex-1 py-2 text-sm font-semibold transition-colors duration-300 ${activeLinkTab === "phase" || activeLinkTab === "task" ? styles.textActive : "text-primary"} ${!cascadingPath.project ? "opacity-70 cursor-not-allowed" : ""}`}
                     >
                         {t("popup.linked.stages")}
                     </button>
@@ -238,35 +256,18 @@ export const CascadingLinkSelect = ({ cascadingOptions = [], currentLinkId, onSe
                         type="button"
                         disabled={!cascadingPath.phase}
                         onClick={(e) => handleTabSelect(e, "task")}
-                        className={`relative z-10 flex-1 py-2 text-sm font-semibold transition-colors duration-300 ${activeLinkTab === "task" ? "text-primary-400" : "text-primary"} ${!cascadingPath.phase ? "opacity-70 cursor-not-allowed" : ""}`}
+                        className={`relative z-10 flex-1 py-2 text-sm font-semibold transition-colors duration-300 ${activeLinkTab === "task" ? styles.textActive : "text-primary"} ${!cascadingPath.phase ? "opacity-70 cursor-not-allowed" : ""}`}
                     >
                         {t("popup.linked.tasks")}
                     </button>
                 </div>
 
                 {/* Filtered Scrollable List Items Panel */}
-                <div className="flex flex-col max-h-48 overflow-y-auto custom-scrollbar p-2 gap-1 bg-primary-400">
+                <div className={`flex flex-col max-h-48 overflow-y-auto custom-scrollbar p-2 gap-1 ${styles.bg}`}>
                     {filteredOptions.length > 0 ? (
                         filteredOptions.map((option) => {
-                            /**
-                             * Selection Highlight Matcher
-                             *
-                             * Flags true if this specific option matches the currently recorded cascading path ID.
-                             */
                             const isSelected = cascadingPath[option.type] === option.id;
-
-                            /**
-                             * Entity Logo Matcher
-                             *
-                             * Looks up the corresponding SVG icon reference from the predefined constant array.
-                             */
                             const logo = PROJECTS_ICONS.find((i) => i.id === option.logo);
-
-                            /**
-                             * Entity Color Matcher
-                             *
-                             * Looks up the precise hex object reference from the predefined constant array.
-                             */
                             const color = resolveColorObject(option.color);
 
                             return (
@@ -274,7 +275,7 @@ export const CascadingLinkSelect = ({ cascadingOptions = [], currentLinkId, onSe
                                     key={option.id}
                                     type="button"
                                     onClick={(e) => handleCascadingSelection(e, option)}
-                                    className={`px-3 py-2 text-sm font-medium text-left rounded-xl transition-colors flex items-center gap-2 ${isSelected ? "bg-primary-100/50 text-primary" : "text-primary hover:bg-primary-100/20"}`}
+                                    className={`px-3 py-2 text-sm font-medium text-left rounded-xl transition-colors flex items-center gap-2 ${"text-primary"} ${isSelected ? styles.itemActive : styles.itemHover}`}
                                 >
                                     {/* Optional Item SVG Icon */}
                                     {option.logo && <logo.component className="w-4 h-4" />}
@@ -282,7 +283,7 @@ export const CascadingLinkSelect = ({ cascadingOptions = [], currentLinkId, onSe
                                     {/* Optional Item Color Dot */}
                                     {option.color && (
                                         <div
-                                            className="w-3 h-3 rounded-full shrink-0 border-2 border-primary-50"
+                                            className={`w-3 h-3 rounded-full shrink-0 border-2 ${styles.pill}`}
                                             style={{ backgroundColor: color.hex }}
                                         ></div>
                                     )}
@@ -294,26 +295,22 @@ export const CascadingLinkSelect = ({ cascadingOptions = [], currentLinkId, onSe
                         })
                     ) : (
                         /* Empty State Fallback Typography */
-                        <p className="text-xs text-center text-primary/70 py-3">{t("popup.linked.no_options")}</p>
+                        <p className={`text-xs text-center ${"text-primary"} py-3`}>{t("popup.linked.no_options")}</p>
                     )}
                 </div>
 
                 {/* Menu Footer Confirmation Container */}
-                <div className="p-3 border-t border-primary-50/70 bg-primary-400 flex items-center justify-between">
-                    {/* Active Path Label Element */}
-                    <span className="text-xs font-medium text-primary/80 truncate max-w-[60%]">
+                <div className={`p-3 border-t flex items-center justify-between ${styles.border} ${styles.bg}`}>
+                    <span className={`text-xs font-medium truncate max-w-[60%] ${"text-primary"} opacity-80`}>
                         {currentLinkId ? `${currentSelectedItem?.name}` : ""}
                     </span>
 
-                    {/* Exit/Confirm Action Button */}
                     <button
                         type="button"
                         onClick={handleCloseDropdown}
-                        className={`px-4 py-1.5 text-sm font-bold rounded-xl transition-all duration-200 ${currentLinkId ? "bg-primary-50 text-primary-500 shadow-sm" : "bg-transparent text-primary hover:bg-primary-50/20"}`}
+                        className={`px-4 py-1.5 text-sm font-bold rounded-xl transition-all duration-200 ${currentLinkId ? `${styles.btnConfirmBg} ${styles.textActive} shadow-sm` : `bg-transparent ${"text-primary"} ${styles.itemHover}`}`}
                     >
-                        {currentLinkId
-                            ? t("popup.linked.button_message.confirm")
-                            : t("popup.linked.button_message.cancel")}
+                        {currentLinkId ? t("popup.linked.button_message.confirm") : t("popup.linked.button_message.cancel")}
                     </button>
                 </div>
             </div>
