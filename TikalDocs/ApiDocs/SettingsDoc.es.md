@@ -31,7 +31,7 @@ Todas las rutas de este controlador están protegidas y requieren que el usuario
 **Headers obligatorios para todos los endpoints:**
 `Authorization: Bearer <access_token>`
 
-### 1. Obtener mi configuración (`Get /settings`)
+### 1. Obtener mi configuración (`Get /api/settings`)
 
 **Propósito**: Devuelve todas las preferencias del usuario logueado. Si es la primera vez que el usuario accede y no tiene configuración previa, el servidor crea una por defecto automáticamente (con listas y mapas vacíos o valores predeterminados) y la devuelve.
 
@@ -76,7 +76,7 @@ Devuelve un objeto `UserSettingsDTO` con todas las preferencias.
 
 ```
 
-### 2. Actualizar toda mi configuración (`Put /settings`)
+### 2. Actualizar toda mi configuración (`Put /api/settings`)
 
 **Propósito**: Sobrescribe la configuración completa del usuario. Recibe el DTO completo modificado por el cliente y actualiza los valores en la base de datos. Si no se envían los metadatos JSON (`layoutsDashboards`, `widgetPreferences`, `notificationSettings`), estos mantendrán sus valores anteriores.
 
@@ -135,7 +135,7 @@ Devuelve un objeto `UserSettingsDTO` con todas las preferencias.
 **Response (200 OK)**:
 Devuelve el `UserSettingsDTO` actualizado tras ser guardado.
 
-### 3. Actualizar diseño del dashboard (`Patch /settings/layout`)
+### 3. Actualizar diseño del dashboard (`Patch /api/settings/layout`)
 
 **Propósito**: Actualiza de forma parcial la configuración, modificando **únicamente** las posiciones y la organización de las cajas del dashboard (para el home, statistics o team). Ideal para guardar el layout cuando el usuario arrastra y suelta elementos en el frontend.
 
@@ -164,7 +164,7 @@ Envía únicamente el objeto `LayoutsDashboardMetadata`.
 **Response (200 OK)**:
 Devuelve el `UserSettingsDTO` completo con el layout actualizado.
 
-### 4. Actualizar preferencias de widgets (`Patch /settings/widget-preferences`)
+### 4. Actualizar preferencias de widgets (`Patch /api/settings/widget-preferences`)
 
 **Propósito**: Actualiza de forma parcial **únicamente** los filtros internos y la configuración dinámica de los widgets (almacenados en un mapa flexible).
 
@@ -188,7 +188,7 @@ Envía únicamente el objeto `WidgetPreferencesMetadata`.
 **Response (200 OK)**:
 Devuelve el `UserSettingsDTO` completo con las preferencias actualizadas.
 
-### 5. Actualizar configuración de notificaciones (`Patch /settings/notification-preferences`)
+### 5. Actualizar configuración de notificaciones (`Patch /api/settings/notification-preferences`)
 
 **Propósito**: Actualiza de forma parcial **únicamente** las preferencias del usuario sobre qué notificaciones desea recibir por correo electrónico, dentro de la aplicación o mediante notificaciones push.
 

@@ -149,6 +149,7 @@ public class DashboardService {
         Instant rollingEnd = today.atTime(23, 59, 59).toInstant(ZoneOffset.UTC);
 
         List<TimeLog> rollingWeekLogs = timeLogRepository.findByUserIdAndInitDateTimeBetween(userId, rollingStart, rollingEnd);
+        preFetchedData.setRollingWeekLogs(rollingWeekLogs);
         preFetchedData.setRollingWeekDailyMinutes(groupByDate(rollingWeekLogs));
 
         log.info("Pre fetch");

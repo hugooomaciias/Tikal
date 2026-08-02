@@ -26,6 +26,7 @@ public class PreFetchedDashboardData {
     private Map<LocalDate, Integer> weekDailyMinutes;
     private Map<LocalDate, Double> weekConcentrationPercentage;
     private Map<LocalDate, Integer> rollingWeekDailyMinutes;
+    private List<TimeLog> rollingWeekLogs; // raw logs for timeLogWidget
 
     private int prevWeekTotalMinutes;
     private int prevWeekTempleMinutes;

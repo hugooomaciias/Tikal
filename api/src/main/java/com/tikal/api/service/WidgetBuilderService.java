@@ -35,6 +35,7 @@ public class WidgetBuilderService {
             case "templeModeWidget" -> buildTempleModeWidget(user, settings);
             case "taskWidget" -> buildTaskWidget(user.getId(), settings);
             case "calendarWidget" -> buildCalendarWidgetData(settings);
+            case "timeLogWidget" -> buildTimeLogWidget(settings);
 
             case "solarChartWidget" -> buildSolarChartBase(user.getId(), settings);
             case "concentrationHeatmapWidget" -> buildConcentrationHeatmap(user.getId(), settings);
@@ -923,7 +924,7 @@ public class WidgetBuilderService {
                 .build();
     }
 
-    // --- Helpers de Fechas ---
+    // --- Helpers of dates ---
     private Instant[] calculateComparisonPeriods(ComparisonWidgetData.TimeRangeFilter filter, UserSettings settings) {
         LocalDate today = LocalDate.now(ZoneOffset.UTC);
 
@@ -1000,6 +1001,67 @@ public class WidgetBuilderService {
 
     private int getSafeInt(Integer value) {
         return value != null ? value : 0;
+    }
+    // ==========================================
+
+    // ==========================================
+    // TIME LOG WIDGET
+    // ==========================================
+    private WidgetData buildTimeLogWidget(UserSettings settings) {
+        List<TimeLog> rollingLogs = preFetchedData.getRollingWeekLogs();
+
+        if (rollingLogs == null || rollingLogs.isEmpty()) {
+            return TimeLogWidgetData.builder().days(List.of()).build();
+        }
+
+        Map<LocalDate, List<TimeLog>> groupedByDay = rollingLogs.stream()
+                .collect(Collectors.groupingBy(
+                        log -> LocalDate.ofInstant(log.getInitDateTime(), ZoneOffset.UTC)
+                ));
+
+        List<TimeLogWidgetData.DailyTimeLogs> dailyLogsList = groupedByDay.entrySet().stream()
+                .sorted(Map.Entry.<LocalDate, List<TimeLog>>comparingByKey().reversed())
+                .map(entry -> {
+                    LocalDate date = entry.getKey();
+                    List<TimeLog> logsForDay = entry.getValue();
+                    List<TimeLogWidgetData.TimeLogData> mappedLogs = logsForDay.stream()
+                            .sorted(Comparator.comparing(TimeLog::getInitDateTime).reversed())
+                            .map(this::mapToTimeLogData)
+                            .toList();
+
+                    return TimeLogWidgetData.DailyTimeLogs.builder()
+                            .date(date)
+                            .logs(mappedLogs)
+                            .build();
+                })
+                .toList();
+
+        return TimeLogWidgetData.builder()
+                .days(dailyLogsList)
+                .build();
+    }
+
+    private TimeLogWidgetData.TimeLogData mapToTimeLogData(TimeLog log) {
+        Instant initTime = log.getInitDateTime();
+        Instant endTime = log.getEndDateTime() != null ? log.getEndDateTime() : null;
+
+        long duration = 0L;
+        if (log.getEndDateTime() != null) {
+            duration = java.time.Duration.between(log.getInitDateTime(), log.getEndDateTime()).getSeconds();
+        }
+
+        return TimeLogWidgetData.TimeLogData.builder()
+                .timeLogId(log.getId())
+                .initTime(initTime)
+                .endTime(endTime)
+                .entityName(extractName(log))
+                .projectId(log.getProject() != null ? log.getProject().getId() : null)
+                .stageId(log.getStage() != null ? log.getStage().getId() : null)
+                .taskId(log.getTask() != null ? log.getTask().getId() : null)
+                .color(extractColor(log))
+                .icon(extractLogo(log))
+                .durationInSeconds(duration)
+                .build();
     }
     // ==========================================
 
