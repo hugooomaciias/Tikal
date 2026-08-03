@@ -11,6 +11,7 @@ public class TimeTrackerWidgetData implements WidgetData {
     private Integer taskId;
     private Integer stageId;
     private Integer projectId;
+    private Integer timeLogId;
 
     private String entityName;
     private String colour;

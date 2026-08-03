@@ -14,5 +14,5 @@ public class CreateProjectRequest {
     private Integer teamId;
     private String logo;
     private Boolean addToCalendar;
-    private ProjectType type;
+    private String type;
 }

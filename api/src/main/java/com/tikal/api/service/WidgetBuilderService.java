@@ -102,6 +102,7 @@ public class WidgetBuilderService {
                     .logo(extractLogo(referenceLog))
                     .initDateTime(runningLog != null ? runningLog.getInitDateTime() : null)
                     .accumulatedSeconds(accumulatedSeconds)
+                    .timeLogId(runningLog != null ? runningLog.getId() : null)
                     .build();
         }
 

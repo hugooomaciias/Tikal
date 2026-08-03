@@ -16,5 +16,5 @@ public class UpdateProjectRequest {
     private Instant deadline;
     private String logo;
     private Boolean addToCalendar;
-    private ProjectType type;
+    private String type;
 }

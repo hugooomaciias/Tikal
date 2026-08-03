@@ -30,7 +30,7 @@ Este documento describe todos los endpoints relacionados con la gestión de proy
 
 ⚠️ **Importante:** Todos los endpoints de este controlador requieren autenticación. Debes incluir el `access_token` en la cabecera de la petición: `Authorization: Bearer <token>`.
 
-### 1. Listar Mis Proyectos (Personales) (`GET /api/projects`)
+### 1. Listar Mis Proyectos (Personales) (`GET /api/project`)
 
 **Propósito**: Obtener una lista de todos los proyectos personales que pertenecen al usuario autenticado. El ID del usuario se extrae de forma segura desde el token JWT, previniendo vulnerabilidades IDOR.
 
@@ -66,7 +66,7 @@ Este documento describe todos los endpoints relacionados con la gestión de proy
 
 ```
 
-### 2. Crear Proyecto (`POST /api/projects`)
+### 2. Crear Proyecto (`POST /api/project`)
 
 **Propósito**: Crea un nuevo proyecto. Puede ser un proyecto personal o un proyecto de equipo. Si `isGroupBased` es `true`, el backend verifica rigurosamente que el usuario sea **administrador** del equipo indicado en `teamId` antes de permitir la creación.
 
@@ -105,7 +105,7 @@ Este documento describe todos los endpoints relacionados con la gestión de proy
 
 ```
 
-### 3. Borrar Proyecto (`DELETE /api/projects/{id}`)
+### 3. Borrar Proyecto (`DELETE /api/project/{id}`)
 
 **Propósito**: Elimina un proyecto de la base de datos de forma permanente. Si el proyecto es personal, solo su creador puede borrarlo. Si el proyecto es grupal, solo los administradores del equipo asociado tienen permisos para ejecutar esta acción.
 
@@ -117,7 +117,7 @@ Este documento describe todos los endpoints relacionados con la gestión de proy
 
 **Response (204 NO CONTENT)**: *(Cuerpo vacío, solo el código HTTP confirmando el éxito de la operación).*
 
-### 4. Listar Proyectos de Mis Equipos (`GET /api/projects/team`)
+### 4. Listar Proyectos de Mis Equipos (`GET /api/project/team`)
 
 **Propósito**: Obtiene todos los proyectos que pertenecen a los diferentes equipos de los que el usuario forma parte (independientemente de si es administrador o miembro raso). Realiza una consulta optimizada para buscar coincidencias cruzadas entre las membresías del usuario y los equipos dueños de los proyectos.
 
@@ -144,7 +144,7 @@ Este documento describe todos los endpoints relacionados con la gestión de proy
 
 ```
 
-### 5. Actualizar Proyecto (`PATCH /api/projects/{id}`)
+### 5. Actualizar Proyecto (`PATCH /api/project/{id}`)
 
 **Propósito**: Modifica parcialmente los datos de un proyecto existente (nombre, descripción o logo). Aplica las mismas validaciones de seguridad estrictas que el endpoint de borrado (solo dueño o administradores de equipo). Los campos omitidos o nulos en la petición no alteran el valor actual en la base de datos.
 
