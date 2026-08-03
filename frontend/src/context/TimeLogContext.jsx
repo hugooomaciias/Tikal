@@ -6,6 +6,7 @@ import { Outlet } from "react-router-dom";
 
 /** Components & Layouts */
 import { ConfirmTimeLogComponent } from "../components/app/common/ConfirmTimeLogComponent.jsx";
+import { ConfirmSwitchTaskComponent } from "../components/app/common/ConfirmSwitchTaskComponent.jsx";
 
 /** Contexts, Hooks & Services */
 import { useTimeLogController } from "../hooks/controllers/time/useTimeLogController.js";
@@ -64,6 +65,19 @@ export const TimeLogProvider = ({ children }) => {
                 colorId={trackerStates.activeWidgetData?.colour}
                 projectIcon={trackerStates.activeWidgetData?.logo}
             />
+
+            {trackerStates.showSwitchModal && (
+                <ConfirmSwitchTaskComponent
+                    pendingSwitchTask={trackerStates.pendingSwitchTask}
+                    taskName={trackerStates.activeWidgetData?.entityName || ""}
+                    projectIcon={trackerStates.activeWidgetData?.logo}
+                    activeColorId={trackerStates.activeWidgetData?.colour}
+                    cancelSwitchTask={trackerActions.cancelSwitchTask}
+                    confirmSwitchTask={trackerActions.confirmSwitchTask}
+                    activityDescription={trackerStates.activityDescription}
+                    setActivityDescription={trackerActions.setActivityDescription}
+                />
+            )}
         </TimeLogContext.Provider>
     );
 };

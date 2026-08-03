@@ -14,6 +14,18 @@
         "placeholder": "Descripción de la actividad realizada",
         "button": "Guardar registro"
     },
+    "confirm_switch_time_log": {
+        "title": "Tarea en curso detectada",
+        "description": "Actualmente tienes otra tarea activa. Si continúas, la tarea actual se pausará y se guardará para iniciar la nueva tarea seleccionada.",
+        "current_task": "Tarea actual",
+        "new_task": "Tarea seleccionada",
+        "note": "¿A qué le has dedicado tiempo exactamente durante este último bloque en",
+        "placeholder": "Descripción de la actividad realizada",
+        "button": {
+            "cancel": "Cancelar",
+            "confirm": "Confirmar"
+        }
+    },
     "context_menu": {
         "rename": "Renombrar",
         "edit": "Editar",

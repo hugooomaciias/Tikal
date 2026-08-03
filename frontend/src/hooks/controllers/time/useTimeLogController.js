@@ -33,6 +33,22 @@ export const useTimeLogController = () => {
     const [showStopModal, setShowStopModal] = useState(false);
 
     /**
+     * Switch Task Modal Visibility State
+     *
+     * Tracks the visibility of the global modal triggered when a user attempts to start a 
+     * new task while another task is already actively running.
+     */
+    const [showSwitchModal, setShowSwitchModal] = useState(false);
+
+    /**
+     * Pending Switch Task State
+     *
+     * Temporarily holds the metadata (ID, name, color, logo) of the target task 
+     * the user intends to switch to, pending their confirmation in the switch modal.
+     */
+    const [pendingSwitchTask, setPendingSwitchTask] = useState(null);
+
+    /**
      * Activity Description State
      *
      * Holds the user-input text describing the work completed during the time session.
@@ -152,6 +168,16 @@ export const useTimeLogController = () => {
      * @returns {Promise<void>} Resolves upon successful mutation.
      */
     const handleStartTask = useCallback(async (taskId, taskName, colour, logo) => {
+        console.log("Running: ", isTimerRunning, "Active Widget: ", activeWidgetData, "Task ID: ", taskId);
+        if (isTimerRunning) {
+            setPendingSwitchTask({ taskId, name: taskName, colour, logo });
+            setActivityDescription("");
+            setShowSwitchModal(true);
+            return;
+        }
+
+        isTimerRunning = true;
+
         const payload = {
             initDateTime: formatLocalISO(new Date()),
             ...(taskId && { taskId })
@@ -177,7 +203,6 @@ export const useTimeLogController = () => {
                     }
                 }
             });
-
         } catch (error) {
             console.error("Error al iniciar el contador:", error);
         }
@@ -248,6 +273,8 @@ export const useTimeLogController = () => {
             activityDescription: activityDescription
         };
 
+        console.log("Stopping time log with payload:", activeWidgetData);
+
         try {
             await timeLogService.stop(payload);
 
@@ -268,6 +295,69 @@ export const useTimeLogController = () => {
         }
     }, [activeWidgetData, activityDescription, updateContextData]);
 
+    /**
+     * Cancel Task Switch Sequence
+     *
+     * Aborts the pending task switch operation, securely closing the switch modal and 
+     * purging any temporary target state (e.g., pending task data, activity description) 
+     * without disrupting the currently active timer.
+     *
+     * @returns {void}
+     */
+    const cancelSwitchTask = useCallback(() => {
+        setShowSwitchModal(false);
+        setPendingSwitchTask(null);
+        setActivityDescription("");
+    }, []);
+
+    /**
+     * Confirm & Execute Task Switch
+     *
+     * Orchestrates the complex transition between two tasks. It sequentially halts the 
+     * currently active tracking session on the backend, immediately initializes a new 
+     * session for the pending target task, and atomically synchronizes the global context 
+     * tree to reflect the new active state, ensuring a seamless user experience.
+     *
+     * @async
+     * @returns {Promise<void>} Resolves upon successful mutation of both sessions and context.
+     */
+    const confirmSwitchTask = useCallback(async () => {
+        if (!pendingSwitchTask || !activeWidgetData?.id) return;
+
+        try {
+            await timeLogService.stop({
+                id: activeWidgetData.id,
+                endDateTime: formatLocalISO(new Date()),
+                activityDescription: activityDescription
+            });
+
+            const backendLog = await timeLogService.start({
+                initDateTime: formatLocalISO(new Date()),
+                ...(pendingSwitchTask.taskId && { taskId: pendingSwitchTask.taskId })
+            });
+
+            updateContextData("homeWidgetsData", (currentWidgets = {}) => ({
+                ...currentWidgets,
+                timeTrackerWidget: {
+                    id: backendLog.id,
+                    taskId: pendingSwitchTask.taskId,
+                    colour: pendingSwitchTask.colour,
+                    logo: pendingSwitchTask.logo,
+                    entityName: pendingSwitchTask.name,
+                    initDateTime: backendLog.initDateTime,
+                    accumulatedSeconds: backendLog.accumulatedSeconds
+                }
+            }));
+
+            setShowSwitchModal(false);
+            setPendingSwitchTask(null);
+            setActivityDescription("");
+            setLocalSeconds(0);
+        } catch (error) {
+            console.error("Error al cambiar de tarea:", error);
+        }
+    }, [activeWidgetData, pendingSwitchTask, activityDescription, updateContextData]);
+
     // --- 6. Return Object ---
 
     return {
@@ -276,7 +366,9 @@ export const useTimeLogController = () => {
             accumulatedSeconds: localSeconds, 
             activeWidgetData, 
             showStopModal, 
-            activityDescription 
+            activityDescription,
+            showSwitchModal,
+            pendingSwitchTask
         },
         trackerActions: { 
             handleStartTask, 
@@ -284,7 +376,9 @@ export const useTimeLogController = () => {
             handleTriggerStopSequence, 
             handleConfirmStop, 
             setShowStopModal, 
-            setActivityDescription 
+            setActivityDescription,
+            cancelSwitchTask,
+            confirmSwitchTask
         }
     };
 };

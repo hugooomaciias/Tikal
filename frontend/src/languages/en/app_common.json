@@ -14,6 +14,18 @@
         "placeholder": "Description of the activity performed",
         "button": "Save log"
     },
+    "confirm_switch_time_log": {
+        "title": "Active task detected",
+        "description": "You currently have another task active. If you continue, the current task will be paused and saved to start the newly selected task.",
+        "current_task": "Current task",
+        "new_task": "Selected task",
+        "note": "What exactly did you spend time on during this last block in",
+        "placeholder": "Description of the activity performed",
+        "button": {
+            "cancel": "Cancel",
+            "confirm": "Confirm"
+        }
+    },
     "context_menu": {
         "rename": "Rename",
         "edit": "Edit",

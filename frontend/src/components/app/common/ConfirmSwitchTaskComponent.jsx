@@ -1,4 +1,5 @@
 /** React & Third-Party Libraries */
+import { useTranslation } from "react-i18next";
 import resolveConfig from "tailwindcss/resolveConfig";
 
 /** Icons */
@@ -50,11 +51,18 @@ export const ConfirmSwitchTaskComponent = ({
     // --- 1. Local UI Logic ---
 
     /**
+     * Localization Hook
+     *
+     * Injects the translation function scoped to the common application namespace.
+     */
+    const { t } = useTranslation("app_common");
+
+    /**
      * Active Task Icon Component
      *
      * Resolves the icon for the currently active task, defaulting to a fallback icon if none is provided.
      */
-    const OldIcon = projectIcon || PROJECTS_ICONS[0].component;
+    const OldIcon = PROJECTS_ICONS.find((i) => i.id === projectIcon) || PROJECTS_ICONS[0];
 
     /**
      * Active Task Color
@@ -68,17 +76,19 @@ export const ConfirmSwitchTaskComponent = ({
      *
      * Resolves the icon for the pending target task, defaulting to a fallback icon if none is provided.
      */
-    const NewIcon = pendingSwitchTask.logo || PROJECTS_ICONS[0].component;
+    const NewIcon = PROJECTS_ICONS.find((i) => i.id === pendingSwitchTask?.logo) || PROJECTS_ICONS[0];
 
     /**
      * Target Task Color
      *
      * Resolves the hex color for the pending target task, defaulting to the primary brand color.
      */
-    const newColor = PHASE_COLOURS.find((c) => c.id === pendingSwitchTask.colour)?.hex || tailwindColors.primary[500];
+    const newColor = PHASE_COLOURS.find((c) => c.id === pendingSwitchTask?.colour)?.hex || tailwindColors.primary[500];
 
     // --- 2. Render ---
-
+    
+    if (!pendingSwitchTask) return null;
+    
     return (
         <div
             className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm"
@@ -95,7 +105,7 @@ export const ConfirmSwitchTaskComponent = ({
                 <div className="flex flex-col gap-2">
                     {/* Modal Title Banner */}
                     <div className="flex items-center justify-between">
-                        <span className="text-2xl font-bold text-quaternary-700">Tarea en curso detectada</span>
+                        <span className="text-2xl font-bold text-quaternary-700">{t("confirm_switch_time_log.title")}</span>
 
                         <button
                             className="text-primary-500/70 hover:text-primary-500 transition-colors"
@@ -107,37 +117,36 @@ export const ConfirmSwitchTaskComponent = ({
 
                     {/* Contextual Information Text */}
                     <span className="text-quaternary-500">
-                        Actualmente tienes otra tarea activa. Si continúas, la tarea actual se pausará y se guardará
-                        para iniciar la nueva tarea seleccionada.
+                        {t("confirm_switch_time_log.description")}
                     </span>
 
                     {/* Task Comparison Section */}
                     <div className="flex flex-col items-center justify-between gap-2 mt-3">
                         {/* Current Task Details Box */}
                         <div className="w-full flex flex-col items-start rounded-xl text-quaternary-700">
-                            <span className="text-sm font-bold">Tarea actual</span>
+                            <span className="text-sm font-bold">{t("confirm_switch_time_log.current_task")}</span>
 
                             {/* Current Task Pill */}
                             <div
                                 className="w-full flex items-center justify-between py-3 px-4 rounded-xl text-primary"
                                 style={{ backgroundColor: oldColor }}
                             >
-                                <OldIcon className="w-5 h-5" />
+                                <OldIcon.component className="w-5 h-5" />
                                 <span className="font-bold">{taskName}</span>
                             </div>
                         </div>
 
                         {/* Target Task Details Box */}
                         <div className="w-full flex flex-col items-start rounded-xl text-quaternary-700">
-                            <span className="text-sm font-bold">Tarea seleccionada</span>
+                            <span className="text-sm font-bold">{t("confirm_switch_time_log.new_task")}</span>
 
                             {/* Target Task Pill */}
                             <div
                                 className="w-full flex items-center justify-between py-3 px-4 rounded-xl text-primary"
                                 style={{ backgroundColor: newColor }}
                             >
-                                <NewIcon className="w-5 h-5" />
-                                <span className="font-bold">{pendingSwitchTask.name}</span>
+                                <NewIcon.component className="w-5 h-5" />
+                                <span className="font-bold">{pendingSwitchTask?.name}</span>
                             </div>
                         </div>
                     </div>
@@ -147,7 +156,7 @@ export const ConfirmSwitchTaskComponent = ({
                 <div className="flex flex-col items-center gap-2">
                     {/* Activity Description Prompt */}
                     <span className="text-quaternary-500">
-                        ¿A qué le has dedicado tiempo exactamente durante este último bloque en <b>{taskName}</b>?
+                        {t("confirm_switch_time_log.note")} <b>{taskName}</b>
                     </span>
 
                     {/* Controlled Textarea Wrapper */}
@@ -165,7 +174,7 @@ export const ConfirmSwitchTaskComponent = ({
 
                         {/* Floating Textarea Label */}
                         <label htmlFor="note" className="textarea-label input-textarea-label-primary">
-                            Descripción de la actividad realizada
+                            {t("confirm_switch_time_log.placeholder")}
                         </label>
 
                         {/* Textarea Leading Icon */}
@@ -183,12 +192,12 @@ export const ConfirmSwitchTaskComponent = ({
                         onClick={cancelSwitchTask}
                         className="w-full btn bg-tertiary-200 text-primary"
                     >
-                        <span>Cancelar</span>
+                        <span>{t("confirm_switch_time_log.button.cancel")}</span>
                     </button>
 
                     {/* Confirm Action Button */}
                     <button type="button" onClick={confirmSwitchTask} className="w-full btn btn-primary">
-                        <span>Confirmar</span>
+                        <span>{t("confirm_switch_time_log.button.confirm")}</span>
                     </button>
                 </div>
             </div>

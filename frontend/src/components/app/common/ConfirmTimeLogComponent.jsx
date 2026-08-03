@@ -6,6 +6,7 @@ import { IconCircleXFilled, IconNote } from "@tabler/icons-react";
 
 /** Assets, Utils & Constants */
 import { PHASE_COLOURS } from "../../../constants/phase_colours.js";
+import { PROJECTS_ICONS } from "../../../constants/projects_icons.js";
 
 /**
  * Confirm Time Log Component
@@ -23,7 +24,7 @@ import { PHASE_COLOURS } from "../../../constants/phase_colours.js";
  * @param {Function} props.confirmStopTimer - Handler callback to confirm and securely log the tracked time.
  * @param {string} props.taskName - The name of the currently active task being logged.
  * @param {number} props.colorId - The configuration ID representing the project/phase color.
- * @param {React.ElementType} props.projectIcon - The SVG icon component for the active project.
+ * @param {string} props.projectIcon - The SVG icon component for the active project.
  * @returns {JSX.Element} The rendered confirm time log modal overlay.
  */
 export const ConfirmTimeLogComponent = ({
@@ -34,7 +35,7 @@ export const ConfirmTimeLogComponent = ({
     confirmStopTimer,
     taskName,
     colorId,
-    projectIcon: ProjectIcon,
+    projectIcon
 }) => {
     // --- 1. Local UI Logic ---
 
@@ -51,6 +52,14 @@ export const ConfirmTimeLogComponent = ({
      * Resolves the correct hex color representing the active project phase, defaulting to the primary brand color.
      */
     const color = PHASE_COLOURS.find((c) => c.id === colorId) || PHASE_COLOURS[0];
+
+    /**
+     * Active Task Icon
+     *
+     * Resolves the corresponding SVG icon object from the global constants based on the provided identifier, 
+     * providing a reliable fallback to a default icon if the lookup fails.
+     */
+    const Logo = PROJECTS_ICONS.find((i) => i.id === projectIcon) || PROJECTS_ICONS[0];
 
     // --- 2. Render ---
 
@@ -93,7 +102,7 @@ export const ConfirmTimeLogComponent = ({
                                 className="flex items-center justify-between py-3 px-4 mt-2 rounded-xl text-primary"
                                 style={{ backgroundColor: color.hex }}
                             >
-                                <ProjectIcon />
+                                <Logo.component />
                                 <span className="font-bold">{taskName}</span>
                             </div>
                         </div>
