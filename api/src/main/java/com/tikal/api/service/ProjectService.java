@@ -9,6 +9,7 @@ import com.tikal.api.model.entity.Project;
 import com.tikal.api.model.entity.TeamMember;
 import com.tikal.api.model.entity.User;
 import com.tikal.api.model.entity.enumerated.EventType;
+import com.tikal.api.model.entity.enumerated.ProjectType;
 import com.tikal.api.repository.CalendarEventRepository;
 import com.tikal.api.repository.ProjectRepository;
 import com.tikal.api.repository.TeamMemberRepository;
@@ -72,7 +73,7 @@ public class ProjectService {
         project.setUserOwner(currentUser);
         project.setIsGroupBased(request.getIsGroupBased() != null ? request.getIsGroupBased() : false);
         if (request.getType() != null) {
-            project.setProjectType(request.getType());
+            project.setProjectType(ProjectType.valueOf(request.getType().toUpperCase()) );
         }
 
         // Team validation for admins
@@ -155,7 +156,7 @@ public class ProjectService {
             project.setLogoUrl(request.getLogo());
         }
         if (request.getType() != null) {
-            project.setProjectType(request.getType());
+            project.setProjectType(ProjectType.valueOf(request.getType().toUpperCase()) );
         }
         project.setDeadline(request.getDeadline());
         project.setDescription(request.getDescription());
