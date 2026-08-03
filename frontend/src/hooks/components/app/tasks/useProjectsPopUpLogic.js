@@ -199,7 +199,7 @@ export const useProjectsPopUpLogic = (t, initialData, onClose) => {
                 }
 
                 const projectPayload = {
-                    type: formData.type,
+                    type: formData.type.toUpperCase(),
                     name: formData.project,
                     description: formData.note,
                     deadline: finalDeadline,

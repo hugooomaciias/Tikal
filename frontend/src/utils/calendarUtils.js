@@ -1,5 +1,5 @@
 /** Assets, Utils & Constants */
-import { PHASE_COLOURS } from "../../constants/phase_colours.js";
+import { PHASE_COLOURS } from "../constants/phase_colours.js";
 
 /**
  * Generate Time Options Helper

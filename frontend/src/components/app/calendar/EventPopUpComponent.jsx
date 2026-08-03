@@ -11,7 +11,7 @@ import { PickerComponent } from "../common/popups/PickerComponent.jsx";
 import { IconCircleXFilled, IconNote } from "@tabler/icons-react";
 
 /** Assets, Utils & Constants */
-import { TIME_OPTIONS } from "../../../utils/calendar/calendarUtils.js";
+import { TIME_OPTIONS } from "../../../utils/calendarUtils.js";
 
 /**
  * Event PopUp Presentational Component

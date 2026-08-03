@@ -71,7 +71,7 @@ export const HeroComponent = () => {
                 taskId: "mock-task-id-101",
                 entityName: "Desarrollo Landing",
                 projectOrPhaseName: "Optimizando UI",
-                colour: "b3",
+                colour: "b1",
                 logo: "IconDatabase",
                 initDateTime: null,
             },

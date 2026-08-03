@@ -8,7 +8,7 @@ import { useCalendarEvents } from "../../../controllers/calendar/useCalendar.js"
 
 /** Config, Constants & Utils */
 import { PHASE_COLOURS } from "../../../../constants/phase_colours.js";
-import { resolveColorObject, extractDtoFromLinkedEntity, generateCascadingOptions } from "../../../../utils/calendar/calendarUtils.js";
+import { resolveColorObject, extractDtoFromLinkedEntity, generateCascadingOptions } from "../../../../utils/calendarUtils.js";
 import tailwindConfig from "../../../../../tailwind.config.js";
 import resolveConfig from "tailwindcss/resolveConfig";
 

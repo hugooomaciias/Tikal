@@ -3,7 +3,7 @@ import { useState, useRef, useEffect } from "react";
 
 /** Assets, Utils & Constants */
 import { PROJECTS_ICONS } from "../../../../constants/projects_icons.js";
-import { resolveColorObject } from "../../../../utils/calendar/calendarUtils.js";
+import { resolveColorObject } from "../../../../utils/calendarUtils.js";
 
 /**
  * Cascading Link Select Component
@@ -211,7 +211,7 @@ export const CascadingLinkSelect = ({ cascadingOptions = [], currentLinkId, onSe
             {/* Floating Input Text Label */}
             <label
                 htmlFor="linkedEntity"
-                className={`input-label ${theme.input.placeholder} ${theme.input.labelFocus} cursor-pointer truncate max-w-[90%]`}
+                className={`input-label ${theme ? `${theme.input.placeholder} ${theme.input.labelFocus}` : "input-textarea-label-primary"} cursor-pointer truncate max-w-[90%]`}
             >
                 {t("popup.linked.name")}
             </label>

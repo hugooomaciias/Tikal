@@ -7,7 +7,7 @@ import { useSync } from "../../../core/useSync.js";
 
 /** Assets, Utils & Constants */
 import { RANK_THEMES } from "../../../../constants/rank_themes.js";
-import { generateCascadingOptions } from "../../../../utils/calendar/calendarUtils.js";
+import { generateCascadingOptions } from "../../../../utils/calendarUtils.js";
 
 /**
  * Temple Mode Logic Hook

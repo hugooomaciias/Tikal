@@ -59,7 +59,7 @@ export const RenameComponent = ({ onClose, data, onRename }) => {
         if (newName.trim() === "") return;
 
         if (onRename) {
-            onRename(data.id, newName);
+            onRename(data.id, { name: newName });
         }
 
         onClose();

@@ -7,7 +7,7 @@ import { useCalendarEvents } from "../../../controllers/calendar/useCalendar.js"
 
 /** Config, Constants & Utils */
 import { PHASE_COLOURS } from "../../../../constants/phase_colours.js";
-import { resolveColorObject, safeParseDate, formatDateTimeISO, resolveLinkPayload } from "../../../../utils/calendar/calendarUtils.js";
+import { resolveColorObject, safeParseDate, formatDateTimeISO, resolveLinkPayload } from "../../../../utils/calendarUtils.js";
 
 /**
  * Event Pop-Up Logic Hook
