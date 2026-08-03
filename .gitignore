@@ -1,2 +1,7 @@
 TikalDocs/Tikal_tables.sql
 TikalDocs/Tikal_insert.sql
+/node_modules/
+package.json
+package-lock.json
+yarn.lock
+.vscode/
