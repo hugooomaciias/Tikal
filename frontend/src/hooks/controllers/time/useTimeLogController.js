@@ -2,7 +2,7 @@
 import { useContext, useState, useEffect, useCallback } from "react";
 
 /** Contexts, Hooks & Services */
-import { SyncContext } from "../../../context/SyncContext.jsx";
+import { useSync } from "../../../hooks/core/useSync.js";
 import { timeLogService } from "../../../services/workspace/time/timeLogService.js";
 
 /**
@@ -21,7 +21,7 @@ import { timeLogService } from "../../../services/workspace/time/timeLogService.
 export const useTimeLogController = () => {
     // --- 1. Global State & Dependencies ---
 
-    const { rawDashboardData, updateContextData } = useContext(SyncContext);
+    const { rawDashboardData, updateContextData } = useSync();
 
     // --- 2. Local State ---
 
@@ -129,7 +129,7 @@ export const useTimeLogController = () => {
         }
 
         setLocalSeconds(startingSeconds);
-    }, [activeWidgetData?.id, baseAccumulatedSeconds, isTimerRunning, activeWidgetData?.initDateTime]);
+    }, [activeWidgetData?.timeLogId, baseAccumulatedSeconds, isTimerRunning, activeWidgetData?.initDateTime]);
 
     /**
      * Core Timer Interval Loop
@@ -168,15 +168,12 @@ export const useTimeLogController = () => {
      * @returns {Promise<void>} Resolves upon successful mutation.
      */
     const handleStartTask = useCallback(async (taskId, taskName, colour, logo) => {
-        console.log("Running: ", isTimerRunning, "Active Widget: ", activeWidgetData, "Task ID: ", taskId);
-        if (isTimerRunning) {
+        if (activeWidgetData?.timeLogId && activeWidgetData?.taskId !== taskId) {
             setPendingSwitchTask({ taskId, name: taskName, colour, logo });
             setActivityDescription("");
             setShowSwitchModal(true);
             return;
         }
-
-        isTimerRunning = true;
 
         const payload = {
             initDateTime: formatLocalISO(new Date()),
@@ -193,12 +190,13 @@ export const useTimeLogController = () => {
                 return {
                     ...currentWidgets,
                     timeTrackerWidget: {
-                        id: backendLog.id,
+                        ...prevWidget,
+                        timeLogId: backendLog.id,
                         taskId: taskId,
                         colour: colour,
                         logo: logo,
                         entityName: taskName,
-                        initDateTime: backendLog.initDateTime,
+                        initDateTime: backendLog.initDateTime || payload.initDateTime,
                         accumulatedSeconds: isResuming ? prevWidget.accumulatedSeconds : backendLog.accumulatedSeconds
                     }
                 }
@@ -206,7 +204,7 @@ export const useTimeLogController = () => {
         } catch (error) {
             console.error("Error al iniciar el contador:", error);
         }
-    }, [updateContextData]);
+    }, [activeWidgetData, updateContextData]);
 
     /**
      * Pause Task Session
@@ -219,15 +217,14 @@ export const useTimeLogController = () => {
      * @returns {Promise<void>} Resolves upon successful mutation.
      */
     const handlePauseTask = useCallback(async () => {
-        if (!activeWidgetData?.id) return;
+        if (!activeWidgetData?.timeLogId) return;
 
         const payload = {
-            endDateTime: formatLocalISO(new Date()),
-            activityDescription: "Pausa en Frontend"
+            endDateTime: formatLocalISO(new Date())
         };
 
         try {
-            await timeLogService.pause(activeWidgetData.id, payload);
+            await timeLogService.pause(activeWidgetData.timeLogId, payload);
 
             updateContextData("homeWidgetsData", (currentWidgets = {}) => ({
                 ...currentWidgets,
@@ -251,7 +248,7 @@ export const useTimeLogController = () => {
      * @returns {void}
      */
     const handleTriggerStopSequence = useCallback(() => {
-        if (localSeconds > 0 || activeWidgetData?.id) {
+        if (localSeconds > 0 || activeWidgetData?.timeLogId) {
             setActivityDescription("");
             setShowStopModal(true);
         }
@@ -268,12 +265,10 @@ export const useTimeLogController = () => {
      */
     const handleConfirmStop = useCallback(async () => {
         const payload = {
-            id: activeWidgetData?.id,
+            id: activeWidgetData?.timeLogId,
             endDateTime: formatLocalISO(new Date()),
             activityDescription: activityDescription
         };
-
-        console.log("Stopping time log with payload:", activeWidgetData);
 
         try {
             await timeLogService.stop(payload);
@@ -282,7 +277,7 @@ export const useTimeLogController = () => {
                 ...currentWidgets,
                 timeTrackerWidget: {
                     ...currentWidgets.timeTrackerWidget,
-                    id: null,
+                    timeLogId: null,
                     initDateTime: null,
                     accumulatedSeconds: 0
                 }
@@ -322,29 +317,31 @@ export const useTimeLogController = () => {
      * @returns {Promise<void>} Resolves upon successful mutation of both sessions and context.
      */
     const confirmSwitchTask = useCallback(async () => {
-        if (!pendingSwitchTask || !activeWidgetData?.id) return;
+        if (!pendingSwitchTask || !activeWidgetData?.timeLogId) return;
 
         try {
             await timeLogService.stop({
-                id: activeWidgetData.id,
+                id: activeWidgetData.timeLogId,
                 endDateTime: formatLocalISO(new Date()),
                 activityDescription: activityDescription
             });
 
-            const backendLog = await timeLogService.start({
+            const payloadStart = {
                 initDateTime: formatLocalISO(new Date()),
                 ...(pendingSwitchTask.taskId && { taskId: pendingSwitchTask.taskId })
-            });
+            };
+
+            const backendLog = await timeLogService.start(payloadStart);
 
             updateContextData("homeWidgetsData", (currentWidgets = {}) => ({
                 ...currentWidgets,
                 timeTrackerWidget: {
-                    id: backendLog.id,
+                    timeLogId: backendLog.timeLogId,
                     taskId: pendingSwitchTask.taskId,
                     colour: pendingSwitchTask.colour,
                     logo: pendingSwitchTask.logo,
                     entityName: pendingSwitchTask.name,
-                    initDateTime: backendLog.initDateTime,
+                    initDateTime: backendLog.initDateTime || payloadStart.initDateTime,
                     accumulatedSeconds: backendLog.accumulatedSeconds
                 }
             }));

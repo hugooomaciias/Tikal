@@ -52,7 +52,7 @@ export const TaskWidget = ({ props }) => {
 
     const { isActive, taskId, isAnyTaskInContext, taskData, activeIndex } = taskWidgetStates;
     const { currentCard, prevIndex1, prevIndex2, cardsBehind, canGoNext } = taskWidgetData;
-    const { getIconComponent, handleToggleTask, handleNextCard, jumpToCard, handlePlayTask, handleStopTask } = taskWidgetActions;
+    const { getIconComponent, handleToggleTask, handleNextCard, jumpToCard, handlePlayTask, handleTriggerStopSequence } = taskWidgetActions;
 
     // --- 2. Render ---
 
@@ -167,7 +167,7 @@ export const TaskWidget = ({ props }) => {
                                         {isThisTaskInContext ? (
                                             <button
                                                 className="flex items-center justify-center bg-primary-50 text-primary-600 rounded-full p-1.5"
-                                                onClick={() => handleStopTask()}
+                                                onClick={handleTriggerStopSequence}
                                             >
                                                 <IconPlayerStopFilled className="h-5 w-5" />
                                             </button>

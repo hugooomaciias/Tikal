@@ -51,12 +51,12 @@ export const useTaskWidgetLogic = ({ props }) => {
     // --- 2. Local UI State ---
 
     /**
-     * Task Data State
+     * Local Task Data State
      *
-     * Holds the local copy of the task data structure, allowing optimistic UI updates
-     * when checking/unchecking tasks without waiting for a backend roundtrip.
+     * Mantiene una copia local de los datos para permitir actualizaciones 
+     * optimistas y reactivas sin requerir recargas de página.
      */
-    const [taskData, setTaskData] = useState(props);
+    const [localTaskData, setLocalTaskData] = useState(props || {});
 
     /**
      * Active Card Index State
@@ -73,7 +73,7 @@ export const useTaskWidgetLogic = ({ props }) => {
      * Memoized to avoid unnecessary object extraction during unrelated re-renders.
      * Represents the specific card data object currently at the forefront of the stack.
      */
-    const currentCard = useMemo(() => taskData?.cards?.[activeIndex], [taskData, activeIndex]);
+    const currentCard = useMemo(() => localTaskData?.cards?.[activeIndex], [localTaskData, activeIndex]);
 
     /**
      * Previous Indices Calculation
@@ -100,8 +100,8 @@ export const useTaskWidgetLogic = ({ props }) => {
      * Memoized boolean flag that determines if the user has reached the end of their task deck.
      */
     const isLastCard = useMemo(
-        () => activeIndex === (taskData?.cards?.length || 0) - 1,
-        [activeIndex, taskData?.cards?.length],
+        () => activeIndex === (localTaskData?.cards?.length || 0) - 1,
+        [activeIndex, localTaskData?.cards?.length],
     );
 
     /**
@@ -113,8 +113,8 @@ export const useTaskWidgetLogic = ({ props }) => {
 
     // --- 4. Side Effects ---
     useEffect(() => {
-        setTaskData(props);
-    }, [JSON.stringify(props)]);
+        setLocalTaskData(props || {});
+    }, [props]);
 
     // --- 5. Interaction Handlers ---
 
@@ -142,7 +142,7 @@ export const useTaskWidgetLogic = ({ props }) => {
      */
     const handleToggleTask = useCallback(
         async (task) => {
-            setTaskData((prevData) => {
+            setLocalTaskData((prevData) => {
                 const updatedCards = prevData.cards.map((card, index) => {
                     if (index !== activeIndex) return card;
 
@@ -224,7 +224,7 @@ export const useTaskWidgetLogic = ({ props }) => {
         taskWidgetStates: { 
             isActive: isTimerRunning,
             taskId: activeWidgetData?.taskId,
-            isAnyTaskInContext: Boolean(activeWidgetData?.id) || accumulatedSeconds > 0,
+            isAnyTaskInContext: Boolean(activeWidgetData?.timeLogId) || accumulatedSeconds > 0,
             taskData,
             activeIndex
         },
@@ -235,7 +235,7 @@ export const useTaskWidgetLogic = ({ props }) => {
             handleNextCard,
             jumpToCard,
             handlePlayTask,
-            handleStopTask: handleTriggerStopSequence
+            handleTriggerStopSequence
         },
     };
 };
