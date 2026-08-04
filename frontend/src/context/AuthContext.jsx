@@ -135,6 +135,23 @@ export const AuthProvider = ({ children }) => {
         };
 
         checkAuth();
+
+        const handleSessionExpired = () => {
+            localStorage.removeItem("accessToken");
+            localStorage.removeItem("refreshToken");
+            setIsAuthenticated(false);
+            setUser(null);
+            
+            navigate("/login", {
+                state: { setApiError: "Por seguridad, tu sesión ha expirado. Por favor, inicia sesión de nuevo" }
+            });
+        };
+
+        window.addEventListener("auth:session-expired", handleSessionExpired);
+
+        return () => {
+            window.removeEventListener("auth:session-expired", handleSessionExpired);
+        };
     }, [navigate]);
 
     // --- 3. API & Action Methods ---

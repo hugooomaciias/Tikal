@@ -225,7 +225,7 @@ export const useTaskWidgetLogic = ({ props }) => {
             isActive: isTimerRunning,
             taskId: activeWidgetData?.taskId,
             isAnyTaskInContext: Boolean(activeWidgetData?.timeLogId) || accumulatedSeconds > 0,
-            taskData,
+            taskData: localTaskData,
             activeIndex
         },
         taskWidgetData: { currentCard, prevIndex1, prevIndex2, cardsBehind, canGoNext },
