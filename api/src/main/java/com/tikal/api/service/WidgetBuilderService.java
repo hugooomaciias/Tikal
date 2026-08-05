@@ -103,6 +103,8 @@ public class WidgetBuilderService {
                     .initDateTime(runningLog != null ? runningLog.getInitDateTime() : null)
                     .accumulatedSeconds(accumulatedSeconds)
                     .timeLogId(runningLog != null ? runningLog.getId() : null)
+                    .isTempleMode(referenceLog.getIsTempleMode() != null ? referenceLog.getIsTempleMode() : false)
+                    .targetTime(referenceLog.getTargetTime())
                     .build();
         }
 
@@ -1062,6 +1064,7 @@ public class WidgetBuilderService {
                 .color(extractColor(log))
                 .icon(extractLogo(log))
                 .durationInSeconds(duration)
+                .isTempleMode(log.getIsTempleMode() != null ? log.getIsTempleMode() : false)
                 .build();
     }
     // ==========================================

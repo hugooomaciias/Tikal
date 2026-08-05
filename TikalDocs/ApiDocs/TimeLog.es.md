@@ -52,7 +52,7 @@ GET /api/time_log/list_by_day?day=2026-05-15 HTTP/1.1
 
 ### 2. Obtener Timer Activo (Widget) (`GET /api/time_log/active`)
 
-**Propósito**: Endpoint optimizado para el *Widget del Time Tracker* en el Frontend. Calcula si el usuario tiene un *batch* (lote) de tiempo corriendo actualmente o en pausa, devolviendo el tiempo acumulado de pausas anteriores y la información visual para pintar el componente.
+**Propósito**: Endpoint optimizado para el *Widget del Time Tracker* en el Frontend. Calcula si el usuario tiene un *batch* (lote) de tiempo corriendo actualmente o en pausa, devolviendo el tiempo acumulado y la información visual, incluyendo las variables del Modo Templo.
 
 ```http
 GET /api/time_log/active HTTP/1.1
@@ -69,12 +69,14 @@ Si hay un timer activo o en pausa:
   "logo": "IconBook",
   "entityName": "Hacer práctica 1",
   "initDateTime": "2026-05-15T10:15:00",
-  "accumulatedSeconds": 1450
+  "accumulatedSeconds": 1450,
+  "isTempleMode": true,
+  "targetTime": 60
 }
 
 ```
 
-*(Nota: Si `initDateTime` es `null`, significa que el timer está pausado y el Frontend solo debe mostrar los `accumulatedSeconds` estáticos).*
+*(Nota: Si `initDateTime` es `null`, significa que el timer está pausado de forma estándar y el Frontend solo debe mostrar los `accumulatedSeconds` estáticos. El Modo Templo nunca devuelve un estado pausado).*
 
 **Response Alternativa (200 OK)**:
 Si el usuario no tiene ninguna actividad en curso, devolverá un cuerpo vacío (`null`).
@@ -83,9 +85,12 @@ Si el usuario no tiene ninguna actividad en curso, devolverá un cuerpo vacío (
 
 ### 3. Iniciar / Reanudar Timer (Start) (`POST /api/time_log/start`)
 
-**Propósito**: Arranca un nuevo contador de tiempo. Implementa lógica de **seguridad anti-trampas**: si se intenta iniciar una nueva Tarea/Fase/Proyecto mientras otro distinto estaba corriendo, el sistema cerrará automáticamente el anterior (con descripción nula y marcado como completado) antes de iniciar el nuevo.
+**Propósito**: Arranca un nuevo contador de tiempo.
 
-**Jerarquía Bottom-Up**: Solo es estrictamente necesario enviar el ID del nivel más profundo que se desea medir. Por ejemplo, si envías `taskId`, el Backend deducirá automáticamente su Fase y Proyecto.
+* **Seguridad anti-trampas:** Si se intenta iniciar una nueva Tarea/Fase/Proyecto mientras otro distinto estaba corriendo, el sistema cerrará automáticamente el anterior antes de iniciar el nuevo.
+* **Modo Templo:** Si `isTempleMode` es `true`, es obligatorio enviar un `targetTime` (en minutos). Esto inicia una sesión ininterrumpible.
+
+**Jerarquía Bottom-Up**: Solo es estrictamente necesario enviar el ID del nivel más profundo que se desea medir (el Backend deducirá automáticamente su Fase y Proyecto).
 
 **Request (Body)**:
 
@@ -93,7 +98,7 @@ Si el usuario no tiene ninguna actividad en curso, devolverá un cuerpo vacío (
 {
   "initDateTime": "2026-05-15T10:15:00",
   "targetTime": 120,
-  "isTempleMode": false,
+  "isTempleMode": true,
   "taskId": 45
 }
 
@@ -106,7 +111,8 @@ Devuelve el `TimeLogDTO` del nuevo registro de tiempo creado.
 
 ### 4. Pausar Timer (Pause) (`PATCH /api/time_log/{id}/pause`)
 
-**Propósito**: Pausa un registro de tiempo que estaba corriendo, asignándole una fecha de fin, pero dejándolo abierto para el *Batch* (`isCompleted = false`).
+**Propósito**: Pausa un registro de tiempo estándar que estaba corriendo, asignándole una fecha de fin, pero dejándolo abierto para el *Batch* (`isCompleted = false`).
+*(Aviso: Esta acción no está permitida / no aplica si el timer se inició en Modo Templo).*
 
 **Request (Path Variables)**:
 
@@ -129,7 +135,9 @@ Devuelve el `TimeLogDTO` actualizado con la fecha de fin.
 
 ### 5. Detener y Sellar Timer (Stop) (`PATCH /api/time_log/stop`)
 
-**Propósito**: Detiene un timer activo (si se envía ID) y sella todo el *Batch* de registros asociados a la misma actividad, marcándolos todos como completados (`isCompleted = true`) y unificándolos con una descripción de actividad final.
+**Propósito**: Detiene un timer activo (si se envía ID) y sella todo el registro, marcándolo como completado (`isCompleted = true`) y unificándolo con una descripción.
+
+* **Penalización Modo Templo:** Si el registro estaba en Modo Templo y la duración final es inferior al `targetTime` establecido (con un margen de gracia de 10 segundos), el backend actuará como juez, degradando el registro a tiempo estándar (`isTempleMode = false` y `targetTime = 0`).
 
 **Request (Body)**:
 
@@ -137,15 +145,13 @@ Devuelve el `TimeLogDTO` actualizado con la fecha de fin.
 {
   "id": 42,
   "endDateTime": "2026-05-15T11:30:00",
-  "activityDescription": "Refactorización completada y pruebas pasadas"
+  "activityDescription": "Sesión de estudio completada"
 }
 
 ```
 
-*(Nota: El `id` y `endDateTime` son opcionales y solo se envían si el timer se paró directamente desde el estado "Play". Si se paró desde "Pausa", basta con enviar la `activityDescription`).*
-
 **Response (200 OK)**:
-Devuelve un array con todos los `TimeLogDTO` que formaban parte del *Batch* y que acaban de ser completados.
+Devuelve un array con todos los `TimeLogDTO` que formaban parte del *Batch* (o el registro único del Templo) y que acaban de ser completados, reflejando si mantuvieron o perdieron el estatus de Templo.
 
 ---
 
@@ -175,7 +181,7 @@ Devuelve el `TimeLogDTO` insertado.
 ### 7. Actualizar Registro de Tiempo (`PUT /api/time_log/{id}`)
 
 **Propósito**: Modificar un registro de tiempo existente. Valida permisos del usuario.
-*Importante*: Durante la actualización es **obligatorio enviar al menos un `projectId`**, ya que el sistema exige que el registro no quede huérfano.
+*Importante*: Durante la actualización es **obligatorio enviar al menos un `projectId**`, ya que el sistema exige que el registro no quede huérfano.
 
 **Request (Body)**:
 
@@ -192,7 +198,7 @@ Devuelve el `TimeLogDTO` insertado.
 
 ```
 
-*(Nota: Si se envía `null` en `stageId` o `taskId`, el registro se elevará de jerarquía y quedará asociado únicamente al Proyecto, por el contrario si se pone se queda null `pojectId` y `stageId` no, en el backend se calculará cual es su `projectId` correspondiente, al igual con pasa con el resto de entidades).*
+*(Nota: La lógica de jerarquía calculará automáticamente los IDs ascendentes si se omiten).*
 
 **Response (200 OK)**:
 Devuelve el `TimeLogDTO` actualizado.

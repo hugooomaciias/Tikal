@@ -57,60 +57,12 @@ public class TimeLogService {
         timeLog.setTargetTime(request.getTargetTime());
         timeLog.setIsTempleMode(request.getIsTempleMode() != null ? request.getIsTempleMode() : false);
         timeLog.setActivityDescription(request.getActivityDescription());
+        timeLog.setIsCompleted(true);
 
         // Set user
-        User user = userService.getAuthenticatedUser();
-        timeLog.setUser(user);
+        timeLog.setUser(userService.getAuthenticatedUser());
 
-        // All the linked entities can't be null
-        if (request.getTaskId() == null && request.getStageId() == null && request.getProjectId() == null) {
-            throw new BadRequestException("Un time log debe tener siempre un proyecto, fase o tarea adjunto.");
-        }
-
-        if (request.getTaskId() != null) {
-            // Comes with tasks
-            Task task = taskRepository.findById(request.getTaskId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Tarea no encontrada con id: " + request.getTaskId()));
-
-            Stage taskStage = task.getStage();
-            Project taskProject = taskStage.getProject();
-
-            // Validation of cross IDs
-            if (request.getStageId() != null && !request.getStageId().equals(taskStage.getId())) {
-                throw new BadRequestException("La tarea no pertenece a la fase enviada.");
-            }
-            if (request.getProjectId() != null && !request.getProjectId().equals(taskProject.getId())) {
-                throw new BadRequestException("La tarea no pertenece al proyecto enviado.");
-            }
-
-            // We save the three levels
-            timeLog.setTask(task);
-            timeLog.setStage(taskStage);
-            timeLog.setProject(taskProject);
-
-        } else if (request.getStageId() != null) {
-            // Comes with stage but without task
-            Stage stage = stageRepository.findById(request.getStageId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Fase no encontrada con id: " + request.getStageId()));
-
-            Project stageProject = stage.getProject();
-
-            if (request.getProjectId() != null && !request.getProjectId().equals(stageProject.getId())) {
-                throw new BadRequestException("La fase no pertenece al proyecto enviado.");
-            }
-
-            // We save both levels
-            timeLog.setStage(stage);
-            timeLog.setProject(stageProject);
-
-        } else if (request.getProjectId() != null) {
-            // Only the project comes
-            Project project = projectRepository.findById(request.getProjectId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Proyecto no encontrado con id: " + request.getProjectId()));
-
-            // We save this only level
-            timeLog.setProject(project);
-        }
+        assignHierarchy(timeLog, request.getProjectId(), request.getStageId(), request.getTaskId());
 
         // Save and map it
         TimeLog savedTimeLog = timeLogRepository.save(timeLog);
@@ -152,29 +104,7 @@ public class TimeLogService {
         }
 
         // Update relationships if provided
-        if (request.getProjectId() != null) {
-            Project project = projectRepository.findById(request.getProjectId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Project not found with id: " + request.getProjectId()));
-            existingTimeLog.setProject(project);
-        } else {
-            throw new BadRequestException("Un time log siempre debe de pertenecer a un proyecto/lista");
-        }
-
-        if (request.getStageId() != null) {
-            Stage stage = stageRepository.findById(request.getStageId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Stage not found with id: " + request.getStageId()));
-            existingTimeLog.setStage(stage);
-        } else {
-            existingTimeLog.setStage(null);
-        }
-
-        if (request.getTaskId() != null) {
-            Task task = taskRepository.findById(request.getTaskId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Task not found with id: " + request.getTaskId()));
-            existingTimeLog.setTask(task);
-        } else {
-            existingTimeLog.setTask(null);
-        }
+        assignHierarchy(existingTimeLog, request.getProjectId(), request.getStageId(), request.getTaskId());
 
         TimeLog updatedTimeLog = timeLogRepository.save(existingTimeLog);
         return toDto(updatedTimeLog);
@@ -256,54 +186,7 @@ public class TimeLogService {
         timeLog.setUser(user);
 
         // All the linked entities can't be null
-        if (request.getTaskId() == null && request.getStageId() == null && request.getProjectId() == null) {
-            throw new BadRequestException("Un time log debe tener siempre un proyecto, fase o tarea adjunto.");
-        }
-
-        if (request.getTaskId() != null) {
-            // Comes with tasks
-            Task task = taskRepository.findById(request.getTaskId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Tarea no encontrada con id: " + request.getTaskId()));
-
-            Stage taskStage = task.getStage();
-            Project taskProject = taskStage.getProject();
-
-            // Validation of cross IDs
-            if (request.getStageId() != null && !request.getStageId().equals(taskStage.getId())) {
-                throw new BadRequestException("La tarea no pertenece a la fase enviada.");
-            }
-            if (request.getProjectId() != null && !request.getProjectId().equals(taskProject.getId())) {
-                throw new BadRequestException("La tarea no pertenece al proyecto enviado.");
-            }
-
-            // We save the three levels
-            timeLog.setTask(task);
-            timeLog.setStage(taskStage);
-            timeLog.setProject(taskProject);
-
-        } else if (request.getStageId() != null) {
-            // Comes with stage but without task
-            Stage stage = stageRepository.findById(request.getStageId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Fase no encontrada con id: " + request.getStageId()));
-
-            Project stageProject = stage.getProject();
-
-            if (request.getProjectId() != null && !request.getProjectId().equals(stageProject.getId())) {
-                throw new BadRequestException("La fase no pertenece al proyecto enviado.");
-            }
-
-            // We save both levels
-            timeLog.setStage(stage);
-            timeLog.setProject(stageProject);
-
-        } else if (request.getProjectId() != null) {
-            // Only the project comes
-            Project project = projectRepository.findById(request.getProjectId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Proyecto no encontrado con id: " + request.getProjectId()));
-
-            // We save this only level
-            timeLog.setProject(project);
-        }
+        assignHierarchy(timeLog, request.getProjectId(), request.getStageId(), request.getTaskId());
 
         // Save and map it
         TimeLog savedTimeLog = timeLogRepository.save(timeLog);
@@ -329,6 +212,10 @@ public class TimeLogService {
         User user = userService.getAuthenticatedUser();
         List<TimeLog> noCompletedTimeLogs = timeLogRepository.findByUserIdAndIsCompletedFalse(user.getId());
 
+        if (noCompletedTimeLogs.isEmpty()) {
+            return List.of();
+        }
+
         if (request.getId() != null) {
             if (request.getEndDateTime() == null) {
                 throw new BadRequestException("Para parar un registro de tiempo activo se debe enviar el momento de finalización.");
@@ -340,6 +227,28 @@ public class TimeLogService {
                     .orElseThrow(() -> new ResourceNotFoundException("El time log que intentas parar no existe o ya estaba completado."));
 
             activeLog.setEndDateTime(request.getEndDateTime());
+        }
+
+        // Temple mode validation
+        TimeLog referenceLog = noCompletedTimeLogs.getFirst();
+
+        if (Boolean.TRUE.equals(referenceLog.getIsTempleMode()) && referenceLog.getTargetTime() != null) {
+            long durationInSeconds = 0;
+
+            if (referenceLog.getInitDateTime() != null && referenceLog.getEndDateTime() != null) {
+                // Direct calculation
+                durationInSeconds = java.time.Duration.between(referenceLog.getInitDateTime(), referenceLog.getEndDateTime()).getSeconds();
+            }
+
+            long targetSeconds = referenceLog.getTargetTime() * 60L;
+
+            // If fails has 30 seconds of margin
+            if (durationInSeconds < (targetSeconds - 30)) {
+                for (TimeLog log : noCompletedTimeLogs) {
+                    log.setIsTempleMode(false);
+                    log.setTargetTime(0);
+                }
+            }
         }
 
         for (TimeLog timeLog : noCompletedTimeLogs) {
@@ -355,6 +264,53 @@ public class TimeLogService {
     // ==========================================
     // AUXILIAR METHODS
     // ==========================================
+    private void assignHierarchy(TimeLog timeLog, Integer projectId, Integer stageId, Integer taskId) {
+        if (taskId == null && stageId == null && projectId == null) {
+            throw new BadRequestException("Un time log debe tener siempre un proyecto, fase o tarea adjunto.");
+        }
+
+        // Clean the previous relations
+        timeLog.setTask(null);
+        timeLog.setStage(null);
+        timeLog.setProject(null);
+
+        // Bottom-Up strategy
+        if (taskId != null) {
+            Task task = taskRepository.findById(taskId)
+                    .orElseThrow(() -> new ResourceNotFoundException("Tarea no encontrada con id: " + taskId));
+            Stage taskStage = task.getStage();
+            Project taskProject = taskStage.getProject();
+
+            if (stageId != null && !stageId.equals(taskStage.getId())) {
+                throw new BadRequestException("La tarea no pertenece a la fase enviada.");
+            }
+            if (projectId != null && !projectId.equals(taskProject.getId())) {
+                throw new BadRequestException("La tarea no pertenece al proyecto enviado.");
+            }
+
+            timeLog.setTask(task);
+            timeLog.setStage(taskStage);
+            timeLog.setProject(taskProject);
+
+        } else if (stageId != null) {
+            Stage stage = stageRepository.findById(stageId)
+                    .orElseThrow(() -> new ResourceNotFoundException("Fase no encontrada con id: " + stageId));
+            Project stageProject = stage.getProject();
+
+            if (projectId != null && !projectId.equals(stageProject.getId())) {
+                throw new BadRequestException("La fase no pertenece al proyecto enviado.");
+            }
+
+            timeLog.setStage(stage);
+            timeLog.setProject(stageProject);
+
+        } else {
+            Project project = projectRepository.findById(projectId)
+                    .orElseThrow(() -> new ResourceNotFoundException("Proyecto no encontrado con id: " + projectId));
+
+            timeLog.setProject(project);
+        }
+    }
 
     private String extractColor(TimeLog log) {
         if (log.getStage() != null) return log.getStage().getColour();
@@ -391,23 +347,14 @@ public class TimeLogService {
     // MAPPER
     // ==========================================
     private TimeLogDTO toDto(TimeLog timeLog) {
-        String color = timeLog.getStage().getColour() != null ? timeLog.getStage().getColour() : null;
-
-        String taskName = timeLog.getProject().getName();
-        if (timeLog.getTask() != null) {
-            taskName = timeLog.getTask().getName();
-        } else if (timeLog.getStage() != null) {
-            taskName = timeLog.getStage().getName();
-        }
-
         return TimeLogDTO.builder()
                 .id(timeLog.getId())
                 .initDateTime(timeLog.getInitDateTime())
                 .endDateTime(timeLog.getEndDateTime())
                 .minutes(timeLog.getMinutes())
-                .logo(timeLog.getProject().getLogoUrl())
-                .color(color)
-                .taskName(taskName)
+                .logo(extractLogo(timeLog))
+                .color(extractColor(timeLog))
+                .taskName(extractName(timeLog))
                 .build();
     }
 }
