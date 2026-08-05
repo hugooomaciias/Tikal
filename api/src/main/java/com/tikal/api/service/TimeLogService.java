@@ -57,6 +57,7 @@ public class TimeLogService {
         timeLog.setTargetTime(request.getTargetTime());
         timeLog.setIsTempleMode(request.getIsTempleMode() != null ? request.getIsTempleMode() : false);
         timeLog.setActivityDescription(request.getActivityDescription());
+        timeLog.setIsCompleted(true);
 
         // Set user
         timeLog.setUser(userService.getAuthenticatedUser());
