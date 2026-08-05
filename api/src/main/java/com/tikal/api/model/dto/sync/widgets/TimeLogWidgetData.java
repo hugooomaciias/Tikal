@@ -37,5 +37,6 @@ public class TimeLogWidgetData implements WidgetData{
         private String icon;
 
         private Long durationInSeconds;
+        private Boolean isTempleMode;
     }
 }

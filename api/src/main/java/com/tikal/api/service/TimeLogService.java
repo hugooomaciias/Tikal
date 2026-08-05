@@ -329,6 +329,10 @@ public class TimeLogService {
         User user = userService.getAuthenticatedUser();
         List<TimeLog> noCompletedTimeLogs = timeLogRepository.findByUserIdAndIsCompletedFalse(user.getId());
 
+        if (noCompletedTimeLogs.isEmpty()) {
+            return List.of();
+        }
+
         if (request.getId() != null) {
             if (request.getEndDateTime() == null) {
                 throw new BadRequestException("Para parar un registro de tiempo activo se debe enviar el momento de finalización.");
@@ -340,6 +344,28 @@ public class TimeLogService {
                     .orElseThrow(() -> new ResourceNotFoundException("El time log que intentas parar no existe o ya estaba completado."));
 
             activeLog.setEndDateTime(request.getEndDateTime());
+        }
+
+        // Temple mode validation
+        TimeLog referenceLog = noCompletedTimeLogs.getFirst();
+
+        if (Boolean.TRUE.equals(referenceLog.getIsTempleMode()) && referenceLog.getTargetTime() != null) {
+            long durationInSeconds = 0;
+
+            if (referenceLog.getInitDateTime() != null && referenceLog.getEndDateTime() != null) {
+                // Direct calculation
+                durationInSeconds = java.time.Duration.between(referenceLog.getInitDateTime(), referenceLog.getEndDateTime()).getSeconds();
+            }
+
+            long targetSeconds = referenceLog.getTargetTime() * 60L;
+
+            // If fails has 30 seconds of margin
+            if (durationInSeconds < (targetSeconds - 30)) {
+                for (TimeLog log : noCompletedTimeLogs) {
+                    log.setIsTempleMode(false);
+                    log.setTargetTime(0);
+                }
+            }
         }
 
         for (TimeLog timeLog : noCompletedTimeLogs) {

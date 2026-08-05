@@ -18,4 +18,6 @@ public class TimeTrackerWidgetData implements WidgetData {
     private String logo;
     private Instant initDateTime;
     private Long accumulatedSeconds;
+    private Boolean isTempleMode;
+    private Integer targetTime;
 }
