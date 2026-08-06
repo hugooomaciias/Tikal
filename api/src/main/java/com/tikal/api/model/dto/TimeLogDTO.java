@@ -15,4 +15,5 @@ public class TimeLogDTO {
     private String logo;
     private String color;
     private String taskName;
+    private String activityDescription;
 }

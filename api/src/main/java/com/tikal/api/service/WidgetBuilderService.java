@@ -1065,6 +1065,7 @@ public class WidgetBuilderService {
                 .icon(extractLogo(log))
                 .durationInSeconds(duration)
                 .isTempleMode(log.getIsTempleMode() != null ? log.getIsTempleMode() : false)
+                .activityDescription(log.getActivityDescription())
                 .build();
     }
     // ==========================================

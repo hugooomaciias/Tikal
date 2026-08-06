@@ -24,6 +24,7 @@ public class TimeLogWidgetData implements WidgetData{
     @Builder
     public static class TimeLogData {
         private Integer timeLogId;
+        private String activityDescription;
 
         private Instant initTime;
         private Instant endTime;
