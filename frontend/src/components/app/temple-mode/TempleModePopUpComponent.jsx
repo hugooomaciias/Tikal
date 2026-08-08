@@ -5,7 +5,7 @@ import { useTempleModePopUpLogic } from "../../../hooks/components/app/temple-mo
 import { CascadingLinkSelect } from "../common/popups/CascadingLinkSelect.jsx";
 
 /** Icons */
-import { IconCircleXFilled, IconHourglassFilled, IconClockHour2Filled } from "@tabler/icons-react";
+import { IconCircleXFilled, IconHourglassFilled } from "@tabler/icons-react";
 
 /**
  * Temple Mode PopUp Presentational Component
@@ -22,7 +22,7 @@ import { IconCircleXFilled, IconHourglassFilled, IconClockHour2Filled } from "@t
  * @param {Function} props.t - Core i18n translation utility.
  * @returns {JSX.Element}
  */
-export const TempleModePopUpComponent = ({ onClose, mode, theme, handleStartSession, cascadingOptions, tTemple, tCommon }) => {
+export const TempleModePopUpComponent = ({ onClose, theme, handleStartSession, cascadingOptions, tTemple, tCommon }) => {
     // --- 1. Logic Hook Extraction ---
 
     /**
@@ -32,10 +32,10 @@ export const TempleModePopUpComponent = ({ onClose, mode, theme, handleStartSess
      * handlers from the headless hook. This keeps the component strictly focused on 
      * presentational rendering and dynamic styling.
      */
-    const { popUpStates, popUpActions } = useTempleModePopUpLogic(onClose, mode, theme, handleStartSession, tTemple);
+    const { popUpStates, popUpActions } = useTempleModePopUpLogic(onClose, theme, handleStartSession, tTemple);
     
-    const { scrollRef, formData, errors, timerOptions } = popUpStates;
-    const { getInputClass, handleModalClick, handleDurationSelect, handleCascadingSelection, handleSubmit, handleWheel } = popUpActions;
+    const { formData, errors, timerOptions } = popUpStates;
+    const { scrollRef, getInputClass, handleModalClick, handleDurationSelect, handleCascadingSelection, handleSubmit } = popUpActions;
 
     // --- 2. Render ---
 
@@ -55,60 +55,53 @@ export const TempleModePopUpComponent = ({ onClose, mode, theme, handleStartSess
                     {/* Title & Close Button */}
                     <div className="flex items-center justify-between z-10">
                         <div className="flex items-center gap-3">
-                            {mode === "timer" ? (
-                                <IconHourglassFilled className={`w-8 h-8 ${theme.title}`} />
-                            ) : (
-                                <IconClockHour2Filled className={`w-8 h-8 ${theme.title}`} />
-                            )}
+                            <IconHourglassFilled className={`w-8 h-8 ${theme.title}`} />
+
                             <span className={`text-2xl font-passero font-bold tracking-wide ${theme.title}`}>
-                                {mode === "timer" ? tTemple("popup.title.timer") : tTemple("popup.title.chrono")}
+                                {tTemple("popup.title.timer")}
                             </span>
                         </div>
                         
-                        <button className={`${theme.subtitle} hover:text-white transition-colors`} onClick={onClose}>
+                        <button type="button" className={`${theme.subtitle} ${theme.subtitleHover} transition-colors`} onClick={onClose}>
                             <IconCircleXFilled className="h-8 w-8" />
                         </button>
                     </div>
-
-                    {/* HORIZONTAL TIMER WHEEL (Only for Timer Mode) */}
-                    {mode === "timer" && (
-                        <div className="w-full overflow-hidden relative custom-scrollbar">
-                            <div
-                                ref={scrollRef}
-                                onWheel={handleWheel}
-                                className="w-full overflow-x-auto hide-scrollbar flex items-center snap-x snap-mandatory scroll-smooth"
-                                style={{
-                                    WebkitMaskImage: "linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%)",
-                                    maskImage: "linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%)",
-                                }}
-                            >
-                                <div className="flex w-full overflow-x-auto snap-x snap-mandatory hide-scrollbar items-center gap-2 py-4 px-[calc(50%-40px)] [mask-image:linear-gradient(to_right,transparent,black_20%,black_80%,transparent)]">
-                                    {timerOptions.map((minutes) => {
-                                        const isSelected = formData.duration === minutes;
-                                        return (
-                                            <button
-                                                key={minutes}
-                                                type="button"
-                                                onClick={(e) => handleDurationSelect(minutes, e)}
-                                                className={`shrink-0 snap-center rounded-full font-bold tabular-nums transition-all duration-500 ease-out flex items-center justify-center
-                                                    ${isSelected 
-                                                        ? `w-20 h-20 text-3xl shadow-[0_0_20px_rgba(255,255,255,0.15)] bg-white/25 text-white backdrop-blur-md border border-white/40 scale-100` 
-                                                        : `w-16 h-16 text-xl bg-black/10 ${theme.subtitle} hover:bg-black/30 hover:text-white opacity-50 hover:opacity-100 scale-90`
-                                                    }
-                                                `}
-                                            >
-                                                {minutes}
-                                            </button>
-                                        );
-                                    })}
-                                </div>
-                            </div>
-                        </div>
-                    )}
                 </div>
 
-                {/* --- FORM SECTION --- */}
-                <form onSubmit={handleSubmit} className="flex flex-col gap-6 p-8" noValidate>     
+                {/* --- Form Section --- */}
+                <form onSubmit={handleSubmit} className="flex flex-col gap-6 px-8 pb-8" noValidate>
+                    {/* Horizontal Timer Wheel */}
+                    <div className="w-full flex flex-col gap-2">
+                        <div className={`flex justify-between items-center ${theme.title} text-sm font-bold uppercase tracking-wider`}>
+                            <span>{tTemple("popup.duration")}</span>
+                            <span className="tabular-nums">{formData.duration} min</span>
+                        </div>
+                        
+                        <div 
+                            ref={scrollRef}
+                            className="flex w-full overflow-x-auto scroll-smooth items-center gap-2 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+                        >
+                            {timerOptions.map((minutes) => {
+                                const isSelected = formData.duration === minutes;
+                                return (
+                                    <button
+                                        key={minutes}
+                                        type="button"
+                                        onClick={(e) => handleDurationSelect(minutes, e)}
+                                        className={`shrink-0 flex items-center justify-center p-3 rounded-2xl font-bold tabular-nums transition-all duration-200 focus:border-none
+                                            ${isSelected 
+                                                ? `${theme.progress} ${theme.title} shadow-md` 
+                                                : `${theme.track} ${theme.subtitle}`
+                                            }
+                                        `}
+                                    >
+                                        {minutes}
+                                    </button>
+                                );
+                            })}
+                        </div>
+                    </div>
+
                     {/* Entity Linking Selection */}
                     <div className="flex flex-col gap-3">
                         {/* Recursive Path Selector Component */}

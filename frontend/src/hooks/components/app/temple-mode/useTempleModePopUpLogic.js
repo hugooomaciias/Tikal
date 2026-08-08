@@ -1,5 +1,5 @@
 /** React & Third-Party Libraries */
-import { useState, useMemo, useCallback, useRef } from "react";
+import { useState, useMemo, useCallback } from "react";
 
 /**
  * Temple Mode Pop-Up Logic Hook
@@ -10,23 +10,13 @@ import { useState, useMemo, useCallback, useRef } from "react";
  *
  * @hook
  * @param {Function} onClose - Callback to close the modal.
- * @param {string} mode - "timer" | "chronometer".
  * @param {Object} theme - Rank theme CSS classes for dynamic styling computations.
  * @param {Function} handleStartSession - Callback to initiate the actual timing loop globally.
+ * @param {Function} t - Translation utility function provided by i18next.
  * @returns {Object} A structured payload containing state variables, derived data, and handlers.
  */
-export const useTempleModePopUpLogic = (onClose, mode, theme, handleStartSession, t) => {
-    // --- 1. DOM Refs & Layout State ---
-
-    /**
-     * Scroll Container Reference
-     *
-     * Maintains a mutable reference to the horizontal timer wheel container to programmatically
-     * intercept and translate vertical mouse wheel events into horizontal scrolling.
-     */
-    const scrollRef = useRef(null);
-
-    // --- 2. Local UI State ---
+export const useTempleModePopUpLogic = (onClose, theme, handleStartSession, t) => {
+    // --- 1. Local UI State ---
 
     /**
      * Form Input Data State
@@ -45,16 +35,66 @@ export const useTempleModePopUpLogic = (onClose, mode, theme, handleStartSession
      */
     const [errors, setErrors] = useState({});
 
-    // --- 3. Derived UI Data ---
+    // --- 2. Derived UI Data ---
 
     /**
      * Timer Options Array
      *
      * Memoized array of predefined minute intervals used to populate the horizontal scroll wheel.
+     * Generates an array from 15 to 120 minutes in 5-minute increments.
      */
-    const timerOptions = useMemo(() => [15, 20, 25, 30, 35, 40, 45, 50, 55, 60], []);
+    const timerOptions = useMemo(() => {
+        return Array.from({ length: 22 }, (_, i) => 15 + (i * 5));
+    }, []);
 
-    // --- 4. Interaction Handlers ---
+    // --- 3. Interaction Handlers ---
+
+    /**
+     * Native Horizontal Scroll Callback Ref
+     *
+     * This advanced pattern guarantees the native event listener is attached exactly when
+     * the DOM node mounts, and properly destroyed when it unmounts. We use { passive: false }
+     * to safely intercept the vertical wheel event and convert it to horizontal scroll 
+     * without triggering browser warnings.
+     * 
+     * @param {HTMLElement|null} node - The DOM node of the scrollable container.
+     */
+    const scrollRef = useCallback((node) => {
+        if (node !== null) {
+            const handleNativeWheel = (e) => {
+                if (e.deltaY !== 0) {
+                    e.preventDefault(); 
+                    node.scrollLeft += e.deltaY;
+                }
+            };
+
+            node.addEventListener("wheel", handleNativeWheel, { passive: false });
+
+            node._cleanupWheel = () => {
+                node.removeEventListener("wheel", handleNativeWheel);
+            };
+        }
+    }, []);
+
+    /**
+     * Scroll Ref Lifecycle Manager
+     *
+     * Wrapper for the `scrollRef` callback that safely handles the cleanup of the previous
+     * DOM node's event listeners before attaching new ones. This guarantees zero memory leaks
+     * during component re-renders or unmounts.
+     * 
+     * @param {HTMLElement|null} node - The current DOM node.
+     */
+    const scrollRefManager = useCallback((node) => {
+        if (scrollRefManager.current && scrollRefManager.current._cleanupWheel) {
+            scrollRefManager.current._cleanupWheel();
+        }
+
+        if (node) {
+            scrollRef(node);
+            scrollRefManager.current = node;
+        }
+    }, [scrollRef]);
 
     /**
      * Modal Click Interceptor
@@ -128,7 +168,7 @@ export const useTempleModePopUpLogic = (onClose, mode, theme, handleStartSession
 
         setErrors(tempErrors);
         return isValid;
-    }, [formData.linkedEntity]);
+    }, [formData.linkedEntity, t]);
 
     /**
      * Form Submission Logic
@@ -147,8 +187,7 @@ export const useTempleModePopUpLogic = (onClose, mode, theme, handleStartSession
         if (!validateForm()) return; 
         
         const payload = {
-            mode,
-            durationInSeconds: mode === "timer" ? formData.duration * 60 : 0,
+            durationInSeconds: formData.duration * 60,
             linkedEntityId: formData.linkedEntity
         };
 
@@ -157,7 +196,7 @@ export const useTempleModePopUpLogic = (onClose, mode, theme, handleStartSession
         
         handleStartSession();
         onClose();
-    }, [validateForm, formData, mode, onClose]);
+    }, [validateForm, formData, handleStartSession, onClose]);
 
     /**
      * Dynamic Input CSS Computation
@@ -174,30 +213,13 @@ export const useTempleModePopUpLogic = (onClose, mode, theme, handleStartSession
             const errorClass = "ring-[3px] ring-tertiary-200";
             return `${baseInputClass} ${errors[fieldName] ? errorClass : ""}`;
         },
-        [errors],
+        [errors, theme],
     );
-
-    /**
-     * Horizontal Scroll Interceptor
-     *
-     * Hijacks the native vertical `onWheel` event when the user hovers over the timer options.
-     * Translates the vertical delta (deltaY) into horizontal scroll displacement (scrollLeft)
-     * to provide a premium, native-feeling horizontal carousel experience on desktop devices.
-     *
-     * @param {React.WheelEvent} e - The native React synthetic wheel event.
-     */
-    const handleWheel = (e) => {
-        if (scrollRef.current) {
-            // Evita que la página baje si el usuario hace scroll sobre la marquesina
-            e.preventDefault(); 
-            scrollRef.current.scrollLeft += e.deltaY;
-        }
-    };
 
     // --- 4. Return Object ---
 
     return {
-        popUpStates: { scrollRef, formData, errors, timerOptions },
-        popUpActions: { getInputClass, handleModalClick, handleDurationSelect, handleCascadingSelection, handleSubmit, handleWheel }
+        popUpStates: { formData, errors, timerOptions },
+        popUpActions: { scrollRef: scrollRefManager, getInputClass, handleModalClick, handleDurationSelect, handleCascadingSelection, handleSubmit }
     };
 };

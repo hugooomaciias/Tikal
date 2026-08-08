@@ -8,7 +8,7 @@ import { HeaderComponent } from "../../components/app/common/HeaderComponent.jsx
 import { ScrollingText } from "../../components/app/common/ScrollingText.jsx";
 
 /** Icons */
-import { IconChevronDown, IconHourglassFilled, IconClockHour2Filled } from "@tabler/icons-react";
+import { IconChevronDown, IconHourglassFilled } from "@tabler/icons-react";
 
 /**
  * Temple Mode Page Component
@@ -31,11 +31,12 @@ export const TempleModePage = () => {
      * This strictly isolates the complex business logic and interval engines from the purely 
      * visual rendering hierarchy.
      */
-    const { t, templeModeStates, templeModeData, templeModeActions } = useTempleModeLogic();
+    const { translations, templeModeStates, templeModeData, templeModeActions } = useTempleModeLogic();
 
-    const { menuRef, isDataLoaded, isTotemsMenuOpen, activeTimerMode, isRunning, isPopUpOpen } = templeModeStates;
+    const { tTemple, tCommon } = translations;
+    const { menuRef, isDataLoaded, isTotemsMenuOpen, isRunning, isPopUpOpen } = templeModeStates;
     const { data, additionalData, formattedTime, timerProgressPercentage, cascadingOptions } = templeModeData;
-    const { toggleTotemsMenu, handleOpenChronometerConfig, handleOpenTimerConfig, handleClosePopUp, handleStartSession } = templeModeActions;
+    const { toggleTotemsMenu, handleOpenTimerConfig, handleClosePopUp, handleStartSession } = templeModeActions;
 
     if (!isDataLoaded || !templeModeData) {
         return null;
@@ -68,10 +69,10 @@ export const TempleModePage = () => {
             <section className="flex-1 flex flex-col gap-4 md:gap-6 w-full h-full overflow-hidden">
                 <div className="flex flex-col gap-3 md:gap-4 w-full min-w-0">
                     <HeaderComponent
-                        page={t("temple-mode_title")}
+                        page={tTemple("temple-mode_title")}
                         templeName={data.templeName}
                         theme={theme}
-                        t={t}
+                        t={tTemple}
                     />
 
                     <div className="flex flex-col lg:flex-row items-start justify-between gap-4 w-full min-w-0">
@@ -100,7 +101,7 @@ export const TempleModePage = () => {
                                     <div className="flex items-start justify-between gap-4 w-full">
                                         <div className="flex flex-col flex-1 min-w-0">
                                             <span className={`text-[10px] uppercase font-bold tracking-widest opacity-80 ${theme.subtitle} truncate`}>
-                                                {t("subheader.rank_badge.label")} {data.rank}
+                                                {tTemple("subheader.rank_badge.label")} {data.rank}
                                             </span>
                                             <h3 className={`font-passero font-bold text-xl leading-none mt-1 truncate ${theme.title}`}>
                                                 {data.awardedTitle}
@@ -109,7 +110,7 @@ export const TempleModePage = () => {
 
                                         <div className="flex flex-col items-end shrink-0">
                                             <span className={`text-[10px] uppercase font-bold tracking-widest opacity-80 ${theme.subtitle}`}>
-                                                {t("subheader.rank_badge.totems")}
+                                                {tTemple("subheader.rank_badge.totems")}
                                             </span>
                                             <h3 className={`font-passero font-bold text-xl leading-none mt-1 truncate ${theme.title}`}>
                                                 {unlockedTotems.length} / {totems.length}
@@ -199,21 +200,15 @@ export const TempleModePage = () => {
                                 {/* Mode Toggle Configuration Actions */}
                                 <div className="flex gap-4 w-full justify-center z-10">
                                     <button 
-                                        onClick={handleOpenChronometerConfig}
-                                        className={`p-3.5 rounded-2xl border transition-all duration-300 flex items-center justify-center 
-                                            ${activeTimerMode === "chronometer" ? "bg-white/20 border-white/40 shadow-inner scale-105" : "bg-white/5 border-white/10 hover:bg-white/10"}`}
-                                        title="Configurar Cronómetro"
-                                    >
-                                        <IconClockHour2Filled stroke={2} className={`w-7 h-7 ${theme.title} opacity-90`} />
-                                    </button>
-
-                                    <button 
+                                        type="button"
                                         onClick={handleOpenTimerConfig}
-                                        className={`p-3.5 rounded-2xl border transition-all duration-300 flex items-center justify-center 
-                                            ${activeTimerMode === "timer" ? "bg-white/20 border-white/40 shadow-inner scale-105" : "bg-white/5 border-white/10 hover:bg-white/10"}`}
+                                        className="p-3.5 rounded-2xl border transition-all duration-300 flex items-center justify-center bg-white/5 border-white/10 hover:bg-white/20 hover:border-white/40 shadow-inner"
                                         title="Configurar Temporizador"
                                     >
-                                        <IconHourglassFilled stroke={2} className={`w-7 h-7 ${theme.title} opacity-90`} />
+                                        <div className={`flex items-center justify-center gap-2 ${theme.title}`}>
+                                            <IconHourglassFilled stroke={2} className="w-6 h-6 opacity-90" />
+                                            <span className="mt-0.5 font-semibold">Configurar Temporizador</span>
+                                        </div>
                                     </button>
                                 </div>
 
@@ -223,7 +218,7 @@ export const TempleModePage = () => {
                                         onClick={handleStartSession}
                                         className={`w-full mt-2 py-4 rounded-full border border-white/10 ${theme.title} font-bold text-xl tracking-wide shadow-[0_10px_30px_rgba(0,0,0,0.3)] transition-all duration-300 transform bg-tertiary-300 text-tertiary-700`}
                                     >
-                                        {t("stopSessionButton")}
+                                        {tTemple("stopSessionButton")}
                                     </button>
                                 }
                             </div>
@@ -242,7 +237,7 @@ export const TempleModePage = () => {
                                         <div className="flex flex-col min-w-0">
                                             <div className="flex items-center gap-1.5 mb-0.5">
                                                 <span className={`text-[10px] uppercase font-bold tracking-widest opacity-80 ${theme.subtitle} truncate`}>
-                                                    {lockedTotems.length > 0 ? t("subheader.totem_badge.label.hasMoreTotems") : t("subheader.totem_badge.label.noMoreTotems")}
+                                                    {lockedTotems.length > 0 ? tTemple("subheader.totem_badge.label.hasMoreTotems") : tTemple("subheader.totem_badge.label.noMoreTotems")}
                                                 </span>
                                                 <IconChevronDown 
                                                     stroke={2.5}
@@ -365,11 +360,11 @@ export const TempleModePage = () => {
             {isPopUpOpen && (
                 <TempleModePopUpComponent
                     onClose={handleClosePopUp}
-                    mode={activeTimerMode} 
                     theme={theme}
                     handleStartSession={handleStartSession}
                     cascadingOptions={cascadingOptions}
-                    t={t}
+                    tTemple={tTemple}
+                    tCommon={tCommon}
                 />
             )}
         </div>

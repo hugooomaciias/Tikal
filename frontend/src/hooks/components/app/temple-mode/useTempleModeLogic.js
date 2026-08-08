@@ -36,7 +36,8 @@ export const useTempleModeLogic = () => {
      * Provides access to the i18n instance specifically scoped to the "app_temple-mode"
      * namespace to localize interface text dynamically.
      */
-    const { t } = useTranslation("app_temple-mode");
+    const { t: tTemple } = useTranslation("app_temple-mode");
+    const { t: tCommon } = useTranslation("app_common");
 
     /**
      * Menu DOM Reference
@@ -127,7 +128,7 @@ export const useTempleModeLogic = () => {
                 100
             );
 
-            const type = totem.totemType ? t(`subheader.totem_badge.menu.totem_types.${totem.totemType.toLowerCase()}`) : "";
+            const type = totem.totemType ? tTemple(`subheader.totem_badge.menu.totem_types.${totem.totemType.toLowerCase()}`) : "";
             
             return {
                 ...totem,
@@ -137,12 +138,12 @@ export const useTempleModeLogic = () => {
             };
         });
 
-        const unlockedTotems = totems.filter(t => t.isUnlocked);
-        const lockedTotems = totems.filter(t => !t.isUnlocked);
+        const unlockedTotems = totems.filter(tTemple => tTemple.isUnlocked);
+        const lockedTotems = totems.filter(tTemple => !tTemple.isUnlocked);
         const nextTargetTotem = lockedTotems.length > 0 ? lockedTotems[0] : unlockedTotems[unlockedTotems.length - 1];
 
         return { theme, progressPercentage, totems, unlockedTotems, lockedTotems, nextTargetTotem };
-    }, [data, t]);
+    }, [data, tTemple]);
 
     /**
      * Formatted Time String
@@ -290,7 +291,7 @@ export const useTempleModeLogic = () => {
     // --- 6. Return Object ---
 
     return {
-        t,
+        translations: { tTemple, tCommon },
         templeModeStates: { menuRef, isDataLoaded, isTotemsMenuOpen, activeTimerMode, isRunning, isPopUpOpen },
         templeModeData: { data, additionalData, formattedTime, timerProgressPercentage, cascadingOptions },
         templeModeActions: { toggleTotemsMenu, handleOpenChronometerConfig, handleOpenTimerConfig, handleClosePopUp, handleStartSession }
