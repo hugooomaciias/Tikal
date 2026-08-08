@@ -29,7 +29,7 @@ import { TIME_OPTIONS } from "../../../utils/calendarUtils.js";
  * @param {Function} props.t - Core i18n translation utility.
  * @returns {JSX.Element} The completely logic-less rendered modal component interface.
  */
-export const EventPopUpComponent = ({ onClose, initialData, cascadingOptions = [], t }) => {
+export const EventPopUpComponent = ({ onClose, initialData, cascadingOptions = [], tCalendar, tCommon }) => {
     // --- 1. Logic Hook Extraction ---
 
     /**
@@ -41,15 +41,14 @@ export const EventPopUpComponent = ({ onClose, initialData, cascadingOptions = [
      * - `eventPopUpData`: Computed boolean flags and derived data structures.
      * - `eventPopUpActions`: Memoized functional handlers for synthetic events.
      */
-    const { eventPopUpRefs, eventPopUpStates, eventPopUpData, eventPopUpActions } = useEventPopUpLogic(
+    const { eventPopUpStates, eventPopUpData, eventPopUpActions } = useEventPopUpLogic(
         initialData,
         onClose,
         cascadingOptions,
-        t,
+        tCalendar,
     );
 
-    const { startTimeRef, endTimeRef } = eventPopUpRefs;
-    const { isStartTimeOpen, isEndTimeOpen, formData, errors } = eventPopUpStates;
+    const { formData, errors } = eventPopUpStates;
     const { isEditing, isColourLocked, gamifiedColours } = eventPopUpData;
     const {
         handleModalClick,
@@ -60,13 +59,10 @@ export const EventPopUpComponent = ({ onClose, initialData, cascadingOptions = [
         handleEndDateChange,
         handleAddTimeTrackerToggle,
         handleAllDayToggle,
-        handleStartTimeToggle,
-        handleEndTimeToggle,
-        handleStartTimeSelect,
-        handleEndTimeSelect,
+        handleTimeChange,
         handleSubmit,
         getInputClass,
-        handleTabTypeChange,
+        handleTabTypeChange
     } = eventPopUpActions;
 
     // --- 2. Render ---
@@ -84,7 +80,7 @@ export const EventPopUpComponent = ({ onClose, initialData, cascadingOptions = [
                 {/* Modal Title and Dismiss Action Header */}
                 <div className="flex items-center justify-between">
                     <span className="text-2xl font-bold text-quaternary-700">
-                        {isEditing ? t("popup.title.edit") : t("popup.title.new")}
+                        {isEditing ? tCalendar("popup.title.edit") : tCalendar("popup.title.new")}
                     </span>
                     <button className="text-primary-500/70 hover:text-primary-500 transition-colors" onClick={onClose}>
                         <IconCircleXFilled className="h-8 w-8" />
@@ -99,7 +95,7 @@ export const EventPopUpComponent = ({ onClose, initialData, cascadingOptions = [
                         formData={formData}
                         onChangeType={handleTabTypeChange}
                         fieldToUpdate={"type"}
-                        t={t}
+                        t={tCalendar}
                     />
 
                     {/* Dynamic Linked Context Section */}
@@ -112,13 +108,13 @@ export const EventPopUpComponent = ({ onClose, initialData, cascadingOptions = [
                                 onSelect={handleCascadingSelection}
                                 error={errors.linkedEntity}
                                 inputClass={getInputClass("linkedEntity")}
-                                t={t}
+                                t={tCommon}
                             />
 
                             {/* Auto Tracker Boolean Toggle Layout */}
                             <div className="flex items-center justify-between">
                                 <span className="text-primary-500 text-sm font-bold">
-                                    {t("popup.linked.start_time_tracker")}
+                                    {tCalendar("popup.linked.start_time_tracker")}
                                 </span>
                                 <button
                                     type="button"
@@ -156,7 +152,7 @@ export const EventPopUpComponent = ({ onClose, initialData, cascadingOptions = [
                                 className={getInputClass("name")}
                             />
                             <label htmlFor="name" className="input-label input-textarea-label-primary">
-                                {t("popup.name")}
+                                {tCalendar("popup.name")}
                             </label>
 
                             {/* Inline Title Contextual Error Display */}
@@ -181,47 +177,37 @@ export const EventPopUpComponent = ({ onClose, initialData, cascadingOptions = [
                                             value={formData.initDate}
                                             onChange={handleInitDateChange}
                                             className={getInputClass("date")}
-                                            label={t("popup.start_date")}
+                                            label={tCalendar("popup.start_date")}
                                         />
                                     </div>
 
                                     {/* Precise Start Time Input & Portal */}
-                                    <div ref={startTimeRef} className="transition-all duration-300 w-[35%] relative">
-                                        <input
-                                            type="text"
-                                            id="startTime"
-                                            name="startTime"
-                                            value={formData.startTime}
-                                            placeholder=" "
-                                            readOnly
-                                            onClick={handleStartTimeToggle}
-                                            className={`${getInputClass("startTime")} cursor-pointer`}
-                                        />
-                                        <label
-                                            htmlFor="startTime"
-                                            className={`input-label input-textarea-label-primary cursor-pointer transition-all duration-300 group-focus-within:-translate-y-3 group-focus-within:text-xs group-focus-within:opacity-100 group-focus-within:font-medium group-focus-within:text-primary-500 ${formData.startTime ? "-translate-y-3 text-xs opacity-100 font-medium text-primary-500" : ""}`}
-                                        >
-                                            {t("popup.start_time")}
-                                        </label>
-
-                                        {/* Start Time Floating Viewport */}
-                                        <div
-                                            className={`absolute left-0 right-0 mt-2 origin-top bg-primary-400 rounded-2xl shadow-xl text-primary z-50 overflow-hidden transition-all duration-200 ${isStartTimeOpen ? "scale-100 opacity-100" : "scale-95 opacity-0 pointer-events-none"}`}
-                                        >
-                                            <div className="flex flex-col max-h-48 overflow-y-auto custom-scrollbar p-1">
-                                                {TIME_OPTIONS.map((time) => (
-                                                    <button
-                                                        key={time}
-                                                        type="button"
-                                                        onClick={(e) => handleStartTimeSelect(e, time)}
-                                                        className={`px-3 py-2 text-sm font-medium text-center rounded-xl tabular-nums tracking-wide transition-colors
-                                                            ${formData.startTime === time ? "bg-primary-100/50 text-primary" : "text-primary hover:bg-primary-100/20"}`}
+                                    <div className="transition-all duration-300 w-[35%] relative">
+                                        <PickerComponent
+                                            items={TIME_OPTIONS}
+                                            selectedItem={formData.startTime}
+                                            onChange={(val) => handleTimeChange("startTime", val)}
+                                            pickerType="time"
+                                            customTrigger={
+                                                <>
+                                                    <input
+                                                        type="text"
+                                                        id="startTime"
+                                                        name="startTime"
+                                                        value={formData.startTime}
+                                                        placeholder=" "
+                                                        readOnly
+                                                        className={`${getInputClass("startTime")} pointer-events-none`}
+                                                    />
+                                                    <label
+                                                        htmlFor="startTime"
+                                                        className={`input-label input-textarea-label-primary pointer-events-none transition-all duration-300 group-focus-within:-translate-y-3 group-focus-within:text-xs group-focus-within:opacity-100 group-focus-within:font-medium group-focus-within:text-primary-500 ${formData.startTime ? "-translate-y-3 text-xs opacity-100 font-medium text-primary-500" : ""}`}
                                                     >
-                                                        {time}
-                                                    </button>
-                                                ))}
-                                            </div>
-                                        </div>
+                                                        {tCalendar("popup.start_time")}
+                                                    </label>
+                                                </>
+                                            }
+                                        />
                                     </div>
                                 </div>
 
@@ -233,47 +219,37 @@ export const EventPopUpComponent = ({ onClose, initialData, cascadingOptions = [
                                             value={formData.endDate}
                                             onChange={handleEndDateChange}
                                             className={getInputClass("date")}
-                                            label={t("popup.end_date")}
+                                            label={tCalendar("popup.end_date")}
                                         />
                                     </div>
 
                                     {/* Precise End Time Input & Portal */}
-                                    <div ref={endTimeRef} className="transition-all duration-300 w-[35%] relative">
-                                        <input
-                                            type="text"
-                                            id="endTime"
-                                            name="endTime"
-                                            value={formData.endTime}
-                                            placeholder=" "
-                                            readOnly
-                                            onClick={handleEndTimeToggle}
-                                            className={`${getInputClass("endTime")} cursor-pointer`}
-                                        />
-                                        <label
-                                            htmlFor="endTime"
-                                            className={`input-label input-textarea-label-primary cursor-pointer transition-all duration-300 group-focus-within:-translate-y-3 group-focus-within:text-xs group-focus-within:opacity-100 group-focus-within:font-medium group-focus-within:text-primary-500 ${formData.endTime ? "-translate-y-3 text-xs opacity-100 font-medium text-primary-500" : ""}`}
-                                        >
-                                            {t("popup.end_time")}
-                                        </label>
-
-                                        {/* End Time Floating Viewport */}
-                                        <div
-                                            className={`absolute left-0 right-0 mt-2 origin-top bg-primary-400 rounded-2xl shadow-xl text-primary z-50 overflow-hidden transition-all duration-200 ${isEndTimeOpen ? "scale-100 opacity-100" : "scale-95 opacity-0 pointer-events-none"}`}
-                                        >
-                                            <div className="flex flex-col max-h-48 overflow-y-auto custom-scrollbar p-1">
-                                                {TIME_OPTIONS.map((time) => (
-                                                    <button
-                                                        key={time}
-                                                        type="button"
-                                                        onClick={(e) => handleEndTimeSelect(e, time)}
-                                                        className={`px-3 py-2 text-sm font-medium text-center rounded-xl tabular-nums tracking-wide transition-colors
-                                                            ${formData.endTime === time ? "bg-primary-100/50 text-primary" : "text-primary hover:bg-primary-100/20"}`}
+                                    <div className="transition-all duration-300 w-[35%] relative">
+                                        <PickerComponent
+                                            items={TIME_OPTIONS}
+                                            selectedItem={formData.endTime}
+                                            onChange={(val) => handleTimeChange("endTime", val)}
+                                            pickerType="time"
+                                            customTrigger={
+                                                <>
+                                                    <input
+                                                        type="text"
+                                                        id="endTime"
+                                                        name="endTime"
+                                                        value={formData.endTime}
+                                                        placeholder=" "
+                                                        readOnly
+                                                        className={`${getInputClass("endTime")} pointer-events-none`}
+                                                    />
+                                                    <label
+                                                        htmlFor="endTime"
+                                                        className={`input-label input-textarea-label-primary pointer-events-none transition-all duration-300 group-focus-within:-translate-y-3 group-focus-within:text-xs group-focus-within:opacity-100 group-focus-within:font-medium group-focus-within:text-primary-500 ${formData.startTime ? "-translate-y-3 text-xs opacity-100 font-medium text-primary-500" : ""}`}
                                                     >
-                                                        {time}
-                                                    </button>
-                                                ))}
-                                            </div>
-                                        </div>
+                                                        {tCalendar("popup.end_time")}
+                                                    </label>
+                                                </>
+                                            }
+                                        />
                                     </div>
                                 </div>
                             </>
@@ -281,7 +257,7 @@ export const EventPopUpComponent = ({ onClose, initialData, cascadingOptions = [
 
                         {/* All Day Semantic Interaction Flag */}
                         <div className="flex items-center justify-between">
-                            <span className="text-primary-500 text-sm font-bold">{t("popup.all_day_event")}</span>
+                            <span className="text-primary-500 text-sm font-bold">{tCalendar("popup.all_day_event")}</span>
                             <button
                                 type="button"
                                 onClick={handleAllDayToggle}
@@ -307,7 +283,7 @@ export const EventPopUpComponent = ({ onClose, initialData, cascadingOptions = [
                             className={getInputClass("note")}
                         ></textarea>
                         <label htmlFor="note" className="textarea-label input-textarea-label-primary">
-                            {t("popup.description")}
+                            {tCalendar("popup.description")}
                         </label>
                         <div className="input-icon peer-focus:text-primary-500 peer-[:not(:placeholder-shown)]:text-primary-500 items-start pt-3">
                             <IconNote className="w-5 h-5" />
@@ -316,7 +292,7 @@ export const EventPopUpComponent = ({ onClose, initialData, cascadingOptions = [
 
                     {/* Conclusive Save Action Engine */}
                     <button type="submit" className="btn btn-primary md:min-w-1/2 mx-auto">
-                        <span>{isEditing ? t("popup.button.edit") : t("popup.button.new")}</span>
+                        <span>{isEditing ? tCalendar("popup.button.edit") : tCalendar("popup.button.new")}</span>
                     </button>
                 </form>
             </div>

@@ -1,5 +1,5 @@
 /** React & Third-Party Libraries */
-import { useState, useRef, useEffect, useMemo, useCallback } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 
 /** Contexts, Hooks & Services */
 import { useSync } from "../../../core/useSync.js";
@@ -28,37 +28,7 @@ export const useEventPopUpLogic = (initialData, onClose, cascadingOptions, t) =>
     const { getTempleModeData } = useSync();
     const { createCalendarEvent, updateCalendarEvent } = useCalendarEvents();
 
-    /**
-     * Start Time DOM Reference
-     *
-     * Maintains a mutable reference to the underlying DOM node of the start time dropdown.
-     * Required to evaluate click coordinates and trigger the "click outside" dismissal logic.
-     */
-    const startTimeRef = useRef(null);
-
-    /**
-     * End Time DOM Reference
-     *
-     * Maintains a mutable reference to the underlying DOM node of the end time dropdown.
-     * Required to evaluate click coordinates and trigger the "click outside" dismissal logic.
-     */
-    const endTimeRef = useRef(null);
-
     // --- 2. Local UI State ---
-
-    /**
-     * Start Time Picker Visibility
-     *
-     * Tracks the boolean state controlling the visibility of the start time custom dropdown menu.
-     */
-    const [isStartTimeOpen, setIsStartTimeOpen] = useState(false);
-
-    /**
-     * End Time Picker Visibility
-     *
-     * Tracks the boolean state controlling the visibility of the end time custom dropdown menu.
-     */
-    const [isEndTimeOpen, setIsEndTimeOpen] = useState(false);
 
     /**
      * Form Input Data State
@@ -130,35 +100,6 @@ export const useEventPopUpLogic = (initialData, onClose, cascadingOptions, t) =>
             isLocked: data.rank < (colour.minRank)
         }));
     }, [data.rank]);
-
-    // --- 4. Side Effects ---
-
-    /**
-     * Click Outside Listeners Effect
-     *
-     * Binds a global event listener to the document to detect mousedown events outside
-     * the bounds of the active time dropdowns. This orchestrates the automatic UI dismissal
-     * to enhance user experience and maintain interface hygiene. Cleans up dynamically.
-     */
-    useEffect(() => {
-        const handleClickOutside = (event) => {
-            if (startTimeRef.current && !startTimeRef.current.contains(event.target)) {
-                setIsStartTimeOpen(false);
-            }
-
-            if (endTimeRef.current && !endTimeRef.current.contains(event.target)) {
-                setIsEndTimeOpen(false);
-            }
-        };
-
-        if (isStartTimeOpen || isEndTimeOpen) {
-            document.addEventListener("mousedown", handleClickOutside);
-        }
-
-        return () => {
-            document.removeEventListener("mousedown", handleClickOutside);
-        };
-    }, [isStartTimeOpen, isEndTimeOpen]);
 
     // --- 5. Interaction Handlers ---
 
@@ -284,55 +225,17 @@ export const useEventPopUpLogic = (initialData, onClose, cascadingOptions, t) =>
     const handleAllDayToggle = useCallback(() => toggleBoolean("allDay"), [toggleBoolean]);
 
     /**
-     * Start Time Dropdown Toggle
+     * Time Selection Handler
      *
-     * Memoized interaction processor that inverts the visibility of the start time
-     * dropdown while actively guaranteeing that the opposing end time dropdown closes.
+     * Injects the newly selected time string directly into the form data payload.
+     * This replaces the old legacy DOM-heavy toggle/select handlers, integrating cleanly
+     * with the new reusable PickerComponent.
+     *
+     * @param {string} field - The target time field to update ("startTime" or "endTime").
+     * @param {string} timeString - The successfully selected time string (e.g., "14:30").
      */
-    const handleStartTimeToggle = useCallback(() => {
-        setIsStartTimeOpen((prev) => !prev);
-        setIsEndTimeOpen(false);
-    }, []);
-
-    /**
-     * End Time Dropdown Toggle
-     *
-     * Memoized interaction processor that inverts the visibility of the end time
-     * dropdown while actively guaranteeing that the opposing start time dropdown closes.
-     */
-    const handleEndTimeToggle = useCallback(() => {
-        setIsEndTimeOpen((prev) => !prev);
-        setIsStartTimeOpen(false);
-    }, []);
-
-    /**
-     * Start Time Selection Handler
-     *
-     * Memoized processor that intercepts time dropdown interactions, updates the
-     * targeted form payload, and cleanly dismisses the active overlay.
-     *
-     * @param {React.MouseEvent} e - The native DOM click event.
-     * @param {string} time - The successfully selected time string (e.g., "14:30").
-     */
-    const handleStartTimeSelect = useCallback((e, time) => {
-        e.stopPropagation();
-        setFormData((prev) => ({ ...prev, startTime: time }));
-        setIsStartTimeOpen(false);
-    }, []);
-
-    /**
-     * End Time Selection Handler
-     *
-     * Memoized processor that intercepts time dropdown interactions, updates the
-     * targeted form payload, and cleanly dismisses the active overlay.
-     *
-     * @param {React.MouseEvent} e - The native DOM click event.
-     * @param {string} time - The successfully selected time string (e.g., "15:00").
-     */
-    const handleEndTimeSelect = useCallback((e, time) => {
-        e.stopPropagation();
-        setFormData((prev) => ({ ...prev, endTime: time }));
-        setIsEndTimeOpen(false);
+    const handleTimeChange = useCallback((field, timeString) => {
+        setFormData((prev) => ({ ...prev, [field]: timeString }));
     }, []);
 
     /**
@@ -444,13 +347,7 @@ export const useEventPopUpLogic = (initialData, onClose, cascadingOptions, t) =>
     // --- 6. Return Object ---
 
     return {
-        eventPopUpRefs: {
-            startTimeRef,
-            endTimeRef,
-        },
         eventPopUpStates: {
-            isStartTimeOpen,
-            isEndTimeOpen,
             formData,
             errors,
         },
@@ -468,10 +365,7 @@ export const useEventPopUpLogic = (initialData, onClose, cascadingOptions, t) =>
             handleEndDateChange,
             handleAddTimeTrackerToggle,
             handleAllDayToggle,
-            handleStartTimeToggle,
-            handleEndTimeToggle,
-            handleStartTimeSelect,
-            handleEndTimeSelect,
+            handleTimeChange,
             handleSubmit,
             getInputClass,
             handleTabTypeChange,

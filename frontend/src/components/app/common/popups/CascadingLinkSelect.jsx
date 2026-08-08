@@ -20,10 +20,12 @@ import { resolveColorObject } from "../../../../utils/calendarUtils.js";
  * @param {Function} props.onSelect - Callback function triggered when a valid option is clicked.
  * @param {string|null} props.error - Validation error message to display beneath the input field.
  * @param {string} props.inputClass - CSS class string for styling the trigger input field wrapper.
+ * @param {Object} [props.theme] - Optional theme object to override default styling (used in gamified contexts).
+ * @param {boolean} [props.onlyTasks=false] - Strict mode flag. If true, forces the user to select down to the "task" level before confirming.
  * @param {Function} props.t - Internationalization translation function provided by i18next.
  * @returns {JSX.Element} The rendered cascading select dropdown component.
  */
-export const CascadingLinkSelect = ({ cascadingOptions = [], currentLinkId, onSelect, error, inputClass, theme, t }) => {
+export const CascadingLinkSelect = ({ cascadingOptions = [], currentLinkId, onSelect, error, inputClass, theme, onlyTasks = false, t }) => {
     // --- 1. Local UI Logic ---
 
     /**
@@ -71,6 +73,17 @@ export const CascadingLinkSelect = ({ cascadingOptions = [], currentLinkId, onSe
     const currentSelectedItem = cascadingOptions.find((opt) => opt.id === currentLinkId);
 
     /**
+     * Selection Validity Check
+     *
+     * Evaluates if the currently highlighted entity meets the criteria for confirmation.
+     * If `onlyTasks` is enforced, only entities of type "task" return true. Otherwise,
+     * any selected entity is considered valid.
+     */
+    const isSelectionValid = onlyTasks 
+        ? currentSelectedItem?.type === "task" 
+        : Boolean(currentLinkId);
+
+    /**
      * Filtered Viewport Options
      *
      * Iterates over the raw options array and computes a strict subset based on the currently
@@ -84,14 +97,19 @@ export const CascadingLinkSelect = ({ cascadingOptions = [], currentLinkId, onSe
     });
 
     /**
-     * Outside Click Listener
+     * Outside Click Listener & Strict Reset
      *
      * Binds a global event listener to detect mousedown events outside the component's
-     * bounding box. If triggered, it sets the `isOpen` state to false.
+     * bounding box. If triggered, it dismisses the dropdown. Crucially, if `onlyTasks` is active
+     * and the user abandons the menu with a non-task entity selected, it purges the selection
+     * to maintain data integrity.
      */
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (linkSelectorRef.current && !linkSelectorRef.current.contains(event.target)) {
+                if (onlyTasks && currentSelectedItem && currentSelectedItem.type !== "task") {
+                    onSelect({ id: "", type: "", name: "" });
+                }
                 setIsOpen(false);
             }
         };
@@ -113,14 +131,21 @@ export const CascadingLinkSelect = ({ cascadingOptions = [], currentLinkId, onSe
     };
 
     /**
-     * Dropdown Dismissal Action
+     * Dropdown Dismissal Action & Rejection
      *
-     * Explicitly forces the dropdown menu to collapse and halts event bubbling.
+     * Explicitly forces the dropdown menu to collapse. If the component is in strict
+     * `onlyTasks` mode and the user clicks the "Cancel" button (which replaces "Confirm" 
+     * on invalid states), the pending invalid selection is forcefully cleared.
      *
      * @param {React.MouseEvent} e - The native React synthetic event.
      */
     const handleCloseDropdown = (e) => {
         e.stopPropagation();
+
+        if (onlyTasks && !isSelectionValid && currentLinkId) {
+            onSelect({ id: "", name: "", type: "" });
+        }
+
         setIsOpen(false);
     };
 
@@ -213,7 +238,7 @@ export const CascadingLinkSelect = ({ cascadingOptions = [], currentLinkId, onSe
                 htmlFor="linkedEntity"
                 className={`input-label ${theme ? `${theme.input.placeholder} ${theme.input.labelFocus}` : "input-textarea-label-primary"} cursor-pointer truncate max-w-[90%]`}
             >
-                {t("popup.linked.name")}
+                {t("cascading.name")}
             </label>
 
             {/* Conditional Validation Error Text */}
@@ -238,7 +263,7 @@ export const CascadingLinkSelect = ({ cascadingOptions = [], currentLinkId, onSe
                         onClick={(e) => handleTabSelect(e, "project")}
                         className={`relative z-10 flex-1 py-2 text-sm font-semibold transition-colors duration-300 ${activeLinkTab === "project" || activeLinkTab === "phase" || activeLinkTab === "task" ? styles.textActive : "text-primary"}`}
                     >
-                        {t("popup.linked.projects")}
+                        {t("cascading.projects")}
                     </button>
 
                     {/* Level 2: Phase Tab Button */}
@@ -248,7 +273,7 @@ export const CascadingLinkSelect = ({ cascadingOptions = [], currentLinkId, onSe
                         onClick={(e) => handleTabSelect(e, "phase")}
                         className={`relative z-10 flex-1 py-2 text-sm font-semibold transition-colors duration-300 ${activeLinkTab === "phase" || activeLinkTab === "task" ? styles.textActive : "text-primary"} ${!cascadingPath.project ? "opacity-70 cursor-not-allowed" : ""}`}
                     >
-                        {t("popup.linked.stages")}
+                        {t("cascading.stages")}
                     </button>
 
                     {/* Level 3: Task Tab Button */}
@@ -258,7 +283,7 @@ export const CascadingLinkSelect = ({ cascadingOptions = [], currentLinkId, onSe
                         onClick={(e) => handleTabSelect(e, "task")}
                         className={`relative z-10 flex-1 py-2 text-sm font-semibold transition-colors duration-300 ${activeLinkTab === "task" ? styles.textActive : "text-primary"} ${!cascadingPath.phase ? "opacity-70 cursor-not-allowed" : ""}`}
                     >
-                        {t("popup.linked.tasks")}
+                        {t("cascading.tasks")}
                     </button>
                 </div>
 
@@ -295,7 +320,7 @@ export const CascadingLinkSelect = ({ cascadingOptions = [], currentLinkId, onSe
                         })
                     ) : (
                         /* Empty State Fallback Typography */
-                        <p className={`text-xs text-center ${"text-primary"} py-3`}>{t("popup.linked.no_options")}</p>
+                        <p className={`text-xs text-center ${"text-primary"} py-3`}>{t("cascading.no_options")}</p>
                     )}
                 </div>
 
@@ -308,9 +333,9 @@ export const CascadingLinkSelect = ({ cascadingOptions = [], currentLinkId, onSe
                     <button
                         type="button"
                         onClick={handleCloseDropdown}
-                        className={`px-4 py-1.5 text-sm font-bold rounded-xl transition-all duration-200 ${currentLinkId ? `${styles.btnConfirmBg} ${styles.textActive} shadow-sm` : `bg-transparent ${"text-primary"} ${styles.itemHover}`}`}
+                        className={`px-4 py-1.5 text-sm font-bold rounded-xl transition-all duration-200 ${isSelectionValid ? `${styles.btnConfirmBg} ${styles.textActive} shadow-sm` : `bg-transparent ${"text-primary"} ${styles.itemHover}`}`}
                     >
-                        {currentLinkId ? t("popup.linked.button_message.confirm") : t("popup.linked.button_message.cancel")}
+                        {isSelectionValid ? t("cascading.button_message.confirm") : t("cascading.button_message.cancel")}
                     </button>
                 </div>
             </div>

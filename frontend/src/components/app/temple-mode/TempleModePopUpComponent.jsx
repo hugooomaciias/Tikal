@@ -22,7 +22,7 @@ import { IconCircleXFilled, IconHourglassFilled, IconClockHour2Filled } from "@t
  * @param {Function} props.t - Core i18n translation utility.
  * @returns {JSX.Element}
  */
-export const TempleModePopUpComponent = ({ onClose, mode, theme, handleStartSession, cascadingOptions, t }) => {
+export const TempleModePopUpComponent = ({ onClose, mode, theme, handleStartSession, cascadingOptions, tTemple, tCommon }) => {
     // --- 1. Logic Hook Extraction ---
 
     /**
@@ -32,7 +32,7 @@ export const TempleModePopUpComponent = ({ onClose, mode, theme, handleStartSess
      * handlers from the headless hook. This keeps the component strictly focused on 
      * presentational rendering and dynamic styling.
      */
-    const { popUpStates, popUpActions } = useTempleModePopUpLogic(onClose, mode, theme, handleStartSession, t);
+    const { popUpStates, popUpActions } = useTempleModePopUpLogic(onClose, mode, theme, handleStartSession, tTemple);
     
     const { scrollRef, formData, errors, timerOptions } = popUpStates;
     const { getInputClass, handleModalClick, handleDurationSelect, handleCascadingSelection, handleSubmit, handleWheel } = popUpActions;
@@ -61,7 +61,7 @@ export const TempleModePopUpComponent = ({ onClose, mode, theme, handleStartSess
                                 <IconClockHour2Filled className={`w-8 h-8 ${theme.title}`} />
                             )}
                             <span className={`text-2xl font-passero font-bold tracking-wide ${theme.title}`}>
-                                {mode === "timer" ? t("popup.title.timer") : t("popup.title.chrono")}
+                                {mode === "timer" ? tTemple("popup.title.timer") : tTemple("popup.title.chrono")}
                             </span>
                         </div>
                         
@@ -119,7 +119,8 @@ export const TempleModePopUpComponent = ({ onClose, mode, theme, handleStartSess
                             error={errors.linkedEntity}
                             inputClass={getInputClass("linkedEntity")}
                             theme={theme}
-                            t={t}
+                            onlyTasks={true}
+                            t={tCommon}
                         />
                     </div>
 
@@ -128,7 +129,7 @@ export const TempleModePopUpComponent = ({ onClose, mode, theme, handleStartSess
                         type="submit"
                         className={`w-full mt-2 py-4 rounded-full border border-white/10 ${theme.title} font-bold text-xl tracking-wide shadow-[0_10px_30px_rgba(0,0,0,0.3)] transition-all duration-300 transform ${theme.button}`}
                     >
-                        {t("popup.button")}
+                        {tTemple("popup.button")}
                     </button>
                 </form>
             </div>
