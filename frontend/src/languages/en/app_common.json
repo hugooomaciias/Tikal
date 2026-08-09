@@ -15,10 +15,19 @@
         "button": "Save log"
     },
     "confirm_switch_time_log": {
-        "title": "Active task detected",
-        "description": "You currently have another task active. If you continue, the current task will be paused and saved to start the newly selected task.",
+        "title": "Active task detected", 
+        "description": {
+            "tasks": "You currently have another task active. If you continue, the current task will be paused and saved to start the newly selected task.",
+            "temple": "You currently have another task active. If you continue, the current task will be paused and saved so that you can enter Temple Mode."
+        },
         "current_task": "Current task",
-        "new_task": "Selected task",
+        "new_task": {
+            "tasks": "Selected task",
+            "temple": {
+                "title": "Go to",
+                "name": "Temple mode"
+            }
+        },
         "note": "What exactly did you spend time on during this last block in",
         "placeholder": "Description of the activity performed",
         "button": {
@@ -37,6 +46,17 @@
                 "cancel": "Cancel",
                 "delete": "Delete"
             }
+        }
+    },
+    "cascading": {
+        "name": "Select link",
+        "projects": "Projects",
+        "stages": "Stages",
+        "tasks": "Tasks",
+        "no_options": "No options in this level",
+        "button_message": {
+            "confirm": "Confirm",
+            "cancel": "Close"
         }
     }
 }

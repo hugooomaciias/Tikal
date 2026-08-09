@@ -3,11 +3,15 @@ import { useTranslation } from "react-i18next";
 import resolveConfig from "tailwindcss/resolveConfig";
 
 /** Icons */
-import { IconCircleXFilled, IconNote } from "@tabler/icons-react";
+import { IconCircleXFilled, IconNote, IconPyramid } from "@tabler/icons-react";
+
+/** Contexts, Hooks & Services */
+import { useSync } from "../../../hooks/core/useSync.js";
 
 /** Assets, Utils & Constants */
 import { PROJECTS_ICONS } from "../../../constants/projects_icons.js";
 import { PHASE_COLOURS } from "../../../constants/phase_colours.js";
+import { RANK_THEMES } from "../../../constants/rank_themes.js";
 import tailwindConfig from "../../../../tailwind.config.js";
 
 /**
@@ -85,6 +89,28 @@ export const ConfirmSwitchTaskComponent = ({
      */
     const newColor = PHASE_COLOURS.find((c) => c.id === pendingSwitchTask?.colour)?.hex || tailwindColors.primary[500];
 
+    /**
+     * Temple Mode Interception Flag
+     *
+     * A boolean flag evaluating whether the pending switch task is a synthetic interceptor
+     * generated when the user attempts to enter the "Temple Mode" route with an active timer.
+     * This triggers a specific UI variation.
+     */
+    const isTempleModeIntercept = pendingSwitchTask?.taskId === "temple_mode_intercept";
+
+    /**
+     * Dynamic Theme Extraction
+     *
+     * If the component is rendering in the context of a Temple Mode interception,
+     * it accesses the global synchronization context to retrieve the user's current rank.
+     * This rank dictates the specific visual theme (colors, borders) applied to the modal.
+     */
+    let theme;
+    if (isTempleModeIntercept) {
+        const { getTempleModeData } = useSync();
+        theme = RANK_THEMES[getTempleModeData().rank] || RANK_THEMES[0];
+    }
+
     // --- 2. Render ---
     
     if (!pendingSwitchTask) return null;
@@ -117,7 +143,10 @@ export const ConfirmSwitchTaskComponent = ({
 
                     {/* Contextual Information Text */}
                     <span className="text-quaternary-500">
-                        {t("confirm_switch_time_log.description")}
+                        {isTempleModeIntercept
+                            ? t("confirm_switch_time_log.description.temple")
+                            : t("confirm_switch_time_log.description.tasks")
+                        }
                     </span>
 
                     {/* Task Comparison Section */}
@@ -126,7 +155,6 @@ export const ConfirmSwitchTaskComponent = ({
                         <div className="w-full flex flex-col items-start rounded-xl text-quaternary-700">
                             <span className="text-sm font-bold">{t("confirm_switch_time_log.current_task")}</span>
 
-                            {/* Current Task Pill */}
                             <div
                                 className="w-full flex items-center justify-between py-3 px-4 rounded-xl text-primary"
                                 style={{ backgroundColor: oldColor }}
@@ -138,15 +166,29 @@ export const ConfirmSwitchTaskComponent = ({
 
                         {/* Target Task Details Box */}
                         <div className="w-full flex flex-col items-start rounded-xl text-quaternary-700">
-                            <span className="text-sm font-bold">{t("confirm_switch_time_log.new_task")}</span>
+                            <span className="text-sm font-bold">
+                                {isTempleModeIntercept
+                                    ? t("confirm_switch_time_log.new_task.temple.title")
+                                    : t("confirm_switch_time_log.new_task.tasks")
+                                }
+                            </span>
 
                             {/* Target Task Pill */}
                             <div
-                                className="w-full flex items-center justify-between py-3 px-4 rounded-xl text-primary"
-                                style={{ backgroundColor: newColor }}
+                                className={`w-full flex items-center justify-between py-3 px-4 rounded-xl text-primary ${isTempleModeIntercept ? theme.progress : ""}`}
+                                style={{ backgroundColor: !isTempleModeIntercept ? newColor : "" }}
                             >
-                                <NewIcon.component className="w-5 h-5" />
-                                <span className="font-bold">{pendingSwitchTask?.name}</span>
+                                {isTempleModeIntercept ? (
+                                    <>
+                                        <IconPyramid className="w-5 h-5" />
+                                        <span className="font-bold">{t("confirm_switch_time_log.new_task.temple.name")}</span>
+                                    </>
+                                ) : (
+                                    <>
+                                        <NewIcon.component className="w-5 h-5" />
+                                        <span className="font-bold">{pendingSwitchTask?.name}</span>
+                                    </>
+                                )}
                             </div>
                         </div>
                     </div>
@@ -154,12 +196,10 @@ export const ConfirmSwitchTaskComponent = ({
 
                 {/* Activity Description Form Section */}
                 <div className="flex flex-col items-center gap-2">
-                    {/* Activity Description Prompt */}
                     <span className="text-quaternary-500">
                         {t("confirm_switch_time_log.note")} <b>{taskName}</b>
                     </span>
 
-                    {/* Controlled Textarea Wrapper */}
                     <div className="relative w-full">
                         <textarea
                             id="note"
@@ -172,12 +212,10 @@ export const ConfirmSwitchTaskComponent = ({
                             className="textarea input-textarea-primary peer"
                         ></textarea>
 
-                        {/* Floating Textarea Label */}
                         <label htmlFor="note" className="textarea-label input-textarea-label-primary">
                             {t("confirm_switch_time_log.placeholder")}
                         </label>
 
-                        {/* Textarea Leading Icon */}
                         <div className="input-icon peer-focus:text-primary-500 peer-[:not(:placeholder-shown)]:text-primary-500 items-start pt-3">
                             <IconNote className="w-5 h-5" />
                         </div>
@@ -197,7 +235,11 @@ export const ConfirmSwitchTaskComponent = ({
 
                     {/* Confirm Action Button */}
                     <button type="button" onClick={confirmSwitchTask} className="w-full btn btn-primary">
-                        <span>{t("confirm_switch_time_log.button.confirm")}</span>
+                        <span>
+                            {isTempleModeIntercept
+                            ? t("confirm_switch_time_log.button.confirm.temple")
+                            : t("confirm_switch_time_log.button.confirm.tasks")}
+                        </span>
                     </button>
                 </div>
             </div>

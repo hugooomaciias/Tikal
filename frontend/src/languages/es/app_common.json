@@ -16,14 +16,26 @@
     },
     "confirm_switch_time_log": {
         "title": "Tarea en curso detectada",
-        "description": "Actualmente tienes otra tarea activa. Si continúas, la tarea actual se pausará y se guardará para iniciar la nueva tarea seleccionada.",
+        "description": {
+            "tasks": "Actualmente tienes otra tarea activa. Si continúas, la tarea actual se pausará y se guardará para iniciar la nueva tarea seleccionada.",
+            "temple": "Actualmente tienes otra tarea activa. Si continúas, la tarea actual se pausará y se guardará para poder entrar al Modo Templo."
+        },
         "current_task": "Tarea actual",
-        "new_task": "Tarea seleccionada",
+        "new_task": {
+            "tasks": "Tarea seleccionada",
+            "temple": {
+                "title": "Entrar a",
+                "name": "Modo templo"
+            }
+        },
         "note": "¿A qué le has dedicado tiempo exactamente durante este último bloque en",
         "placeholder": "Descripción de la actividad realizada",
         "button": {
             "cancel": "Cancelar",
-            "confirm": "Confirmar"
+            "confirm": {
+                "tasks": "Confirmar",
+                "temple": "Entrar"
+            }
         }
     },
     "context_menu": {
@@ -37,6 +49,17 @@
                 "cancel": "Cancelar",
                 "delete": "Eliminar"
             }
+        }
+    },
+    "cascading": {
+        "name": "Seleccionar vinculación",
+        "projects": "Proyectos",
+        "stages": "Fases",
+        "tasks": "Tareas",
+        "no_options": "No hay opciones en este nivel",
+        "button_message": {
+            "confirm": "Confirmar",
+            "cancel": "Cerrar"
         }
     }
 }

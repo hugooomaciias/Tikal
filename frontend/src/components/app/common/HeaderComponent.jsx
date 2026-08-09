@@ -69,7 +69,9 @@ export const HeaderComponent = ({ page, primaryState, secondaryState, onTogglePr
                         )}
                     </div>
 
-                    <DynamicIslandComponent />
+                    {!theme && (
+                        <DynamicIslandComponent />
+                    )}
                 </div>
 
                 {/* Contextual Action Bar Section */}
