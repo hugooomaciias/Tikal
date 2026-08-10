@@ -35,7 +35,10 @@ const processQueue = (error, token = null) => {
  */
 export const apiCall = async (endpoint, method, payload = null, customHeaders = {}) => {
     const executeRequest = async (tokenOverride = null) => {
-        const token = tokenOverride || localStorage.getItem("accessToken");
+        let token = tokenOverride || localStorage.getItem("accessToken");
+
+        if (token === "undefined" || token === "null") token = null;
+
         const headers = {
             "Content-Type": "application/json",
             ...customHeaders,
@@ -66,9 +69,11 @@ export const apiCall = async (endpoint, method, payload = null, customHeaders = 
         return await executeRequest();
     } catch(error) {
         if (error.status === 401 && !endpoint.includes("/auth/refresh")) {
-            const refreshToken = localStorage.getItem("refreshToken");
+            let refreshToken = localStorage.getItem("refreshToken");
 
-            if (! refreshToken) {
+            if (refreshToken === "undefined" || refreshToken === "null") refreshToken = null;
+
+            if (!refreshToken) {
                 window.dispatchEvent(new CustomEvent("auth:session-expired"));
                 throw error;
             }
@@ -100,14 +105,16 @@ export const apiCall = async (endpoint, method, payload = null, customHeaders = 
                     throw new Error("El token de refresco ha expirado");
                 }
 
-                localStorage.setItem("accessToken", refreshData.access_token);
-                localStorage.setItem("refreshToken", refreshData.refresh_token);
+                localStorage.setItem("accessToken", refreshData.accessToken);
+                localStorage.setItem("refreshToken", refreshData.refreshToken);
 
                 processQueue(null, refreshData.access_token);
 
                 return await executeRequest(refreshData.access_token);
             } catch (refreshError) {
                 processQueue(refreshError, null);
+                localStorage.removeItem("accessToken");
+                localStorage.removeItem("refreshToken");
                 window.dispatchEvent(new CustomEvent("auth:session-expired"));
                 throw refreshError;
             } finally {
