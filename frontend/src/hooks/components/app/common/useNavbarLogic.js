@@ -6,6 +6,7 @@ import { useTranslation } from "react-i18next";
 /** Contexts, Hooks & Services */
 import { useSync } from "../../../core/useSync.js";
 import { useAuth } from "../../../core/useAuth.js";
+import { useTimeLog } from "../../../core/useTimeLog.js";
 
 /** Config, Constants & Utils */
 
@@ -21,6 +22,8 @@ import { useAuth } from "../../../core/useAuth.js";
  */
 export const useNavbarLogic = () => {
     // --- 1. DOM Refs & Layout State ---
+
+    const { trackerActions } = useTimeLog();
 
     /**
      * Translation Hook
@@ -145,6 +148,6 @@ export const useNavbarLogic = () => {
         t,
         navbarStates: { isExpanded },
         navbarData: { navbarOptions, activeTab, userProfile },
-        navbarActions: { handleLogout, handleToggleSidebar },
+        navbarActions: { trackerActions, handleLogout, handleToggleSidebar },
     };
 };

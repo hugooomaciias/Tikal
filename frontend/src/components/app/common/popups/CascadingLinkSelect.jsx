@@ -214,6 +214,7 @@ export const CascadingLinkSelect = ({ cascadingOptions = [], currentLinkId, onSe
         itemActive: theme?.cascading?.itemActive || "bg-primary-800/50",
         itemHover: theme?.cascading?.itemHover || "hover:bg-primary-800/20",
         border: theme?.cascading?.border || "border-primary-50",
+        input: `${theme?.input?.placeholder} ${theme?.input?.labelFocus}` || "input-textarea-label-primary",
         btnConfirmBg: theme?.cascading?.btnConfirmBg || "bg-primary-50"
     };
 
@@ -236,7 +237,7 @@ export const CascadingLinkSelect = ({ cascadingOptions = [], currentLinkId, onSe
             {/* Floating Input Text Label */}
             <label
                 htmlFor="linkedEntity"
-                className={`input-label ${theme ? `${theme.input.placeholder} ${theme.input.labelFocus}` : "input-textarea-label-primary"} cursor-pointer truncate max-w-[90%]`}
+                className={`input-label ${styles.input} cursor-pointer truncate max-w-[90%]`}
             >
                 {t("cascading.name")}
             </label>

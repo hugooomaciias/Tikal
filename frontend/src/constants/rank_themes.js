@@ -34,11 +34,13 @@ export const RANK_THEMES = {
         progress: "bg-primary-300",
         progressText: "text-primary-300",
         button: "bg-primary-600 hover:bg-primary-300 hover:text-primary-800",
+        buttonSecondary: "bg-gradient-to-r from-primary-300 to-primary-600 text-primary",
         widget: {
             track: "bg-primary-50/80",
             borderLogoWidget: "group-hover:border-primary-300"
         },
         input: {
+            focus: "bg-primary text-quaternary-700 focus:ring-primary-500 peer",
             borderInput: "focus:ring-primary-400",
             placeholder: "text-primary-800",
             labelFocus: "peer-focus:text-primary-400 peer-[:not(:placeholder-shown)]:text-primary-400"
@@ -58,11 +60,13 @@ export const RANK_THEMES = {
         progress: "bg-secondary-400",
         progressText: "text-secondary-400",
         button: "bg-secondary-600 hover:bg-secondary-400 hover:text-secondary-800",
+        buttonSecondary: "bg-gradient-to-r from-secondary-300 to-secondary-600 text-secondary",
         widget: {
             track: "bg-secondary-50/80",
             borderLogoWidget: "group-hover:border-secondary-400"
         },
         input: {
+            focus: "bg-secondary text-quaternary-700 focus:ring-secondary-500 peer",
             borderInput: "focus:ring-secondary-400",
             placeholder: "text-secondary-800",
             labelFocus: "peer-focus:text-secondary-400 peer-[:not(:placeholder-shown)]:text-secondary-400"
@@ -91,11 +95,13 @@ export const RANK_THEMES = {
         progress: "bg-red-400",
         progressText: "text-red-400",
         button: "bg-red-800 hover:bg-red-500 hover:text-red-950",
+        buttonSecondary: "bg-gradient-to-r from-red-400 to-red-800 text-red",
         widget: {
             track: "bg-red-100/80",
             borderLogoWidget: "group-hover:border-red-400"
         },
         input: {
+            focus: "bg-red text-quaternary-700 focus:ring-red-500 peer",
             borderInput: "focus:ring-red-500",
             placeholder: "text-red-800",
             labelFocus: "peer-focus:text-red-400 peer-[:not(:placeholder-shown)]:text-red-400"
@@ -124,11 +130,13 @@ export const RANK_THEMES = {
         progress: "bg-tertiary-400",
         progressText: "text-tertiary-400",
         button: "bg-tertiary-600 hover:bg-tertiary-400 hover:text-teartiary-800",
+        buttonSecondary: "bg-gradient-to-r from-tertiary-300 to-tertiary-600 text-tertiary",
         widget: {
             track: "bg-tertiary-50/80",
             borderLogoWidget: "group-hover:border-tertiary-400"
         },
         input: {
+            focus: "bg-tertiary text-quaternary-700 focus:ring-tertiary-500 peer",
             borderInput: "focus:ring-tertiary-400",
             placeholder: "text-tertiary-800",
             labelFocus: "peer-focus:text-tertiary-400 peer-[:not(:placeholder-shown)]:text-tertiary-400"
