@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 
 /** Contexts, Hooks & Services */
 import { useSync } from "../../../core/useSync.js";
+import { useTimeLog } from "../../../core/useTimeLog.js";
 
 /** Assets, Utils & Constants */
 import { RANK_THEMES } from "../../../../constants/rank_themes.js";
@@ -26,9 +27,22 @@ export const useTempleModeLogic = () => {
     /**
      * Main Context Hook
      *
-     * Extracts global application state methods regarding calendar events, tasks, and overarching loading status.
+     * Extracts global application state methods regarding calendar events, tasks, user preferences,
+     * and overarching loading status from the synchronized backend payload.
      */
-    const { getTempleModeData, getTasksData, isDataLoaded } = useSync();
+    const { getTempleModeData, getTasksData, getHomeWidgetsData, isDataLoaded } = useSync();
+
+    /**
+     * Global Time Tracker Context
+     *
+     * Extracts the unified states and action handlers from the application's core 
+     * time tracking service. This ensures the widget is always perfectly synchronized 
+     * with the `DynamicIsland` and other task views.
+     */
+    const { trackerStates, trackerActions } = useTimeLog();
+
+    const { isTimerRunning, accumulatedSeconds, activeWidgetData } = trackerStates;
+    const { handleTriggerStopSequence } = trackerActions;
 
     /**
      * Translation Hook
@@ -63,37 +77,24 @@ export const useTempleModeLogic = () => {
      */
     const [isPopUpOpen, setIsPopUpOpen] = useState(false);
 
+    // --- 3. Derived UI Data ---
+
     /**
-     * Active Timer Mode State
+     * Temple Mode Active Flag
      *
-     * Determines the operational logic of the session tracker. 
-     * Can be "timer" (countdown) or "chronometer" (count-up).
+     * Evaluates the globally active widget data to determine if the currently 
+     * running session is strictly designated as a Temple Mode focus block.
      */
-    const [activeTimerMode, setActiveTimerMode] = useState("timer");
+    const isTempleModeActive = activeWidgetData?.isTempleMode === true;
 
     /**
      * Session Execution State
      *
-     * Boolean flag indicating whether the temporal interval engine is actively ticking.
+     * Derived boolean flag indicating whether the Temple Mode timer is currently 
+     * active and ticking. It requires both the global timer to be running and 
+     * the active session to be a Temple Mode session.
      */
-    const [isRunning, setIsRunning] = useState(false);
-
-    /**
-     * Initial Session Time State
-     *
-     * Stores the baseline duration (in seconds) established by the user. 
-     * Used primarily to calculate the relative progress ring percentages.
-     */
-    const [initialTime, setInitialTime] = useState(25 * 60);
-
-    /**
-     * Current Session Time State
-     *
-     * Tracks the real-time tick value (in seconds) of the active focus session.
-     */
-    const [currentTime, setCurrentTime] = useState(25 * 60);
-
-    // --- 3. Derived UI Data ---
+    const isRunning = isTempleModeActive && isTimerRunning;
 
     /**
      * Global Gamification Data Extraction
@@ -102,6 +103,36 @@ export const useTempleModeLogic = () => {
      * to determine which UI features or cosmetic options should be unlocked.
      */
     const data = getTempleModeData();
+
+    /**
+     * Default Focus Session Preference
+     *
+     * Retrieves the user's preferred default duration (in minutes) for a focus session 
+     * from the synchronized dashboard settings, falling back to a 25-minute standard.
+     */
+    const defaultFocusMinutes = getHomeWidgetsData()?.templeModeWidget?.defaultFocusSessionMinutes || 25;
+
+    /**
+     * Initial Session Time State
+     *
+     * Determines the total target duration in seconds for the current session. 
+     * It dynamically reads the backend target time if a session is active, 
+     * or defaults to the user's base preference.
+     */
+    const initialTime = isTempleModeActive && activeWidgetData?.targetTime 
+        ? activeWidgetData.targetTime * 60 
+        : defaultFocusMinutes * 60;
+
+    /**
+     * Current Session Time State
+     *
+     * Calculates the remaining time (in seconds) on the fly. It subtracts the 
+     * globally accumulated seconds from the initial target time, ensuring the 
+     * value never drops below zero.
+     */
+    const currentTime = isTempleModeActive 
+        ? Math.max(0, initialTime - accumulatedSeconds) 
+        : defaultFocusMinutes * 60;
 
     /**
      * Enriched Theme & Progression Data
@@ -113,7 +144,7 @@ export const useTempleModeLogic = () => {
     const additionalData = useMemo(() => {
         if (!data) return null;
 
-        const theme = RANK_THEMES[data.rank] || RANK_THEMES[1];
+        const theme = RANK_THEMES[data.rank] || RANK_THEMES[0];
         
         const progressPercentage = Math.min(
             Math.round((data.currentHours / data.requiredHours) * 100), 
@@ -165,12 +196,8 @@ export const useTempleModeLogic = () => {
      * counting down (timer mode) or looping per minute (chronometer mode).
      */
     const timerProgressPercentage = useMemo(() => {
-        if (activeTimerMode === "timer") {
-            return initialTime > 0 ? ((initialTime - currentTime) / initialTime) * 100 : 0;
-        } else {
-            return (currentTime % 60) / 60 * 100;
-        }
-    }, [currentTime, initialTime, activeTimerMode]);
+        return initialTime > 0 ? ((initialTime - currentTime) / initialTime) * 100 : 0;
+    }, [currentTime, initialTime]);
 
     /**
      * Cascading Dropdown Selectors
@@ -197,38 +224,11 @@ export const useTempleModeLogic = () => {
                 setIsTotemsMenuOpen(false);
             }
         };
+
         document.addEventListener("mousedown", handleClickOutside);
+
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, [isTotemsMenuOpen]);
-
-    /**
-     * Active Timer Interval Engine
-     *
-     * Core temporal loop. Mounts a 1-second interval when `isRunning` is true, gracefully
-     * mutating the `currentTime` state based on the selected mode. Automatically halts 
-     * execution when countdowns reach absolute zero.
-     */
-    useEffect(() => {
-        let interval = null;
-
-        if (isRunning) {
-            interval = setInterval(() => {
-                setCurrentTime((prev) => {
-                    if (activeTimerMode === "timer") {
-                        if (prev <= 1) {
-                            setIsRunning(false);
-                            return 0;
-                        }
-                        return prev - 1;
-                    } else {
-                        return prev + 1;
-                    }
-                });
-            }, 1000);
-        }
-
-        return () => clearInterval(interval);
-    }, [isRunning, activeTimerMode]);
 
     // --- 5. Interaction Handlers ---
 
@@ -242,30 +242,12 @@ export const useTempleModeLogic = () => {
     }, []);
 
     /**
-     * Chronometer Configuration Initializer
-     *
-     * Resets the temporal states to zero and opens the configuration modal explicitly 
-     * in count-up (chronometer) mode.
-     */
-    const handleOpenChronometerConfig = useCallback(() => {
-        setActiveTimerMode("chronometer");
-        setIsRunning(false);
-        setCurrentTime(0);
-        setInitialTime(0);
-        setIsPopUpOpen(true);
-    }, []);
-
-    /**
      * Timer Configuration Initializer
      *
      * Resets the temporal states to the default 25-minute Pomodoro block and opens 
      * the configuration modal explicitly in countdown (timer) mode.
      */
     const handleOpenTimerConfig = useCallback(() => {
-        setActiveTimerMode("timer");
-        setIsRunning(false);
-        setCurrentTime(25 * 60);
-        setInitialTime(25 * 60);
         setIsPopUpOpen(true);
     }, []);
 
@@ -279,21 +261,22 @@ export const useTempleModeLogic = () => {
     }, []);
 
     /**
-     * Session Play/Pause Handler
+     * Stop Session Handler
      *
-     * Toggles the active running state of the temporal interval engine, allowing users 
-     * to pause and resume their focus blocks.
+     * Delegates the termination of the active focus block to the overarching global 
+     * tracker's stop sequence, which manages backend pausing and prompts the user 
+     * for activity descriptions.
      */
-    const handleStartSession = useCallback(() => {
-        setIsRunning((prev) => !prev);
-    }, []);
+    const handleStopSession = useCallback(() => {
+        handleTriggerStopSequence();
+    }, [handleTriggerStopSequence]);
 
     // --- 6. Return Object ---
 
     return {
         translations: { tTemple, tCommon },
-        templeModeStates: { menuRef, isDataLoaded, isTotemsMenuOpen, activeTimerMode, isRunning, isPopUpOpen },
+        templeModeStates: { menuRef, isDataLoaded, isTotemsMenuOpen, isRunning, isPopUpOpen },
         templeModeData: { data, additionalData, formattedTime, timerProgressPercentage, cascadingOptions },
-        templeModeActions: { toggleTotemsMenu, handleOpenChronometerConfig, handleOpenTimerConfig, handleClosePopUp, handleStartSession }
+        templeModeActions: { toggleTotemsMenu, handleOpenTimerConfig, handleClosePopUp, handleStopSession }
     };
 };

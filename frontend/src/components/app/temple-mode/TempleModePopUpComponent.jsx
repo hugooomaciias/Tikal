@@ -16,13 +16,12 @@ import { IconCircleXFilled, IconHourglassFilled } from "@tabler/icons-react";
  * @component
  * @param {Object} props
  * @param {Function} props.onClose - Function callback to unmount the modal.
- * @param {string} props.mode - "timer" or "chronometer".
  * @param {Object} props.theme - Rank theme CSS classes for dynamic styling.
  * @param {Array<Object>} [props.cascadingOptions=[]] - Hierarchy array for the select dropdown.
  * @param {Function} props.t - Core i18n translation utility.
  * @returns {JSX.Element}
  */
-export const TempleModePopUpComponent = ({ onClose, theme, handleStartSession, cascadingOptions, tTemple, tCommon }) => {
+export const TempleModePopUpComponent = ({ onClose, theme, cascadingOptions, tTemple, tCommon }) => {
     // --- 1. Logic Hook Extraction ---
 
     /**
@@ -32,7 +31,7 @@ export const TempleModePopUpComponent = ({ onClose, theme, handleStartSession, c
      * handlers from the headless hook. This keeps the component strictly focused on 
      * presentational rendering and dynamic styling.
      */
-    const { popUpStates, popUpActions } = useTempleModePopUpLogic(onClose, theme, handleStartSession, tTemple);
+    const { popUpStates, popUpActions } = useTempleModePopUpLogic(onClose, theme, tTemple);
     
     const { formData, errors, timerOptions } = popUpStates;
     const { scrollRef, getInputClass, handleModalClick, handleDurationSelect, handleCascadingSelection, handleSubmit } = popUpActions;

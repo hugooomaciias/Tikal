@@ -1,6 +1,12 @@
 /** React & Third-Party Libraries */
 import { useState, useMemo, useCallback } from "react";
 
+/** Contexts, Hooks & Services */
+import { useTimeLog } from "../../../core/useTimeLog.js";
+
+/** Config, Constants & Utils */
+import { resolveLinkPayload } from "../../../../utils/calendarUtils.js";
+
 /**
  * Temple Mode Pop-Up Logic Hook
  *
@@ -11,12 +17,21 @@ import { useState, useMemo, useCallback } from "react";
  * @hook
  * @param {Function} onClose - Callback to close the modal.
  * @param {Object} theme - Rank theme CSS classes for dynamic styling computations.
- * @param {Function} handleStartSession - Callback to initiate the actual timing loop globally.
  * @param {Function} t - Translation utility function provided by i18next.
  * @returns {Object} A structured payload containing state variables, derived data, and handlers.
  */
-export const useTempleModePopUpLogic = (onClose, theme, handleStartSession, t) => {
+export const useTempleModePopUpLogic = (onClose, theme, t) => {
     // --- 1. Local UI State ---
+    
+    /**
+     * Global Time Tracker Context Actions
+     *
+     * Extracts the unified action handlers from the application's core time tracking service. 
+     * This ensures the Temple Mode widget successfully dispatches the start event to the 
+     * global state, keeping the `DynamicIsland` and API synced.
+     */
+    const { trackerActions } = useTimeLog();
+    const { handleStartTask } = trackerActions;
 
     /**
      * Form Input Data State
@@ -81,9 +96,9 @@ export const useTempleModePopUpLogic = (onClose, theme, handleStartSession, t) =
      *
      * Wrapper for the `scrollRef` callback that safely handles the cleanup of the previous
      * DOM node's event listeners before attaching new ones. This guarantees zero memory leaks
-     * during component re-renders or unmounts.
+     * during component re-renders or strict-mode mount cycles.
      * 
-     * @param {HTMLElement|null} node - The current DOM node.
+     * @param {HTMLElement|null} node - The current DOM node rendered by React.
      */
     const scrollRefManager = useCallback((node) => {
         if (scrollRefManager.current && scrollRefManager.current._cleanupWheel) {
@@ -141,6 +156,9 @@ export const useTempleModePopUpLogic = (onClose, theme, handleStartSession, t) =
         setFormData((prev) => ({
             ...prev,
             linkedEntity: option.id,
+            taskName: option.name, 
+            color: option.color,
+            logo: option.logo
         }));
         
         if (errors.linkedEntity) {
@@ -171,32 +189,42 @@ export const useTempleModePopUpLogic = (onClose, theme, handleStartSession, t) =
     }, [formData.linkedEntity, t]);
 
     /**
-     * Form Submission Logic
+     * Form Submission Logic & Session Starter
      *
-     * Memoized async action dispatcher that validates the UI state, transforms
-     * the local data into the strict backend DTO schema (combining dates/times and
-     * resolving hierarchical IDs), and calls either `updateCalendarEvent` or
-     * `createCalendarEvent` on the controller before closing the modal.
+     * Memoized async action dispatcher that validates the UI state and dynamically constructs
+     * the strict backend Data Transfer Object (DTO). It formats dates and calculates targeted
+     * hierarchical fields (taskId, stageId, projectId) via `resolveLinkPayload` before dispatching
+     * the initiation request to the core tracker service.
      *
      * @async
      * @param {React.FormEvent} e - The native HTML form submission event.
      */
-    const handleSubmit = useCallback((e) => {
+    const handleSubmit = useCallback(async (e) => {
         e.preventDefault();
         
         if (!validateForm()) return; 
         
-        const payload = {
-            durationInSeconds: formData.duration * 60,
-            linkedEntityId: formData.linkedEntity
-        };
+        try {
+            const {projectId, stageId, taskId} = resolveLinkPayload("", formData.linkedEntity);
 
-        // TODO: Aquí inyectarías el controlador global para iniciar la sesión con este payload.
-        console.log("Iniciando sesión del Temple Mode con:", payload);
-        
-        handleStartSession();
-        onClose();
-    }, [validateForm, formData, handleStartSession, onClose]);
+            const payload = {
+                projectId,
+                stageId,
+                taskId,
+                targetTime: formData.duration,
+                isTempleMode: true,
+                initDateTime: new Date().toISOString(),
+                taskName: formData.taskName,
+                colour: formData.color,
+                logo: formData.logo
+            };
+
+            handleStartTask(payload);
+            onClose();
+        } catch (error) {
+            console.error("Error crítico al intentar iniciar el Modo Templo en el backend:", error);
+        }
+    }, [validateForm, formData, onClose]);
 
     /**
      * Dynamic Input CSS Computation
