@@ -5,7 +5,7 @@ import { useTempleModePopUpLogic } from "../../../hooks/components/app/temple-mo
 import { CascadingLinkSelect } from "../common/popups/CascadingLinkSelect.jsx";
 
 /** Icons */
-import { IconCircleXFilled, IconHourglassFilled } from "@tabler/icons-react";
+import { IconCircleXFilled } from "@tabler/icons-react";
 
 /**
  * Temple Mode PopUp Presentational Component
@@ -53,13 +53,9 @@ export const TempleModePopUpComponent = ({ onClose, theme, cascadingOptions, tTe
                     
                     {/* Title & Close Button */}
                     <div className="flex items-center justify-between z-10">
-                        <div className="flex items-center gap-3">
-                            <IconHourglassFilled className={`w-8 h-8 ${theme.title}`} />
-
-                            <span className={`text-2xl font-passero font-bold tracking-wide ${theme.title}`}>
-                                {tTemple("popup.title.timer")}
-                            </span>
-                        </div>
+                        <span className={`text-2xl font-passero font-bold tracking-wide ${theme.title}`}>
+                            {tTemple("popup.title.timer")}
+                        </span>
                         
                         <button type="button" className={`${theme.subtitle} ${theme.subtitleHover} transition-colors`} onClick={onClose}>
                             <IconCircleXFilled className="h-8 w-8" />

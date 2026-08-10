@@ -59,7 +59,7 @@ export const NavbarComponent = () => {
 
     const { isExpanded } = navbarStates;
     const { navbarOptions, activeTab, userProfile } = navbarData;
-    const { handleLogout, handleToggleSidebar } = navbarActions;
+    const { trackerActions, handleLogout, handleToggleSidebar } = navbarActions;
 
     // --- 2. Render ---
 
@@ -109,6 +109,12 @@ export const NavbarComponent = () => {
                         <Link
                             key={index}
                             to={option.to}
+                            onClick={(e) => {
+                                if (option.to === "/temple-mode") {
+                                    e.preventDefault(); 
+                                    trackerActions.handleRequestTempleModeEntry();
+                                }
+                            }}
                             className={`flex items-center gap-6 transition-all duration-200 ${isActive ? "text-primary-50" : "text-primary-500 hover:text-primary-200"}`}
                         >
                             <IconComponent className="h-8 w-8" />
