@@ -30,17 +30,7 @@
             "timer": "Concentration mode",
             "chrono": "Stopwatch mode"
         },
-        "linked": {
-            "name": "Select link",
-            "projects": "Projects",
-            "stages": "Stages",
-            "tasks": "Tasks",
-            "no_options": "No options available at this level",
-            "button_message": {
-                "confirm": "Confirm",
-                "cancel": "Close"
-            }
-        },
+        "duration": "Duration",
         "button": "Start session",
         "error": "Please select an entity to focus on"
     }

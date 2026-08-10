@@ -36,7 +36,7 @@ export const TempleModePage = () => {
     const { tTemple, tCommon } = translations;
     const { menuRef, isDataLoaded, isTotemsMenuOpen, isRunning, isPopUpOpen } = templeModeStates;
     const { data, additionalData, formattedTime, timerProgressPercentage, cascadingOptions } = templeModeData;
-    const { toggleTotemsMenu, handleOpenTimerConfig, handleClosePopUp, handleStartSession } = templeModeActions;
+    const { toggleTotemsMenu, handleOpenTimerConfig, handleClosePopUp, handleStopSession } = templeModeActions;
 
     if (!isDataLoaded || !templeModeData) {
         return null;
@@ -63,7 +63,9 @@ export const TempleModePage = () => {
             style={{ backgroundImage: `url(${data.templeImageUrl})` }}
         >
             {/* Vertical Navbar Navigation Layer */}
-            <NavbarComponent />
+            {!isRunning && (
+                <NavbarComponent />
+            )}
 
             {/* Core Scrollable Content Area */}
             <section className="flex-1 flex flex-col gap-4 md:gap-6 w-full h-full overflow-hidden">
@@ -215,7 +217,7 @@ export const TempleModePage = () => {
                                 {/* Primary State Control Trigger */}
                                 {isRunning &&
                                     <button 
-                                        onClick={handleStartSession}
+                                        onClick={handleStopSession}
                                         className={`w-full mt-2 py-4 rounded-full border border-white/10 ${theme.title} font-bold text-xl tracking-wide shadow-[0_10px_30px_rgba(0,0,0,0.3)] transition-all duration-300 transform bg-tertiary-300 text-tertiary-700`}
                                     >
                                         {tTemple("stopSessionButton")}
@@ -361,7 +363,6 @@ export const TempleModePage = () => {
                 <TempleModePopUpComponent
                     onClose={handleClosePopUp}
                     theme={theme}
-                    handleStartSession={handleStartSession}
                     cascadingOptions={cascadingOptions}
                     tTemple={tTemple}
                     tCommon={tCommon}

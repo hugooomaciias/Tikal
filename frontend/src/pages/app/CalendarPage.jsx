@@ -43,8 +43,9 @@ export const CalendarPage = () => {
      * Extracts all required business logic, including layout state arrays, overarching metadata,
      * localization functions, and layout modification action handlers from the headless hooks.
      */
-    const { t, calendarRef, calendarStates, calendarData, calendarActions } = useCalendarLogic();
+    const { calendarRef, translations, calendarStates, calendarData, calendarActions } = useCalendarLogic();
 
+    const { tCalendar, tCommon } = translations;
     const { isDataLoaded, selectedDate, eventToEdit, isMobile } = calendarStates;
     const { events, highlightDates, eventsColorMap, groupedEvents, cascadingOptions, hasAllDayEvents } = calendarData;
     const {
@@ -80,7 +81,7 @@ export const CalendarPage = () => {
             {/* Viewport Action Context Section */}
             <section className="flex-1 flex flex-col gap-4 md:gap-6 w-full h-full overflow-hidden">
                 {/* Universal Interactive Core Headers */}
-                <HeaderComponent page={t("calendar_title")} primaryState={eventToEdit} onTogglePrimary={openNewEventModal} t={t} />
+                <HeaderComponent page={tCalendar("calendar_title")} primaryState={eventToEdit} onTogglePrimary={openNewEventModal} t={tCalendar} />
 
                 {/* Central Data Wrapper Container */}
                 <div className="flex-1 flex gap-2 overflow-hidden">
@@ -109,7 +110,7 @@ export const CalendarPage = () => {
                             groupedEvents={groupedEvents}
                             handleEventClick={handleEventClick}
                             handleContextMenu={handleContextMenu}
-                            t={t}
+                            t={tCalendar}
                         />
                     </aside>
 
@@ -193,7 +194,8 @@ export const CalendarPage = () => {
                     onClose={closeEventModal}
                     initialData={eventToEdit}
                     cascadingOptions={cascadingOptions}
-                    t={t}
+                    tCalendar={tCalendar}
+                    tCommon={tCommon}
                 />
             )}
 
@@ -203,7 +205,7 @@ export const CalendarPage = () => {
                     onClose={closeRenameModal}
                     data={entityToRename}
                     onRename={(id, newTitle) => { handleEditEvent(id, newTitle); }}
-                    t={t}
+                    t={tCalendar}
                 />
             )}
 

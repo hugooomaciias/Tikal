@@ -102,7 +102,7 @@ export const formatDateTimeISO = (dateObj, timeStr) => {
  * @returns {Object} The resolved DTO partial: { eventType, projectId, stageId, taskId }.
  */
 export const resolveLinkPayload = (type, linkId) => {
-    if (type !== "linked" || !linkId) {
+    if (!linkId) {
         return {
             eventType: "GENERAL",
             projectId: null,
@@ -193,6 +193,8 @@ export const generateCascadingOptions = (tasksData = []) => {
                             type: "task",
                             name: task.name,
                             phaseId: `f_${stage.id}`,
+                            color: task.colour,
+                            logo: task.logo
                         });
                     });
                 }

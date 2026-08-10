@@ -55,7 +55,8 @@ export const useCalendarLogic = () => {
      * Provides access to the i18n instance specifically scoped to the "app_calendar"
      * namespace to localize text content dynamically.
      */
-    const { t } = useTranslation("app_calendar");
+    const { t: tCalendar } = useTranslation("app_calendar");
+    const { t: tCommon} = useTranslation("app_common");
 
     /**
      * Calendar DOM Reference
@@ -552,8 +553,8 @@ export const useCalendarLogic = () => {
     // --- 6. Return Object ---
 
     return {
-        t,
         calendarRef,
+        translations: { tCalendar, tCommon },
         calendarStates: { isDataLoaded, selectedDate, eventToEdit, isMobile },
         calendarData: { events, highlightDates, eventsColorMap, groupedEvents, cascadingOptions, hasAllDayEvents },
         calendarActions: {

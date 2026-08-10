@@ -303,10 +303,10 @@ export const CascadingLinkSelect = ({ cascadingOptions = [], currentLinkId, onSe
                                     className={`px-3 py-2 text-sm font-medium text-left rounded-xl transition-colors flex items-center gap-2 ${"text-primary"} ${isSelected ? styles.itemActive : styles.itemHover}`}
                                 >
                                     {/* Optional Item SVG Icon */}
-                                    {option.logo && <logo.component className="w-4 h-4" />}
+                                    {option.logo && !option.id.startsWith("t") && <logo.component className="w-4 h-4" />}
 
                                     {/* Optional Item Color Dot */}
-                                    {option.color && (
+                                    {option.color && !option.id.startsWith("t") && (
                                         <div
                                             className={`w-3 h-3 rounded-full shrink-0 border-2 ${styles.pill}`}
                                             style={{ backgroundColor: color.hex }}
