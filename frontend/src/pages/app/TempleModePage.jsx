@@ -199,30 +199,29 @@ export const TempleModePage = () => {
                                     {formattedTime}
                                 </h1>
 
-                                {/* Mode Toggle Configuration Actions */}
                                 <div className="flex gap-4 w-full justify-center z-10">
-                                    <button 
-                                        type="button"
-                                        onClick={handleOpenTimerConfig}
-                                        className="p-3.5 rounded-2xl border transition-all duration-300 flex items-center justify-center bg-white/5 border-white/10 hover:bg-white/20 hover:border-white/40 shadow-inner"
-                                        title="Configurar Temporizador"
-                                    >
-                                        <div className={`flex items-center justify-center gap-2 ${theme.title}`}>
-                                            <IconHourglassFilled stroke={2} className="w-6 h-6 opacity-90" />
-                                            <span className="mt-0.5 font-semibold">Configurar Temporizador</span>
-                                        </div>
-                                    </button>
+                                    {isRunning ? (
+                                        <button 
+                                            type="button"
+                                            onClick={handleStopSession}
+                                            className={`w-full mt-2 py-4 rounded-full border border-white/10 ${theme.title} font-bold text-xl tracking-wide shadow-[0_10px_30px_rgba(0,0,0,0.3)] transition-all duration-300 transform bg-tertiary-300 text-tertiary-700`}
+                                        >
+                                            {tTemple("stopSessionButton")}
+                                        </button>
+                                    ) : (
+                                        <button 
+                                            type="button"
+                                            onClick={handleOpenTimerConfig}
+                                            className="p-3.5 rounded-2xl border transition-all duration-300 flex items-center justify-center bg-white/5 border-white/10 hover:bg-white/20 hover:border-white/40 shadow-inner"
+                                            title="Configurar Temporizador"
+                                        >
+                                            <div className={`flex items-center justify-center gap-2 ${theme.title}`}>
+                                                <IconHourglassFilled stroke={2} className="w-6 h-6 opacity-90" />
+                                                <span className="mt-0.5 font-semibold">Configurar Temporizador</span>
+                                            </div>
+                                        </button>
+                                    )}
                                 </div>
-
-                                {/* Primary State Control Trigger */}
-                                {isRunning &&
-                                    <button 
-                                        onClick={handleStopSession}
-                                        className={`w-full mt-2 py-4 rounded-full border border-white/10 ${theme.title} font-bold text-xl tracking-wide shadow-[0_10px_30px_rgba(0,0,0,0.3)] transition-all duration-300 transform bg-tertiary-300 text-tertiary-700`}
-                                    >
-                                        {tTemple("stopSessionButton")}
-                                    </button>
-                                }
                             </div>
                         </div>
                         

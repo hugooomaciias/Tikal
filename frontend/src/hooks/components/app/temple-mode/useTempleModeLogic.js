@@ -41,7 +41,7 @@ export const useTempleModeLogic = () => {
      */
     const { trackerStates, trackerActions } = useTimeLog();
 
-    const { isTimerRunning, accumulatedSeconds, activeWidgetData } = trackerStates;
+    const { isTimerRunning, accumulatedSeconds, activeWidgetData, showStopModal } = trackerStates;
     const { handleTriggerStopSequence } = trackerActions;
 
     /**
@@ -76,6 +76,15 @@ export const useTempleModeLogic = () => {
      * Controls the visual mounting and unmounting of the session configuration modal.
      */
     const [isPopUpOpen, setIsPopUpOpen] = useState(false);
+
+    /**
+     * Auto-Stop Trigger Guard
+     *
+     * Prevents the auto-stop effect from firing infinitely if the user cancels 
+     * the stop modal. It ensures the modal is only automatically summoned once 
+     * per session when the timer hits zero.
+     */
+    const [hasAutoTriggered, setHasAutoTriggered] = useState(false);
 
     // --- 3. Derived UI Data ---
 
@@ -229,6 +238,32 @@ export const useTempleModeLogic = () => {
 
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, [isTotemsMenuOpen]);
+
+    /**
+     * Trigger Guard Reset Effect
+     *
+     * Monitors the execution state of the timer. If the session is fully stopped
+     * or canceled, it resets the auto-trigger guard, preparing it for the next session.
+     */
+    useEffect(() => {
+        if (!isRunning) {
+            setHasAutoTriggered(false);
+        }
+    }, [isRunning]);
+
+    /**
+     * Auto-Stop Session Effect (The Watcher)
+     *
+     * Actively monitors the countdown. The exact moment it reaches 0, it automatically
+     * summons the confirmation modal. If the user dismisses the modal without confirming,
+     * the `hasAutoTriggered` guard prevents an infinite loop.
+     */
+    useEffect(() => {
+        if (isRunning && currentTime === 0 && !showStopModal && !hasAutoTriggered) {
+            setHasAutoTriggered(true);
+            handleStopSession();
+        }
+    }, [isRunning, currentTime, showStopModal, hasAutoTriggered]);
 
     // --- 5. Interaction Handlers ---
 
