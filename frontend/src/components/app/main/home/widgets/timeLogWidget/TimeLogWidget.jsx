@@ -15,7 +15,7 @@ import { PROJECTS_ICONS } from "../../../../../../constants/projects_icons.js";
 import { formatTimeSegments } from "../../../../../../utils/timeLogUtils.js";
 
 /** Icons */
-import { IconEdit, IconTrash, IconCirclePlus, IconPyramid } from "@tabler/icons-react";
+import { IconEdit, IconTrash, IconCirclePlus, IconPyramid, IconCircleCheckFilled } from "@tabler/icons-react";
 
 /**
  * Weekly Progress TimeLog Widget
@@ -108,6 +108,7 @@ export const TimeLogWidget = ({ props, setCustomActions }) => {
                             const logColour = PHASE_COLOURS.find((c) => c.id === log.color) || PHASE_COLOURS[0];
                             const { hours, minutes } = formatTimeSegments(log.durationInSeconds);
                             const isTempleModeLog = log.isTempleMode;
+                            console.log(log);
 
                             return (
                                 <div 
@@ -127,9 +128,19 @@ export const TimeLogWidget = ({ props, setCustomActions }) => {
                                                     </span>
                                                 </div>
                                             ) : (
-                                                <span className="text-sm font-mono font-bold tracking-tighter">
-                                                    {hours}:{minutes}
-                                                </span>
+                                                isTempleModeLog ? (
+                                                    <div className="w-full flex items-center justify-between gap-1">
+                                                        <IconCircleCheckFilled className="h-4 w-4" />
+
+                                                        <span className="text-sm font-mono font-bold tracking-tighter">
+                                                            {minutes}m
+                                                        </span>
+                                                    </div>
+                                                ) : (
+                                                    <span className="text-sm font-mono font-bold tracking-tighter">
+                                                        {hours}:{minutes}
+                                                    </span>
+                                                )
                                             )}
                                         </div>
 
