@@ -17,12 +17,19 @@ import { RegisterPage } from "./pages/auth/RegisterPage";
 import { ForgotPasswordPage } from "./pages/auth/ForgotPasswordPage";
 import { LoadingPage } from "./pages/LoadingPage";
 
-import { BasePage } from "./pages/app/main/BasePage.jsx";
+import { MainBasePage } from "./pages/app/main/BasePage";
 import { HomePage } from "./pages/app/main/HomePage";
 import { TasksPage } from "./pages/app/main/TasksPage";
 import { CalendarPage } from "./pages/app/main/CalendarPage";
 import { StatisticsPage } from "./pages/app/main/StatisticsPage";
 import { TempleModePage } from "./pages/app/main/TempleModePage";
+
+import { SettingsBasePage } from "./pages/app/settings/BasePage";
+import { AccountPage } from "./pages/app/settings/AccountPage";
+import { PreferencesPage } from "./pages/app/settings/PreferencesPage";
+import { ProductivityPage } from "./pages/app/settings/ProductivityPage";
+import { NotificationsPage } from "./pages/app/settings/NotificationsPage";
+import { SettingsTeamPage } from "./pages/app/settings/TeamPage";
 
 /** Assets, Utils & Constants */
 import "./i18n";
@@ -70,7 +77,7 @@ function App() {
                             <Route 
                                 element={
                                     <ProtectedRoute>
-                                        <BasePage />
+                                        <MainBasePage />
                                     </ProtectedRoute>
                                 }
                             >
@@ -88,6 +95,20 @@ function App() {
                                     </ProtectedRoute>
                                 }
                             />
+
+                            <Route 
+                                element={
+                                    <ProtectedRoute>
+                                        <SettingsBasePage />
+                                    </ProtectedRoute>
+                                }
+                            >
+                                <Route path="/settings-account" element={<AccountPage />} />
+                                <Route path="/settings-preferences" element={<PreferencesPage />} />
+                                <Route path="/settings-productivity" element={<ProductivityPage />} />
+                                <Route path="/settings-notifications" element={<NotificationsPage />} />
+                                <Route path="/settings-team" element={<SettingsTeamPage />} />
+                            </Route>
                         </Route>
                     </Route>
 

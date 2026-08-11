@@ -2,7 +2,7 @@
 import { Link } from "react-router-dom";
 
 /** Contexts, Hooks & Services */
-import { useNavbarLogic } from "../../../../hooks/components/app/common/useNavbarLogic.js";
+import { useNavbarLogic } from "../../../../hooks/components/app/main/common/useNavbarLogic.js";
 
 /** Components & Layouts */
 
@@ -59,7 +59,7 @@ export const NavbarComponent = () => {
 
     const { isExpanded } = navbarStates;
     const { navbarOptions, activeTab, userProfile } = navbarData;
-    const { trackerActions, handleLogout, handleToggleSidebar } = navbarActions;
+    const { trackerActions, handleLogout, handleToggleSidebar, handleNavigateToSettings } = navbarActions;
 
     // --- 2. Render ---
 
@@ -135,13 +135,17 @@ export const NavbarComponent = () => {
                 className={`hidden md:flex h-fit w-full bg-primary-50 rounded-full mx-auto transition-colors duration-200 items-center mt-8 p-2 ${isExpanded ? "w-full justify-start p-3" : "w-fit justify-center p-2"}`}
             >
                 {/* User Avatar Container */}
-                <div className="relative w-12 h-12 flex-shrink-0 rounded-full overflow-hidden border-[3px] border-primary-300 cursor-pointer">
+                <button
+                    type="button"
+                    onClick={handleNavigateToSettings}
+                    className="relative w-12 h-12 flex-shrink-0 rounded-full overflow-hidden border-[3px] border-primary-300 cursor-pointer"
+                >
                     <img
                         className="w-full h-full object-cover shadow-md"
                         src="/public/Avatar_0.svg"
                         alt="User Avatar"
                     />
-                </div>
+                </button>
 
                 {/* User Information and Actions */}
                 {isExpanded && (

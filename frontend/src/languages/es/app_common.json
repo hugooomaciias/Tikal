@@ -61,5 +61,20 @@
             "confirm": "Confirmar",
             "cancel": "Cerrar"
         }
+    },
+    "settings": {
+        "header": {
+            "plans": {
+                "gratuito": "Plan individual",
+                "comunitario": "Plan cooperativo"
+            }
+        },
+        "navbar": {
+            "account": "Cuenta",
+            "preferences": "Preferencias generales",
+            "productivity": "Productividad",
+            "notifications": "Notificaciones",
+            "team": "Equipo y privacidad"
+        }
     }
 }

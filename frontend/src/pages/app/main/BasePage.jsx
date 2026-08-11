@@ -5,17 +5,19 @@ import { Outlet } from "react-router-dom";
 import { NavbarComponent } from "../../../components/app/main/common/NavbarComponent.jsx";
 
 /**
- * Main Application Dashboard Component
+ * Main Application Base Layout
  *
- * This purely visual component acts as the primary layout wrapper for the authenticated area.
- * It renders the responsive grid layout where widgets are dynamically injected. All data fetching,
- * state management, and grid modification logic (such as dragging and resizing) are entirely delegated
- * to its dedicated headless hook (`useHomeLogic`).
+ * This structural component acts as the persistent layout wrapper for the standard 
+ * authenticated routes (e.g., Home, Tasks, Calendar, Statistics). It establishes the 
+ * overarching page shell, maintaining the global navigation sidebar, and delegates the 
+ * dynamic injection of child page content via React Router's `<Outlet />` component.
  *
  * @component
- * @returns {JSX.Element|null} The rendered dashboard layout, or null if data is not loaded.
+ * @returns {JSX.Element} The rendered layout shell containing the routing outlet.
  */
 export const MainBasePage = () => {
+    // --- 1. Render ---
+
     return (
         <div className="flex flex-col md:flex-row h-[100dvh] bg-gradient-to-t md:bg-gradient-to-r from-primary-50 to-primary-300 p-2 md:p-4 gap-4 md:gap-8 overflow-hidden">
             {/* Vertical Navbar */}
