@@ -277,7 +277,7 @@ public class DashboardService {
                     .name(totem.getName())
                     .goalDescription(totem.getGoalDescription())
                     .targetProgress1(totem.getTargetProgress())
-                    .targetProgress2(totem.getTargetProgress())
+                    .targetProgress2(totem.getTargetProgress2())
                     .totemImageUrl(totem.getTotemImageUrl())
                     .isActive(true)
                     .rank(totem.getRequiredRank())

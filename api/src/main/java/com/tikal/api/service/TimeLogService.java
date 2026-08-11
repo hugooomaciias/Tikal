@@ -355,6 +355,9 @@ public class TimeLogService {
                 .logo(extractLogo(timeLog))
                 .color(extractColor(timeLog))
                 .taskName(extractName(timeLog))
+                .projectId(timeLog.getProject().getId())
+                .stageId(timeLog.getStage().getId())
+                .taskId(timeLog.getTask().getId())
                 .activityDescription(timeLog.getActivityDescription())
                 .build();
     }
