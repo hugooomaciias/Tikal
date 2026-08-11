@@ -11,6 +11,9 @@ public class TimeLogDTO {
     private Integer id;
     private Instant initDateTime;
     private Instant endDateTime;
+    private Integer projectId;
+    private Integer stageId;
+    private Integer taskId;
     private Integer minutes;
     private String logo;
     private String color;

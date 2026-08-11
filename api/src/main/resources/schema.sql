@@ -23,32 +23,32 @@ INSERT IGNORE INTO totem_lists (id, name, goal_description, target_progress, typ
 -- ==========================================
 -- Tótems del Nivel 2 (required_rank = 2)
 -- ==========================================
-INSERT IGNORE INTO totem_lists (id, name, goal_description, target_progress, type_of_goal, required_rank, totem_image_url) VALUES
-                                                                                                                               (6, 'KIMI', 'Alcanza 100 horas totales de concentración', 100, 'CONCENTRATION', 2, '/images/totems/kimi.svg'),
-                                                                                                                               (7, 'MANIK', 'Alcanza 150 horas totales de concentración', 150, 'CONCENTRATION', 2, '/images/totems/manik.svg'),
-                                                                                                                               (8, 'LAMAT', 'Alcanza 200 horas totales de concentración', 200, 'CONCENTRATION', 2, '/images/totems/lamat.svg'),
-                                                                                                                               (9, 'MULUK', 'Alcanza precisión de planificación > 70% y completa 50 tareas con estimación', 70, 'PLANNING_ACCURACY_WITH_TASKS', 2, '/images/totems/muluk.svg'),
-                                                                                                                               (10, 'OK', 'Alcanza efectividad global > 75% y completa 30 tareas', 75, 'EFFECTIVENESS_WITH_TASKS', 2, '/images/totems/ok.svg');
+INSERT IGNORE INTO totem_lists (id, name, goal_description, target_progress, type_of_goal, required_rank, totem_image_url, target_progress2) VALUES
+                                                                                                                               (6, 'KIMI', 'Alcanza 100 horas totales de concentración', 100, 'CONCENTRATION', 2, '/images/totems/kimi.svg', null),
+                                                                                                                               (7, 'MANIK', 'Alcanza 150 horas totales de concentración', 150, 'CONCENTRATION', 2, '/images/totems/manik.svg', null),
+                                                                                                                               (8, 'LAMAT', 'Alcanza 200 horas totales de concentración', 200, 'CONCENTRATION', 2, '/images/totems/lamat.svg', null),
+                                                                                                                               (9, 'MULUK', 'Alcanza precisión de planificación > 70% y completa 50 tareas con estimación', 70, 'PLANNING_ACCURACY_WITH_TASKS', 2, '/images/totems/muluk.svg', 50),
+                                                                                                                               (10, 'OK', 'Alcanza efectividad global > 75% y completa 30 tareas', 75, 'EFFECTIVENESS_WITH_TASKS', 2, '/images/totems/ok.svg', 30);
 
 -- ==========================================
 -- Tótems del Nivel 3 (required_rank = 3)
 -- ==========================================
-INSERT IGNORE INTO totem_lists (id, name, goal_description, target_progress, type_of_goal, required_rank, totem_image_url) VALUES
-                                                                                                                               (11, 'CHUWEN', 'Alcanza 300 horas totales de concentración', 300, 'CONCENTRATION', 3, '/images/totems/chuwen.svg'),
-                                                                                                                               (12, 'EB', 'Alcanza 400 horas totales de concentración', 400, 'CONCENTRATION', 3, '/images/totems/eb.svg'),
-                                                                                                                               (13, 'BEN', 'Alcanza 500 horas totales de concentración', 500, 'CONCENTRATION', 3, '/images/totems/ben.svg'),
-                                                                                                                               (14, 'IX', 'Alcanza 600 horas totales de concentración', 600, 'CONCENTRATION', 3, '/images/totems/ix.svg'),
-                                                                                                                               (15, 'MEN', 'Alcanza precisión de planificación > 80% y completa 100 tareas con estimación', 80, 'PLANNING_ACCURACY_WITH_TASKS', 3, '/images/totems/men.svg'),
-                                                                                                                               (16, 'KIB', 'Alcanza efectividad global > 85% y mantén una racha de 7 días con efectividad > 75%', 85, 'EFFECTIVENESS_WITH_STREAK', 3, '/images/totems/kib.svg');
+INSERT IGNORE INTO totem_lists (id, name, goal_description, target_progress, type_of_goal, required_rank, totem_image_url, target_progress2) VALUES
+                                                                                                                               (11, 'CHUWEN', 'Alcanza 300 horas totales de concentración', 300, 'CONCENTRATION', 3, '/images/totems/chuwen.svg', null),
+                                                                                                                               (12, 'EB', 'Alcanza 400 horas totales de concentración', 400, 'CONCENTRATION', 3, '/images/totems/eb.svg', null),
+                                                                                                                               (13, 'BEN', 'Alcanza 500 horas totales de concentración', 500, 'CONCENTRATION', 3, '/images/totems/ben.svg', null),
+                                                                                                                               (14, 'IX', 'Alcanza 600 horas totales de concentración', 600, 'CONCENTRATION', 3, '/images/totems/ix.svg', null),
+                                                                                                                               (15, 'MEN', 'Alcanza precisión de planificación > 80% y completa 100 tareas con estimación', 80, 'PLANNING_ACCURACY_WITH_TASKS', 3, '/images/totems/men.svg', 100),
+                                                                                                                               (16, 'KIB', 'Alcanza efectividad global > 85% y mantén una racha de 7 días con efectividad > 75%', 85, 'EFFECTIVENESS_WITH_STREAK', 3, '/images/totems/kib.svg', 7);
 
 -- ==========================================
 -- Tótems del Nivel 4 (required_rank = 4)
 -- ==========================================
-INSERT IGNORE INTO totem_lists (id, name, goal_description, target_progress, type_of_goal, required_rank, totem_image_url) VALUES
-                                                                                                                               (17, 'KABAN', 'Alcanza 800 horas totales de concentración', 800, 'CONCENTRATION', 4, '/images/totems/kaban.svg'),
-                                                                                                                               (18, 'ETZNAB', 'Alcanza 1000 horas totales de concentración', 1000, 'CONCENTRATION', 4, '/images/totems/etznab.svg'),
-                                                                                                                               (19, 'KAWAK', 'Alcanza precisión de planificación > 90% y efectividad global > 90%', 90, 'PLANNING_AND_EFFECTIVENESS', 4, '/images/totems/kawak.svg'),
-                                                                                                                               (20, 'AJAW', 'Desbloquea todos los tótems anteriores', 20, 'ALL_PREVIOUS_TOTEMS', 4, '/images/totems/ajaw.svg');
+INSERT IGNORE INTO totem_lists (id, name, goal_description, target_progress, type_of_goal, required_rank, totem_image_url, target_progress2) VALUES
+                                                                                                                               (17, 'KABAN', 'Alcanza 800 horas totales de concentración', 800, 'CONCENTRATION', 4, '/images/totems/kaban.svg', null),
+                                                                                                                               (18, 'ETZNAB', 'Alcanza 1000 horas totales de concentración', 1000, 'CONCENTRATION', 4, '/images/totems/etznab.svg', null),
+                                                                                                                               (19, 'KAWAK', 'Alcanza precisión de planificación > 90% y efectividad global > 90%', 90, 'PLANNING_AND_EFFECTIVENESS', 4, '/images/totems/kawak.svg', 90),
+                                                                                                                               (20, 'AJAW', 'Desbloquea todos los tótems anteriores', 20, 'ALL_PREVIOUS_TOTEMS', 4, '/images/totems/ajaw.svg', null);
 
 
 -- ==========================================
