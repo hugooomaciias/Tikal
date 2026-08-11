@@ -3,7 +3,7 @@ import { useState, useEffect, useCallback, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 
 /** Contexts, Hooks & Services */
-import { useSync } from "../../../core/useSync.js";
+import { useSync } from "../../../../core/useSync.js";
 
 /** Config, Constants & Utils */
 

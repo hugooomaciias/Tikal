@@ -1,5 +1,5 @@
 /** Contexts, Hooks & Services */
-import { useStagesPopUpLogic } from "../../../../hooks/components/app/tasks/useStagesPopUpLogic.js";
+import { useStagesPopUpLogic } from "../../../../hooks/components/app/main/tasks/useStagesPopUpLogic.js";
 
 /** Components & Layouts */
 import { TabsComponent } from "../common/popups/TabsComponent.jsx";

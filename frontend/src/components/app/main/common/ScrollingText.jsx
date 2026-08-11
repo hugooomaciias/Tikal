@@ -1,5 +1,5 @@
 /** Contexts, Hooks & Services */
-import { useScrollingTextLogic } from "../../../../hooks/components/app/common/useScrollingTextLogic.js";
+import { useScrollingTextLogic } from "../../../../hooks/components/app/main/common/useScrollingTextLogic.js";
 
 /**
  * Scrolling Text Component

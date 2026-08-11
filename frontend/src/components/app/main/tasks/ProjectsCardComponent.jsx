@@ -2,7 +2,7 @@
 import { createPortal } from "react-dom";
 
 /** Contexts, Hooks & Services */
-import { useProjectsCardLogic } from "../../../../hooks/components/app/tasks/useProjectsCardLogic.js";
+import { useProjectsCardLogic } from "../../../../hooks/components/app/main/tasks/useProjectsCardLogic.js";
 
 /** Components & Layouts */
 import { ProjectPopUpComponent } from "./ProjectPopUpComponent.jsx";

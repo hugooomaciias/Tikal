@@ -4,9 +4,9 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
 /** Contexts, Hooks & Services */
-import { useSync } from "../../../core/useSync.js";
-import { useAuth } from "../../../core/useAuth.js";
-import { useTimeLog } from "../../../core/useTimeLog.js";
+import { useSync } from "../../../../core/useSync.js";
+import { useAuth } from "../../../../core/useAuth.js";
+import { useTimeLog } from "../../../../core/useTimeLog.js";
 
 /** Config, Constants & Utils */
 
@@ -142,12 +142,16 @@ export const useNavbarLogic = () => {
         setIsExpanded((prev) => !prev);
     }, []);
 
+    const handleNavigateToSettings = () => {
+        navigate("/settings-account");
+    };
+
     // --- 6. Return Object ---
 
     return {
         t,
         navbarStates: { isExpanded },
         navbarData: { navbarOptions, activeTab, userProfile },
-        navbarActions: { trackerActions, handleLogout, handleToggleSidebar },
+        navbarActions: { trackerActions, handleLogout, handleToggleSidebar, handleNavigateToSettings },
     };
 };

@@ -3,8 +3,8 @@ import { useState, useMemo, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 
 /** Config, Constants & Utils */
-import { PROJECTS_ICONS } from "../../../../../constants/projects_icons.js";
-import tailwindConfig from "../../../../../../tailwind.config.js";
+import { PROJECTS_ICONS } from "../../../../../../constants/projects_icons.js";
+import tailwindConfig from "../../../../../../../tailwind.config.js";
 import resolveConfig from "tailwindcss/resolveConfig";
 
 /** Icons */

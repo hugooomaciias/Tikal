@@ -1,5 +1,5 @@
 /** Contexts, Hooks & Services */
-import { useDynamicIslandLogic } from "../../../../hooks/components/app/common/useDynamicIslandLogic.js";
+import { useDynamicIslandLogic } from "../../../../hooks/components/app/main/common/useDynamicIslandLogic.js";
 
 /** Components & Layouts */
 import { ScrollingText } from "../common/ScrollingText";

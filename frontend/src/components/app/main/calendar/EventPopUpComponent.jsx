@@ -1,5 +1,5 @@
 /** Contexts, Hooks & Services */
-import { useEventPopUpLogic } from "../../../../hooks/components/app/calendar/useEventPopUpLogic.js";
+import { useEventPopUpLogic } from "../../../../hooks/components/app/main/calendar/useEventPopUpLogic.js";
 
 /** Components & Layouts */
 import { CascadingLinkSelect } from "../common/popups/CascadingLinkSelect.jsx";

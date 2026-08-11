@@ -3,7 +3,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 
 /** Contexts, Hooks & Services */
-import { useAuth } from "../../../core/useAuth.js";
+import { useAuth } from "../../../../core/useAuth.js";
 
 /** Config, Constants & Utils */
 
@@ -122,10 +122,15 @@ export const useHeaderLogic = ({ onEnableEdit, onDisableEdit }) => {
         onDisableEdit();
     }, [onDisableEdit]);
 
+    const handleNavigateToSettings = () => {
+        navigate("/settings-account");
+    };
+
+
     // --- 6. Return Object ---
 
     return {
         headerStates: { isScrolled },
-        headerActions: { handleLogout, handleEnableEditMode, handleDisableEditMode },
+        headerActions: { handleLogout, handleEnableEditMode, handleDisableEditMode, handleNavigateToSettings },
     };
 };

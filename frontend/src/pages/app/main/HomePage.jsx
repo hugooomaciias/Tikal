@@ -2,7 +2,7 @@
 import { Responsive, WidthProvider } from "react-grid-layout/legacy";
 
 /** Contexts, Hooks & Services */
-import { useHomeLogic } from "../../../hooks/components/app/home/useHomeLogic.js";
+import { useHomeLogic } from "../../../hooks/components/app/main/home/useHomeLogic.js";
 
 /** Components & Layouts */
 import { Header } from "../../../components/app/main/home/Header.jsx";

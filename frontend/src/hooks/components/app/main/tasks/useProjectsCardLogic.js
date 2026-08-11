@@ -3,11 +3,11 @@ import { useState, useEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 
 /** Contexts, Hooks & Services */
-import { useContextMenu } from "../../../components/app/common/useContextMenu.js";
-import { useProjects } from "../../../controllers/tasks/useProjects.js";
+import { useContextMenu } from "../common/useContextMenu.js";
+import { useProjects } from "../../../../controllers/tasks/useProjects.js";
 
 /** Config, Constants & Utils */
-import { PROJECTS_ICONS } from "../../../../constants/projects_icons.js";
+import { PROJECTS_ICONS } from "../../../../../constants/projects_icons.js";
 
 /** Icons */
 import { IconBook } from "@tabler/icons-react";

@@ -2,10 +2,10 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 
 /** Contexts, Hooks & Services */
-import { useProjects } from "../../../controllers/tasks/useProjects.js";
+import { useProjects } from "../../../../controllers/tasks/useProjects.js";
 
 /** Config, Constants & Utils */
-import { PROJECTS_ICONS } from "../../../../constants/projects_icons.js";
+import { PROJECTS_ICONS } from "../../../../../constants/projects_icons.js";
 
 /**
  * Projects PopUp Logic Hook

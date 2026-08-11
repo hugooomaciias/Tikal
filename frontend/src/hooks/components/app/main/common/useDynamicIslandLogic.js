@@ -2,16 +2,16 @@
 import { useState, useEffect, useRef, useMemo, useCallback } from "react";
 
 /** Contexts, Hooks & Services */
-import { useTimeLog } from "../../../core/useTimeLog.js";
+import { useTimeLog } from "../../../../core/useTimeLog.js";
 
 /** Icons */
 import { IconDatabase } from "@tabler/icons-react";
 
 /** Config, Constants & Utils */
 import resolveConfig from "tailwindcss/resolveConfig";
-import tailwindConfig from "../../../../../tailwind.config.js";
-import { PHASE_COLOURS } from "../../../../constants/phase_colours.js";
-import { PROJECTS_ICONS } from "../../../../constants/projects_icons.js";
+import tailwindConfig from "../../../../../../tailwind.config.js";
+import { PHASE_COLOURS } from "../../../../../constants/phase_colours.js";
+import { PROJECTS_ICONS } from "../../../../../constants/projects_icons.js";
 
 /**
  * Tailwind Configuration Resolver

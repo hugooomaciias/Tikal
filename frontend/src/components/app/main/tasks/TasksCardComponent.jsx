@@ -2,7 +2,7 @@
 import { createPortal } from "react-dom";
 
 /** Contexts, Hooks & Services */
-import { useTasksCardLogic } from "../../../../hooks/components/app/tasks/useTasksCardLogic.js";
+import { useTasksCardLogic } from "../../../../hooks/components/app/main/tasks/useTasksCardLogic.js";
 
 /** Components & Layouts */
 import { TaskPopUpComponent } from "./TaskPopUpComponent.jsx";

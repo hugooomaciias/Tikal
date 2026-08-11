@@ -2,12 +2,13 @@
 import { useMemo, useCallback } from "react";
 
 /** Contexts, Hooks & Services */
-import { useTimeLog } from "../../../../core/useTimeLog.js";
+import { useTimeLog } from "../../../../../core/useTimeLog.js";
 
 /** Assets, Utils & Constants */
-import { PHASE_COLOURS } from "../../../../../constants/phase_colours.js";
-import { PROJECTS_ICONS } from "../../../../../constants/projects_icons.js";
-import tailwindConfig from "../../../../../../tailwind.config.js";
+import { PHASE_COLOURS } from "../../../../../../constants/phase_colours.js";
+import { PROJECTS_ICONS } from "../../../../../../constants/projects_icons.js";
+import { formatTimeSegments } from "../../../../../../utils/timeLogUtils.js";
+import tailwindConfig from "../../../../../../../tailwind.config.js";
 import resolveConfig from "tailwindcss/resolveConfig";
 
 /**
@@ -100,15 +101,10 @@ export const useTimeTrackerWidgetLogic = () => {
      *
      * Memoized calculation that converts the raw, continuously incrementing 
      * `accumulatedSeconds` state into a strictly formatted, human-readable hours, 
-     * minutes, and seconds structure.
+     * minutes, and seconds structure using an external utility.
      */
     const { hours, minutes, seconds } = useMemo(() => {
-        const h = Math.floor(accumulatedSeconds / 3600);
-        const m = Math.floor((accumulatedSeconds % 3600) / 60);
-        const s = accumulatedSeconds % 60;
-        const pad = (num) => String(num).padStart(2, "0");
-        
-        return { hours: pad(h), minutes: pad(m), seconds: pad(s) };
+        return formatTimeSegments(accumulatedSeconds);
     }, [accumulatedSeconds]);
 
     // --- 3. Interaction Handlers ---

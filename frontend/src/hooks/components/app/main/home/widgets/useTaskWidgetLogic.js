@@ -3,11 +3,11 @@ import { useState, useMemo, useCallback, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 
 /** Contexts, Hooks & Services */
-import { useTimeLog } from "../../../../core/useTimeLog.js";
-import { useTasks } from "../../../../controllers/tasks/useTasks.js";
+import { useTimeLog } from "../../../../../core/useTimeLog.js";
+import { useTasks } from "../../../../../controllers/tasks/useTasks.js";
 
 /** Config, Constants & Utils */
-import { PROJECTS_ICONS } from "../../../../../constants/projects_icons.js";
+import { PROJECTS_ICONS } from "../../../../../../constants/projects_icons.js";
 import { IconBook } from "@tabler/icons-react";
 
 /**

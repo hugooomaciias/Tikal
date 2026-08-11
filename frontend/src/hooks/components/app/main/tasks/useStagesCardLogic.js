@@ -3,8 +3,8 @@ import { useState, useEffect, useMemo, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 
 /** Contexts, Hooks & Services */
-import { useContextMenu } from "../../../components/app/common/useContextMenu.js";
-import { useStages } from "../../../controllers/tasks/useStages.js";
+import { useContextMenu } from "../common/useContextMenu.js";
+import { useStages } from "../../../../controllers/tasks/useStages.js";
 
 /**
  * Stages Card Logic Hook

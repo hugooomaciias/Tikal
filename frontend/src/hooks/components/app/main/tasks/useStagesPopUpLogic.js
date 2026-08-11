@@ -2,11 +2,11 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 
 /** Contexts, Hooks & Services */
-import { useSync } from "../../../core/useSync.js";
-import { useStages } from "../../../controllers/tasks/useStages.js";
+import { useSync } from "../../../../core/useSync.js";
+import { useStages } from "../../../../controllers/tasks/useStages.js";
 
 /** Config, Constants & Utils */
-import { PHASE_COLOURS } from "../../../../constants/phase_colours.js";
+import { PHASE_COLOURS } from "../../../../../constants/phase_colours.js";
 
 /**
  * Stages PopUp Logic Hook

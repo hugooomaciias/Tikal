@@ -2,12 +2,12 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
 
 /** Contexts, Hooks & Services */
-import { useSync } from "../../../core/useSync.js";
-import { useCalendarEvents } from "../../../controllers/calendar/useCalendar.js";
+import { useSync } from "../../../../core/useSync.js";
+import { useCalendarEvents } from "../../../../controllers/calendar/useCalendar.js";
 
 /** Config, Constants & Utils */
-import { PHASE_COLOURS } from "../../../../constants/phase_colours.js";
-import { resolveColorObject, safeParseDate, formatDateTimeISO, resolveLinkPayload } from "../../../../utils/calendarUtils.js";
+import { PHASE_COLOURS } from "../../../../../constants/phase_colours.js";
+import { resolveColorObject, safeParseDate, formatDateTimeISO, resolveLinkPayload } from "../../../../../utils/calendarUtils.js";
 
 /**
  * Event Pop-Up Logic Hook

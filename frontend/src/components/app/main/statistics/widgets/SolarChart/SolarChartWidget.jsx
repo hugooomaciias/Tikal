@@ -2,7 +2,7 @@
 import { ResponsivePie } from "@nivo/pie";
 
 /** Contexts, Hooks & Services */
-import { useSolarChartWidgetLogic } from "../../../../../../hooks/components/app/statistics/widgets/useSolarChartWidgetLogic.js";
+import { useSolarChartWidgetLogic } from "../../../../../../hooks/components/app/main/statistics/widgets/useSolarChartWidgetLogic.js";
 
 /** Components & Layouts */
 import { FilterComponent } from "./FilterComponent.jsx";

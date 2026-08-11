@@ -1,5 +1,5 @@
 /** Contexts, Hooks & Services */
-import { useProjectsPopUpLogic } from "../../../../hooks/components/app/tasks/useProjectsPopUpLogic.js";
+import { useProjectsPopUpLogic } from "../../../../hooks/components/app/main/tasks/useProjectsPopUpLogic.js";
 
 /** Components & Layouts */
 import { TabsComponent } from "../common/popups/TabsComponent.jsx";

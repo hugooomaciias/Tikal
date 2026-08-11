@@ -1,5 +1,5 @@
 /** Contexts, Hooks & Services */
-import { useTempleModePopUpLogic } from "../../../hooks/components/app/temple-mode/useTempleModePopUpLogic.js";
+import { useTempleModePopUpLogic } from "../../../../hooks/components/app/main/temple-mode/useTempleModePopUpLogic.js";
 
 /** Components & Layouts */
 import { CascadingLinkSelect } from "../common/popups/CascadingLinkSelect.jsx";

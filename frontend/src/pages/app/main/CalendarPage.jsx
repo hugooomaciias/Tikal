@@ -9,8 +9,8 @@ import enLocale from "@fullcalendar/core/locales/en-gb";
 import DatePicker from "react-datepicker";
 
 /** Contexts, Hooks & Services */
-import { useCalendarLogic } from "../../../hooks/components/app/calendar/useCalendarLogic.js";
-import { useContextMenu } from "../../../hooks/components/app/common/useContextMenu.js";
+import { useCalendarLogic } from "../../../hooks/components/app/main/calendar/useCalendarLogic.js";
+import { useContextMenu } from "../../../hooks/components/app/main/common/useContextMenu.js";
 import i18n from "../../../i18n.js";
 
 /** Components & Layouts */

@@ -3,17 +3,13 @@ import { useState, useEffect, useMemo, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 
 /** Contexts, Hooks & Services */
-import { useContextMenu } from "../../../components/app/common/useContextMenu.js";
-import { useTasks } from "../../../controllers/tasks/useTasks.js";
-import { useTimeLog } from "../../../core/useTimeLog.js";
-
-/** Icons */
-import { IconDatabase } from "@tabler/icons-react";
+import { useContextMenu } from "../common/useContextMenu.js";
+import { useTasks } from "../../../../controllers/tasks/useTasks.js";
+import { useTimeLog } from "../../../../core/useTimeLog.js";
 
 /** Assets, Utils & Constants */
-import tailwindConfig from "../../../../../tailwind.config.js";
+import tailwindConfig from "../../../../../../tailwind.config.js";
 import resolveConfig from "tailwindcss/resolveConfig";
-import { PROJECTS_ICONS } from "../../../../constants/projects_icons.js";
 
 /**
  * Tailwind Configuration Resolver

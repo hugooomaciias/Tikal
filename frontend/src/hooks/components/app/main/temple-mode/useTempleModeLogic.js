@@ -3,12 +3,12 @@ import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 
 /** Contexts, Hooks & Services */
-import { useSync } from "../../../core/useSync.js";
-import { useTimeLog } from "../../../core/useTimeLog.js";
+import { useSync } from "../../../../core/useSync.js";
+import { useTimeLog } from "../../../../core/useTimeLog.js";
 
 /** Assets, Utils & Constants */
-import { RANK_THEMES } from "../../../../constants/rank_themes.js";
-import { generateCascadingOptions } from "../../../../utils/calendarUtils.js";
+import { RANK_THEMES } from "../../../../../constants/rank_themes.js";
+import { generateCascadingOptions } from "../../../../../utils/calendarUtils.js";
 
 /**
  * Temple Mode Logic Hook

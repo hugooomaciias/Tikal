@@ -2,10 +2,10 @@
 import { useState, useMemo, useCallback } from "react";
 
 /** Contexts, Hooks & Services */
-import { useTimeLog } from "../../../core/useTimeLog.js";
+import { useTimeLog } from "../../../../core/useTimeLog.js";
 
 /** Config, Constants & Utils */
-import { resolveLinkPayload } from "../../../../utils/calendarUtils.js";
+import { resolveLinkPayload } from "../../../../../utils/calendarUtils.js";
 
 /**
  * Temple Mode Pop-Up Logic Hook

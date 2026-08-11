@@ -1,5 +1,5 @@
 /** Contexts, Hooks & Services */
-import { useTempleModeLogic } from "../../../hooks/components/app/temple-mode/useTempleModeLogic.js";
+import { useTempleModeLogic } from "../../../hooks/components/app/main/temple-mode/useTempleModeLogic.js";
 
 /** Components & Layouts */
 import { TempleModePopUpComponent } from "../../../components/app/main/temple-mode/TempleModePopUpComponent.jsx";

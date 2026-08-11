@@ -1,5 +1,5 @@
 /** Contexts, Hooks & Services */
-import { useTaskWidgetLogic } from "../../../../../hooks/components/app/home/widgets/useTaskWidgetLogic.js";
+import { useTaskWidgetLogic } from "../../../../../hooks/components/app/main/home/widgets/useTaskWidgetLogic.js";
 
 /** Components & Layouts */
 import { TabsComponent } from "../../common/widgets/TabsComponent.jsx";

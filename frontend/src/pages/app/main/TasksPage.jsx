@@ -1,5 +1,5 @@
 /** Contexts, Hooks & Services */
-import { useTasksLogic } from "../../../hooks/components/app/tasks/useTasksLogic.js";
+import { useTasksLogic } from "../../../hooks/components/app/main/tasks/useTasksLogic.js";
 
 /** Components & Layouts */
 import { HeaderComponent } from "../../../components/app/main/common/HeaderComponent.jsx";

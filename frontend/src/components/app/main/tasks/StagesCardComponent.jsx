@@ -2,7 +2,7 @@
 import { createPortal } from "react-dom";
 
 /** Contexts, Hooks & Services */
-import { useStagesCardLogic } from "../../../../hooks/components/app/tasks/useStagesCardLogic.js";
+import { useStagesCardLogic } from "../../../../hooks/components/app/main/tasks/useStagesCardLogic.js";
 
 /** Components & Layouts */
 import { StagePopUpComponent } from "./StagePopUpComponent.jsx";

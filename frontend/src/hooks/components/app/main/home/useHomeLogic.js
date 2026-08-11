@@ -3,14 +3,15 @@ import { useState, useEffect, useCallback, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 
 /** Contexts, Hooks & Services */
-import { useSync } from "../../../core/useSync.js";
+import { useSync } from "../../../../core/useSync.js";
 
 /** Components & Layouts */
-import { TimeTrackerWidget } from "../../../../components/app/home/widgets/TimeTrackerWidget.jsx";
-import { TempleModeWidget } from "../../../../components/app/home/widgets/TempleModeWidget.jsx";
-import { TaskWidget } from "../../../../components/app/home/widgets/TaskWidget.jsx";
-import { AIWidget } from "../../../../components/app/home/widgets/AIWidget.jsx";
-import { CalendarWidget } from "../../../../components/app/home/widgets/CalendarWidget.jsx";
+import { TimeLogWidget } from "../../../../../components/app/main/home/widgets/timeLogWidget/TimeLogWidget.jsx";
+import { TimeTrackerWidget } from "../../../../../components/app/main/home/widgets/TimeTrackerWidget.jsx";
+import { TempleModeWidget } from "../../../../../components/app/main/home/widgets/TempleModeWidget.jsx";
+import { TaskWidget } from "../../../../../components/app/main/home/widgets/TaskWidget.jsx";
+import { AIWidget } from "../../../../../components/app/main/home/widgets/AIWidget.jsx";
+import { CalendarWidget } from "../../../../../components/app/main/home/widgets/CalendarWidget.jsx";
 
 /** Config, Constants & Utils */
 
@@ -27,6 +28,13 @@ const WIDGET_CONFIG = {
         actions: false,
         bgColor: "blue-powder",
         textColor: "text-quaternary",
+    },
+    timeLogWidget: {
+        component: TimeLogWidget,
+        titleKey: "widgets.time_log.title",
+        actions: false,
+        textColor: "text-quaternary-500",
+        borderColor: "border-primary-500",
     },
     templeModeWidget: {
         component: TempleModeWidget,
@@ -85,7 +93,8 @@ export const useHomeLogic = () => {
      *
      * Provides access to the i18n instance specifically scoped to the "app_home" namespace.
      */
-    const { t } = useTranslation("app_home");
+    const { t: tHome } = useTranslation("app_home");
+    const { t: tCommon } = useTranslation("app_common");
 
     // --- 2. Local UI State ---
 
@@ -170,7 +179,7 @@ export const useHomeLogic = () => {
                             isDraggable: isDraggable,
                         },
                         config: {
-                            title: configBase.titleKey.includes(".") ? t(configBase.titleKey) : configBase.titleKey,
+                            title: configBase.titleKey.includes(".") ? tHome(configBase.titleKey) : configBase.titleKey,
                             subtitle: widgetData?.subtitle,
                             bgColor: configBase.bgColor,
                             textColor: configBase.textColor,
@@ -188,7 +197,7 @@ export const useHomeLogic = () => {
 
             setWidgets(mappedWidgets);
         }
-    }, [isDataLoaded, t, getHomeWidgetsData, getHomeLayout, getCalendarEvents]);
+    }, [isDataLoaded, tHome, getHomeWidgetsData, getHomeLayout, getCalendarEvents]);
 
     // --- 5. Interaction Handlers ---
 
@@ -273,7 +282,7 @@ export const useHomeLogic = () => {
     // --- 6. Return Object ---
 
     return {
-        t,
+        translations: { tHome, tCommon },
         homeStates: { isDataLoaded, isEditing, checkChanges, widgets },
         homeData: { homeGeneralInformation },
         homeActions: { handleLayoutChange, removeWidget, enableEditMode, disableEditMode },

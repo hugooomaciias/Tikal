@@ -2,7 +2,7 @@
 import { Responsive, WidthProvider } from "react-grid-layout/legacy";
 
 /** Contexts, Hooks & Services */
-import { useStatisticsLogic } from "../../../hooks/components/app/statistics/useStatisticsLogic.js";
+import { useStatisticsLogic } from "../../../hooks/components/app/main/statistics/useStatisticsLogic.js";
 
 /** Components & Layouts */
 import { HeaderComponent } from "../../../components/app/main/common/HeaderComponent.jsx";
