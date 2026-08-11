@@ -5,9 +5,9 @@ import { Responsive, WidthProvider } from "react-grid-layout/legacy";
 import { useStatisticsLogic } from "../../../hooks/components/app/statistics/useStatisticsLogic.js";
 
 /** Components & Layouts */
-import { HeaderComponent } from "../../../components/app/common/HeaderComponent.jsx";
-import { MainDataHeaderComponent } from "../../../components/app/common/MainDataHeaderComponent.jsx";
-import { BaseWidget } from "../../../components/app/common/widgets/BaseWidget.jsx";
+import { HeaderComponent } from "../../../components/app/main/common/HeaderComponent.jsx";
+import { MainDataHeaderComponent } from "../../../components/app/main/common/MainDataHeaderComponent.jsx";
+import { BaseWidget } from "../../../components/app/main/common/widgets/BaseWidget.jsx";
 
 /** Icons */
 import { IconCircleXFilled } from "@tabler/icons-react";

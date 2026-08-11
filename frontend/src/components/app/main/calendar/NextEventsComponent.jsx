@@ -1,8 +1,8 @@
 /** Contexts, Hooks & Services */
-import i18n from "../../../i18n.js";
+import i18n from "../../../../i18n.js";
 
 /** Assets, Utils & Constants */
-import { PROJECTS_ICONS } from "../../../constants/projects_icons.js";
+import { PROJECTS_ICONS } from "../../../../constants/projects_icons.js";
 
 /**
  * Next Events Presentational Component

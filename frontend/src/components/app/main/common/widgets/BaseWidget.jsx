@@ -3,16 +3,16 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 /** Contexts, Hooks & Services */
-import { useTimeLog } from "../../../../hooks/core/useTimeLog.js";
+import { useTimeLog } from "../../../../../hooks/core/useTimeLog.js";
 
 /** Icons */
 import { IconCircleArrowUpRight } from "@tabler/icons-react";
 
 /** Assets, Utils & Constants */
-import { PHASE_COLOURS } from "../../../../constants/phase_colours.js";
-import bgTemple from "../../../../assets/temple-mode/BgTempleModeWidget.jpg";
-import bgAI from "../../../../assets/ia/BgDiosSabidurIA.png";
-import tailwindConfig from "../../../../../tailwind.config.js";
+import { PHASE_COLOURS } from "../../../../../constants/phase_colours.js";
+import bgTemple from "../../../../../assets/temple-mode/BgTempleModeWidget.jpg";
+import bgAI from "../../../../../assets/ia/BgDiosSabidurIA.png";
+import tailwindConfig from "../../../../../../tailwind.config.js";
 import resolveConfig from "tailwindcss/resolveConfig";
 
 /**

@@ -1,6 +1,6 @@
 /** Assets, Utils & Constants */
-import { PROJECTS_ICONS } from "../../../../constants/projects_icons.js";
-import { PHASE_COLOURS } from "../../../../constants/phase_colours.js";
+import { PROJECTS_ICONS } from "../../../../../constants/projects_icons.js";
+import { PHASE_COLOURS } from "../../../../../constants/phase_colours.js";
 
 /**
  * Reusable Tabs Component

@@ -1,5 +1,5 @@
 /** Contexts, Hooks & Services */
-import { useTimeTrackerWidgetLogic } from "../../../../hooks/components/app/home/widgets/useTimeTrackerWidget.js";
+import { useTimeTrackerWidgetLogic } from "../../../../../hooks/components/app/home/widgets/useTimeTrackerWidget.js";
 
 /** Components & Layouts */
 import { ScrollingText } from "../../common/ScrollingText.jsx";

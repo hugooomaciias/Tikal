@@ -2,7 +2,7 @@
 import { Outlet } from "react-router-dom";
 
 /** Components & Layouts */
-import { NavbarComponent } from "../../../components/app/common/NavbarComponent.jsx";
+import { NavbarComponent } from "../../../components/app/main/common/NavbarComponent.jsx";
 
 /**
  * Main Application Dashboard Component
@@ -15,7 +15,7 @@ import { NavbarComponent } from "../../../components/app/common/NavbarComponent.
  * @component
  * @returns {JSX.Element|null} The rendered dashboard layout, or null if data is not loaded.
  */
-export const BasePage = () => {
+export const MainBasePage = () => {
     return (
         <div className="flex flex-col md:flex-row h-[100dvh] bg-gradient-to-t md:bg-gradient-to-r from-primary-50 to-primary-300 p-2 md:p-4 gap-4 md:gap-8 overflow-hidden">
             {/* Vertical Navbar */}

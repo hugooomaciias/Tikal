@@ -5,8 +5,8 @@ import { Responsive, WidthProvider } from "react-grid-layout/legacy";
 import { useHomeLogic } from "../../../hooks/components/app/home/useHomeLogic.js";
 
 /** Components & Layouts */
-import { Header } from "../../../components/app/home/Header.jsx";
-import { BaseWidget } from "../../../components/app/common/widgets/BaseWidget.jsx";
+import { Header } from "../../../components/app/main/home/Header.jsx";
+import { BaseWidget } from "../../../components/app/main/common/widgets/BaseWidget.jsx";
 
 /** Icons */
 import { IconCircleXFilled } from "@tabler/icons-react";

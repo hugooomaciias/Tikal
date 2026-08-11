@@ -2,7 +2,7 @@
 import { createPortal } from "react-dom";
 
 /** Contexts, Hooks & Services */
-import { useStagesCardLogic } from "../../../hooks/components/app/tasks/useStagesCardLogic.js";
+import { useStagesCardLogic } from "../../../../hooks/components/app/tasks/useStagesCardLogic.js";
 
 /** Components & Layouts */
 import { StagePopUpComponent } from "./StagePopUpComponent.jsx";
@@ -23,9 +23,9 @@ import {
 } from "@tabler/icons-react";
 
 /** Assets, Utils & Constants */
-import tailwindConfig from "../../../../tailwind.config.js";
+import tailwindConfig from "../../../../../tailwind.config.js";
 import resolveConfig from "tailwindcss/resolveConfig";
-import { PHASE_COLOURS } from "../../../constants/phase_colours.js";
+import { PHASE_COLOURS } from "../../../../constants/phase_colours.js";
 
 /**
  * Tailwind Configuration Resolver

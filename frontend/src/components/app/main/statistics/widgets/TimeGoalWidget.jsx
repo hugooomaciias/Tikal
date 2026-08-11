@@ -3,7 +3,7 @@ import React, { useMemo } from "react";
 import { ResponsivePie } from "@nivo/pie";
 
 /** Assets, Utils & Constants */
-import tailwindConfig from "../../../../../tailwind.config.js";
+import tailwindConfig from "../../../../../../tailwind.config.js";
 import resolveConfig from "tailwindcss/resolveConfig";
 
 /**

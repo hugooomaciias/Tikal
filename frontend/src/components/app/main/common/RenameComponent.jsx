@@ -9,9 +9,9 @@ import { ScrollingText } from "./ScrollingText.jsx";
 import { IconCircleXFilled, IconWriting } from "@tabler/icons-react";
 
 /** Assets, Utils & Constants */
-import { PROJECTS_ICONS } from "../../../constants/projects_icons.js";
-import { PHASE_COLOURS } from "../../../constants/phase_colours.js";
-import tailwindConfig from "../../../../tailwind.config.js";
+import { PROJECTS_ICONS } from "../../../../constants/projects_icons.js";
+import { PHASE_COLOURS } from "../../../../constants/phase_colours.js";
+import tailwindConfig from "../../../../../tailwind.config.js";
 
 /**
  * Tailwind Configuration Resolver

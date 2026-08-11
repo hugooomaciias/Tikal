@@ -2,7 +2,7 @@
 import { Link } from "react-router-dom";
 
 /** Contexts, Hooks & Services */
-import { useNavbarLogic } from "../../../hooks/components/app/common/useNavbarLogic.js";
+import { useNavbarLogic } from "../../../../hooks/components/app/common/useNavbarLogic.js";
 
 /** Components & Layouts */
 
@@ -17,7 +17,7 @@ import {
 } from "@tabler/icons-react";
 
 /** Assets, Utils & Constants */
-import logoNavbar from "../../../assets/tikal/logoHeader_2.svg";
+import logoNavbar from "../../../../assets/tikal/logoHeader_2.svg";
 
 /**
  * Icon Component Map

@@ -6,16 +6,16 @@ import resolveConfig from "tailwindcss/resolveConfig";
 import { ScrollingText } from "./ScrollingText.jsx";
 
 /** Contexts, Hooks & Services */
-import { useSync } from "../../../hooks/core/useSync.js";
+import { useSync } from "../../../../hooks/core/useSync.js";
 
 /** Icons */
 import { IconCircleXFilled, IconNote, IconPyramid } from "@tabler/icons-react";
 
 /** Assets, Utils & Constants */
-import { PROJECTS_ICONS } from "../../../constants/projects_icons.js";
-import { PHASE_COLOURS } from "../../../constants/phase_colours.js";
-import { RANK_THEMES } from "../../../constants/rank_themes.js";
-import tailwindConfig from "../../../../tailwind.config.js";
+import { PROJECTS_ICONS } from "../../../../constants/projects_icons.js";
+import { PHASE_COLOURS } from "../../../../constants/phase_colours.js";
+import { RANK_THEMES } from "../../../../constants/rank_themes.js";
+import tailwindConfig from "../../../../../tailwind.config.js";
 
 /**
  * Tailwind Configuration Resolver

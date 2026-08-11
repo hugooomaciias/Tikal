@@ -6,12 +6,12 @@ import { useTranslation } from "react-i18next";
 import { useSync } from "../../../core/useSync.js";
 
 /** Components & Layouts */
-import { SolarChartWidget } from "../../../../components/app/statistics/widgets/SolarChart/SolarChartWidget.jsx";
-import { EffectivenessChartWidget } from "../../../../components/app/statistics/widgets/EffectivenessChartWidget.jsx";
-import { WeeklyProgressWidget } from "../../../../components/app/statistics/widgets/WeeklyProgressWidget.jsx";
-import { ConcentrationHeatmapWidget } from "../../../../components/app/statistics/widgets/ConcentrationHeatmapWidget.jsx";
-import { ComparisonWidget } from "../../../../components/app/statistics/widgets/ComparisonWidget.jsx";
-import { TimeGoalWidget } from "../../../../components/app/statistics/widgets/TimeGoalWidget.jsx";
+import { SolarChartWidget } from "../../../../components/app/main/statistics/widgets/SolarChart/SolarChartWidget.jsx";
+import { EffectivenessChartWidget } from "../../../../components/app/main/statistics/widgets/EffectivenessChartWidget.jsx";
+import { WeeklyProgressWidget } from "../../../../components/app/main/statistics/widgets/WeeklyProgressWidget.jsx";
+import { ConcentrationHeatmapWidget } from "../../../../components/app/main/statistics/widgets/ConcentrationHeatmapWidget.jsx";
+import { ComparisonWidget } from "../../../../components/app/main/statistics/widgets/ComparisonWidget.jsx";
+import { TimeGoalWidget } from "../../../../components/app/main/statistics/widgets/TimeGoalWidget.jsx";
 
 /** Config, Constants & Utils */
 const WIDGET_CONFIG = {

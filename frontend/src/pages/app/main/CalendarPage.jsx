@@ -14,13 +14,13 @@ import { useContextMenu } from "../../../hooks/components/app/common/useContextM
 import i18n from "../../../i18n.js";
 
 /** Components & Layouts */
-import { HeaderComponent } from "../../../components/app/common/HeaderComponent.jsx";
-import { EventPopUpComponent } from "../../../components/app/calendar/EventPopUpComponent.jsx";
-import { RenameComponent } from "../../../components/app/common/RenameComponent.jsx";
-import { DeleteComponent } from "../../../components/app/common/DeleteComponent.jsx";
-import { NextEventsComponent } from "../../../components/app/calendar/NextEventsComponent.jsx";
-import { ContextMenuComponent } from "../../../components/app/common/ContextMenuComponent.jsx";
-import { renderEventContent, renderCustomDayContents } from "../../../components/app/calendar/CalendarRenders.jsx";
+import { HeaderComponent } from "../../../components/app/main/common/HeaderComponent.jsx";
+import { EventPopUpComponent } from "../../../components/app/main/calendar/EventPopUpComponent.jsx";
+import { RenameComponent } from "../../../components/app/main/common/RenameComponent.jsx";
+import { DeleteComponent } from "../../../components/app/main/common/DeleteComponent.jsx";
+import { NextEventsComponent } from "../../../components/app/main/calendar/NextEventsComponent.jsx";
+import { ContextMenuComponent } from "../../../components/app/main/common/ContextMenuComponent.jsx";
+import { renderEventContent, renderCustomDayContents } from "../../../components/app/main/calendar/CalendarRenders.jsx";
 
 /**
  * Calendar Page Component

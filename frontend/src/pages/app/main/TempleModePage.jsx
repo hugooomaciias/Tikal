@@ -2,10 +2,10 @@
 import { useTempleModeLogic } from "../../../hooks/components/app/temple-mode/useTempleModeLogic.js";
 
 /** Components & Layouts */
-import { TempleModePopUpComponent } from "../../../components/app/temple-mode/TempleModePopUpComponent.jsx";
-import { NavbarComponent } from "../../../components/app/common/NavbarComponent.jsx";
-import { HeaderComponent } from "../../../components/app/common/HeaderComponent.jsx";
-import { ScrollingText } from "../../../components/app/common/ScrollingText.jsx";
+import { TempleModePopUpComponent } from "../../../components/app/main/temple-mode/TempleModePopUpComponent.jsx";
+import { NavbarComponent } from "../../../components/app/main/common/NavbarComponent.jsx";
+import { HeaderComponent } from "../../../components/app/main/common/HeaderComponent.jsx";
+import { ScrollingText } from "../../../components/app/main/common/ScrollingText.jsx";
 
 /** Icons */
 import { IconChevronDown, IconHourglassFilled } from "@tabler/icons-react";

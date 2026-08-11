@@ -2,8 +2,8 @@
 import { useState, useRef, useEffect } from "react";
 
 /** Assets, Utils & Constants */
-import { PROJECTS_ICONS } from "../../../../constants/projects_icons.js";
-import { resolveColorObject } from "../../../../utils/calendarUtils.js";
+import { PROJECTS_ICONS } from "../../../../../constants/projects_icons.js";
+import { resolveColorObject } from "../../../../../utils/calendarUtils.js";
 
 /**
  * Cascading Link Select Component

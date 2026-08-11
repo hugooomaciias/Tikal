@@ -2,7 +2,7 @@
 import React from "react";
 
 /** Assets, Utils & Constants */
-import { RANK_THEMES } from "../../../../constants/rank_themes.js";
+import { RANK_THEMES } from "../../../../../constants/rank_themes.js";
 
 /**
  * Temple Mode Widget Component

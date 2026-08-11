@@ -2,10 +2,10 @@
 import { useTasksLogic } from "../../../hooks/components/app/tasks/useTasksLogic.js";
 
 /** Components & Layouts */
-import { HeaderComponent } from "../../../components/app/common/HeaderComponent.jsx";
-import { ProjectsCardComponent } from "../../../components/app/tasks/ProjectsCardComponent.jsx";
-import { StagesCardComponent } from "../../../components/app/tasks/StagesCardComponent.jsx";
-import { TasksCardComponent } from "../../../components/app/tasks/TasksCardComponent.jsx";
+import { HeaderComponent } from "../../../components/app/main/common/HeaderComponent.jsx";
+import { ProjectsCardComponent } from "../../../components/app/main/tasks/ProjectsCardComponent.jsx";
+import { StagesCardComponent } from "../../../components/app/main/tasks/StagesCardComponent.jsx";
+import { TasksCardComponent } from "../../../components/app/main/tasks/TasksCardComponent.jsx";
 
 /**
  * Tasks Layout Page Component

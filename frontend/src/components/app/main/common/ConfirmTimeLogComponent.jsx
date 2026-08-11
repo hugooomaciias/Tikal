@@ -2,7 +2,7 @@
 import { useTranslation } from "react-i18next";
 
 /** Contexts, Hooks & Services */
-import { useSync } from "../../../hooks/core/useSync.js";
+import { useSync } from "../../../../hooks/core/useSync.js";
 
 /** Components & Layouts */
 import { ScrollingText } from "./ScrollingText.jsx";
@@ -11,9 +11,9 @@ import { ScrollingText } from "./ScrollingText.jsx";
 import { IconCircleXFilled, IconNote } from "@tabler/icons-react";
 
 /** Assets, Utils & Constants */
-import { PHASE_COLOURS } from "../../../constants/phase_colours.js";
-import { PROJECTS_ICONS } from "../../../constants/projects_icons.js";
-import { RANK_THEMES } from "../../../constants/rank_themes.js";
+import { PHASE_COLOURS } from "../../../../constants/phase_colours.js";
+import { PROJECTS_ICONS } from "../../../../constants/projects_icons.js";
+import { RANK_THEMES } from "../../../../constants/rank_themes.js";
 
 /**
  * Confirm Time Log Component

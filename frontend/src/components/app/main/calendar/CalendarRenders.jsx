@@ -2,14 +2,14 @@
 import React from "react";
 
 /** Components & Layouts */
-import { ScrollingText } from "../../../components/app/common/ScrollingText.jsx";
+import { ScrollingText } from "../../../../components/app/main/common/ScrollingText.jsx";
 
 /** Icons */
 import { IconDotsVerticalFilled } from "@tabler/icons-react";
 
 /** Config, Constants & Utils */
-import { PHASE_COLOURS } from "../../../constants/phase_colours.js";
-import { PROJECTS_ICONS } from "../../../constants/projects_icons.js";
+import { PHASE_COLOURS } from "../../../../constants/phase_colours.js";
+import { PROJECTS_ICONS } from "../../../../constants/projects_icons.js";
 
 /**
  * Custom DatePicker Day Content Renderer

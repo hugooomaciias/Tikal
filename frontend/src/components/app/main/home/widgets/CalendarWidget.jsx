@@ -6,7 +6,7 @@ import interactionPlugin from "@fullcalendar/interaction";
 
 /** Contexts, Hooks & Services */
 import { useTranslation } from "react-i18next";
-import i18n from "../../../../i18n.js";
+import i18n from "../../../../../i18n.js";
 import esLocale from "@fullcalendar/core/locales/es";
 import enLocale from "@fullcalendar/core/locales/en-gb";
 
@@ -17,7 +17,7 @@ import { ScrollingText } from "../../common/ScrollingText.jsx";
 import { IconBook, IconChevronLeft, IconChevronRight } from "@tabler/icons-react";
 
 /** Assets, Utils & Constants */
-import { PHASE_COLOURS } from "../../../../constants/phase_colours.js";
+import { PHASE_COLOURS } from "../../../../../constants/phase_colours.js";
 
 /**
  * Calendar Widget Component

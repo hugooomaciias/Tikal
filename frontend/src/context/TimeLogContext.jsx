@@ -5,8 +5,8 @@ import { createContext } from "react";
 import { Outlet } from "react-router-dom";
 
 /** Components & Layouts */
-import { ConfirmTimeLogComponent } from "../components/app/common/ConfirmTimeLogComponent.jsx";
-import { ConfirmSwitchTaskComponent } from "../components/app/common/ConfirmSwitchTaskComponent.jsx";
+import { ConfirmTimeLogComponent } from "../components/app/main/common/ConfirmTimeLogComponent.jsx";
+import { ConfirmSwitchTaskComponent } from "../components/app/main/common/ConfirmSwitchTaskComponent.jsx";
 
 /** Contexts, Hooks & Services */
 import { useTimeLogController } from "../hooks/controllers/time/useTimeLogController.js";

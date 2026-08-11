@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { ResponsiveBar } from "@nivo/bar";
 
 /** Assets, Utils & Constants */
-import tailwindConfig from "../../../../../tailwind.config.js";
+import tailwindConfig from "../../../../../../tailwind.config.js";
 import resolveConfig from "tailwindcss/resolveConfig";
 
 /**

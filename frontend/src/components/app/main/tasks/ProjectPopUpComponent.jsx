@@ -1,5 +1,5 @@
 /** Contexts, Hooks & Services */
-import { useProjectsPopUpLogic } from "../../../hooks/components/app/tasks/useProjectsPopUpLogic.js";
+import { useProjectsPopUpLogic } from "../../../../hooks/components/app/tasks/useProjectsPopUpLogic.js";
 
 /** Components & Layouts */
 import { TabsComponent } from "../common/popups/TabsComponent.jsx";
@@ -10,7 +10,7 @@ import { PickerComponent } from "../common/popups/PickerComponent.jsx";
 import { IconCircleXFilled, IconNote, IconLoader } from "@tabler/icons-react";
 
 /** Assets, Utils & Constants */
-import { PROJECTS_ICONS } from "../../../constants/projects_icons.js";
+import { PROJECTS_ICONS } from "../../../../constants/projects_icons.js";
 
 /**
  * Project PopUp Component

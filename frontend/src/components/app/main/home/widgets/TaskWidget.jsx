@@ -1,5 +1,5 @@
 /** Contexts, Hooks & Services */
-import { useTaskWidgetLogic } from "../../../../hooks/components/app/home/widgets/useTaskWidgetLogic.js";
+import { useTaskWidgetLogic } from "../../../../../hooks/components/app/home/widgets/useTaskWidgetLogic.js";
 
 /** Components & Layouts */
 import { TabsComponent } from "../../common/widgets/TabsComponent.jsx";
@@ -14,8 +14,8 @@ import {
 } from "@tabler/icons-react";
 
 /** Assets, Utils & Constants */
-import { PHASE_COLOURS } from "../../../../constants/phase_colours.js";
-import tailwindConfig from "../../../../../tailwind.config.js";
+import { PHASE_COLOURS } from "../../../../../constants/phase_colours.js";
+import tailwindConfig from "../../../../../../tailwind.config.js";
 import resolveConfig from "tailwindcss/resolveConfig";
 
 /**

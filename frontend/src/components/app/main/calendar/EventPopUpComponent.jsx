@@ -1,5 +1,5 @@
 /** Contexts, Hooks & Services */
-import { useEventPopUpLogic } from "../../../hooks/components/app/calendar/useEventPopUpLogic.js";
+import { useEventPopUpLogic } from "../../../../hooks/components/app/calendar/useEventPopUpLogic.js";
 
 /** Components & Layouts */
 import { CascadingLinkSelect } from "../common/popups/CascadingLinkSelect.jsx";
@@ -11,7 +11,7 @@ import { PickerComponent } from "../common/popups/PickerComponent.jsx";
 import { IconCircleXFilled, IconNote } from "@tabler/icons-react";
 
 /** Assets, Utils & Constants */
-import { TIME_OPTIONS } from "../../../utils/calendarUtils.js";
+import { TIME_OPTIONS } from "../../../../utils/calendarUtils.js";
 
 /**
  * Event PopUp Presentational Component

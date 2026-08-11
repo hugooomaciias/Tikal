@@ -1,5 +1,5 @@
 /** Contexts, Hooks & Services */
-import { useHeaderLogic } from "../../../hooks/components/app/home/useHeaderLogic.js";
+import { useHeaderLogic } from "../../../../hooks/components/app/home/useHeaderLogic.js";
 
 /** Icons */
 import {
@@ -15,7 +15,7 @@ import {
 } from "@tabler/icons-react";
 
 /** Assets, Utils & Constants */
-import logoSabidurIA from "../../../assets/ia/sabidurIAIcon.svg";
+import logoSabidurIA from "../../../../assets/ia/sabidurIAIcon.svg";
 
 /**
  * Icon Component Map

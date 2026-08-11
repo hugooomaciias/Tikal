@@ -2,7 +2,7 @@
 import { useState, useRef, useEffect } from "react";
 
 /** Assets, Utils & Constants */
-import { PHASE_COLOURS } from "../../../../constants/phase_colours.js";
+import { PHASE_COLOURS } from "../../../../../constants/phase_colours.js";
 
 /**
  * Reusable Picker Component
