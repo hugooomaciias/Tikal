@@ -71,15 +71,18 @@ export const Header = ({ data, isEditing, checkChanges, onEnableEdit, onDisableE
                 {/* Left Section: User Avatar & Statistics Grid */}
                 <div className="h-fit flex-1 flex items-center justify-start gap-14">
                     {/* User Avatar Container */}
-                    <div className="relative h-36 w-36 flex items-center justify-center p-2 rounded-full overflow-hidden border-[3px] border-primary-600 shrink-0">
-                        <div className="h-full w-full bg-primary-600/40 rounded-full overflow-hidden cursor-pointer">
+                    <button
+                        type="button"
+                        className="relative h-36 w-36 flex items-center justify-center p-2 rounded-full overflow-hidden border-[3px] border-primary-600 shrink-0 cursor-pointer"
+                    >
+                        <div className="h-full w-full bg-primary-600/40 rounded-full overflow-hidden">
                             <img
                                 className="w-full h-full object-cover shadow-md"
                                 src="/public/Avatar_0.svg"
                                 alt="User Avatar"
                             />
                         </div>
-                    </div>
+                    </button>
 
                     {/* Desktop Statistics Grid */}
                     <div className="grid grid-cols-2 gap-x-10 gap-y-7 w-auto">

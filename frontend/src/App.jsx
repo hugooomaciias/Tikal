@@ -16,11 +16,13 @@ import { LoginPage } from "./pages/auth/LoginPage";
 import { RegisterPage } from "./pages/auth/RegisterPage";
 import { ForgotPasswordPage } from "./pages/auth/ForgotPasswordPage";
 import { LoadingPage } from "./pages/LoadingPage";
-import { HomePage } from "./pages/app/HomePage";
-import { TasksPage } from "./pages/app/TasksPage";
-import { CalendarPage } from "./pages/app/CalendarPage";
-import { StatisticsPage } from "./pages/app/StatisticsPage";
-import { TempleModePage } from "./pages/app/TempleModePage";
+
+import { BasePage } from "./pages/app/main/BasePage.jsx";
+import { HomePage } from "./pages/app/main/HomePage";
+import { TasksPage } from "./pages/app/main/TasksPage";
+import { CalendarPage } from "./pages/app/main/CalendarPage";
+import { StatisticsPage } from "./pages/app/main/StatisticsPage";
+import { TempleModePage } from "./pages/app/main/TempleModePage";
 
 /** Assets, Utils & Constants */
 import "./i18n";
@@ -65,41 +67,18 @@ function App() {
 
                         {/* Protected App Routes */}
                         <Route element={<TimeLogProvider />}>
-                            <Route
-                                path="/home"
+                            <Route 
                                 element={
                                     <ProtectedRoute>
-                                        <HomePage />
+                                        <BasePage />
                                     </ProtectedRoute>
                                 }
-                            />
-
-                            <Route
-                                path="/tasks"
-                                element={
-                                    <ProtectedRoute>
-                                        <TasksPage />
-                                    </ProtectedRoute>
-                                }
-                            />
-
-                            <Route
-                                path="/calendar"
-                                element={
-                                    <ProtectedRoute>
-                                        <CalendarPage />
-                                    </ProtectedRoute>
-                                }
-                            />
-
-                            <Route
-                                path="/statistics"
-                                element={
-                                    <ProtectedRoute>
-                                        <StatisticsPage />
-                                    </ProtectedRoute>
-                                }
-                            />
+                            >
+                                <Route path="/home" element={<HomePage />} />
+                                <Route path="/tasks" element={<TasksPage />} />
+                                <Route path="/calendar" element={<CalendarPage />} />
+                                <Route path="/statistics" element={<StatisticsPage />} />
+                            </Route>
 
                             <Route
                                 path="/temple-mode"

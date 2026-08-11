@@ -36,10 +36,6 @@ export const ScrollingText = ({ text, className }) => {
     // --- 2. Render ---
 
     return (
-        /* Main Overflow Container 
-         * 🛡️ FIX: 'min-w-0' añadido. Fuerza al contenedor Flex a respetar los límites del padre
-         * y no empujar el layout hacia la derecha.
-         */
         <div
             ref={containerRef}
             className={`relative w-full min-w-0 overflow-hidden whitespace-nowrap flex items-center ${className}`}
@@ -54,10 +50,6 @@ export const ScrollingText = ({ text, className }) => {
                 }
             `}</style>
 
-            {/* Measuring Base Text 
-             * 🛡️ FIX: 'min-w-0' añadido al span. Asegura que el truncate funcione 
-             * correctamente dentro de un flex context.
-             */ }
             <span
                 ref={textRef}
                 className={`block w-full min-w-0 truncate transition-opacity duration-300 ${
