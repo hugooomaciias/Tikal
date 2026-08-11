@@ -130,15 +130,7 @@ export const ConfirmTimeLogComponent = ({
                         <div className="flex flex-col gap-2">
                             {/* Modal Title & Close Action */}
                             <div className="flex items-center justify-between">
-<<<<<<< HEAD
-<<<<<<< HEAD
                                 <span className={`text-2xl font-bold ${theme && "font-passero tracking-wide"} ${styles.title}`}>
-=======
-                                <span className={`text-2xl font-bold ${styles.title}`}>
->>>>>>> f82caaf64423dfba9276d3d2d2f7667cbe017b94
-=======
-                                <span className={`text-2xl font-bold ${styles.title}`}>
->>>>>>> f82caaf64423dfba9276d3d2d2f7667cbe017b94
                                     {t("confirm_time_log.title")}
                                 </span>
 
@@ -155,15 +147,7 @@ export const ConfirmTimeLogComponent = ({
 
                             {/* Task Summary Banner */}
                             <div
-<<<<<<< HEAD
-<<<<<<< HEAD
                                 className={`flex items-center justify-between gap-3 py-3 px-4 mt-2 rounded-xl text-primary ${theme ? styles.task : ""}`}
-=======
-                                className={`flex items-center justify-between py-3 px-4 mt-2 rounded-xl text-primary ${theme ? styles.task : ""}`}
->>>>>>> f82caaf64423dfba9276d3d2d2f7667cbe017b94
-=======
-                                className={`flex items-center justify-between py-3 px-4 mt-2 rounded-xl text-primary ${theme ? styles.task : ""}`}
->>>>>>> f82caaf64423dfba9276d3d2d2f7667cbe017b94
                                 style={{ backgroundColor: !theme ? color.hex : "" }}
                             >
                                 {theme ? (
@@ -178,15 +162,7 @@ export const ConfirmTimeLogComponent = ({
                                 ) : (
                                     <Logo.component />
                                 )}
-
-<<<<<<< HEAD
-<<<<<<< HEAD
                                 <ScrollingText className="font-bold text-end" text={taskName} />
-=======
-=======
->>>>>>> f82caaf64423dfba9276d3d2d2f7667cbe017b94
-                                <span className="font-bold">{taskName}</span>
->>>>>>> f82caaf64423dfba9276d3d2d2f7667cbe017b94
                             </div>
                         </div>
 
