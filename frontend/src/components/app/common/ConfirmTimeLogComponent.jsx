@@ -4,6 +4,9 @@ import { useTranslation } from "react-i18next";
 /** Contexts, Hooks & Services */
 import { useSync } from "../../../hooks/core/useSync.js";
 
+/** Components & Layouts */
+import { ScrollingText } from "./ScrollingText.jsx";
+
 /** Icons */
 import { IconCircleXFilled, IconNote } from "@tabler/icons-react";
 
@@ -144,7 +147,7 @@ export const ConfirmTimeLogComponent = ({
 
                             {/* Task Summary Banner */}
                             <div
-                                className={`flex items-center justify-between py-3 px-4 mt-2 rounded-xl text-primary ${theme ? styles.task : ""}`}
+                                className={`flex items-center justify-between gap-3 py-3 px-4 mt-2 rounded-xl text-primary ${theme ? styles.task : ""}`}
                                 style={{ backgroundColor: !theme ? color.hex : "" }}
                             >
                                 {theme ? (
@@ -160,7 +163,7 @@ export const ConfirmTimeLogComponent = ({
                                     <Logo.component />
                                 )}
 
-                                <span className="font-bold">{taskName}</span>
+                                <ScrollingText className="font-bold text-end" text={taskName} />
                             </div>
                         </div>
 

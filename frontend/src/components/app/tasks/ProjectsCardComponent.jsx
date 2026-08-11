@@ -138,12 +138,12 @@ export const ProjectsCardComponent = ({ data, selectedId, onSelect, formatShortD
                                         } ${isBeingEdited ? "bg-quaternary-50/60" : "bg-transparent"}`}
                                     >
                                         {/* Project Icon and Title Section */}
-                                        <div className="flex items-center gap-4">
-                                            <div className={`h-fit w-fit bg-primary-200 rounded-full ${isActive ? "" : "p-3"}`}>
+                                        <div className="flex items-center gap-4 flex-1 min-w-0">
+                                            <div className={`shrink-0 h-fit w-fit bg-primary-200 rounded-full ${isActive ? "" : "p-3"}`}>
                                                 <IconComponent className="h-8 w-8" />
                                             </div>
 
-                                            <div className="flex flex-col">
+                                            <div className="flex flex-col flex-1 min-w-0">
                                                 <div className={`min-w-0 w-full text-xl text-quaternary-700 ${isActive ? "md:text-primary" : ""}`}>
                                                     <ScrollingText text={project.name} />
                                                 </div>

@@ -157,19 +157,19 @@ export const StagesCardComponent = ({ data, projectId, selectedId, onSelect, han
                                         onDoubleClick={() => handleEditStage(stage)}
                                         onContextMenu={(e) => handleContextMenu(e, stage)}
                                         style={{ "--stage-color": colour.hex }}
-                                        className={`flex items-center justify-between bg-transparent p-3 rounded-full transition-all duration-200 cursor-pointer ${
+                                        className={`w-full min-w-0 flex items-center justify-between bg-transparent p-3 rounded-full transition-all duration-200 cursor-pointer ${
                                             isActive ? "md:bg-[var(--stage-color)]" : ""
                                         } ${isBeingEdited ? "bg-quaternary-50/60" : "bg-transparent"}`}
                                     >
                                         {/* Stage Item: Color Indicator and Name */}
-                                        <div className="flex items-center gap-4">
+                                        <div className="flex items-center gap-4 flex-1 min-w-0">
                                             <div
-                                                className={`h-8 w-8 p-3 rounded-full bg-[var(--stage-color)] ${
+                                                className={`shrink-0 h-8 w-8 p-3 rounded-full bg-[var(--stage-color)] ${
                                                     isActive ? "md:bg-primary" : ""
                                                 }`}
                                             ></div>
 
-                                            <div className="flex flex-col">
+                                            <div className="flex flex-col flex-1 min-w-0">
                                                 <div
                                                     className={`min-w-0 w-full text-xl text-quaternary-700 ${
                                                         isActive ? "md:text-primary" : ""
@@ -178,7 +178,7 @@ export const StagesCardComponent = ({ data, projectId, selectedId, onSelect, han
                                                     <ScrollingText text={stage.name} />
                                                 </div>
 
-                                                <div className="flex items-center gap-2">
+                                                <div className="flex items-center gap-2 shrink-0">
                                                     {hasDeadline && (
                                                         <span className={`flex items-center gap-[3px] text-sm text-quaternary-700 ${
                                                             isActive ? "md:text-primary" : ""

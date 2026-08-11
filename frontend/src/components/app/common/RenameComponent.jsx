@@ -2,9 +2,8 @@
 import { useState } from "react";
 import resolveConfig from "tailwindcss/resolveConfig";
 
-/** Contexts, Hooks & Services */
-
 /** Components & Layouts */
+import { ScrollingText } from "./ScrollingText.jsx";
 
 /** Icons */
 import { IconCircleXFilled, IconWriting } from "@tabler/icons-react";
@@ -115,14 +114,14 @@ export const RenameComponent = ({ onClose, data, onRename }) => {
 
                     {/* Target Entity Information Banner */}
                     <div
-                        className="w-full flex items-center justify-center gap-3 py-3 px-4 mt-4 rounded-xl text-primary shadow-sm"
+                        className="w-full flex items-center justify-between gap-3 py-3 px-4 mt-4 rounded-xl text-primary shadow-sm"
                         style={{ backgroundColor: color?.hex || tailwindColors.primary[500] }}
                     >
                         {/* Entity Logo */}
                         {LogoComponent && <LogoComponent className="w-5 h-5" />}
 
                         {/* Entity Title */}
-                        <span className="font-bold">{data?.title}</span>
+                        <ScrollingText className="font-bold text-end" text={data?.title} />
                     </div>
                 </div>
 

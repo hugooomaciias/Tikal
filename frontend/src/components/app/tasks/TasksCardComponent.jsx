@@ -207,7 +207,7 @@ export const TasksCardComponent = ({
                                         {/* Individual Task Card Wrapper */}
                                         <div
                                             onContextMenu={(e) => handleContextMenu(e, task)}
-                                            className={`relative ${isBeingEdited ? "bg-quaternary-50/60" : "bg-transparent"} ${isTooltipOpen ? "z-50" : "z-10 hover:z-40"} h-fit w-full flex flex-col ${hasSubtasks && isActive ? "py-3" : "bg-transparent"} ${task.isCompleted ? "opacity-40" : "opacity-100"} px-3 rounded-3xl transition-all duration-300`}
+                                            className={`relative min-w-0 ${isBeingEdited ? "bg-quaternary-50/60" : "bg-transparent"} ${isTooltipOpen ? "z-50" : "z-10 hover:z-40"} h-fit w-full flex flex-col ${hasSubtasks && isActive ? "py-3" : "bg-transparent"} ${task.isCompleted ? "opacity-40" : "opacity-100"} px-3 rounded-3xl transition-all duration-300`}
                                             style={hasSubtasks && isActive ? { backgroundColor: colour.hex } : {}}
                                         >
                                             {/* Task Primary Row: Check, Title, and Actions */}
@@ -215,7 +215,7 @@ export const TasksCardComponent = ({
                                                 {/* Completion Checkbox Button */}
                                                 <button
                                                     onClick={handleToggleCompletion(task)}
-                                                    className={`h-7 w-7 flex items-center justify-center p-[0.20rem] ${hasSubtasks && isActive ? "" : "mt-1"} rounded-full`}
+                                                    className={`shrink-0 h-7 w-7 flex items-center justify-center p-[0.20rem] ${hasSubtasks && isActive ? "" : "mt-1"} rounded-full`}
                                                     style={
                                                         hasSubtasks && isActive
                                                             ? { backgroundColor: tailwindColors.primary.DEFAULT }
@@ -291,8 +291,8 @@ export const TasksCardComponent = ({
                                                 </div>
 
                                                 {/* Task Row Action Buttons (Play/Edit) */}
-                                                { !task.isCompleted && (
-                                                    <div className="flex items-center gap-2">
+                                                {!task.isCompleted && (
+                                                    <div className="flex items-center gap-2 shrink-0">
                                                         {/* PLAY / PAUSE */}
                                                         <div
                                                             className="p-1.5 rounded-full transition-all cursor-pointer"
@@ -348,7 +348,7 @@ export const TasksCardComponent = ({
 
                                             {/* Expanded Subtasks List View */}
                                             {isActive && hasSubtasks && (
-                                                <div className="w-full mt-2 pl-6 flex flex-col gap-2">
+                                                <div className="w-full mt-2 pl-6 flex flex-col gap-2 min-w-0">
                                                     {task.subtasks.map((sub) => (
                                                         <div
                                                             key={`sub-${sub.id}`}
@@ -359,14 +359,15 @@ export const TasksCardComponent = ({
                                                             <div className="flex items-center gap-2 flex-1 min-w-0">
                                                                 <button
                                                                     onClick={handleToggleCompletion(sub, task.id)}
-                                                                    className={`h-5 w-5 flex items-center justify-center p-[0.05rem] rounded-full`}
+                                                                    className={`shrink-0 h-5 w-5 flex items-center justify-center p-[0.05rem] rounded-full`}
                                                                     style={{ backgroundColor: colour.alt }}
                                                                 >
                                                                     <IconCircleCheckFilled
                                                                         className={`h-full text-primary ${sub.isCompleted ? "" : "opacity-0"} z-50`}
                                                                     />
                                                                 </button>
-                                                                <span>{sub.name || sub}</span>
+
+                                                                <span className="truncate block w-full">{sub.name || sub}</span>
                                                             </div>
 
                                                             {/* Subtask Context Actions (Rename/Delete) */}

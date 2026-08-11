@@ -26,8 +26,7 @@ export const ScrollingText = ({ text, className }) => {
      * handlers from the logic hook. Injects the `text` string to ensure the overflow
      * recalculates automatically if the textual content dynamically changes.
      */
-    const { scrollingTextRefs, scrollingTextStates, scrollingTextData, scrollingTextActions } =
-        useScrollingTextLogic(text);
+    const { scrollingTextRefs, scrollingTextStates, scrollingTextData, scrollingTextActions } = useScrollingTextLogic(text);
 
     const { containerRef, textRef } = scrollingTextRefs;
     const { scrollDist } = scrollingTextStates;
@@ -37,10 +36,13 @@ export const ScrollingText = ({ text, className }) => {
     // --- 2. Render ---
 
     return (
-        /* Main Overflow Container */
+        /* Main Overflow Container 
+         * 🛡️ FIX: 'min-w-0' añadido. Fuerza al contenedor Flex a respetar los límites del padre
+         * y no empujar el layout hacia la derecha.
+         */
         <div
             ref={containerRef}
-            className={`relative w-full overflow-hidden whitespace-nowrap flex items-center ${className}`}
+            className={`relative w-full min-w-0 overflow-hidden whitespace-nowrap flex items-center ${className}`}
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
         >
@@ -52,10 +54,13 @@ export const ScrollingText = ({ text, className }) => {
                 }
             `}</style>
 
-            {/* Measuring Base Text */}
+            {/* Measuring Base Text 
+             * 🛡️ FIX: 'min-w-0' añadido al span. Asegura que el truncate funcione 
+             * correctamente dentro de un flex context.
+             */ }
             <span
                 ref={textRef}
-                className={`block w-full truncate transition-opacity duration-300 ${
+                className={`block w-full min-w-0 truncate transition-opacity duration-300 ${
                     shouldAnimate ? "opacity-0" : "opacity-100"
                 }`}
             >

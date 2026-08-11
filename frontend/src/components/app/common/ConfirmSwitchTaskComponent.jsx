@@ -2,11 +2,14 @@
 import { useTranslation } from "react-i18next";
 import resolveConfig from "tailwindcss/resolveConfig";
 
-/** Icons */
-import { IconCircleXFilled, IconNote, IconPyramid } from "@tabler/icons-react";
+/** Components & Layouts */
+import { ScrollingText } from "./ScrollingText.jsx";
 
 /** Contexts, Hooks & Services */
 import { useSync } from "../../../hooks/core/useSync.js";
+
+/** Icons */
+import { IconCircleXFilled, IconNote, IconPyramid } from "@tabler/icons-react";
 
 /** Assets, Utils & Constants */
 import { PROJECTS_ICONS } from "../../../constants/projects_icons.js";
@@ -156,11 +159,11 @@ export const ConfirmSwitchTaskComponent = ({
                             <span className="text-sm font-bold">{t("confirm_switch_time_log.current_task")}</span>
 
                             <div
-                                className="w-full flex items-center justify-between py-3 px-4 rounded-xl text-primary"
+                                className="w-full flex items-center justify-between gap-3 py-3 px-4 rounded-xl text-primary"
                                 style={{ backgroundColor: oldColor }}
                             >
                                 <OldIcon.component className="w-5 h-5" />
-                                <span className="font-bold">{taskName}</span>
+                                <ScrollingText className="font-bold text-end" text={taskName} />
                             </div>
                         </div>
 
@@ -175,7 +178,7 @@ export const ConfirmSwitchTaskComponent = ({
 
                             {/* Target Task Pill */}
                             <div
-                                className={`w-full flex items-center justify-between py-3 px-4 rounded-xl text-primary ${isTempleModeIntercept ? theme.progress : ""}`}
+                                className={`w-full flex items-center justify-between gap-3 py-3 px-4 rounded-xl text-primary ${isTempleModeIntercept ? theme.progress : ""}`}
                                 style={{ backgroundColor: !isTempleModeIntercept ? newColor : "" }}
                             >
                                 {isTempleModeIntercept ? (
@@ -186,7 +189,7 @@ export const ConfirmSwitchTaskComponent = ({
                                 ) : (
                                     <>
                                         <NewIcon.component className="w-5 h-5" />
-                                        <span className="font-bold">{pendingSwitchTask?.name}</span>
+                                        <ScrollingText className="font-bold text-end" text={pendingSwitchTask?.name} />
                                     </>
                                 )}
                             </div>

@@ -2,6 +2,9 @@
 import { useTranslation } from "react-i18next";
 import resolveConfig from "tailwindcss/resolveConfig";
 
+/** Components & Layouts */
+import { ScrollingText } from "./ScrollingText.jsx";
+
 /** Icons */
 import { IconAlertTriangle } from "@tabler/icons-react";
 
@@ -117,7 +120,7 @@ export const DeleteComponent = ({ onClose, data, onDelete }) => {
                         {LogoComponent && <LogoComponent className="w-5 h-5" />}
 
                         {/* Entity Title */}
-                        <span className="font-bold">{data?.title}</span>
+                        <ScrollingText className="font-bold text-end" text={data?.title} />
                     </div>
 
                     {/* Action Buttons Section */}
