@@ -208,14 +208,14 @@ export const CascadingLinkSelect = ({ cascadingOptions = [], currentLinkId, onSe
      * the component gracefully degrades in non-gamified contexts without breaking the UI.
      */
     const styles = {
-        bg: theme?.cascading?.bg || "bg-primary-400",
-        pill: theme?.cascading?.pill || "bg-primary-50",
-        textActive: theme?.cascading?.textActive || "text-primary-400",
-        itemActive: theme?.cascading?.itemActive || "bg-primary-800/50",
-        itemHover: theme?.cascading?.itemHover || "hover:bg-primary-800/20",
-        border: theme?.cascading?.border || "border-primary-50",
-        input: `${theme?.input?.placeholder} ${theme?.input?.labelFocus}` || "input-textarea-label-primary",
-        btnConfirmBg: theme?.cascading?.btnConfirmBg || "bg-primary-50"
+        bg: theme ? theme?.cascading?.bg : "bg-primary-400",
+        pill: theme ? theme?.cascading?.pill : "bg-primary-50",
+        textActive: theme ? theme?.cascading?.textActive : "text-primary-400",
+        itemActive: theme ? theme?.cascading?.itemActive : "bg-primary-800/50",
+        itemHover: theme ? theme?.cascading?.itemHover : "hover:bg-primary-800/20",
+        border: theme ? theme?.cascading?.border : "border-primary-50",
+        input: theme ? `${theme?.input?.placeholder} ${theme?.input?.labelFocus}` : "input-textarea-label-primary",
+        btnConfirmBg: theme ? theme?.cascading?.btnConfirmBg : "bg-primary-50"
     };
 
     // --- 2. Render ---
