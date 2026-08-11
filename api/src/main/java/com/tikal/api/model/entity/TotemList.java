@@ -28,9 +28,13 @@ public class TotemList {
     @Column(name = "goal_description", nullable = false, columnDefinition = "TEXT")
     private String goalDescription;
 
-    /* --- Target progress to obtain this totem --- */
+    /* --- Main target progress to obtain this totem --- */
     @Column(name = "target_progress", nullable = false)
     private Integer targetProgress;
+
+    /* --- Secondary target progress to obtain this totem --- */
+    @Column(name = "target_progress2")
+    private Integer targetProgress2 = null;
 
     /* --- Type of goal that the user has to achieve to get the totem --- */
     @Enumerated(EnumType.STRING)

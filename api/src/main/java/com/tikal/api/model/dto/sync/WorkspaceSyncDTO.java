@@ -2,6 +2,7 @@ package com.tikal.api.model.dto.sync;
 
 import com.tikal.api.model.dto.UserSettingsDTO;
 import com.tikal.api.model.dto.calendar.CalendarEventDTO;
+import com.tikal.api.model.dto.sync.domain.GamificationEventDTO;
 import com.tikal.api.model.dto.sync.domain.ProjectSyncDTO;
 import com.tikal.api.model.dto.sync.widgets.WidgetData;
 import com.tikal.api.model.entity.enumerated.EventType;
@@ -27,6 +28,8 @@ public class WorkspaceSyncDTO {
 
     private List<HeaderInformation> statisticsGeneralInformation;
     private Map<String, WidgetData> statisticsWidgetsData;
+
+    private List<GamificationEventDTO> gamificationEvents;
 
     private List<ProjectSyncDTO> tasks;
 
@@ -69,18 +72,23 @@ public class WorkspaceSyncDTO {
         private String name;
         private String goalDescription;
         private ProgressData currentProgress;
-        private Integer targetProgress;
+        private Integer targetProgress1;
+        private Integer targetProgress2;
         private String totemImageUrl;
         private Boolean isActive;
+        private Boolean justUnlocked;
         private TypeOfGoal totemType;
+        private Integer rank;
     }
 
     @Data
     @Builder
     @AllArgsConstructor
     public static class ProgressData {
-        private Integer progress;
-        private String description;
+        private Integer progress1;
+        private Integer progress2;
+        private String description1;
+        private String description2;
     }
 
     // ==========================================
