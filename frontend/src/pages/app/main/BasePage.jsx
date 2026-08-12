@@ -1,5 +1,8 @@
 /** React & Third-Party Libraries */
-import { Outlet } from "react-router-dom";
+import { Outlet, Navigate } from "react-router-dom";
+
+/** Contexts, Hooks & Services */
+import { useTimeLog } from "../../../hooks/core/useTimeLog.js";
 
 /** Components & Layouts */
 import { NavbarComponent } from "../../../components/app/main/common/NavbarComponent.jsx";
@@ -16,7 +19,21 @@ import { NavbarComponent } from "../../../components/app/main/common/NavbarCompo
  * @returns {JSX.Element} The rendered layout shell containing the routing outlet.
  */
 export const MainBasePage = () => {
-    // --- 1. Render ---
+    // --- 1. Local UI Logic ---
+
+    const { trackerStates } = useTimeLog();
+    
+    /**
+     * Temple Mode Lock-in Guard
+     * 
+     * If the user manually alters the URL to escape an active Temple Mode session,
+     * this intercepts the render cycle and forces them back to the Temple Mode route.
+     */
+    if (trackerStates.activeWidgetData?.isTempleMode) {
+        return <Navigate to="/temple-mode" replace />;
+    }
+
+    // --- 2. Render ---
 
     return (
         <div className="flex flex-col md:flex-row h-[100dvh] bg-gradient-to-t md:bg-gradient-to-r from-primary-50 to-primary-300 p-2 md:p-4 gap-4 md:gap-8 overflow-hidden">
