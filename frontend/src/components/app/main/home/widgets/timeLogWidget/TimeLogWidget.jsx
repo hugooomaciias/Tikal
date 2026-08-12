@@ -108,7 +108,6 @@ export const TimeLogWidget = ({ props, setCustomActions }) => {
                             const logColour = PHASE_COLOURS.find((c) => c.id === log.color) || PHASE_COLOURS[0];
                             const { hours, minutes } = formatTimeSegments(log.durationInSeconds);
                             const isTempleModeLog = log.isTempleMode;
-                            console.log(log);
 
                             return (
                                 <div 

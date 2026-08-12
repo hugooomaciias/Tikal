@@ -3,12 +3,13 @@ import { useTranslation } from "react-i18next";
 
 /** Contexts, Hooks & Services */
 import { useSync } from "../../../../hooks/core/useSync.js";
+import { useTimeLog } from "../../../../hooks/core/useTimeLog.js";
 
 /** Components & Layouts */
 import { ScrollingText } from "./ScrollingText.jsx";
 
 /** Icons */
-import { IconCircleXFilled, IconNote } from "@tabler/icons-react";
+import { IconCircleXFilled, IconNote, IconAlertTriangleFilled } from "@tabler/icons-react";
 
 /** Assets, Utils & Constants */
 import { PHASE_COLOURS } from "../../../../constants/phase_colours.js";
@@ -62,6 +63,15 @@ export const ConfirmTimeLogComponent = ({
     const { getTempleModeData, getHomeWidgetsData } = useSync();
 
     /**
+     * Global Time Tracker Context
+     *
+     * Extracts the real-time execution state of the tracker to determine if the user 
+     * is aborting a focus session before reaching their configured target time.
+     */
+    const { trackerStates } = useTimeLog();
+    const { activeWidgetData, accumulatedSeconds } = trackerStates;
+
+    /**
      * Active Phase Color
      *
      * Resolves the correct hex color representing the active project phase, defaulting to the primary brand color.
@@ -90,6 +100,15 @@ export const ConfirmTimeLogComponent = ({
         const rank = getTempleModeData()?.rank || 0;
         theme = RANK_THEMES[rank] || RANK_THEMES[0];
     }
+
+    /**
+     * Early Stop Detection Logic
+     *
+     * Calculates if the user is attempting to halt a Temple Mode session before fulfilling 
+     * the requested duration. This triggers a visual penalty warning to discourage breaking focus.
+     */
+    const targetTimeSeconds = (activeWidgetData?.targetTime || 25) * 60;
+    const isStoppedEarly = isTempleModeActive && (accumulatedSeconds < targetTimeSeconds);
 
     /**
      * Dynamic Theme Styles Configuration
@@ -144,6 +163,16 @@ export const ConfirmTimeLogComponent = ({
 
                             {/* Informational Prompt */}
                             <span className={styles.description}>{t("confirm_time_log.description")}</span>
+
+                            {/* Early Stop Warning Banner */}
+                            {isStoppedEarly && (
+                                <div className="flex items-center gap-2 bg-tertiary-500/60 border border-tertiary-500 p-3 rounded-xl mt-2 text-tertiary">
+                                    <IconAlertTriangleFilled className="w-8 h-8  shrink-0 mt-0.5" />
+                                    <p className="text-sm font-medium leading-tight">
+                                        {t("confirm_time_log.warning")}
+                                    </p>
+                                </div>
+                            )}
 
                             {/* Task Summary Banner */}
                             <div
