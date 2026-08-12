@@ -2,8 +2,11 @@ package com.tikal.api.service;
 
 import com.tikal.api.exception.ConflictException;
 import com.tikal.api.model.dto.sync.WorkspaceSyncDTO;
+import com.tikal.api.model.dto.sync.domain.GamificationEventDTO;
+import com.tikal.api.model.entity.RankList;
 import com.tikal.api.model.entity.TotemInventory;
 import com.tikal.api.model.entity.TotemList;
+import com.tikal.api.model.entity.User;
 import com.tikal.api.model.entity.enumerated.TimeRangeSetting;
 import com.tikal.api.repository.TaskRepository;
 import com.tikal.api.repository.TotemInventoryRepository;
@@ -18,6 +21,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class GamificationService {
+    private final UserService userService;
     private final TotemInventoryRepository totemInventoryRepository;
     private final TotemListRepository totemListRepository;
     private final TaskRepository taskRepository;
@@ -149,5 +153,115 @@ public class GamificationService {
 
     public void grantTotemToUser(Integer userId, Integer totemId) {
         totemInventoryRepository.grantTotemToUser(userId, totemId);
+    }
+
+    public List<WorkspaceSyncDTO.TotemSyncDTO> buildUserTotems(User user) {
+        var totemList = this.obtainUserTotemInventory(user.getId());
+        List<WorkspaceSyncDTO.TotemSyncDTO> userTotems = new ArrayList<>();
+
+        for (TotemInventory t : totemList) {
+            TotemList totem = t.getTotem();
+
+            var totemDTO = WorkspaceSyncDTO.TotemSyncDTO.builder()
+                    .id(totem.getId())
+                    .name(totem.getName())
+                    .goalDescription(totem.getGoalDescription())
+                    .targetProgress1(totem.getTargetProgress())
+                    .targetProgress2(totem.getTargetProgress2())
+                    .totemImageUrl(totem.getTotemImageUrl())
+                    .isActive(true)
+                    .rank(totem.getRequiredRank())
+                    .totemType(totem.getTypeOfGoal())
+                    .build();
+
+            userTotems.add(totemDTO);
+        }
+        return userTotems;
+    }
+
+    public WorkspaceSyncDTO.TempleSyncDTO buildTempleMode(User user, Integer globalTempleMinutes, List<GamificationEventDTO> gamificationEvents) {
+        RankList currentRank = user.getCurrentRank();
+        preFetchedDashboardData.setGlobalTempleMinutes(globalTempleMinutes);
+
+        return WorkspaceSyncDTO.TempleSyncDTO.builder()
+                .rank(currentRank.getId())
+                .templeName(currentRank.getTempleName())
+                .awardedTitle(currentRank.getAwardedTitle())
+                .requiredHours(currentRank.getNextHours())
+                .currentHours(globalTempleMinutes / 60)
+                .badgeImageUrl(currentRank.getBadgeImageUrl())
+                .clockImageUrl(currentRank.getClockImageUrl())
+                .templeImageUrl(currentRank.getTempleImageUrl())
+                .primaryColor(currentRank.getColour())
+                .totems(buildTempleTotems(user, gamificationEvents))
+                .build();
+    }
+
+    private List<WorkspaceSyncDTO.TotemSyncDTO> buildTempleTotems(User user, List<GamificationEventDTO> gamificationEvents) {
+        var totemList = this.obtainRankTotemList(user.getCurrentRank().getId());
+        List<WorkspaceSyncDTO.TotemSyncDTO> templeTotems = new ArrayList<>();
+        List<TotemList> totemActives = this.obtainTheActivesTotems(user.getId());
+
+        for (TotemList t : totemList) {
+            boolean isUnlocked = totemActives.contains(t);
+            boolean justUnlocked = false;
+
+            WorkspaceSyncDTO.ProgressData progressData = this.obtainCurrentUserProgress(user.getId(), t, totemActives, isUnlocked);
+
+            if (!isUnlocked) {
+                boolean goal1Reached = progressData.getProgress1() >= t.getTargetProgress();
+                boolean goal2Reached = t.getTargetProgress2() == null || progressData.getProgress2() >= t.getTargetProgress2();
+
+                if (goal1Reached && goal2Reached) {
+                    this.grantTotemToUser(user.getId(), t.getId());
+                    isUnlocked = true;
+                    justUnlocked = true;
+
+                    progressData.setProgress1(t.getTargetProgress());
+                    if (t.getTargetProgress2() != null) {
+                        progressData.setProgress2(t.getTargetProgress2());
+                    }
+
+                    gamificationEvents.add(GamificationEventDTO.builder()
+                            .type("TOTEM_UNLOCKED")
+                            .title("¡Tótem Desbloqueado!")
+                            .message("Has conseguido el tótem: " + t.getName())
+                            .imageUrl(t.getTotemImageUrl())
+                            .build());
+                }
+            }
+
+            var totemDTO = WorkspaceSyncDTO.TotemSyncDTO.builder()
+                    .id(t.getId())
+                    .name(t.getName())
+                    .goalDescription(t.getGoalDescription())
+                    .targetProgress1(t.getTargetProgress())
+                    .targetProgress2(t.getTargetProgress2())
+                    .totemImageUrl(t.getTotemImageUrl())
+                    .totemType(t.getTypeOfGoal())
+                    .currentProgress(progressData)
+                    .isActive(isUnlocked)
+                    .justUnlocked(justUnlocked)
+                    .rank(t.getRequiredRank())
+                    .build();
+
+            templeTotems.add(totemDTO);
+        }
+        return templeTotems;
+    }
+
+    public User checkRank(User currentUser, RankList currentRank, List<GamificationEventDTO> gamificationEvents, int globalTempleHours) {
+        if (currentRank.getNextHours() <= globalTempleHours && !currentRank.getNextHours().equals(currentRank.getRequiredHours())) {
+            currentUser = userService.upgradeUserRank(currentUser);
+
+            gamificationEvents.add(GamificationEventDTO.builder()
+                    .type("RANK_UP")
+                    .title("¡Enhorabuena!")
+                    .message("Has subido de rango: " + currentUser.getCurrentRank().getAwardedTitle())
+                    .imageUrl(currentUser.getCurrentRank().getBadgeImageUrl())
+                    .build());
+        }
+
+        return currentUser;
     }
 }
