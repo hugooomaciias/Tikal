@@ -78,9 +78,7 @@ public class StatisticsService {
     // =====================================================
     public Integer globalEffectiveness(Integer userId, TimeRangeSetting range) {
         String key = "stat_globalEffectiveness_" + userId + "_" + range.name();
-        return requestCache.get(key, () -> {
-            return computeGlobalEffectiveness(userId, range);
-        });
+        return requestCache.get(key, () -> computeGlobalEffectiveness(userId, range));
     }
 
     private Integer computeGlobalEffectiveness(Integer userId, TimeRangeSetting range) {
