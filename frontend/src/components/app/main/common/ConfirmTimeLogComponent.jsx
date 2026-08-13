@@ -14,7 +14,7 @@ import { IconCircleXFilled, IconNote, IconAlertTriangleFilled } from "@tabler/ic
 /** Assets, Utils & Constants */
 import { PHASE_COLOURS } from "../../../../constants/phase_colours.js";
 import { PROJECTS_ICONS } from "../../../../constants/projects_icons.js";
-import { RANK_THEMES } from "../../../../constants/rank_themes.js";
+import { RANK_CLASSES } from "../../../../constants/rank_classes.js";
 
 /**
  * Confirm Time Log Component
@@ -32,7 +32,7 @@ import { RANK_THEMES } from "../../../../constants/rank_themes.js";
  * @param {Function} props.confirmStopTimer - Handler callback to confirm and securely log the tracked time.
  * @param {string} props.taskName - The name of the currently active task being logged.
  * @param {number} props.colorId - The configuration ID representing the project/phase color.
- * @param {string} props.projectIcon - The SVG icon component for the active project.
+ * @param {string|number} props.projectIcon - The string identifier used to resolve the SVG icon component for the active project.
  * @returns {JSX.Element} The rendered confirm time log modal overlay.
  */
 export const ConfirmTimeLogComponent = ({
@@ -89,17 +89,19 @@ export const ConfirmTimeLogComponent = ({
     /**
      * Dynamic Theme Evaluation
      *
-     * Evaluates if the current tracking session operates under Temple Mode. If true, 
-     * it fetches the user's rank and maps it to the corresponding global UI theme payload.
-     * Returns null if it's a standard focus session, preserving default styling.
+     * Evaluates if the current tracking session operates under Temple Mode 
+     * directly from the synchronized widget data flag.
      */
     const isTempleModeActive = getHomeWidgetsData()?.timeTrackerWidget?.isTempleMode === true;
 
-    let theme = null;
-    if (isTempleModeActive) {
-        const rank = getTempleModeData()?.rank || 0;
-        theme = RANK_THEMES[rank] || RANK_THEMES[0];
-    }
+    /**
+     * Dynamic Theme Extraction
+     *
+     * Extracts the user's gamification rank exclusively if Temple Mode is active. 
+     * Defaults to '1' if the payload is still hydrating to prevent undefined 
+     * dictionary lookups that break CSS variable injection.
+     */
+    const rank = getTempleModeData()?.rank || 1;
 
     /**
      * Early Stop Detection Logic
@@ -114,18 +116,18 @@ export const ConfirmTimeLogComponent = ({
      * Dynamic Theme Styles Configuration
      *
      * Consolidates all conditional CSS classes into a single dictionary.
-     * If `theme` exists (Temple Mode), it applies the gamified immersive styling.
+     * If `rank` exists (Temple Mode), it applies the gamified immersive styling.
      * Otherwise, it gracefully falls back to the standard application design system.
      */
     const styles = {
-        bg: theme ? theme?.background : "bg-primary-50",
-        title: theme ? theme?.title : "text-quaternary-700",
-        closeBtn: theme ? `${theme?.subtitle} ${theme?.subtitleHover}` : "text-primary-500/70 hover:text-primary-500",
-        description: theme ? theme?.subtitle : "text-quaternary-500",
-        task: theme ? theme?.progress : "",
-        input: theme ? theme?.input?.focus : "input-textarea-primary peer",
-        label: theme ? `${theme?.input?.placeholder} ${theme?.input?.labelFocus}` : "input-textarea-label-primary",
-        btn: theme ? `${theme?.buttonSecondary}` : "btn-primary",
+        bg: isTempleModeActive ? "bg-rank-900" : "bg-primary-50",
+        title: isTempleModeActive ? "text-rank-50" : "text-quaternary-700",
+        closeBtn: isTempleModeActive ? "text-rank-100 opacity-70 hover:text-rank-100 hover:opacity-100" : "text-primary-500/70 hover:text-primary-500",
+        description: isTempleModeActive ? "text-rank-100 opacity-70" : "text-quaternary-500",
+        task: isTempleModeActive ? "bg-rank-400" : "",
+        input: isTempleModeActive ? "bg-rank text-quaternary-700 focus:ring-rank-500 peer" : "input-textarea-primary peer",
+        label: isTempleModeActive ? "text-rank-800 peer-focus:text-rank-400 peer-[:not(:placeholder-shown)]:text-rank-400" : "input-textarea-label-primary",
+        btn: isTempleModeActive ? "bg-gradient-to-r from-rank-300 to-rank-600 text-rank" : "btn-primary",
     };
 
     // --- 2. Render ---
@@ -135,7 +137,7 @@ export const ConfirmTimeLogComponent = ({
             {/* Modal Overlay Container */}
             {showStopModal && (
                 <div
-                    className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm"
+                    className={`${RANK_CLASSES[rank]} fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm`}
                     onClick={cancelStopTimer}
                 >
                     {/* Modal Content Container */}
@@ -149,7 +151,7 @@ export const ConfirmTimeLogComponent = ({
                         <div className="flex flex-col gap-2">
                             {/* Modal Title & Close Action */}
                             <div className="flex items-center justify-between">
-                                <span className={`text-2xl font-bold ${theme && "font-passero tracking-wide"} ${styles.title}`}>
+                                <span className={`text-2xl font-bold ${isTempleModeActive && "font-passero tracking-wide"} ${styles.title}`}>
                                     {t("confirm_time_log.title")}
                                 </span>
 
@@ -176,10 +178,10 @@ export const ConfirmTimeLogComponent = ({
 
                             {/* Task Summary Banner */}
                             <div
-                                className={`flex items-center justify-between gap-3 py-3 px-4 mt-2 rounded-xl text-primary ${theme ? styles.task : ""}`}
-                                style={{ backgroundColor: !theme ? color.hex : "" }}
+                                className={`flex items-center justify-between gap-3 py-3 px-4 mt-2 rounded-xl text-primary ${isTempleModeActive ? styles.task : ""}`}
+                                style={{ backgroundColor: !isTempleModeActive ? color.hex : "" }}
                             >
-                                {theme ? (
+                                {isTempleModeActive ? (
                                     <div className="flex items-center gap-2">
                                         <Logo.component />
 

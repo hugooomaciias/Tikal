@@ -237,7 +237,7 @@ export const useTempleModePopUpLogic = (onClose, theme, t) => {
      */
     const getInputClass = useCallback(
         (fieldName) => {
-            const baseInputClass = `input bg-primary ${theme.input.borderInput} peer`;
+            const baseInputClass = `input bg-primary focus:ring-rank-400 peer`;
             const errorClass = "ring-[3px] ring-tertiary-200";
             return `${baseInputClass} ${errors[fieldName] ? errorClass : ""}`;
         },

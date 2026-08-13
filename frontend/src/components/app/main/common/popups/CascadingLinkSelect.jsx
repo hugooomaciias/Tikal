@@ -208,20 +208,20 @@ export const CascadingLinkSelect = ({ cascadingOptions = [], currentLinkId, onSe
      * the component gracefully degrades in non-gamified contexts without breaking the UI.
      */
     const styles = {
-        bg: theme ? theme?.cascading?.bg : "bg-primary-400",
-        pill: theme ? theme?.cascading?.pill : "bg-primary-50",
-        textActive: theme ? theme?.cascading?.textActive : "text-primary-400",
-        itemActive: theme ? theme?.cascading?.itemActive : "bg-primary-800/50",
-        itemHover: theme ? theme?.cascading?.itemHover : "hover:bg-primary-800/20",
-        border: theme ? theme?.cascading?.border : "border-primary-50",
-        input: theme ? `${theme?.input?.placeholder} ${theme?.input?.labelFocus}` : "input-textarea-label-primary",
-        btnConfirmBg: theme ? theme?.cascading?.btnConfirmBg : "bg-primary-50"
+        bg: theme ? "bg-rank-400" : "bg-primary-400",
+        pill: theme ? "bg-rank-50" : "bg-primary-50",
+        textActive: theme ? "text-rank-400" : "text-primary-400",
+        itemActive: theme ? "bg-rank-800/50" : "bg-primary-800/50",
+        itemHover: theme ? "hover-bg-rank-800/20" : "hover:bg-primary-800/20",
+        border: theme ? "border-rank-50" : "border-primary-50",
+        input: theme ? "text-rank-800 peer-focus:text-rank-400 peer-[:not(:placeholder-shown)]:text-rank-400" : "input-textarea-label-primary",
+        btnConfirmBg: theme ? "bg-rank-50" : "bg-primary-50"
     };
 
     // --- 2. Render ---
 
     return (
-        <div ref={linkSelectorRef} className="relative inline-block text-left shrink-0 w-full">
+        <div ref={linkSelectorRef} className={`${theme} relative inline-block text-left shrink-0 w-full`}>
             {/* Primary Action Input Trigger */}
             <input
                 type="text"

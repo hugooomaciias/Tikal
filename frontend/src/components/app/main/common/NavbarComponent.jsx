@@ -46,7 +46,7 @@ const ICON_MAP = {
  * @component
  * @returns {JSX.Element|null} The rendered navigation bar component, or null if user data is missing.
  */
-export const NavbarComponent = () => {
+export const NavbarComponent = ({ theme }) => {
     // --- 1. Logic Hook Extraction ---
 
     /**
@@ -67,7 +67,7 @@ export const NavbarComponent = () => {
 
     return (
         <aside
-            className={`flex bg-primary-300 text-primary shadow-2xl transition-all duration-[300ms] shrink-0 z-50 flex-col p-5 justify-between rounded-[3rem] h-full max-md:order-last max-md:flex-row max-md:w-full max-md:h-[72px] max-md:p-2 max-md:rounded-[2rem] max-md:items-center max-md:justify-around ${isExpanded ? "w-72" : "w-[104px]"}`}
+            className={`${theme} flex ${theme ? "bg-rank-900/80 border-rank-700/50 backdrop-blur-sm text-rank" : "bg-primary-300 text-primary"} shadow-2xl transition-all duration-[300ms] shrink-0 z-50 flex-col p-5 justify-between rounded-[3rem] h-full max-md:order-last max-md:flex-row max-md:w-full max-md:h-[72px] max-md:p-2 max-md:rounded-[2rem] max-md:items-center max-md:justify-around ${isExpanded ? "w-72" : "w-[104px]"}`}
         >
             {/* Top Logo Container */}
             <div
@@ -75,14 +75,24 @@ export const NavbarComponent = () => {
                 onClick={handleToggleSidebar}
             >
                 {/* Brand Logo Image */}
-                <img
-                    className="h-10 w-auto opacity-90 hover:opacity-100 transition-opacity"
-                    src={logoNavbar}
-                    alt="Logo Tikal"
-                />
+                <div className="h-full w-16 shrink-0 opacity-90 hover:opacity-100 transition-opacity cursor-pointer">
+                    <div
+                        className={`w-full h-full bg-primary`} 
+                        style={{
+                            maskImage: `url(${logoNavbar})`,
+                            WebkitMaskImage: `url(${logoNavbar})`,
+                            maskRepeat: "no-repeat",
+                            WebkitMaskRepeat: "no-repeat",
+                            maskSize: "contain",
+                            WebkitMaskSize: "contain",
+                            maskPosition: "center",
+                            WebkitMaskPosition: "center",
+                        }}
+                    />
+                </div>
 
                 {/* Expanded Brand Name */}
-                {isExpanded && <span className="text-primary-50 text-3xl font-bold tracking-[0.3em]">TIKAL</span>}
+                {isExpanded && <span className={`${theme ? "text-rank" : "text-primary" } text-3xl font-bold tracking-[0.3em]`}>TIKAL</span>}
             </div>
 
             {/* Navigation Links Container */}
@@ -91,18 +101,7 @@ export const NavbarComponent = () => {
             >
                 {/* Dynamic Options List */}
                 {navbarOptions.map((option, index) => {
-                    /**
-                     * Resolved Icon Component
-                     *
-                     * Dynamically resolves the required React icon for the current navigation option.
-                     */
                     const IconComponent = ICON_MAP[option.icon];
-
-                    /**
-                     * Active State Flag
-                     *
-                     * Boolean flag determining if the current option corresponds to the active tab.
-                     */
                     const isActive = activeTab === option.title;
 
                     return (
@@ -115,7 +114,7 @@ export const NavbarComponent = () => {
                                     trackerActions.handleRequestTempleModeEntry();
                                 }
                             }}
-                            className={`flex items-center gap-6 transition-all duration-200 ${isActive ? "text-primary-50" : "text-primary-500 hover:text-primary-200"}`}
+                            className={`flex items-center gap-6 transition-all duration-200 ${isActive ? (theme ? "text-rank-400" : "text-primary") : (theme ? "text-rank hover:text-rank-100" : "text-primary-500 hover:text-primary-200")}`}
                         >
                             <IconComponent className="h-8 w-8" />
 
@@ -132,13 +131,13 @@ export const NavbarComponent = () => {
 
             {/* Bottom Action (User Profile & Logout) */}
             <div
-                className={`hidden md:flex h-fit w-full bg-primary-50 rounded-full mx-auto transition-colors duration-200 items-center mt-8 p-2 ${isExpanded ? "w-full justify-start p-3" : "w-fit justify-center p-2"}`}
+                className={`hidden md:flex h-fit w-full ${theme ? "bg-rank" : "bg-primary"} rounded-full mx-auto transition-colors duration-200 items-center mt-8 p-2 ${isExpanded ? "w-full justify-start p-3" : "w-fit justify-center p-2"}`}
             >
                 {/* User Avatar Container */}
                 <button
                     type="button"
                     onClick={handleNavigateToSettings}
-                    className="relative w-12 h-12 flex-shrink-0 rounded-full overflow-hidden border-[3px] border-primary-300 cursor-pointer"
+                    className={`relative w-12 h-12 flex-shrink-0 rounded-full overflow-hidden border-[3px] ${theme ? "border-rank-900/80" : "border-primary-300"} cursor-pointer`}
                 >
                     <img
                         className="w-full h-full object-cover shadow-md"
@@ -149,13 +148,13 @@ export const NavbarComponent = () => {
 
                 {/* User Information and Actions */}
                 {isExpanded && (
-                    <div className="flex flex-col ml-4 overflow-hidden">
-                        <span className="text-primary-600 text-lg font-medium whitespace-nowrap">
+                    <div className={`flex flex-col ml-4 overflow-hidden ${theme === "theme-rank-3" ? "text-rank-700" : theme ? "text-rank-600" : "text-primary-600"} `}>
+                        <span className="text-lg font-medium whitespace-nowrap">
                             {userProfile.name}
                         </span>
                         <span
                             onClick={handleLogout}
-                            className="text-primary-600 cursor-pointer whitespace-nowrap hover:underline"
+                            className="cursor-pointer whitespace-nowrap hover:underline"
                         >
                             {t("navbar.logout")}
                         </span>

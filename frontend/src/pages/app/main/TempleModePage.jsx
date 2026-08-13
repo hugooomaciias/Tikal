@@ -59,12 +59,12 @@ export const TempleModePage = () => {
 
     return (
         <div 
-            className="flex flex-col md:flex-row h-[100dvh] bg-cover bg-center bg-no-repeat p-2 md:p-4 gap-4 md:gap-8 overflow-hidden"
+            className={`${theme} flex flex-col md:flex-row h-[100dvh] bg-cover bg-center bg-no-repeat p-2 md:p-4 gap-4 md:gap-8 overflow-hidden`}
             style={{ backgroundImage: `url(${data.templeImageUrl})` }}
         >
             {/* Vertical Navbar Navigation Layer */}
             {!isRunning && (
-                <NavbarComponent />
+                <NavbarComponent theme={theme} />
             )}
 
             {/* Core Scrollable Content Area */}
@@ -82,10 +82,10 @@ export const TempleModePage = () => {
                         <div className="flex flex-col gap-4 w-full lg:w-fit min-w-[33%]">
                             
                             {/* --- Current Rank Badge --- */}
-                            <div className={`flex items-center gap-5 ${theme.wrapper} border shadow-lg rounded-[2rem] p-4 transition-all duration-300 backdrop-blur-sm`}>
-                                <div className={`w-20 h-20 shrink-0 flex items-center justify-center px-1 rounded-2xl bg-quaternary-800/20 border-2 ${theme.borderLogo}`}>
+                            <div className="flex items-center gap-5 bg-rank-900/80 border-rank-700/50 border shadow-lg rounded-[2rem] p-4 transition-all duration-300 backdrop-blur-sm">
+                                <div className="w-20 h-20 shrink-0 flex items-center justify-center px-1 rounded-2xl bg-quaternary-800/20 border-2 border-rank-400">
                                     <div
-                                        className={`${theme.logo} ${data.rank === 2 ? "w-[65px] h-[65px]" : data.rank === 3 ? "w-[60px] h-[60px]" : "w-full h-full"}`}
+                                        className={`bg-rank-50 ${data.rank === 2 ? "w-[65px] h-[65px]" : data.rank === 3 ? "w-[60px] h-[60px]" : "w-full h-full"}`}
                                         style={{
                                             maskImage: `url(${data.badgeImageUrl})`,
                                             WebkitMaskImage: `url(${data.badgeImageUrl})`,
@@ -102,19 +102,19 @@ export const TempleModePage = () => {
                                 <div className="flex-1 flex flex-col justify-between h-20 py-1.5 pr-2 min-w-0"> 
                                     <div className="flex items-start justify-between gap-4 w-full">
                                         <div className="flex flex-col flex-1 min-w-0">
-                                            <span className={`text-[10px] uppercase font-bold tracking-widest opacity-80 ${theme.subtitle} truncate`}>
+                                            <span className="text-[10px] uppercase font-bold tracking-widest opacity-80 text-rank-100/70 truncate">
                                                 {tTemple("subheader.rank_badge.label")} {data.rank}
                                             </span>
-                                            <h3 className={`font-passero font-bold text-xl leading-none mt-1 truncate ${theme.title}`}>
+                                            <h3 className="font-passero font-bold text-xl leading-none mt-1 truncate text-rank-50">
                                                 {data.awardedTitle}
                                             </h3>
                                         </div>
 
                                         <div className="flex flex-col items-end shrink-0">
-                                            <span className={`text-[10px] uppercase font-bold tracking-widest opacity-80 ${theme.subtitle}`}>
+                                            <span className="text-[10px] uppercase font-bold tracking-widest opacity-80 text-rank-100/70">
                                                 {tTemple("subheader.rank_badge.totems")}
                                             </span>
-                                            <h3 className={`font-passero font-bold text-xl leading-none mt-1 truncate ${theme.title}`}>
+                                            <h3 className="font-passero font-bold text-xl leading-none mt-1 truncate text-rank-50">
                                                 {unlockedTotems.length} / {totems.length}
                                             </h3>
                                         </div>
@@ -122,21 +122,21 @@ export const TempleModePage = () => {
 
                                     <div className="w-full flex items-center gap-2 mt-1">
                                         <div className="relative flex-1 group/progress cursor-pointer min-w-0">
-                                            <div className={`h-2 rounded-full overflow-hidden ${theme.track}`}>
+                                            <div className="h-2 rounded-full overflow-hidden bg-rank-800">
                                                 <div
-                                                    className={`h-full rounded-full transition-all duration-700 ease-out ${theme.progress}`}
+                                                    className="h-full rounded-full transition-all duration-700 ease-out bg-rank-400"
                                                     style={{ width: `${progressPercentage}%` }}
                                                 />
                                             </div>
                                             <div 
-                                                className={`absolute -top-8 -translate-x-1/2 px-2.5 py-1 rounded-lg text-xs font-mono font-bold whitespace-nowrap opacity-0 scale-95 group-hover/progress:opacity-100 group-hover/progress:scale-100 transition-all duration-200 pointer-events-none z-10 shadow-xl backdrop-blur-md border border-white/10 ${theme.progress} ${theme.title}`}
+                                                className="absolute -top-8 -translate-x-1/2 px-2.5 py-1 rounded-lg text-xs font-mono font-bold whitespace-nowrap opacity-0 scale-95 group-hover/progress:opacity-100 group-hover/progress:scale-100 transition-all duration-200 pointer-events-none z-10 shadow-xl backdrop-blur-md border border-white/10 bg-rank-400 text-rank-50"
                                                 style={{ left: `${progressPercentage}%` }}
                                             >
                                                 {data.currentHours} / {data.requiredHours} h
-                                                <div className={`absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 rotate-45 ${theme.progress} border-b border-r border-white/10`} />
+                                                <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 rotate-45 bg-rank-400 border-b border-r border-white/10" />
                                             </div>
                                         </div>
-                                        <span className={`shrink-0 text-xs font-mono font-bold ${theme.subtitle}`}>
+                                        <span className="shrink-0 text-xs font-mono font-bold text-rank-100/70">
                                             {progressPercentage}%
                                         </span>
                                     </div>
@@ -144,7 +144,7 @@ export const TempleModePage = () => {
                             </div>
 
                             {/* --- Active Timer & Chronometer Module --- */}
-                            <div className={`w-full flex flex-1 flex-col items-center justify-center gap-6 ${theme.wrapper} border shadow-lg rounded-[2.5rem] p-8 transition-all duration-300 backdrop-blur-md relative overflow-hidden`}>           
+                            <div className="w-full flex flex-1 flex-col items-center justify-center gap-6 bg-rank-900/80 border-rank-700/50 border shadow-lg rounded-[2.5rem] p-8 transition-all duration-300 backdrop-blur-md relative overflow-hidden">           
                                 {/* Circular Functional Progress Ring */}
                                 <div className="relative w-48 h-48 rounded-full flex items-center justify-center shadow-[inset_0_0_20px_rgba(0,0,0,0.5)] bg-quaternary-900/30">
                                     
@@ -167,7 +167,7 @@ export const TempleModePage = () => {
                                             stroke="currentColor"
                                             strokeWidth="5"
                                             fill="none"
-                                            className={`${theme.progressText} transition-all duration-1000 ease-linear`}
+                                            className="text-rank-400 transition-all duration-1000 ease-linear"
                                             strokeDasharray={circleCircumference}
                                             strokeDashoffset={circleOffset}
                                             strokeLinecap="round"
@@ -178,7 +178,7 @@ export const TempleModePage = () => {
                                     <div className="w-[85%] h-[85%] rounded-full bg-white/5 border border-white/10 flex items-center justify-center overflow-hidden relative">
                                         <div className={`w-20 h-20 shrink-0 flex flex-col items-center justify-center ${isRunning ? "animate-pulse" : ""}`}>
                                             <div
-                                                className={`w-full h-full ${theme.logo}`}
+                                                className="w-full h-full bg-rank-50"
                                                 style={{
                                                     maskImage: `url(${nextTargetTotem.totemImageUrl})`,
                                                     WebkitMaskImage: `url(${nextTargetTotem.totemImageUrl})`,
@@ -195,7 +195,7 @@ export const TempleModePage = () => {
                                 </div>
 
                                 {/* Main Time Display */}
-                                <h1 className={`font-passero font-bold text-6xl tracking-widest leading-none drop-shadow-xl ${theme.title} tabular-nums`}>
+                                <h1 className="font-passero font-bold text-6xl tracking-widest leading-none drop-shadow-xl text-rank-50 tabular-nums">
                                     {formattedTime}
                                 </h1>
 
@@ -204,7 +204,7 @@ export const TempleModePage = () => {
                                         <button 
                                             type="button"
                                             onClick={handleStopSession}
-                                            className={`w-full mt-2 py-4 rounded-full border border-white/10 ${theme.title} font-bold text-xl tracking-wide shadow-[0_10px_30px_rgba(0,0,0,0.3)] transition-all duration-300 transform bg-tertiary-300 text-tertiary-700`}
+                                            className="w-full mt-2 py-4 rounded-full border border-white/10 font-bold text-xl tracking-wide shadow-[0_10px_30px_rgba(0,0,0,0.3)] transition-all duration-300 transform bg-tertiary-300 text-tertiary-700"
                                         >
                                             {tTemple("stopSessionButton")}
                                         </button>
@@ -215,7 +215,7 @@ export const TempleModePage = () => {
                                             className="p-3.5 rounded-2xl border transition-all duration-300 flex items-center justify-center bg-white/5 border-white/10 hover:bg-white/20 hover:border-white/40 shadow-inner"
                                             title="Configurar Temporizador"
                                         >
-                                            <div className={`flex items-center justify-center gap-2 ${theme.title}`}>
+                                            <div className="flex items-center justify-center gap-2 text-rank-50">
                                                 <IconHourglassFilled stroke={2} className="w-6 h-6 opacity-90" />
                                                 <span className="mt-0.5 font-semibold">Configurar Temporizador</span>
                                             </div>
@@ -229,7 +229,7 @@ export const TempleModePage = () => {
                         <div className="relative w-full lg:w-fit min-w-[35%]" ref={menuRef}>
                             <div 
                                 onClick={toggleTotemsMenu}
-                                className={`flex items-center gap-5 ${theme.wrapper} border pl-6 p-4 transition-all duration-300 backdrop-blur-sm cursor-pointer h-[112px] relative z-10 hover:brightness-125
+                                className={`flex items-center gap-5 bg-rank-900/80 border-rank-700/50 border pl-6 p-4 transition-all duration-300 backdrop-blur-sm cursor-pointer h-[112px] relative z-10 hover:brightness-125
                                     ${isTotemsMenuOpen ? "rounded-t-[2rem] rounded-b-none border-b-0 shadow-none" : "rounded-[2rem] shadow-lg"}
                                 `}
                             >
@@ -237,15 +237,15 @@ export const TempleModePage = () => {
                                     <div className="flex-1 flex flex-col justify-between h-full min-w-0">
                                         <div className="flex flex-col min-w-0">
                                             <div className="flex items-center gap-1.5 mb-0.5">
-                                                <span className={`text-[10px] uppercase font-bold tracking-widest opacity-80 ${theme.subtitle} truncate`}>
+                                                <span className="text-[10px] uppercase font-bold tracking-widest opacity-80 text-rank-100/70 truncate">
                                                     {lockedTotems.length > 0 ? tTemple("subheader.totem_badge.label.hasMoreTotems") : tTemple("subheader.totem_badge.label.noMoreTotems")}
                                                 </span>
                                                 <IconChevronDown 
                                                     stroke={2.5}
-                                                    className={`shrink-0 w-3.5 h-3.5 opacity-70 transition-transform duration-300 ${theme.subtitle} ${isTotemsMenuOpen ? "rotate-180" : "group-hover:translate-y-0.5"}`} 
+                                                    className={`shrink-0 w-3.5 h-3.5 opacity-70 transition-transform duration-300 text-rank-100/70 ${isTotemsMenuOpen ? "rotate-180" : "group-hover:translate-y-0.5"}`} 
                                                 />
                                             </div>
-                                            <h3 className={`font-passero font-bold text-xl leading-none mt-1 truncate w-full ${theme.title}`}>
+                                            <h3 className="font-passero font-bold text-xl leading-none mt-1 truncate w-full text-rank-50">
                                                 {nextTargetTotem?.name || "Completado"}
                                             </h3>
                                         </div>
@@ -253,21 +253,21 @@ export const TempleModePage = () => {
                                         {nextTargetTotem && (
                                             <div className="w-full flex items-center gap-2 mt-1 min-w-0">
                                                 <div className="relative flex-1 group/progress cursor-pointer min-w-0">
-                                                    <div className={`h-2 rounded-full overflow-hidden ${theme.track}`}>
+                                                    <div className="h-2 rounded-full overflow-hidden bg-rank-800">
                                                         <div
-                                                            className={`h-full rounded-full transition-all duration-700 ease-out ${theme.progress}`}
+                                                            className="h-full rounded-full transition-all duration-700 ease-out bg-rank-400"
                                                             style={{ width: `${nextTargetTotem.progressPercentage}%` }}
                                                         />
                                                     </div>
                                                     <div 
-                                                        className={`absolute -top-8 -translate-x-1/2 px-2.5 py-1 rounded-lg text-xs font-mono font-bold whitespace-nowrap opacity-0 scale-95 group-hover/progress:opacity-100 group-hover/progress:scale-100 transition-all duration-200 pointer-events-none z-10 shadow-xl backdrop-blur-md border border-white/10 ${theme.progress} ${theme.title}`}
+                                                        className="absolute -top-8 -translate-x-1/2 px-2.5 py-1 rounded-lg text-xs font-mono font-bold whitespace-nowrap opacity-0 scale-95 group-hover/progress:opacity-100 group-hover/progress:scale-100 transition-all duration-200 pointer-events-none z-10 shadow-xl backdrop-blur-md border border-white/10 bg-rank-400 text-rank-50"
                                                         style={{ left: `${nextTargetTotem.progressPercentage}%` }}
                                                     >
                                                         {nextTargetTotem.currentProgress.progress} / {nextTargetTotem.targetProgress} h
-                                                        <div className={`absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 rotate-45 ${theme.progress} border-b border-r border-white/10`} />
+                                                        <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 rotate-45 bg-rank-400 border-b border-r border-white/10" />
                                                     </div>
                                                 </div>
-                                                <span className={`shrink-0 text-xs font-mono font-bold ${theme.subtitle}`}>
+                                                <span className="shrink-0 text-xs font-mono font-bold text-rank-100/70">
                                                     {nextTargetTotem.progressPercentage}%
                                                 </span>
                                             </div>
@@ -278,7 +278,7 @@ export const TempleModePage = () => {
                                         {nextTargetTotem && (
                                             <div className="w-20 h-20 shrink-0 flex flex-col items-center justify-center">
                                                 <div
-                                                    className={`w-full h-full ${theme.logo}`}
+                                                    className="w-full h-full bg-rank-50"
                                                     style={{
                                                         maskImage: `url(${nextTargetTotem.totemImageUrl})`,
                                                         WebkitMaskImage: `url(${nextTargetTotem.totemImageUrl})`,
@@ -297,7 +297,7 @@ export const TempleModePage = () => {
                             </div>
 
                             <div className={`absolute top-full left-0 right-0 w-full z-50 transition-all duration-300 origin-top backdrop-blur-sm ${isTotemsMenuOpen ? "opacity-100 scale-y-100" : "opacity-0 scale-y-0 pointer-events-none"}`}>
-                                <div className={`${theme.wrapper} border border-t-0 shadow-2xl rounded-b-[2rem] rounded-t-none p-4 flex flex-col gap-2 backdrop-blur-xl h-max max-h-[50dvh] overflow-y-auto custom-scrollbar`}>
+                                <div className="bg-rank-900/80 border-rank-700/50 border border-t-0 shadow-2xl rounded-b-[2rem] rounded-t-none p-4 flex flex-col gap-2 backdrop-blur-xl h-max max-h-[50dvh] overflow-y-auto custom-scrollbar">
                                     {totems.map((totem) => (
                                         <div 
                                             key={totem.id} 
@@ -306,7 +306,7 @@ export const TempleModePage = () => {
                                         >
                                             <div className="w-14 h-14 shrink-0 flex flex-col items-center justify-center">
                                                 <div
-                                                    className={`w-full h-full ${theme.logo}`}
+                                                    className="w-full h-full bg-rank-50"
                                                     style={{
                                                         maskImage: `url(${totem.totemImageUrl})`,
                                                         WebkitMaskImage: `url(${totem.totemImageUrl})`,
@@ -322,10 +322,10 @@ export const TempleModePage = () => {
 
                                             <div className="flex-1 flex flex-col justify-center gap-1.5 min-w-0">
                                                 <div className="flex justify-between items-end w-full gap-3">
-                                                    <h4 className={`flex-1 min-w-0 font-passero font-bold text-lg leading-none truncate ${theme.title}`}>
+                                                    <h4 className="flex-1 min-w-0 font-passero font-bold text-lg leading-none truncate text-rank-50">
                                                         {totem.name}
                                                     </h4>
-                                                    <span className={`shrink-0 px-2 py-0.5 rounded-md text-[9px] uppercase font-bold tracking-wider ${theme.track} ${theme.subtitle}`}>
+                                                    <span className="shrink-0 px-2 py-0.5 rounded-md text-[9px] uppercase font-bold tracking-wider bg-rank-800 text-rank-100/70">
                                                         {totem.type}
                                                     </span>
                                                 </div>
@@ -333,18 +333,18 @@ export const TempleModePage = () => {
                                                 <div className="flex justify-between items-end w-full gap-3">
                                                     <div className="flex-1 min-w-0">
                                                         <ScrollingText 
-                                                            className={`text-[11px] leading-tight whitespace-nowrap ${theme.subtitle}`} 
+                                                            className="text-[11px] leading-tight whitespace-nowrap text-rank-100/70"
                                                             text={totem.goalDescription} 
                                                         />
                                                     </div>
-                                                    <span className={`shrink-0 text-[11px] font-mono font-bold leading-none ${theme.subtitle}`}>
+                                                    <span className="shrink-0 text-[11px] font-mono font-bold leading-none text-rank-100/70">
                                                         {totem.currentProgress.progress} / {totem.targetProgress}
                                                     </span>
                                                 </div>
 
-                                                <div className={`h-1.5 w-full rounded-full mt-1 overflow-hidden ${theme.track}`}>
+                                                <div className="h-1.5 w-full rounded-full mt-1 overflow-hidden bg-rank-800">
                                                     <div 
-                                                        className={`h-full rounded-full transition-all duration-700 ease-out ${totem.isUnlocked ? theme.progress : theme.progress}`} 
+                                                        className="h-full rounded-full transition-all duration-700 ease-out bg-rank-400" 
                                                         style={{ width: `${totem.progressPercentage}%` }} 
                                                     />
                                                 </div>

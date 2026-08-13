@@ -40,12 +40,12 @@ export const TempleModePopUpComponent = ({ onClose, theme, cascadingOptions, tTe
 
     return (
         <div
-            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm"
+            className={`${theme} fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm`}
             onClick={onClose}
         >
             {/* Main Modal Interactive Container */}
             <div
-                className={`relative w-[90%] max-w-md shadow-2xl flex flex-col rounded-[2.5rem] ${theme.background}`}
+                className="relative w-[90%] max-w-md shadow-2xl flex flex-col rounded-[2.5rem] bg-rank-900"
                 onClick={handleModalClick}
             >
                 {/* --- HEADER & DYNAMIC WHEEL SECTION --- */}
@@ -53,11 +53,11 @@ export const TempleModePopUpComponent = ({ onClose, theme, cascadingOptions, tTe
                     
                     {/* Title & Close Button */}
                     <div className="flex items-center justify-between z-10">
-                        <span className={`text-2xl font-passero font-bold tracking-wide ${theme.title}`}>
+                        <span className="text-2xl font-passero font-bold tracking-wide text-rank-50">
                             {tTemple("popup.title.timer")}
                         </span>
                         
-                        <button type="button" className={`${theme.subtitle} ${theme.subtitleHover} transition-colors`} onClick={onClose}>
+                        <button type="button" className="text-rank-100/70 hover:text-rank-100 transition-colors" onClick={onClose}>
                             <IconCircleXFilled className="h-8 w-8" />
                         </button>
                     </div>
@@ -67,7 +67,7 @@ export const TempleModePopUpComponent = ({ onClose, theme, cascadingOptions, tTe
                 <form onSubmit={handleSubmit} className="flex flex-col gap-6 px-8 pb-8" noValidate>
                     {/* Horizontal Timer Wheel */}
                     <div className="w-full flex flex-col gap-2">
-                        <div className={`flex justify-between items-center ${theme.title} text-sm font-bold uppercase tracking-wider`}>
+                        <div className={`flex justify-between items-center text-rank-50 text-sm font-bold uppercase tracking-wider`}>
                             <span>{tTemple("popup.duration")}</span>
                             <span className="tabular-nums">{formData.duration} min</span>
                         </div>
@@ -85,8 +85,8 @@ export const TempleModePopUpComponent = ({ onClose, theme, cascadingOptions, tTe
                                         onClick={(e) => handleDurationSelect(minutes, e)}
                                         className={`shrink-0 flex items-center justify-center p-3 rounded-2xl font-bold tabular-nums transition-all duration-200 focus:border-none
                                             ${isSelected 
-                                                ? `${theme.progress} ${theme.title} shadow-md` 
-                                                : `${theme.track} ${theme.subtitle}`
+                                                ? "bg-rank-400 text-rank-50 shadow-md"
+                                                : "bg-rank-800 text-rank-100/70"
                                             }
                                         `}
                                     >
@@ -115,7 +115,7 @@ export const TempleModePopUpComponent = ({ onClose, theme, cascadingOptions, tTe
                     {/* Start Action */}
                     <button
                         type="submit"
-                        className={`w-full mt-2 py-4 rounded-full border border-white/10 ${theme.title} font-bold text-xl tracking-wide shadow-[0_10px_30px_rgba(0,0,0,0.3)] transition-all duration-300 transform ${theme.button}`}
+                        className="w-full mt-2 py-4 rounded-full border border-white/10 text-rank-50 font-bold text-xl tracking-wide shadow-[0_10px_30px_rgba(0,0,0,0.3)] transition-all duration-300 transform bg-rank-600 hover:bg-rank-400 hover:text-rank-800"
                     >
                         {tTemple("popup.button")}
                     </button>

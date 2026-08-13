@@ -14,7 +14,7 @@ import { IconCircleXFilled, IconNote, IconPyramid } from "@tabler/icons-react";
 /** Assets, Utils & Constants */
 import { PROJECTS_ICONS } from "../../../../constants/projects_icons.js";
 import { PHASE_COLOURS } from "../../../../constants/phase_colours.js";
-import { RANK_THEMES } from "../../../../constants/rank_themes.js";
+import { RANK_CLASSES } from "../../../../constants/rank_classes.js";
 import tailwindConfig from "../../../../../tailwind.config.js";
 
 /**
@@ -32,18 +32,19 @@ const tailwindColors = fullConfig.theme.colors;
  * This component is primarily visual, rendering a modal to confirm the switching of active tasks.
  * It manages minimal local logic exclusively for UI interactions (e.g., resolving dynamic icons and colors
  * from the design system based on task metadata), avoiding the overhead of a dedicated headless hook.
+ * It strictly utilizes the global CSS variables architecture for Rank Theming.
  *
  * @component
  * @param {Object} props - The component props.
  * @param {Object} props.pendingSwitchTask - The target task data object the user wants to switch to.
  * @param {string} props.taskName - The name of the currently active task.
- * @param {Function} props.projectIcon - The React icon component of the currently active task.
- * @param {string} props.activeColorId - The color ID associated with the currently active task.
+ * @param {string} props.projectIcon - The ID of the React icon component of the currently active task.
+ * @param {number} props.activeColorId - The color ID associated with the currently active task.
  * @param {Function} props.cancelSwitchTask - Callback to close the modal without saving and cancel the switch.
  * @param {Function} props.confirmSwitchTask - Callback to execute the task switch and submit the activity description.
  * @param {string} props.activityDescription - Controlled state value for the activity description textarea.
  * @param {Function} props.setActivityDescription - Callback to update the activity description controlled state.
- * @returns {JSX.Element} The rendered confirmation modal.
+ * @returns {JSX.Element|null} The rendered confirmation modal, or null if no pending task exists.
  */
 export const ConfirmSwitchTaskComponent = ({
     pendingSwitchTask,
@@ -63,6 +64,14 @@ export const ConfirmSwitchTaskComponent = ({
      * Injects the translation function scoped to the common application namespace.
      */
     const { t } = useTranslation("app_common");
+
+    /**
+     * Global Synchronization Context
+     *
+     * Extracts the user's gamification data to dynamically resolve the active 
+     * visual theme (Rank CSS Variables) for the modal wrapper.
+     */
+    const { getTempleModeData } = useSync();
 
     /**
      * Active Task Icon Component
@@ -101,18 +110,13 @@ export const ConfirmSwitchTaskComponent = ({
      */
     const isTempleModeIntercept = pendingSwitchTask?.taskId === "temple_mode_intercept";
 
-    /**
+   /**
      * Dynamic Theme Extraction
      *
-     * If the component is rendering in the context of a Temple Mode interception,
-     * it accesses the global synchronization context to retrieve the user's current rank.
-     * This rank dictates the specific visual theme (colors, borders) applied to the modal.
+     * Extracts the user's rank. Defaults to '1' if the synchronization payload is still
+     * hydrating, preventing undefined CSS class interpolations that break variables.
      */
-    let theme;
-    if (isTempleModeIntercept) {
-        const { getTempleModeData } = useSync();
-        theme = RANK_THEMES[getTempleModeData().rank] || RANK_THEMES[0];
-    }
+    const rank = getTempleModeData()?.rank || 1;
 
     // --- 2. Render ---
     
@@ -120,7 +124,7 @@ export const ConfirmSwitchTaskComponent = ({
     
     return (
         <div
-            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm"
+            className={`${RANK_CLASSES[rank]} fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm`}
             onClick={cancelSwitchTask}
         >
             {/* Modal Content Container */}
@@ -178,8 +182,8 @@ export const ConfirmSwitchTaskComponent = ({
 
                             {/* Target Task Pill */}
                             <div
-                                className={`w-full flex items-center justify-between gap-3 py-3 px-4 rounded-xl text-primary ${isTempleModeIntercept ? theme.progress : ""}`}
-                                style={{ backgroundColor: !isTempleModeIntercept ? newColor : "" }}
+                                className={`w-full flex items-center justify-between gap-3 py-3 px-4 rounded-xl text-primary ${isTempleModeIntercept ? "bg-rank-600" : ""}`}
+                                style={{ backgroundColor: !isTempleModeIntercept ? newColor : undefined }}
                             >
                                 {isTempleModeIntercept ? (
                                     <>

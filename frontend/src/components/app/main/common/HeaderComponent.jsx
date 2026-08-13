@@ -31,7 +31,7 @@ import logoSabidurIA from "../../../../assets/ia/sabidurIAIcon.svg";
  * @param {Function} props.t - The i18n translation function.
  * @returns {JSX.Element} The rendered header component.
  */
-export const HeaderComponent = ({ page, primaryState, secondaryState, onTogglePrimary, onToggleSecondary, theme = {}, t }) => {
+export const HeaderComponent = ({ page, primaryState, secondaryState, onTogglePrimary, onToggleSecondary, theme = "", t }) => {
     // --- 1. Local UI Logic ---
 
     /**
@@ -62,8 +62,8 @@ export const HeaderComponent = ({ page, primaryState, secondaryState, onTogglePr
                 <div className="h-full w-fit flex items-center gap-2 md:gap-4 rounded-full">
                     {/* Active Page Indicator */}
                     <div className="h-full w-fit bg-primary flex items-center px-5 py-3 rounded-full shadow-md text-2xl font-bold text-primary-600">
-                        {theme ? (
-                            <h2 className={`${theme.header}`}>{page}</h2>
+                        {theme ? ( 
+                            <h2 className="text-rank-700">{page}</h2>
                         ) : (
                             <h2>{page}</h2>
                         )}
@@ -147,9 +147,9 @@ export const HeaderComponent = ({ page, primaryState, secondaryState, onTogglePr
 
                     {/* AI Assistant Global Action */}
                     <div className="h-full w-fit flex items-center gap-6">
-                        <button className="h-fit w-fit bg-primary p-3 rounded-full shadow-md">
+                        <button className={`h-fit w-fit ${theme ? "bg-rank" : "bg-primary"} p-3 rounded-full shadow-md`}>
                             <div
-                                className={`w-10 h-10 bg-primary-600 ${theme ? theme.headerIA : ""}`}
+                                className={`w-10 h-10 ${theme ? "bg-rank-700" : "bg-primary-600"}`}
                                 style={{
                                     maskImage: `url(${logoSabidurIA})`,
                                     WebkitMaskImage: `url(${logoSabidurIA})`,

@@ -7,7 +7,7 @@ import { useSync } from "../../../../core/useSync.js";
 import { useTimeLog } from "../../../../core/useTimeLog.js";
 
 /** Assets, Utils & Constants */
-import { RANK_THEMES } from "../../../../../constants/rank_themes.js";
+import { RANK_CLASSES } from "../../../../../constants/rank_classes.js";
 import { generateCascadingOptions } from "../../../../../utils/calendarUtils.js";
 
 /**
@@ -153,7 +153,7 @@ export const useTempleModeLogic = () => {
     const additionalData = useMemo(() => {
         if (!data) return null;
 
-        const theme = RANK_THEMES[data.rank] || RANK_THEMES[0];
+        const theme = RANK_CLASSES[data.rank] || RANK_CLASSES[0];
         
         const progressPercentage = Math.min(
             Math.round((data.currentHours / data.requiredHours) * 100), 
