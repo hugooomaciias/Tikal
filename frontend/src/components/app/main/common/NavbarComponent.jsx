@@ -137,11 +137,11 @@ export const NavbarComponent = ({ theme }) => {
                 <button
                     type="button"
                     onClick={handleNavigateToSettings}
-                    className={`relative w-12 h-12 flex-shrink-0 rounded-full overflow-hidden border-[3px] ${theme ? "border-rank-900/80" : "border-primary-300"} cursor-pointer`}
+                    className="relative w-12 h-12 flex-shrink-0 rounded-full overflow-hidden cursor-pointer"
                 >
                     <img
                         className="w-full h-full object-cover shadow-md"
-                        src="/public/Avatar_0.svg"
+                        src="/public/Avatar_0.jpg"
                         alt="User Avatar"
                     />
                 </button>

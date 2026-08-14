@@ -10,6 +10,7 @@ import { ConfirmSwitchTaskComponent } from "../components/app/main/common/Confir
 
 /** Contexts, Hooks & Services */
 import { useTimeLogController } from "../hooks/controllers/time/useTimeLogController.js";
+import { useSync } from "../hooks/core/useSync.js";
 
 // eslint-disable-next-line react-refresh/only-export-components
 export const TimeLogContext = createContext();
@@ -41,6 +42,14 @@ export const TimeLogProvider = ({ children }) => {
     const tracker = useTimeLogController();
 
     /**
+     * Main Context Hook
+     *
+     * Extracts global application state methods regarding calendar events, tasks, user preferences,
+     * and overarching loading status from the synchronized backend payload.
+     */
+    const { fetchTempleModeGamificationUpdate } = useSync();
+
+    /**
      * Extracted States and Actions
      *
      * Separates the controller's payload into reactive data (states) and 
@@ -64,6 +73,7 @@ export const TimeLogProvider = ({ children }) => {
                 taskName={trackerStates.activeWidgetData?.entityName || ""}
                 colorId={trackerStates.activeWidgetData?.colour}
                 projectIcon={trackerStates.activeWidgetData?.logo}
+                updateGamificationEvents={fetchTempleModeGamificationUpdate}
             />
 
             {trackerStates.showSwitchModal && (

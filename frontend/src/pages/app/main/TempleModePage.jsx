@@ -68,7 +68,7 @@ export const TempleModePage = () => {
             )}
 
             {/* Core Scrollable Content Area */}
-            <section className="flex-1 flex flex-col gap-4 md:gap-6 w-full h-full overflow-hidden">
+            <section className="flex-1 flex flex-col gap-4 md:gap-6 w-full h-full overflow-y-auto custom-scrollbar ">
                 <div className="flex flex-col gap-3 md:gap-4 w-full min-w-0">
                     <HeaderComponent
                         page={tTemple("temple-mode_title")}
@@ -77,7 +77,7 @@ export const TempleModePage = () => {
                         t={tTemple}
                     />
 
-                    <div className="flex flex-col lg:flex-row items-start justify-between gap-4 w-full min-w-0">
+                    <div className="flex flex-col md:flex-row items-start justify-between gap-4 w-full min-w-0">
                         {/* Rank Badge & Timer Config */}
                         <div className="flex flex-col gap-4 w-full lg:w-fit min-w-[33%]">
                             
@@ -144,7 +144,7 @@ export const TempleModePage = () => {
                             </div>
 
                             {/* --- Active Timer & Chronometer Module --- */}
-                            <div className="w-full flex flex-1 flex-col items-center justify-center gap-6 bg-rank-900/80 border-rank-700/50 border shadow-lg rounded-[2.5rem] p-8 transition-all duration-300 backdrop-blur-md relative overflow-hidden">           
+                            <div className={`${!isRunning ? "hidden md:flex" : ""} w-full flex flex-1 flex-col items-center justify-center gap-6 bg-rank-900/80 border-rank-700/50 border shadow-lg rounded-[2.5rem] p-8 transition-all duration-300 backdrop-blur-md relative overflow-hidden`}>           
                                 {/* Circular Functional Progress Ring */}
                                 <div className="relative w-48 h-48 rounded-full flex items-center justify-center shadow-[inset_0_0_20px_rgba(0,0,0,0.5)] bg-quaternary-900/30">
                                     
@@ -206,7 +206,7 @@ export const TempleModePage = () => {
                                             onClick={handleStopSession}
                                             className="w-full mt-2 py-4 rounded-full border border-white/10 font-bold text-xl tracking-wide shadow-[0_10px_30px_rgba(0,0,0,0.3)] transition-all duration-300 transform bg-tertiary-300 text-tertiary-700"
                                         >
-                                            {tTemple("stopSessionButton")}
+                                            {tTemple("button.stop")}
                                         </button>
                                     ) : (
                                         <button 
@@ -217,20 +217,35 @@ export const TempleModePage = () => {
                                         >
                                             <div className="flex items-center justify-center gap-2 text-rank-50">
                                                 <IconHourglassFilled stroke={2} className="w-6 h-6 opacity-90" />
-                                                <span className="mt-0.5 font-semibold">Configurar Temporizador</span>
+                                                <span className="mt-0.5 font-semibold">{tTemple("button.start")}</span>
                                             </div>
                                         </button>
                                     )}
                                 </div>
                             </div>
+
+                            {!isRunning && (
+                                <button 
+                                    type="button"
+                                    onClick={handleOpenTimerConfig}
+                                    className="md:hidden p-3.5 rounded-2xl bg-rank-900/80 border-rank-700/50 border shadow-lg transition-all duration-300 flex items-center justify-center"
+                                    title="Configurar Temporizador"
+                                >
+                                    <div className="flex items-center justify-center gap-2 text-rank-50">
+                                        <IconHourglassFilled stroke={2} className="w-6 h-6 opacity-90" />
+                                        <span className="mt-0.5 font-semibold">{tTemple("button.start")}</span>
+                                    </div>
+                                </button>
+                            )}
                         </div>
                         
                         {/* Active Totem Target & Expandable Menu */}
-                        <div className="relative w-full lg:w-fit min-w-[35%]" ref={menuRef}>
+                        <div className={`${isRunning ? "hidden md:block" : ""} relative w-full lg:w-fit min-w-[35%]`} ref={menuRef}>
                             <TotemsBadgeComponent
                                 totems={totems}
                                 nextTargetTotem={nextTargetTotem}
-                                tTemple={tTemple} />
+                                tTemple={tTemple}
+                            />
                         </div>
                     </div>
                 </div>

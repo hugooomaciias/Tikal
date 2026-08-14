@@ -71,7 +71,6 @@ export const useTempleModeLogic = () => {
      *
      * Controls the visual mounting and unmounting of the session configuration modal.
      */
-    cons
     const [isPopUpOpen, setIsPopUpOpen] = useState(false);
 
     /**

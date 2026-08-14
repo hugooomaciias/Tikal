@@ -79,7 +79,7 @@ export const Header = ({ data, isEditing, checkChanges, onEnableEdit, onDisableE
                         <div className="h-full w-full bg-primary-600/40 rounded-full overflow-hidden">
                             <img
                                 className="w-full h-full object-cover shadow-md"
-                                src="/public/Avatar_0.svg"
+                                src="/public/Avatar_0.jpg"
                                 alt="User Avatar"
                             />
                         </div>
@@ -179,7 +179,7 @@ export const Header = ({ data, isEditing, checkChanges, onEnableEdit, onDisableE
                         <div className="h-full w-full bg-primary-600/40 rounded-full overflow-hidden cursor-pointer">
                             <img
                                 className="w-full h-full object-cover shadow-md"
-                                src="/public/Avatar_0.svg"
+                                src="/public/Avatar_0.jpg"
                                 alt="User Avatar"
                             />
                         </div>

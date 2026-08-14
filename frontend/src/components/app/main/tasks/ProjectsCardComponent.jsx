@@ -134,12 +134,12 @@ export const ProjectsCardComponent = ({ data, selectedId, onSelect, formatShortD
                                         onDoubleClick={() => handleEditProject(project)}
                                         onContextMenu={(e) => handleContextMenu(e, project)}
                                         className={`flex items-center justify-between text-primary rounded-full py-3 transition-all duration-200 cursor-pointer bg-transparent ${
-                                            isActive ? "md:bg-primary-200 p-3" : ""
+                                            isActive ? "md:bg-primary-200" : ""
                                         } ${isBeingEdited ? "bg-quaternary-50/60" : "bg-transparent"}`}
                                     >
                                         {/* Project Icon and Title Section */}
                                         <div className="flex items-center gap-4 flex-1 min-w-0">
-                                            <div className={`shrink-0 h-fit w-fit bg-primary-200 rounded-full ${isActive ? "" : "p-3"}`}>
+                                            <div className="shrink-0 h-fit w-fit bg-primary-200 rounded-full p-3">
                                                 <IconComponent className="h-8 w-8" />
                                             </div>
 

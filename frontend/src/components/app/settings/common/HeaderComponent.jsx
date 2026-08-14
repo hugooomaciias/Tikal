@@ -72,11 +72,11 @@ export const HeaderComponent = () => {
             <div className="flex items-center justify-between">
                 {/* User Profile & Subscription Info */}
                 <div className="h-full w-fit flex items-center gap-2 md:gap-4 rounded-full">
-                    <div className="h-full w-fit bg-primary flex items-center rounded-full shadow-md pr-5">
-                        <div className="relative w-20 h-20 flex-shrink-0 rounded-full overflow-hidden">
+                    <div className="h-full w-fit bg-primary flex items-center gap-3 rounded-full shadow-md pl-3 pr-5">
+                        <div className="relative w-14 h-14 flex-shrink-0 rounded-full overflow-hidden cursor-pointer">
                             <img
                                 className="w-full h-full object-cover shadow-md"
-                                src="/public/Avatar_0.svg"
+                                src="/public/Avatar_0.jpg"
                                 alt="User Avatar"
                             />
                         </div>

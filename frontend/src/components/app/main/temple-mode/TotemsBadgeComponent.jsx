@@ -86,7 +86,7 @@ export const TotemsBadgeComponent = ({ totems, lockedTotems, nextTargetTotem, tT
         <>
             <div 
                 onClick={toggleTotemsMenu}
-                className={`relative isolate flex items-center gap-5 border-rank-700 border pl-6 p-4 transition-all duration-300 backdrop-blur-sm cursor-pointer min-h-[112px] h-fit z-10 hover:brightness-125 overflow-hidden
+                className={`hidden relative isolate md:flex items-center gap-5 border-rank-700 border pl-6 p-4 transition-all duration-300 backdrop-blur-sm cursor-pointer min-h-[112px] h-fit z-10 hover:brightness-125 overflow-hidden
                     ${isTotemsMenuOpen ? "rounded-t-[2rem] rounded-b-none border-b-0 shadow-none" : "rounded-[2rem] shadow-lg"}
                 `}
             >
@@ -171,8 +171,8 @@ export const TotemsBadgeComponent = ({ totems, lockedTotems, nextTargetTotem, tT
             </div>
 
             {/* Expandable Menu */}
-            <div className={`absolute top-full left-0 right-0 w-full z-50 transition-all duration-300 origin-top backdrop-blur-sm ${isTotemsMenuOpen ? "opacity-100 scale-y-100" : "opacity-0 scale-y-0 pointer-events-none"}`}>
-                <div className="relative isolate border border-rank-700 border-t-0 shadow-2xl rounded-b-[2rem] rounded-t-none p-4 flex flex-col gap-2 backdrop-blur-xl h-max max-h-[50dvh] bg-rank-900/80 overflow-y-auto custom-scrollbar">
+            <div className={`absolute top-full left-0 right-0 w-full z-50 transition-all duration-300 origin-top backdrop-blur-sm ${isTotemsMenuOpen ? "md:opacity-100 md:scale-y-100" : "md:opacity-0 md:scale-y-0 md:pointer-events-none"}`}>
+                <div className={`relative isolate border border-rank-700 border-t-0 shadow-2xl rounded-[2rem] ${isTotemsMenuOpen ? "md:rounded-t-none" : ""} p-4 flex flex-col gap-2 backdrop-blur-xl h-max max-h-[50dvh] bg-rank-900/80 overflow-y-auto custom-scrollbar`}>
                     {totems.map((totem) => (
                         <div key={totem.id} className="w-full flex flex-col gap-2">
                             {/* Legacy rank visual separator */}
@@ -230,7 +230,7 @@ export const TotemsBadgeComponent = ({ totems, lockedTotems, nextTargetTotem, tT
                                                 />
                                             </div>
                                             <span className="shrink-0 text-[11px] font-mono font-bold leading-none text-rank-100 opacity-80">
-                                                {totem.currentValue1} / {totem.targetValue1} {totem.unit}
+                                                {totem.isUnlocked ? `${totem.targetValue1} / ${totem.targetValue1}` : `${totem.currentValue1} / ${totem.targetValue1}`} {totem.unit}
                                             </span>
                                         </div>
                                         <div className="h-1.5 w-full rounded-full overflow-hidden bg-rank-800">
@@ -252,7 +252,7 @@ export const TotemsBadgeComponent = ({ totems, lockedTotems, nextTargetTotem, tT
                                                     />
                                                 </div>
                                                 <span className="shrink-0 text-[11px] font-mono font-bold leading-none text-rank-100 opacity-80">
-                                                    {totem.currentValue2} / {totem.targetValue2} {totem.unit}
+                                                    {totem.isUnlocked ? `${totem.targetValue2} / ${totem.targetValue2}` : `${totem.currentValue2} / ${totem.targetValue2}`} {totem.unit}
                                                 </span>
                                             </div>
                                             <div className="h-1.5 w-full rounded-full overflow-hidden bg-rank-800">

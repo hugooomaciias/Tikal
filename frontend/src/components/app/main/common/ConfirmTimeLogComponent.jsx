@@ -43,7 +43,8 @@ export const ConfirmTimeLogComponent = ({
     confirmStopTimer,
     taskName,
     colorId,
-    projectIcon
+    projectIcon,
+    updateGamificationEvents
 }) => {
     // --- 1. Local UI Logic ---
 
@@ -111,6 +112,11 @@ export const ConfirmTimeLogComponent = ({
      */
     const targetTimeSeconds = (activeWidgetData?.targetTime || 25) * 60;
     const isStoppedEarly = isTempleModeActive && (accumulatedSeconds < targetTimeSeconds);
+
+    const handleConfirmStop = () => {
+        confirmStopTimer();
+        updateGamificationEvents();
+    }
 
     /**
      * Dynamic Theme Styles Configuration
@@ -225,7 +231,7 @@ export const ConfirmTimeLogComponent = ({
                         {/* Confirmation Action Section */}
                         <button
                             type="button"
-                            onClick={confirmStopTimer}
+                            onClick={handleConfirmStop}
                             className={`btn ${styles.btn} md:min-w-1/2 mx-auto`}
                         >
                             <span>{t("confirm_time_log.button")}</span>

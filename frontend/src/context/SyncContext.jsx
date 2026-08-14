@@ -4,6 +4,9 @@ import { createContext, useState, useCallback, useEffect, useRef } from "react";
 /** Routing & Navigation */
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
 
+/** Components & Layouts */
+import { GamificationPopUpComponent } from "../components/app/main/temple-mode/GamificationPopUpComponent.jsx";
+
 /** Config, Constants & Utils */
 import { apiCall } from "../services/core/apiClient.js";
 
@@ -125,128 +128,17 @@ export const SyncProvider = ({ children }) => {
 
     // --- 4. API & Action Methods ---
 
-    /**
-     * Get Tasks Data
-     *
-     * Retrieves the comprehensive tasks data payload (which typically includes projects, 
-     * phases, and individual task structures) from the globally synced dashboard state. 
-     * This acts as the primary data selector for task-related components and hooks.
-     *
-     * @function
-     * @returns {Object|null} The hierarchical tasks data object, or null if the dashboard data is not yet loaded.
-     */
-    const getTasksData = useCallback(() => {
-        return rawDashboardData?.tasks || null;
-    }, [rawDashboardData]);
-
-    /**
-     * Get User Profile
-     *
-     * Retrieves the user profile information from the synced dashboard data.
-     *
-     * @function
-     * @returns {Object|null} The user profile object, or null if not loaded.
-     */
-    const getUserProfile = useCallback(() => {
-        return rawDashboardData?.userProfile || null;
-    }, [rawDashboardData]);
-
-    /**
-     * Get Home General Information
-     *
-     * Retrieves the general information intended for the home dashboard layout.
-     *
-     * @function
-     * @returns {Object|null} The home general information object, or null if not loaded.
-     */
-    const getHomeGeneralInformation = useCallback(() => {
-        return rawDashboardData?.homeGeneralInformation || null;
-    }, [rawDashboardData]);
-
-    /**
-     * Get Home Layout Settings
-     *
-     * Retrieves the personalized layout configuration for the user's home dashboard.
-     *
-     * @function
-     * @returns {Object|null} The home layout settings object, or null if not loaded.
-     */
-    const getHomeLayout = useCallback(() => {
-        return rawDashboardData?.settings?.layoutsDashboards?.home || null;
-    }, [rawDashboardData]);
-
-    /**
-     * Get Home Widgets Data
-     *
-     * Retrieves the specific widget data payloads configured for the home dashboard.
-     *
-     * @function
-     * @returns {Object|null} The home widgets data object, or null if not loaded.
-     */
-    const getHomeWidgetsData = useCallback(() => {
-        return rawDashboardData?.homeWidgetsData || null;
-    }, [rawDashboardData]);
-
-    /**
-     * Get Statistics General Information
-     *
-     * Retrieves the general information intended for the statistics dashboard view.
-     *
-     * @function
-     * @returns {Object|null} The statistics general information object, or null if not loaded.
-     */
-    const getStatisticsGeneralInformation = useCallback(() => {
-        return rawDashboardData?.statisticsGeneralInformation || null;
-    }, [rawDashboardData]);
-
-    /**
-     * Get Statistics Layout Settings
-     *
-     * Retrieves the personalized layout configuration for the user's statistics dashboard.
-     *
-     * @function
-     * @returns {Object|null} The statistics layout settings object, or null if not loaded.
-     */
-    const getStatisticsLayout = useCallback(() => {
-        return rawDashboardData?.settings?.layoutsDashboards?.statistics || null;
-    }, [rawDashboardData]);
-
-    /**
-     * Get Statistics Widgets Data
-     *
-     * Retrieves the specific widget data payloads configured for the statistics dashboard.
-     *
-     * @function
-     * @returns {Object|null} The statistics widgets data object, or null if not loaded.
-     */
-    const getStatisticsWidgetsData = useCallback(() => {
-        return rawDashboardData?.statisticsWidgetsData || null;
-    }, [rawDashboardData]);
-
-    /**
-     * Get Calendar Events
-     *
-     * Retrieves the comprehensive list of calendar events from the synced dashboard data.
-     *
-     * @function
-     * @returns {Object|null} The calendar events object, or null if not loaded.
-     */
-    const getCalendarEvents = useCallback(() => {
-        return rawDashboardData?.calendarEvents || null;
-    }, [rawDashboardData]);
-
-    /**
-     * Get Temple Mode Data
-     *
-     * Retrieves the specific configuration and state payload for the "Temple Mode" 
-     * (deep focus/zen mode) from the globally synced dashboard data.
-     *
-     * @function
-     * @returns {Object|null} The Temple Mode data object, or null if not loaded.
-     */
-    const getTempleModeData = useCallback(() => {
-        return rawDashboardData?.templeMode || null;
-    }, [rawDashboardData]);
+    const getTasksData = useCallback(() => rawDashboardData?.tasks || null, [rawDashboardData]);
+    const getUserProfile = useCallback(() => rawDashboardData?.userProfile || null, [rawDashboardData]);
+    const getHomeGeneralInformation = useCallback(() => rawDashboardData?.homeGeneralInformation || null, [rawDashboardData]);
+    const getHomeLayout = useCallback(() => rawDashboardData?.settings?.layoutsDashboards?.home || null, [rawDashboardData]);
+    const getHomeWidgetsData = useCallback(() => rawDashboardData?.homeWidgetsData || null, [rawDashboardData]);
+    const getStatisticsGeneralInformation = useCallback(() => rawDashboardData?.statisticsGeneralInformation || null, [rawDashboardData]);
+    const getStatisticsLayout = useCallback(() => rawDashboardData?.settings?.layoutsDashboards?.statistics || null, [rawDashboardData]);
+    const getStatisticsWidgetsData = useCallback(() => rawDashboardData?.statisticsWidgetsData || null, [rawDashboardData]);
+    const getCalendarEvents = useCallback(() => rawDashboardData?.calendarEvents || null, [rawDashboardData]);
+    const getTempleModeData = useCallback(() => rawDashboardData?.templeMode || null, [rawDashboardData]);
+    const getGamificationEvents = useCallback(() => rawDashboardData?.gamificationEvents || null, [rawDashboardData]);
 
     /**
      * Update Context Data (The Golden Key)
@@ -273,6 +165,36 @@ export const SyncProvider = ({ children }) => {
         });
     }, []);
 
+    /**
+     * Fetch Temple Mode Gamification Update
+     *
+     * Dedicated action to fetch the re-evaluation of Temple Mode progress 
+     * immediately after a session concludes. It surgically updates the global 
+     * state with the new `templeMode` layout and `gamificationEvents` array 
+     * without requiring a full heavy sync.
+     *
+     * @async
+     * @function
+     */
+    const fetchTempleModeGamificationUpdate = useCallback(async () => {
+        try {
+            const response = await apiCall("/dashboard/temple-status", "GET"); 
+            
+            if (response) {
+                setRawDashboardData((prevData) => {
+                    if (!prevData) return prevData;
+                    return {
+                        ...prevData,
+                        templeMode: response.templeMode || prevData.templeMode,
+                        gamificationEvents: response.gamificationEvents || prevData.gamificationEvents,
+                    };
+                });
+            }
+        } catch (error) {
+            console.error("Error al actualizar la gamificación del Modo Templo:", error);
+        }
+    }, []);
+
     // --- 5. Context Provider ---
 
     return (
@@ -291,12 +213,16 @@ export const SyncProvider = ({ children }) => {
                 getStatisticsWidgetsData,
                 getCalendarEvents,
                 getTempleModeData,
+                getGamificationEvents,
+                fetchTempleModeGamificationUpdate,
                 isDataLoaded: !!rawDashboardData,
                 refreshData: sync,
             }}
         >
             {children}
             <Outlet />
+
+            <GamificationPopUpComponent />
         </SyncContext.Provider>
     );
 };
