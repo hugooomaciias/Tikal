@@ -11,6 +11,7 @@
                 "noMoreTotems": "Nivel completado"
             },
             "menu": {
+                "previous_rank_separator": "Rangos anteriores",
                 "totem_types": {
                     "concentration": "Concentración",
                     "planning_accuracy": "Precisión de planificación",

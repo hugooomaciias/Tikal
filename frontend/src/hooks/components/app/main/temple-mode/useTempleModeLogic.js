@@ -17,6 +17,9 @@ import { generateCascadingOptions } from "../../../../../utils/calendarUtils.js"
  * (deep focus / zen mode) interface. It handles user progression calculations, rank theme 
  * resolutions, totem unlock statuses, and the active session timer logic, decoupling all 
  * business logic from the visual layer.
+ * 
+ * Recent upgrades include handling multi-goal totems (Progress 1 & 2), filtering legacy 
+ * unachieved totems, and computing visual separators for the UI rendering engine.
  *
  * @hook
  * @returns {Object} A structured payload containing translations, UI states, derived datasets, and action handlers.
@@ -64,17 +67,11 @@ export const useTempleModeLogic = () => {
     // --- 2. Local UI State ---
 
     /**
-     * Totems Menu Visibility State
-     *
-     * Tracks whether the user progression and unlocked totems dropdown is currently expanded.
-     */
-    const [isTotemsMenuOpen, setIsTotemsMenuOpen] = useState(false);
-
-    /**
      * Configuration PopUp Visibility State
      *
      * Controls the visual mounting and unmounting of the session configuration modal.
      */
+    cons
     const [isPopUpOpen, setIsPopUpOpen] = useState(false);
 
     /**
@@ -149,41 +146,91 @@ export const useTempleModeLogic = () => {
      * Memoized transformer that evaluates raw backend metrics against standard thresholds.
      * Resolves the active UI theme based on user rank and computes the mathematical progress
      * of both the overarching rank and individual categorical totems.
+     * 
+     * Features included in this transformer:
+     * - Strict filtering to hide already completed legacy totems.
+     * - Rank-based and ID-based descending sorting.
+     * - Multi-goal progression tracking (Progress 1 & 2).
+     * - Visual layout tagging (injecting a separator flag for legacy groups).
      */
     const additionalData = useMemo(() => {
         if (!data) return null;
 
         const theme = RANK_CLASSES[data.rank] || RANK_CLASSES[0];
-        
-        const progressPercentage = Math.min(
-            Math.round((data.currentHours / data.requiredHours) * 100), 
-            100
-        );
+        const progressPercentage = Math.min(Math.round((data.currentHours / data.requiredHours) * 100), 100);
 
         const rawTotems = data.totems || [];
-        const totems = rawTotems.map((totem) => {
-            const isUnlocked = totem.currentProgress.progress >= totem.targetProgress;
-            const totemProgressPercentage = Math.min(
-                Math.round((totem.currentProgress.progress / totem.targetProgress) * 100), 
-                100
-            );
 
-            const type = totem.totemType ? tTemple(`subheader.totem_badge.menu.totem_types.${totem.totemType.toLowerCase()}`) : "";
+        // Retains all totems from the current rank, but only the UNLOCKED (failed) ones from previous ranks.
+        const filteredTotems = rawTotems.filter((totem) => {
+            if (totem.rank === data.rank) return true;
+            if (totem.rank < data.rank) return !totem.isActive;
+            return false;
+        });
+
+        // Sorts descending by rank (newest first). If ranks match, preserves the original chronological ID.
+        const sortedTotems = filteredTotems.sort((a, b) => {
+            if (b.rank !== a.rank) {
+                return b.rank - a.rank;
+            }
+            return a.id - b.id;
+        });
+
+        // Data Formatting & Dual-Goal Computation
+        const processedTotems = sortedTotems.map((totem) => {
+            const isUnlocked = totem.isActive;
+
+            const currentValue1 = totem.currentProgress?.progress1 || 0;
+            const targetValue1 = totem.targetProgress1 || 1;
+            const progressPercentage1 = isUnlocked ? 100 : Math.min(Math.round((currentValue1 / targetValue1) * 100), 100);
+            
+            const hasSecondGoal = totem.targetProgress2 !== null && totem.targetProgress2 !== undefined;
+            const currentValue2 = totem.currentProgress?.progress2 || 0;
+            const targetValue2 = totem.targetProgress2 || 1;
+
+            let progressPercentage2 = 0;
+            if (hasSecondGoal) {
+                progressPercentage2 = isUnlocked ? 100 : Math.min(Math.round((currentValue2 / targetValue2) * 100), 100);
+            }
+
+            const unit = totem.totemType === "CONCENTRATION" ? "h" : "%";
             
             return {
                 ...totem,
                 isUnlocked,
-                progressPercentage: totemProgressPercentage,
-                type
+                progressPercentage: progressPercentage1,
+                currentValue1,
+                targetValue1,
+                progressPercentage1,
+                hasSecondGoal,
+                currentValue2,
+                targetValue2,
+                progressPercentage2,
+                unit
             };
         });
 
-        const unlockedTotems = totems.filter(tTemple => tTemple.isUnlocked);
-        const lockedTotems = totems.filter(tTemple => !tTemple.isUnlocked);
+        // Identifies the exact index where the first lower rank totem begins,
+        // allowing the React component to effortlessly inject a visual separator.
+        const firstPreviousRankIndex = processedTotems.findIndex(t => t.rank < data.rank);
+        if (firstPreviousRankIndex !== -1) {
+            processedTotems[firstPreviousRankIndex].isFirstOfPreviousRanks = true;
+        }
+
+        // Divides the processed array to figure out which totem the user should currently focus on.
+        const unlockedTotems = processedTotems.filter(t => t.isUnlocked);
+        const lockedTotems = processedTotems.filter(t => !t.isUnlocked);
         const nextTargetTotem = lockedTotems.length > 0 ? lockedTotems[0] : unlockedTotems[unlockedTotems.length - 1];
 
-        return { theme, progressPercentage, totems, unlockedTotems, lockedTotems, nextTargetTotem };
-    }, [data, tTemple]);
+        return { 
+            theme, 
+            progressPercentage, 
+            totems: processedTotems, 
+            nextTargetTotem,
+            unlockedCount: unlockedTotems.length,
+            totalCount: processedTotems.length
+        };
+    }, [data]);
 
     /**
      * Formatted Time String
@@ -222,24 +269,6 @@ export const useTempleModeLogic = () => {
     // --- 4. Side Effects ---
 
     /**
-     * Outside Click Dismissal Effect
-     *
-     * Binds a global event listener to dismiss the totems menu if the user interacts
-     * with elements outside its bounding DOM node, ensuring a clean UI state.
-     */
-    useEffect(() => {
-        const handleClickOutside = (event) => {
-            if (isTotemsMenuOpen && menuRef.current && !menuRef.current.contains(event.target)) {
-                setIsTotemsMenuOpen(false);
-            }
-        };
-
-        document.addEventListener("mousedown", handleClickOutside);
-
-        return () => document.removeEventListener("mousedown", handleClickOutside);
-    }, [isTotemsMenuOpen]);
-
-    /**
      * Trigger Guard Reset Effect
      *
      * Monitors the execution state of the timer. If the session is fully stopped
@@ -266,15 +295,6 @@ export const useTempleModeLogic = () => {
     }, [isRunning, currentTime, showStopModal, hasAutoTriggered]);
 
     // --- 5. Interaction Handlers ---
-
-    /**
-     * Toggle Totems Menu Handler
-     *
-     * Inverts the boolean state controlling the expansion of the user progression dropdown.
-     */
-    const toggleTotemsMenu = useCallback(() => {
-        setIsTotemsMenuOpen((prev) => !prev);
-    }, []);
 
     /**
      * Timer Configuration Initializer
@@ -310,8 +330,8 @@ export const useTempleModeLogic = () => {
 
     return {
         translations: { tTemple, tCommon },
-        templeModeStates: { menuRef, isDataLoaded, isTotemsMenuOpen, isRunning, isPopUpOpen },
+        templeModeStates: { menuRef, isDataLoaded, isRunning, isPopUpOpen },
         templeModeData: { data, additionalData, formattedTime, timerProgressPercentage, cascadingOptions },
-        templeModeActions: { toggleTotemsMenu, handleOpenTimerConfig, handleClosePopUp, handleStopSession }
+        templeModeActions: { handleOpenTimerConfig, handleClosePopUp, handleStopSession }
     };
 };
