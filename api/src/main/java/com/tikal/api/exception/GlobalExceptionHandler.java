@@ -6,7 +6,9 @@ import io.jsonwebtoken.security.SignatureException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.messaging.handler.annotation.support.MethodArgumentNotValidException;
+import org.springframework.messaging.handler.annotation.support.MethodArgumentTypeMismatchException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -72,7 +74,7 @@ public class GlobalExceptionHandler {
     }
 
     // ==========================================
-    // 3. FORBIDDEN ACCESS (HTTP 403)
+    // FORBIDDEN ACCESS (HTTP 403)
     // ==========================================
     @ExceptionHandler({AccessDeniedException.class, ForbiddenAccessException.class})
     public ResponseEntity<ErrorResponse> handleForbidden(Exception ex, HttpServletRequest request) {
@@ -97,6 +99,27 @@ public class GlobalExceptionHandler {
             message = "El token proporcionado no es válido. Por favor, inicia sesión nuevamente.";
         }
         return buildResponse(HttpStatus.UNAUTHORIZED, message, null, request);
+    }
+
+    // ==========================================
+    // BAD_FORM JSON OR INCORRECT TYPES - HTTP 400
+    // ==========================================
+    @ExceptionHandler({HttpMessageNotReadableException.class, MethodArgumentTypeMismatchException.class})
+    public ResponseEntity<ErrorResponse> handleMessageNotReadable(Exception ex, HttpServletRequest request) {
+        String message = "El formato de los datos enviados es incorrecto (revisa la sintaxis del JSON, fechas o tipos de datos).";
+        return buildResponse(HttpStatus.BAD_REQUEST, message, null, request);
+    }
+
+    // ==========================================
+    // CATCH-ALL: internal server errors (HTTP 500)
+    // ==========================================
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ErrorResponse> handleAllUncaughtExceptions(Exception ex, HttpServletRequest request) {
+        // Print the stack trace in the server to debug
+        ex.printStackTrace();
+
+        String message = "Ha ocurrido un error inesperado en el servidor. Por favor, contacta con soporte.";
+        return buildResponse(HttpStatus.INTERNAL_SERVER_ERROR, message, null, request);
     }
 
     // ==========================================

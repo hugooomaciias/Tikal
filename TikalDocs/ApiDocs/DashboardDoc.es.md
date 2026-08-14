@@ -1,21 +1,23 @@
-# 📊 Dashboard Sync API
+# Dashboard & Temple Sync API
 
-Este documento describe el endpoint principal de sincronización del espacio de trabajo (Workspace). Es la petición más pesada de la aplicación y se encarga de servir toda la información necesaria para el primer renderizado del Dashboard del usuario.
+Este documento describe los endpoints principales para la obtención del estado del espacio de trabajo (Workspace) y las actualizaciones ligeras del Modo Templo.
 
-## 📡 Endpoint Detalles
+---
+
+## 1. Sincronización Completa (`/dashboard/sync`)
+
+Es la petición más pesada de la aplicación. Se encarga de servir toda la información necesaria para el primer renderizado del Dashboard del usuario.
 
 * **Ruta:** `GET /dashboard/sync`
 * **Autenticación:** Requerida con *access_token* (`Bearer Token` en la cabecera `Authorization`)
 * **Propósito:** Obtener el estado global del usuario, configuraciones, eventos próximos, y la data pre-calculada de todos los widgets del layout.
 
----
+### Estructura del Payload (`WorkspaceSyncDTO`)
 
-## 📦 Estructura del Payload (`WorkspaceSyncDTO`)
+A continuación se muestra la estructura completa del JSON devuelto.
 
-A continuación se muestra la estructura completa del JSON devuelto con datos de ejemplo. 
-
-> **⚠️ Nota para Frontend:** 
-> Los campos `homeWidgetsData` y `statisticsWidgetsData` son diccionarios dinámicos. Sus claves y estructuras internas dependen de los widgets activos del usuario. Para ver la estructura exacta de cada widget devuelto en estos mapas, consulta el documento `TheoryDocs/Widgets.md`.
+> **⚠️ Nota para Frontend:**
+> Los campos `homeWidgetsData` y `statisticsWidgetsData` son diccionarios dinámicos. Para ver la estructura exacta de cada widget devuelto en estos mapas, consulta el documento `TheoryDocs/Widgets.md`.
 
 ```json
 {
@@ -30,15 +32,19 @@ A continuación se muestra la estructura completa del JSON devuelto con datos de
         "name": "IMIX",
         "goalDescription": "Alcanza 10 horas totales de concentración",
         "currentProgress": {
-          "progress": 3,
-          "description": "3 / 10 h"
+          "progress1": 3,
+          "progress2": null,
+          "description1": "3 / 10 h",
+          "description2": null
         },
-        "targetProgress": 10,
+        "targetProgress1": 10,
+        "targetProgress2": null,
         "totemImageUrl": "/images/totems/imix.svg",
         "isActive": true,
-        "totemType": "CONCENTRATION"
+        "justUnlocked": false,
+        "totemType": "CONCENTRATION",
+        "rank": 1
       }
-      // ... (resto de totems conseguidos por el usuario)
     ]
   },
   
@@ -46,7 +52,6 @@ A continuación se muestra la estructura completa del JSON devuelto con datos de
     "focusSessionMinutes": 25,
     "themeSetting": "DARK",
     "userLanguage": "es_ES"
-    // ... (resto de preferencias del usuario)
   },
   
   "templeMode": {
@@ -79,57 +84,128 @@ A continuación se muestra la estructura completa del JSON devuelto con datos de
     {
       "title": "Tareas pendientes",
       "logo": "/icons/tasks-pending.svg",
-      "value": 12
-    },
-    {
-      "title": "Minutos hoy",
-      "logo": "/icons/timer.svg",
-      "value": 145
+      "value": "12"
     }
   ],
   
   "homeWidgetsData": {
-    "templeModeWidget": { "REF": "Ver TheoryDocs/Widgets.md" },
-    "taskWidget": { "REF": "Ver TheoryDocs/Widgets.md" },
-    "weeklyProgressWidget": { "REF": "Ver TheoryDocs/Widgets.md" }
+    "templeModeWidget": { "REF": "Ver TheoryDocs/Widgets.md" }
   },
   
   "statisticsGeneralInformation": [
     {
       "title": "Horas registradas",
       "logo": "/icons/chart-bar.svg",
-      "value": 2083
+      "value": "20:30"
     }
   ],
   
   "statisticsWidgetsData": {
-    "solarChartWidget": { "REF": "Ver TheoryDocs/Widgets.md" },
-    "comparisonWidget": { "REF": "Ver TheoryDocs/Widgets.md" }
+    "solarChartWidget": { "REF": "Ver TheoryDocs/Widgets.md" }
   },
+
+  "gamificationEvents": [
+    {
+      "type": "RANK_UP",
+      "title": "¡Enhorabuena!",
+      "message": "Has subido de rango: Iniciado del Agua y del Fuego",
+      "imageUrl": "/images/badges/water_fire.png"
+    }
+  ],
 
   "projects": [
     {
       "id": 1,
       "name": "Tikal MVP",
       "color": "#FF5733"
-      // ... (estructura del proyecto)
     }
   ]
 }
+
 ```
 
 ---
 
-## 🧠 Consideraciones de Negocio y Reglas para el Frontend
+## 2. Actualización Ligera del Templo (`/dashboard/temple-status`)
 
-### 1. Ventana Táctica del Calendario (`calendarEvents`)
+Endpoint optimizado para refrescar dinámicamente el progreso del Modo Templo sin necesidad de recargar todo el dashboard.
+
+* **Ruta:** `GET /dashboard/temple-status`
+* **Autenticación:** Requerida con *access_token*
+* **Propósito:** Se debe llamar justo después de que el usuario finalice una sesión de concentración (temporizador) para comprobar si ha subido de rango, conseguido un tótem o para actualizar las barras de progreso.
+
+### Estructura del Payload (`TempleUpdateResponse`)
+
+Devuelve únicamente el nodo `templeMode` actualizado y los eventos que se hayan disparado durante esta comprobación.
+
+```json
+{
+  "templeMode": {
+    "rank": 2,
+    "templeName": "Templo del Camino Interior",
+    "awardedTitle": "Iniciado del Agua y del Fuego",
+    "requiredHours": 80,
+    "currentHours": 85,
+    "badgeImageUrl": "/images/badges/water_fire.png",
+    "clockImageUrl": "/images/clocks/temple_2.png",
+    "templeImageUrl": "/images/temples/temple_2.png",
+    "primaryColor": "#E25822",
+    "totems": [
+      {
+        "id": 2,
+        "name": "KIB",
+        "goalDescription": "Alcanza efectividad > 85%",
+        "currentProgress": {
+          "progress1": 85,
+          "progress2": null,
+          "description1": "Porcentaje de efectividad global",
+          "description2": null
+        },
+        "targetProgress1": 85,
+        "targetProgress2": null,
+        "totemImageUrl": "/images/totems/kib.svg",
+        "isActive": true,
+        "justUnlocked": true,
+        "totemType": "EFFECTIVENESS",
+        "rank": 2
+      }
+    ]
+  },
+  "events": [
+    {
+      "type": "TOTEM_UNLOCKED",
+      "title": "¡Tótem Desbloqueado!",
+      "message": "Has conseguido el tótem: KIB",
+      "imageUrl": "/images/totems/kib.svg"
+    }
+  ]
+}
+
+```
+
+---
+
+## Consideraciones de Negocio y Reglas para el Frontend
+
+### 1. Sistema de Notificaciones (`gamificationEvents` / `events`)
+
+El backend utiliza un modelo *Just-In-Time*. Los eventos (`RANK_UP`, `TOTEM_UNLOCKED`, `TEMPLE_FAILED`) se calculan y envían **en el mismo instante** en que se solicita la sincronización.
+
+* Si el array llega con elementos, el Frontend debe encolarlos y mostrarlos secuencialmente al usuario (ej. mediante modales o toasts).
+* Si el array llega vacío (`[]`), no hay notificaciones nuevas.
+
+### 2. Ventana Táctica del Calendario (`calendarEvents`)
+
 **No se envía el histórico completo de eventos** por motivos de rendimiento. El array `calendarEvents` contiene únicamente una ventana táctica de datos:
+
 * **Desde:** El primer día del mes anterior (00:00:00).
 * **Hasta:** El último día de dentro de 3 meses (23:59:59).
-* *Nota:* Para navegar fuera de este rango temporal, el frontend deberá utilizar la paginación dinámica llamando al endpoint específico de calendario (Pendiente de documentar).
 
-### 2. Estado Vacío de Tótems (`totems`)
-Si el usuario es completamente nuevo, las listas de `totems` en `userProfile` llegarán vacías `[]`. El frontend debe manejar de forma segura el estado de inventario vacío mostrando placeholders.
+### 3. Renderizado de Progreso de Tótems
 
-### 3. Información del Header (`GeneralInformation`)
-El campo `value` siempre se envía como un número entero (`Integer`). Si el negocio requiere mostrar horas en lugar de minutos en la cabecera de estadísticas, la conversión ya viene procesada y dividida desde el Backend. El Frontend solo debe renderizar el valor.
+* Si `isActive: true`, el usuario ya posee el tótem. El frontend debe ignorar los cálculos matemáticos (el progreso está al 100%) y renderizar la interfaz mostrando el objetivo cumplido (Ej: `targetProgress1 / targetProgress1`).
+* El booleano `justUnlocked` sirve como flag adicional para disparar animaciones locales en la interfaz justo en el momento en que se adquiere.
+
+### 4. Información del Header (`GeneralInformation`)
+
+El campo `value` se envía como un `String` formateado. Si el negocio requiere mostrar horas y minutos (ej: `"20:30"`), la conversión ya viene procesada desde el Backend. El Frontend solo debe imprimir la cadena de texto directamente.

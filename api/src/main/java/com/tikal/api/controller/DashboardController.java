@@ -1,13 +1,19 @@
 package com.tikal.api.controller;
 
 import com.tikal.api.model.dto.sync.WorkspaceSyncDTO;
-import com.tikal.api.model.dto.sync.widgets.EffectivenessChartWidgetData;
-import com.tikal.api.model.dto.sync.widgets.SolarChartWidgetData;
+import com.tikal.api.model.dto.sync.domain.GamificationEventDTO;
+import com.tikal.api.model.dto.temple.TempleUpdateResponse;
+import com.tikal.api.model.entity.User;
+import com.tikal.api.repository.TimeLogRepository;
 import com.tikal.api.service.DashboardService;
+import com.tikal.api.service.GamificationService;
 import com.tikal.api.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @RestController
 @RequestMapping("/dashboard")
@@ -16,6 +22,9 @@ import org.springframework.web.bind.annotation.*;
 public class DashboardController {
 
     private final DashboardService dashboardService;
+    private final GamificationService gamificationService;
+    private final UserService userService;
+    private final TimeLogRepository timeLogRepository;
 
     /**
      * GET /dashboard/sync
@@ -26,6 +35,24 @@ public class DashboardController {
         WorkspaceSyncDTO syncData = dashboardService.buildInitialWorkspaceSync();
 
         return ResponseEntity.ok(syncData);
+    }
+
+    @GetMapping("/temple-status")
+    public ResponseEntity<TempleUpdateResponse> getTempleStatus() {
+        User currentUser = userService.getAuthenticatedUser(); // O como lo extraigas
+
+        List<GamificationEventDTO> events = new ArrayList<>();
+
+        int globalTempleMinutes = timeLogRepository.sumMinutesInTempleModeByUserId(currentUser.getId());
+
+        WorkspaceSyncDTO.TempleSyncDTO templeMode = gamificationService.buildTempleMode(currentUser, globalTempleMinutes, events);
+
+        TempleUpdateResponse response = TempleUpdateResponse.builder()
+                .templeMode(templeMode)
+                .gamificationEvents(events)
+                .build();
+
+        return ResponseEntity.ok(response);
     }
 
     /**

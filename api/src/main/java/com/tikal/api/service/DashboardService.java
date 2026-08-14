@@ -51,7 +51,7 @@ public class DashboardService {
         User user = extractCurrentUser();
         Integer userId = user.getId();
 
-        TempleSyncDTO templeMode = buildTempleMode(user);
+        TempleSyncDTO templeMode = gamificationService.buildTempleMode(user, preFetchedData.getGlobalTempleMinutes(), gamificationEvents);
         UserSettingsDTO userSettings = settingsService.mapToDTO(settings);
         UserProfileSyncDTO userProfile = buildUserProfile(user);
 
@@ -88,20 +88,8 @@ public class DashboardService {
         preFetchTimeLogsForDashboard(currentUser.getId(), settings);
 
         int globalTempleHours = preFetchedData.getGlobalTempleMinutes() / 60;
-        RankList currentRank = currentUser.getCurrentRank();
 
-        if (currentRank.getNextHours() <= globalTempleHours && !currentRank.getNextHours().equals(currentRank.getRequiredHours())) {
-            currentUser = userService.upgradeUserRank(currentUser);
-
-            gamificationEvents.add(GamificationEventDTO.builder()
-                            .type("RANK_UP")
-                            .title("¡Enhorabuena!")
-                            .message("Has subido de rango: " + currentUser.getCurrentRank().getAwardedTitle())
-                            .imageUrl(currentUser.getCurrentRank().getBadgeImageUrl())
-                            .build());
-        }
-
-        return currentUser;
+        return gamificationService.checkRank(currentUser, currentUser.getCurrentRank(), gamificationEvents, globalTempleHours);
     }
 
     // ==========================================
@@ -261,103 +249,8 @@ public class DashboardService {
                 .email(user.getEmail())
                 .avatarUrl(user.getAvatarUrl())
                 .subscriptionPlan(user.getSubscriptionPlan().name())
-                .totems(buildUserTotems(user))
+                .totems(gamificationService.buildUserTotems(user))
                 .build();
-    }
-
-    private List<TotemSyncDTO> buildUserTotems(User user) {
-        var totemList = gamificationService.obtainUserTotemInventory(user.getId());
-        List<TotemSyncDTO> userTotems = new ArrayList<>();
-
-        for (TotemInventory t : totemList) {
-            TotemList totem = t.getTotem();
-
-            var totemDTO = TotemSyncDTO.builder()
-                    .id(totem.getId())
-                    .name(totem.getName())
-                    .goalDescription(totem.getGoalDescription())
-                    .targetProgress1(totem.getTargetProgress())
-                    .targetProgress2(totem.getTargetProgress2())
-                    .totemImageUrl(totem.getTotemImageUrl())
-                    .isActive(true)
-                    .rank(totem.getRequiredRank())
-                    .totemType(totem.getTypeOfGoal())
-                    .build();
-
-            userTotems.add(totemDTO);
-        }
-        return userTotems;
-    }
-
-    private TempleSyncDTO buildTempleMode(User user) {
-        int globalTempleHours = preFetchedData.getGlobalTempleMinutes() / 60;
-        RankList currentRank = user.getCurrentRank();
-
-        return TempleSyncDTO.builder()
-                .rank(currentRank.getId())
-                .templeName(currentRank.getTempleName())
-                .awardedTitle(currentRank.getAwardedTitle())
-                .requiredHours(currentRank.getNextHours())
-                .currentHours(globalTempleHours)
-                .badgeImageUrl(currentRank.getBadgeImageUrl())
-                .clockImageUrl(currentRank.getClockImageUrl())
-                .templeImageUrl(currentRank.getTempleImageUrl())
-                .primaryColor(currentRank.getColour())
-                .totems(buildTempleTotems(user))
-                .build();
-    }
-
-    private List<TotemSyncDTO> buildTempleTotems(User user) {
-        var totemList = gamificationService.obtainRankTotemList(user.getCurrentRank().getId());
-        List<TotemSyncDTO> templeTotems = new ArrayList<>();
-        List<TotemList> totemActives = gamificationService.obtainTheActivesTotems(user.getId());
-
-        for (TotemList t : totemList) {
-            boolean isUnlocked = totemActives.contains(t);
-            boolean justUnlocked = false;
-
-            WorkspaceSyncDTO.ProgressData progressData = gamificationService.obtainCurrentUserProgress(user.getId(), t, totemActives, isUnlocked);
-
-            if (!isUnlocked) {
-                boolean goal1Reached = progressData.getProgress1() >= t.getTargetProgress();
-                boolean goal2Reached = t.getTargetProgress2() == null || progressData.getProgress2() >= t.getTargetProgress2();
-
-                if (goal1Reached && goal2Reached) {
-                    gamificationService.grantTotemToUser(user.getId(), t.getId());
-                    isUnlocked = true;
-                    justUnlocked = true;
-
-                    progressData.setProgress1(t.getTargetProgress());
-                    if (t.getTargetProgress2() != null) {
-                        progressData.setProgress2(t.getTargetProgress2());
-                    }
-
-                    gamificationEvents.add(GamificationEventDTO.builder()
-                            .type("TOTEM_UNLOCKED")
-                            .title("¡Tótem Desbloqueado!")
-                            .message("Has conseguido el tótem: " + t.getName())
-                            .imageUrl(t.getTotemImageUrl())
-                            .build());
-                }
-            }
-
-            var totemDTO = TotemSyncDTO.builder()
-                    .id(t.getId())
-                    .name(t.getName())
-                    .goalDescription(t.getGoalDescription())
-                    .targetProgress1(t.getTargetProgress())
-                    .targetProgress2(t.getTargetProgress2())
-                    .totemImageUrl(t.getTotemImageUrl())
-                    .totemType(t.getTypeOfGoal())
-                    .currentProgress(progressData)
-                    .isActive(isUnlocked)
-                    .justUnlocked(justUnlocked)
-                    .rank(t.getRequiredRank())
-                    .build();
-
-            templeTotems.add(totemDTO);
-        }
-        return templeTotems;
     }
 
     private List<ProjectSyncDTO> buildProjectsList(Integer userId) {
