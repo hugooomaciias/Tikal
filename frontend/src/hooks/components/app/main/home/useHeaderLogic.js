@@ -122,15 +122,17 @@ export const useHeaderLogic = ({ onEnableEdit, onDisableEdit }) => {
         onDisableEdit();
     }, [onDisableEdit]);
 
+    /*
     const handleNavigateToSettings = () => {
         navigate("/settings-account");
     };
+    */
 
 
     // --- 6. Return Object ---
 
     return {
         headerStates: { isScrolled },
-        headerActions: { handleLogout, handleEnableEditMode, handleDisableEditMode, handleNavigateToSettings },
+        headerActions: { handleLogout, handleEnableEditMode, handleDisableEditMode },
     };
 };

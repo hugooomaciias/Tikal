@@ -88,7 +88,7 @@ export const useNavbarLogic = () => {
             { icon: "IconCalendarWeekFilled", title: t("navbar.calendar"), to: "/calendar" },
             { icon: "IconChartBar", title: t("navbar.statistics"), to: "/statistics" },
             { icon: "IconPyramid", title: t("navbar.temple_mode"), to: "/temple-mode" },
-            { icon: "IconUsersGroup", title: t("navbar.groups"), to: "/home" },
+            // { icon: "IconUsersGroup", title: t("navbar.groups"), to: "/home" },
         ],
         [t],
     );
@@ -142,9 +142,11 @@ export const useNavbarLogic = () => {
         setIsExpanded((prev) => !prev);
     }, []);
 
+    /*
     const handleNavigateToSettings = () => {
         navigate("/settings-account");
     };
+    */
 
     // --- 6. Return Object ---
 
@@ -152,6 +154,6 @@ export const useNavbarLogic = () => {
         t,
         navbarStates: { isExpanded },
         navbarData: { navbarOptions, activeTab, userProfile },
-        navbarActions: { trackerActions, handleLogout, handleToggleSidebar, handleNavigateToSettings },
+        navbarActions: { trackerActions, handleLogout, handleToggleSidebar },
     };
 };
