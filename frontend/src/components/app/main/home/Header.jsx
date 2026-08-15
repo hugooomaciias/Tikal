@@ -58,7 +58,7 @@ export const Header = ({ data, isEditing, checkChanges, onEnableEdit, onDisableE
     const { headerStates, headerActions } = useHeaderLogic({ onEnableEdit, onDisableEdit });
 
     const { isScrolled } = headerStates;
-    const { handleLogout, handleEnableEditMode, handleDisableEditMode } = headerActions;
+    const { handleLogout, handleEnableEditMode, handleDisableEditMode, handleNavigateToSettings } = headerActions;
 
     // --- 2. Render ---
 
@@ -73,6 +73,7 @@ export const Header = ({ data, isEditing, checkChanges, onEnableEdit, onDisableE
                     {/* User Avatar Container */}
                     <button
                         type="button"
+                        onClick={handleNavigateToSettings}
                         className="relative h-36 w-36 flex items-center justify-center p-2 rounded-full overflow-hidden border-[3px] border-primary-600 shrink-0 cursor-pointer"
                     >
                         <div className="h-full w-full bg-primary-600/40 rounded-full overflow-hidden">

@@ -10,6 +10,7 @@ import esAppTasks from "./languages/es/app_tasks.json";
 import esAppCalendar from "./languages/es/app_calendar.json";
 import esAppStatistics from "./languages/es/app_statistics.json";
 import esAppTempleMode from "./languages/es/app_temple-mode.json";
+import esAppSettingsAccount from "./languages/es/app_settings_account.json";
 
 import enLanding from "./languages/en/landing.json";
 import enAuth from "./languages/en/auth.json";
@@ -19,6 +20,7 @@ import enAppTasks from "./languages/en/app_tasks.json";
 import enAppCalendar from "./languages/en/app_calendar.json";
 import enAppStatistics from "./languages/en/app_statistics.json";
 import enAppTempleMode from "./languages/en/app_temple-mode.json";
+import enAppSettingsAccount from "./languages/en/app_settings_account.json";
 
 const resources = {
     es: {
@@ -30,6 +32,7 @@ const resources = {
         app_calendar: esAppCalendar,
         app_statistics: esAppStatistics,
         "app_temple-mode": esAppTempleMode,
+        app_settings_account: esAppSettingsAccount,
     },
     en: {
         landing: enLanding,
@@ -40,6 +43,7 @@ const resources = {
         app_calendar: enAppCalendar,
         app_statistics: enAppStatistics,
         "app_temple-mode": enAppTempleMode,
+        app_settings_account: enAppSettingsAccount
     },
 };
 

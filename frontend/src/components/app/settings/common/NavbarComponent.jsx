@@ -13,6 +13,7 @@ import {
     IconPyramid,
     IconBell,
     IconUsersGroup,
+    IconLogout2,
 } from "@tabler/icons-react";
 
 /**
@@ -49,8 +50,9 @@ export const NavbarComponent = () => {
      * Extracts the pre-processed and memoized navigation options array, along with the dynamically 
      * resolved active tab identifier from the centralized headless logic hook.
      */
-    const { navbarData } = useNavbarLogic();
+    const { t, navbarData, navbarActions } = useNavbarLogic();
     const { navbarOptions, activeTab } = navbarData;
+    const { handleLogout } = navbarActions;
 
     // --- 2. Render ---
 
@@ -94,6 +96,15 @@ export const NavbarComponent = () => {
                     );
                 })}
             </nav>
+
+            <button
+                type="button"
+                onClick={handleLogout}
+                className="w-full flex items-center justify-between bg-primary rounded-full px-4 py-2 text-primary-500 overflow-hidden"
+            >
+                <IconLogout2 className="w-5 h-5"/>
+                <span className="text-lg font-medium whitespace-nowrap">{t("settings.navbar.logout")}</span>
+            </button>
         </aside>
     );
 };

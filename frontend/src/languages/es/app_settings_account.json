@@ -1,0 +1,38 @@
+{
+    "title": "Perfil de usuario",
+    "description": "Gestiona tu información personal, tu foto de perfil y tu plan de suscripción actual",
+    "profile_image": {
+        "title": "Foto de perfil",
+        "description": "Sube una foto cuadrada. Recomendamos un tamaño de 256x256 píxeles en formato PNG o JPG",
+        "button": {
+            "upload": "Subir foto",
+            "delete": "Eliminar"
+        }
+    },
+    "personal_info": {
+        "title": "Datos personales",
+        "email": "Correo electrónico",
+        "username": "Nombre de usuario",
+        "password": "Cambiar contraseña",
+        "errors": {
+            "username": "Por favor, introduce un nombre de usuario",
+            "email": {
+               "empty": "Por favor, introduce un email",
+               "incorrect": "Por favor, introduce un email válido"
+            }
+        }
+    },
+    "plan": {
+        "label": "Plan actual",
+        "title": {
+            "gratuito": "Guerrero Solitario",
+            "comunitario": "Constructor de Ciudades"
+        },
+        "description": "Tienes acceso a todas las funcionalidades básicas de gestión del tiempo y al Modo Templo para potenciar tu concentración.",
+        "button": "Mejorar plan"
+    },
+    "button": {
+        "saving": "Guardando",
+        "saved": "Guardar cambios"
+    }
+}

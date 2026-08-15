@@ -1,7 +1,10 @@
 /** React & Third-Party Libraries */
-import { useMemo } from "react";
-import { useLocation } from "react-router-dom";
+import { useMemo, useCallback } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+
+/** Contexts, Hooks & Services */
+import { useAuth } from "../../../../core/useAuth.js";
 
 /**
  * Settings Navbar Logic Hook
@@ -24,6 +27,21 @@ export const useNavbarLogic = () => {
      * localized text into the navigation interface dynamically.
      */
     const { t } = useTranslation("app_common");
+
+    /**
+     * Authentication Context
+     *
+     * Injects the `logout` protocol to securely terminate the current user session.
+     */
+    const { logout } = useAuth();
+
+    /**
+     * Programmatic Navigation Hook
+     *
+     * Provides the navigate function to programmatically redirect the user
+     * after explicit actions (e.g., logging out).
+     */
+    const navigate = useNavigate();
 
     /**
      * Location Watcher Hook
@@ -64,9 +82,31 @@ export const useNavbarLogic = () => {
         return currentOption ? currentOption.title : "";
     }, [navbarOptions, location.pathname]);
 
-    // --- 3. Return Object ---
+    // --- 3. Interaction handlers ---
+
+    /**
+     * Logout Interaction Handler
+     *
+     * Memoized to ensure referential stability. Asynchronously terminates the user session
+     * through the global auth context and forcefully redirects back to the login gateway.
+     *
+     * @async
+     * @returns {Promise<void>}
+     */
+    const handleLogout = useCallback(async () => {
+        try {
+            await logout();
+            navigate("/");
+        } catch (error) {
+            console.error("Error al cerrar sesión", error);
+        }
+    }, [logout, navigate]);
+
+    // --- 4. Return Object ---
 
     return {
+        t,
         navbarData: { navbarOptions, activeTab },
+        navbarActions: { handleLogout },
     };
 };

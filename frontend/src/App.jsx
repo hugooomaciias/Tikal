@@ -96,7 +96,7 @@ function App() {
                                 }
                             />
 
-                            {/*<Route 
+                            <Route 
                                 element={
                                     <ProtectedRoute>
                                         <SettingsBasePage />
@@ -108,7 +108,7 @@ function App() {
                                 <Route path="/settings-productivity" element={<ProductivityPage />} />
                                 <Route path="/settings-notifications" element={<NotificationsPage />} />
                                 <Route path="/settings-team" element={<SettingsTeamPage />} />
-                            </Route>*/}
+                            </Route>
                         </Route>
                     </Route>
 

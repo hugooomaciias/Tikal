@@ -46,7 +46,7 @@ export const SettingsBasePage = () => {
                 <NavbarComponent />
 
                 {/* Main Content Area */}
-                <div className="h-full w-full bg-primary rounded-[2.5rem]">
+                <div className="h-full w-full flex flex-col items-start gap-6 bg-primary rounded-[2.5rem] p-8 overflow-y-auto custom-scrollbar">
                     <Outlet />
                 </div>
             </section>
