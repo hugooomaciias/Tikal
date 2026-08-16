@@ -1,0 +1,56 @@
+{
+    "breadcrumb": {
+        "previous": "Configuración",
+        "current": "Preferencias generales"
+    },
+    "title": "Preferencias generales",
+    "description": "Ajusta la localización, el calendario y la apariencia global de tu entorno",
+    "location": {
+        "title": "Localización e Idioma",
+        "description": "Configura el idioma de la interfaz y la zona horaria en la que te encuentras para que las notificaciones y los reportes sean precisos",
+        "languages": {
+            "es": "Español",
+            "en": "Inglés"
+        },
+        "timezone": {
+            "title": "Zona horaria",
+            "errors": {
+                "empty": "Por favor, introduce una zona",
+                "incorrect": "Por favor, introduce una zona válida"
+            }
+        }
+    },
+    "calendar": {
+        "title": "Medición y Calendario",
+        "description": "Define cuándo comienza tu semana y el marco de tiempo predeterminado para tus métricas de rendimiento y estadísticas",
+        "days": {
+            "lunes": "Lunes",
+            "domingo": "Domingo"
+        },
+        "time": {
+            "semanal": "Semanal",
+            "mensual": "Mensual",
+            "trimestral": "Trimestral",
+            "anual": "Anual",
+            "global": "Global"
+        }
+    },
+    "appearance": {
+        "title": "Apariencia visual",
+        "description": "Elige el tema que mejor se adapte a tu estilo y nivel de concentración",
+        "themes": {
+            "maya": "Tema Maya",
+            "light": "Tema claro",
+            "dark": "Tema oscuro"
+        }
+    },
+    "reset": {
+        "title": "Restaurar paneles",
+        "description": "Devuelve los widgets del panel de inicio y estadísticas a sus posiciones y tamaños originales",
+        "button": "Restaurar"
+    },
+    "button": {
+        "saving": "Guardando",
+        "saved": "Guardar cambios"
+    }
+}

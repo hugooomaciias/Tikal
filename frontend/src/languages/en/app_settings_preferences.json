@@ -1,0 +1,56 @@
+{
+    "breadcrumb": {
+        "previous": "Settings",
+        "current": "General preferences"
+    },
+    "title": "General preferences",
+    "description": "Adjust the location, calendar and overall appearance of your environment",
+    "location": {
+        "title": "Location and Language",
+        "description": "Set the interface language and your time zone so that notifications and reports are accurate",
+        "languages": {
+            "es": "Spanish",
+            "en": "English"
+        },
+        "timezone": {
+            "title": "Time zone",
+            "errors": {
+                "empty": "Please enter a time zone",
+                "incorrect": "Please enter a valid time zone"
+            }
+        }
+    },
+    "calendar": {
+        "title": "Measurement and Schedule",
+        "description": "Set when your week begins and the default time frame for your performance metrics and statistics",
+        "days": {
+            "lunes": "Monday",
+            "domingo": "Sunday"
+        },
+        "time": {
+            "semanal": "Weekly",
+            "mensual": "Monthly",
+            "trimestral": "Quarterly",
+            "anual": "Yearly",
+            "global": "Global"
+        }
+    },
+    "reset": {
+        "title": "Reset dashboards",
+        "description": "Restores the widgets on the home and stats dashboard to their original positions and sizes",
+        "button": "Reset"
+    },
+    "appearance": {
+        "title": "Visual appearance",
+        "description": "Choose the theme that best suits your style and level of concentration",
+        "themes": {
+            "maya": "Maya theme",
+            "light": "Light theme",
+            "dark": "Dark theme"
+        }
+    },
+    "button": {
+        "saving": "Saving",
+        "saved": "Save changes"
+    }
+}

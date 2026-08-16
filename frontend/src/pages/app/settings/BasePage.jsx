@@ -1,5 +1,6 @@
 /** React & Third-Party Libraries */
-import { Outlet, Navigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Outlet, Navigate, useLocation } from "react-router-dom";
 
 /** Contexts, Hooks & Services */
 import { useTimeLog } from "../../../hooks/core/useTimeLog.js";
@@ -22,8 +23,48 @@ import { HeaderComponent } from "../../../components/app/settings/common/HeaderC
 export const SettingsBasePage = () => {
     // --- 1. Local UI Logic ---
     
+    /**
+     * Time Tracking Context
+     *
+     * Extracts the global time tracker state to ensure restricted views (like Temple Mode)
+     * cannot be bypassed by manually navigating to the settings route.
+     */
     const { trackerStates } = useTimeLog();
+
+    /**
+     * Programmatic Navigation Hook
+     *
+     * Extracts the current location object to track routing changes and determine 
+     * whether the user is at the root settings index or inside a specific sub-panel.
+     */
+    const location = useLocation();
     
+    /**
+     * Mobile Menu Visibility State
+     *
+     * Controls whether the master navigation menu is currently visible on mobile screens.
+     * Initializes to `true` if the user lands directly on the base `/settings` route.
+     * @type {[boolean, Function]}
+     */
+    const [showMobileMenu, setShowMobileMenu] = useState(
+        location.pathname === "/settings" || location.pathname === "/settings/"
+    );
+
+    /**
+     * Route Change Detector Effect
+     *
+     * Monitors the active URL pathname. If the user navigates back to the root settings 
+     * route, it reveals the mobile menu. If they navigate to a specific panel (e.g., 
+     * `/settings-account`), it hides the menu to display the content full-screen.
+     */
+    useEffect(() => {
+        if (location.pathname === "/settings" || location.pathname === "/settings/") {
+            setShowMobileMenu(true);
+        } else {
+            setShowMobileMenu(false);
+        }
+    }, [location.pathname]);
+
     /**
      * Temple Mode Lock-in Guard
      * 
@@ -43,10 +84,15 @@ export const SettingsBasePage = () => {
 
             <section className="flex-1 flex gap-6 w-full h-full overflow-hidden">
                 {/* Vertical Navbar */}
-                <NavbarComponent />
+                <div className={`${showMobileMenu ? "flex" : "hidden"} md:flex h-full w-full md:w-fit shrink-0`}>
+                    <NavbarComponent />
+                </div>
 
                 {/* Main Content Area */}
-                <div className="h-full w-full flex flex-col items-start gap-6 bg-primary rounded-[2.5rem] p-8 overflow-y-auto custom-scrollbar">
+                <div className={`
+                    ${!showMobileMenu ? 'flex' : 'hidden'} 
+                    md:flex h-full w-full flex-col items-start gap-6 bg-primary rounded-[2.5rem] p-6 md:p-8 overflow-y-auto overflow-x-hidden custom-scrollbar
+                `}>
                     <Outlet />
                 </div>
             </section>

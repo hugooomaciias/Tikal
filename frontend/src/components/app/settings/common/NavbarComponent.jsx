@@ -57,27 +57,12 @@ export const NavbarComponent = () => {
     // --- 2. Render ---
 
     return (
-        <aside
-            className="w-fit flex bg-primary-300 text-primary transition-all duration-[300ms] shrink-0 z-50 flex-col p-5 justify-between rounded-[2.5rem] h-full max-md:order-last max-md:flex-row max-md:w-full max-md:h-[72px] max-md:p-2 max-md:rounded-[2rem] max-md:items-center max-md:justify-around"
-        >
+        <aside className="w-full md:w-fit flex flex-col justify-between bg-primary md:bg-primary-300 text-primary transition-all duration-300 shrink-0 z-50 p-8 md:p-5 rounded-[2.5rem] h-full">
             {/* Navigation Links Container */}
-            <nav
-                className="w-full flex flex-row md:flex-col justify-center gap-8 items-start"
-            >
+            <nav className="w-full flex flex-col gap-8 items-start mt-4 md:mt-0">
                 {/* Dynamic Options List */}
                 {navbarOptions.map((option, index) => {
-                    /**
-                     * Resolved Icon Component
-                     *
-                     * Dynamically resolves the required React icon for the current navigation option.
-                     */
                     const IconComponent = ICON_MAP[option.icon];
-
-                    /**
-                     * Active State Flag
-                     *
-                     * Boolean flag determining if the current option corresponds to the active tab.
-                     */
                     const isActive = activeTab === option.title;
 
                     return (
@@ -86,10 +71,10 @@ export const NavbarComponent = () => {
                             to={option.to}
                             className={`flex items-center gap-6 transition-all duration-200 ${isActive ? "text-primary-50" : "text-primary-500 hover:text-primary-200"}`}
                         >
-                            <IconComponent className="h-8 w-8" />
+                            <IconComponent className="h-6 w-6 md:h-8 md:w-8" />
 
                             {/* Expanded Label Text */}
-                            <span className="text-2xl font-light tracking-[0.05em] whitespace-nowrap">
+                            <span className="text-xl md:text-2xl font-light tracking-[0.05em] whitespace-nowrap">
                                 {option.title}
                             </span>
                         </Link>
@@ -100,10 +85,12 @@ export const NavbarComponent = () => {
             <button
                 type="button"
                 onClick={handleLogout}
-                className="w-full flex items-center justify-between bg-primary rounded-full px-4 py-2 text-primary-500 overflow-hidden"
+                className="w-full flex items-center justify-between bg-primary-300 md:bg-primary rounded-full px-5 py-3 md:px-4 md:py-2 text-primary md:text-primary-500 overflow-hidden hover:bg-primary-100 transition-colors mt-8 shrink-0"
             >
-                <IconLogout2 className="w-5 h-5"/>
-                <span className="text-lg font-medium whitespace-nowrap">{t("settings.navbar.logout")}</span>
+                <IconLogout2 className="w-6 h-6 md:w-5 md:h-5 shrink-0" />
+                <span className="text-lg font-medium whitespace-nowrap">
+                    {t("settings.navbar.logout")}
+                </span>
             </button>
         </aside>
     );

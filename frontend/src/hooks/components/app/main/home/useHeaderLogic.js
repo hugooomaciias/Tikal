@@ -5,22 +5,21 @@ import { useNavigate } from "react-router-dom";
 /** Contexts, Hooks & Services */
 import { useAuth } from "../../../../core/useAuth.js";
 
-/** Config, Constants & Utils */
-
 /**
  * Header Logic Hook
  *
  * This Headless Component Hook abstracts all local state, scroll detection,
  * and interaction handlers for the main `Header` component. It delegates authentication
- * actions and layout edit toggles, keeping the JSX strictly visual.
+ * actions, layout edit toggles, and layout persistence, keeping the JSX strictly visual.
  *
  * @hook
  * @param {Object} props - The hook parameters.
  * @param {Function} props.onEnableEdit - Callback to activate dashboard edit mode.
  * @param {Function} props.onDisableEdit - Callback to deactivate dashboard edit mode.
+ * @param {Function} props.onSaveLayout - Callback to save the modified dashboard layout.
  * @returns {Object} A structured payload containing all necessary states and action handlers.
  */
-export const useHeaderLogic = ({ onEnableEdit, onDisableEdit }) => {
+export const useHeaderLogic = ({ onEnableEdit, onDisableEdit, onSaveLayout }) => {
     // --- 1. DOM Refs & Layout State ---
 
     /**
@@ -46,9 +45,6 @@ export const useHeaderLogic = ({ onEnableEdit, onDisableEdit }) => {
      * This flag activates the compact header layout on mobile devices.
      */
     const [isScrolled, setIsScrolled] = useState(false);
-
-    // --- 3. Derived UI Data ---
-    // (None required for this specific component)
 
     // --- 4. Side Effects ---
 
@@ -122,15 +118,47 @@ export const useHeaderLogic = ({ onEnableEdit, onDisableEdit }) => {
         onDisableEdit();
     }, [onDisableEdit]);
 
+    /**
+     * Save Layout Handler
+     *
+     * Triggers the parent-provided callback to persist the newly arranged dashboard grid.
+     * Safely executes only if the callback is explicitly provided.
+     *
+     * @returns {void}
+     */
+    const handleSaveLayout = useCallback(() => {
+        if (onSaveLayout) onSaveLayout();
+    }, [onSaveLayout]);
+
+    /**
+     * Desktop Settings Navigation Handler
+     *
+     * Routes the user directly to the Account Settings sub-panel. Used primarily
+     * in desktop views where the navigation sidebar is permanently visible alongside the content.
+     *
+     * @returns {void}
+     */
     const handleNavigateToSettings = () => {
         navigate("/settings-account");
     };
 
+    /**
+     * Mobile Settings Navigation Handler
+     *
+     * Routes the user to the Settings base route (`/settings`). Used exclusively
+     * in mobile views to trigger the full-screen contextual navigation menu rather
+     * than immediately forcing a specific settings panel.
+     *
+     * @returns {void}
+     */
+    const handleMobileNavigateToSettings = () => {
+        navigate("/settings");
+    };
 
     // --- 6. Return Object ---
 
     return {
         headerStates: { isScrolled },
-        headerActions: { handleLogout, handleEnableEditMode, handleDisableEditMode, handleNavigateToSettings },
+        headerActions: { handleLogout, handleEnableEditMode, handleDisableEditMode, handleSaveLayout, handleNavigateToSettings, handleMobileNavigateToSettings },
     };
 };

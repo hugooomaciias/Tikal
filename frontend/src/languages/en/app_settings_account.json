@@ -1,4 +1,8 @@
 {
+    "breadcrumb": {
+        "previous": "Settings",
+        "current": "Account"
+    },
     "title": "User profile",
     "description": "Manage your personal details, your image and your current subscription plan",
     "profile_image": {

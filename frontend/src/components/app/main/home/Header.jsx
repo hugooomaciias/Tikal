@@ -44,9 +44,10 @@ const ICON_MAP = {
  * @param {boolean} props.checkChanges - State indicating if there are unsaved changes pending validation.
  * @param {Function} props.onEnableEdit - Function to enable edit mode.
  * @param {Function} props.onDisableEdit - Function to disable edit mode.
+ * @param {Function} props.onSaveLayout - Function to persist layout modifications to the backend.
  * @returns {JSX.Element|null} The rendered header component, or null if data is invalid.
  */
-export const Header = ({ data, isEditing, checkChanges, onEnableEdit, onDisableEdit }) => {
+export const Header = ({ data, isEditing, checkChanges, onEnableEdit, onDisableEdit, onSaveLayout }) => {
     // --- 1. Logic Hook Extraction ---
 
     /**
@@ -55,10 +56,10 @@ export const Header = ({ data, isEditing, checkChanges, onEnableEdit, onDisableE
      * Extracts the resolved UI states (like scroll detection) and mapped interaction handlers
      * (like logout and edit toggles) from the headless logic hook.
      */
-    const { headerStates, headerActions } = useHeaderLogic({ onEnableEdit, onDisableEdit });
+    const { headerStates, headerActions } = useHeaderLogic({ onEnableEdit, onDisableEdit, onSaveLayout });
 
     const { isScrolled } = headerStates;
-    const { handleLogout, handleEnableEditMode, handleDisableEditMode, handleNavigateToSettings } = headerActions;
+    const { handleLogout, handleEnableEditMode, handleDisableEditMode, handleSaveLayout, handleNavigateToSettings, handleMobileNavigateToSettings } = headerActions;
 
     // --- 2. Render ---
 
@@ -148,7 +149,7 @@ export const Header = ({ data, isEditing, checkChanges, onEnableEdit, onDisableE
                                 {/* Confirm / Cancel Edit Button */}
                                 <div
                                     className="w-full h-1/2 cursor-pointer hover:text-primary-600 transition-all"
-                                    onClick={handleDisableEditMode}
+                                    onClick={checkChanges ? handleSaveLayout : handleDisableEditMode}
                                 >
                                     {!checkChanges ? (
                                         <IconSquareRoundedXFilled className="w-full h-full" />
@@ -175,7 +176,10 @@ export const Header = ({ data, isEditing, checkChanges, onEnableEdit, onDisableE
                 {/* Top Row: User Avatar & Actions */}
                 <div className="h-fit flex-1 w-full flex items-center justify-between transition-all duration-500 ease-in-out">
                     {/* Shrinkable Mobile User Avatar */}
-                    <div className="relative flex items-center justify-center p-1.5 rounded-full overflow-hidden border-[3px] border-primary-600 shrink-0 transition-all duration-500 h-16 w-16">
+                    <button
+                        type="button"
+                        onClick={handleMobileNavigateToSettings}
+                        className="relative flex items-center justify-center p-1.5 rounded-full overflow-hidden border-[3px] border-primary-600 shrink-0 transition-all duration-500 h-16 w-16">
                         <div className="h-full w-full bg-primary-600/40 rounded-full overflow-hidden cursor-pointer">
                             <img
                                 className="w-full h-full object-cover shadow-md"
@@ -183,7 +187,7 @@ export const Header = ({ data, isEditing, checkChanges, onEnableEdit, onDisableE
                                 alt="User Avatar"
                             />
                         </div>
-                    </div>
+                    </button>
 
                     {/* Mobile Action Controls (AI & Logout) */}
                     <div className="flex items-center gap-3 shrink-0">

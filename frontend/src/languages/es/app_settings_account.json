@@ -1,4 +1,8 @@
 {
+    "breadcrumb": {
+        "previous": "Configuración",
+        "current": "Cuenta"
+    },
     "title": "Perfil de usuario",
     "description": "Gestiona tu información personal, tu foto de perfil y tu plan de suscripción actual",
     "profile_image": {

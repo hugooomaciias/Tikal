@@ -1,3 +1,6 @@
+/** React & Third-Party Libraries */
+import { Link } from "react-router-dom";
+
 /** Contexts, Hooks & Services */
 import { useSettingsAccountLogic } from "../../../hooks/components/app/settings/useSettingsAccountLogic.js";
 
@@ -9,6 +12,7 @@ import {
     IconMail,
     IconExternalLink,
     IconLoader,
+    IconChevronRight
 } from "@tabler/icons-react";
 
 /**
@@ -44,6 +48,12 @@ export const AccountPage = () => {
     return (
         <>
             <div>
+                <div className="md:hidden flex items-center gap-1.5 text-sm font-medium mb-3 text-quaternary-400">
+                    <Link to="/settings">{t("breadcrumb.previous")}</Link>
+                    <IconChevronRight className="w-4 h-4" />
+                    <span className="text-quaternary-700">{t("breadcrumb.current")}</span>
+                </div>
+
                 <h1 className="text-3xl font-bold text-quaternary-700">{t("title")}</h1>
                 <p className="text-quaternary-500 mt-1">{t("description")}</p>
             </div>
@@ -51,23 +61,23 @@ export const AccountPage = () => {
             <form onSubmit={handleSubmit} className="w-full flex flex-col gap-8">
                 <section className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
                     {/* --- Profile image --- */}
-                    <div className="h-full bg-primary-50/50 border border-primary-100 rounded-[1rem] p-8 flex items-center gap-6 shadow-sm">
+                    <div className="h-full bg-primary-50/50 border border-primary-100 rounded-[1rem] p-8 flex flex-col md:flex-row items-start md:items-center gap-6 shadow-sm">
                         <div className="relative shrink-0">
-                            <div className="w-32 h-32 rounded-full overflow-hidden shadow-md flex items-center justify-center">
+                            <div className="w-24 h-24 md:w-32 md:h-32 rounded-full overflow-hidden shadow-md flex items-center justify-center">
                                 <img src="/public/Avatar_0.jpg" alt="Avatar" className="w-full h-full object-cover" />
                             </div>
                         </div>
 
                         <div className="flex flex-col items-start justify-center gap-2 w-full">
                             <h3 className="text-xl font-bold text-quaternary-700">{t("profile_image.title")}</h3>
-                            <p className="text-sm text-quaternary-500 text-left max-w-md mb-1">{t("profile_image.description")}</p>
+                            <p className="text-sm text-quaternary-500 max-w-md mb-1">{t("profile_image.description")}</p>
                             
-                            <div className="flex items-center gap-3 mt-2">
+                            <div className="flex flex-col md:flex-row items-center gap-3 mt-2">
                                 <input type="file" className="hidden" />
 
                                 <button 
                                     type="button"
-                                    className="flex items-center gap-2 bg-primary-700 text-primary hover:bg-primary-300 px-4 py-2 rounded-lg font-semibold text-center text-base hover:shadow-lg cursor-pointer transition-all duration-500"
+                                    className="w-full md:w-fit flex items-center justify-center gap-2 bg-primary-700 text-primary hover:bg-primary-300 px-4 py-2 rounded-lg font-semibold text-center text-base hover:shadow-lg cursor-pointer transition-all duration-500"
                                 >
                                     <IconUpload className="w-4 h-4" />
                                     {t("profile_image.button.upload")}
@@ -76,7 +86,7 @@ export const AccountPage = () => {
                                 {avatarPreview && (
                                     <button 
                                         type="button"
-                                        className="flex items-center gap-2 bg-tertiary-200 text-primary px-5 py-2 rounded-lg font-semibold text-center text-base hover:shadow-lg cursor-pointer transition-all duration-500"
+                                        className="w-full md:w-fit flex items-center justify-center gap-2 bg-tertiary-200 text-primary px-5 py-2 rounded-lg font-semibold text-center text-base hover:shadow-lg cursor-pointer transition-all duration-500"
                                     >
                                         <IconTrash className="w-4 h-4" />
                                         {t("profile_image.button.delete")}
@@ -181,7 +191,7 @@ export const AccountPage = () => {
                 </section>
 
                 {/* --- Submit button --- */}
-                <div className="w-full flex justify-end">
+                <div className="w-full flex justify-center md:justify-end">
                     <button 
                         type="submit" 
                         disabled={isSaving}
