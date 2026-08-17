@@ -1,5 +1,6 @@
 package com.tikal.api.controller;
 
+import com.tikal.api.model.dto.UpdateProfileRequest;
 import com.tikal.api.model.dto.UserDTO;
 import com.tikal.api.model.dto.UserSettingsDTO;
 import com.tikal.api.model.entity.UserSettings;
@@ -11,6 +12,7 @@ import com.tikal.api.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("api/settings")
@@ -82,5 +84,23 @@ public class UserSettingsController {
 
         UserSettings savedSettings = settingsService.updateNotificationPreferences(myId, notificationPreferences);
         return ResponseEntity.ok(settingsService.mapToDTO(savedSettings));
+    }
+
+    /**
+     * PATCH /settings/profile
+     * Updates the user's profile information: name, email, avatarUrl.
+     */
+    @PatchMapping("/profile")
+    public ResponseEntity<UserDTO> updateProfile(@RequestBody UpdateProfileRequest request) {
+        Integer myId = userService.getAuthenticatedUserID();
+        UserDTO updatedUser = userService.updateProfile(myId, request);
+        return ResponseEntity.ok(updatedUser);
+    }
+
+    @PostMapping("/profile/avatar")
+    public ResponseEntity<UserDTO> uploadAvatar(@RequestParam("file") MultipartFile file) {
+        Integer userId = userService.getAuthenticatedUserID();
+        UserDTO updatedUser = userService.updateAvatar(userId, file);
+        return ResponseEntity.ok(updatedUser);
     }
 }
