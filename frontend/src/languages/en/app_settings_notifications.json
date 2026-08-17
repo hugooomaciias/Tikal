@@ -1,0 +1,37 @@
+{
+    "breadcrumb": {
+        "previous": "Settings",
+        "current": "Notifications"
+    },
+    "title": "Notifications",
+    "description": "Decide how and when you want Tikal to contact you",
+    "email": {
+        "title": "Email",
+        "description": "Manage the summaries and alerts that go straight to your inbox",
+        "options": {
+            "weekly_summary": "Weekly summary",
+            "team_invites": "Team invites",
+            "marketing": "Marketing"
+        }
+    },
+    "in_app": {
+        "title": "In app",
+        "description": "Adjust the visual and audio alerts you receive while the app is open",
+        "options": {
+            "chat_mentions": "Chat mentions",
+            "task_assignments": "Task asssignments",
+            "sound_enabled": "Sound"
+        }
+    },
+    "push": {
+        "title": "Push notificactions",
+        "description": "Urgent system alerts. Perfect for making sure you don't lose track of time when you're focused",
+        "options": {
+            "temple_mode_end": "End of Temple Mode"
+        }
+    },
+    "button": {
+        "saving": "Saving",
+        "saved": "Save changes"
+    }
+}
