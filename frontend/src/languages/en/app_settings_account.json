@@ -8,6 +8,10 @@
     "profile_image": {
         "title": "Profile image",
         "description": "Upload a square image. We recommend a size of 256x256 pixels in PNG or JPG format",
+        "errors": {
+            "invalid_format": "invalid format",
+            "too_large": "Maximum 5MB"
+        },
         "button": {
             "upload": "Upload image",
             "delete": "Delete"

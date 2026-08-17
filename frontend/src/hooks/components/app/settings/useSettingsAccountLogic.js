@@ -1,10 +1,12 @@
 /** React & Third-Party Libraries */
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 
 /** Contexts, Hooks & Services */
 import { useSync } from "../../../core/useSync.js";
+import { useSettingsController } from "../../../controllers/settings/useSettingsController.js";
+import { useAuth } from "../../../core/useAuth.js";
 
 /**
  * Account Settings Logic Hook
@@ -20,12 +22,28 @@ export const useSettingsAccountLogic = () => {
     // --- 1. DOM Refs & Layout State ---
 
     /**
+     * Authentication Actions
+     *
+     * Extracts the global logout method to forcefully end the user's session
+     * across all devices if critical security details (like email) are changed.
+     */
+    const { logoutAll } = useAuth();
+
+    /**
      * Workspace Sync Hook
      *
      * Extracts the user profile accessor and the context mutator to keep 
      * the local form and the global dashboard state in perfect sync.
      */
-    const { getUserProfile, updateContextData } = useSync();
+    const { getUserProfile } = useSync();
+
+    /**
+     * Settings Controller Actions
+     *
+     * Extracts the mutation methods required to update the user's personal
+     * details and profile avatar in the backend.
+     */
+    const { updateUserProfile, updateUserAvatar } = useSettingsController();
 
     /**
      * Translation Hook
@@ -43,6 +61,14 @@ export const useSettingsAccountLogic = () => {
      */
     const navigate = useNavigate();
 
+    /**
+     * File Input Reference
+     * 
+     * Used to programmatically trigger the hidden HTML file input 
+     * when the user clicks the stylized custom upload button.
+     */
+    const fileInputRef = useRef(null);
+
     // --- 2. Local UI State ---
 
     /**
@@ -57,6 +83,13 @@ export const useSettingsAccountLogic = () => {
     });
 
     /**
+     * Avatar File State
+     * 
+     * Holds the actual physical File object selected by the user to be sent to the backend.
+     */
+    const [avatarFile, setAvatarFile] = useState(null);
+
+    /**
      * Avatar Preview State
      *
      * Temporarily holds the Object URL of the uploaded image file to show 
@@ -64,6 +97,13 @@ export const useSettingsAccountLogic = () => {
      * @type {[string|null, Function]}
      */
     const [avatarPreview, setAvatarPreview] = useState(null);
+
+    /**
+     * Avatar Deletion Flag
+     * Indicates if the user explicitly clicked the delete button, so the backend 
+     * knows to remove the existing avatar from Cloudinary.
+     */
+    const [avatarDeleted, setAvatarDeleted] = useState(false);
 
     /**
      * Saving Execution State
@@ -110,6 +150,21 @@ export const useSettingsAccountLogic = () => {
         }
     }, [userProfile]);
 
+    /**
+     * Memory Cleanup Effect
+     *
+     * Revokes the locally generated Object URL for the avatar preview 
+     * when the component unmounts or the preview changes, preventing memory leaks
+     * within the browser.
+     */
+    useEffect(() => {
+        return () => {
+            if (avatarFile && avatarPreview) {
+                URL.revokeObjectURL(avatarPreview);
+            }
+        };
+    }, [avatarFile, avatarPreview]);
+
     // --- 5. Interaction Handlers ---
 
     /**
@@ -138,6 +193,63 @@ export const useSettingsAccountLogic = () => {
         clearApiError();
     };
 
+    /**
+     * Trigger Hidden File Input
+     *
+     * Programmatically clicks the hidden HTML file input to open the 
+     * native OS file browser when the user interacts with the custom UI button.
+     */
+    const handleTriggerFileInput = () => {
+        if (fileInputRef.current) {
+            fileInputRef.current.click();
+        }
+    };
+
+    /**
+     * Avatar File Selection Handler
+     *
+     * Processes the user's selected file. Validates the MIME type (must be an image)
+     * and the file size (maximum 5MB). If valid, stores the file in state and 
+     * generates a local Object URL for instant visual feedback.
+     *
+     * @param {React.ChangeEvent<HTMLInputElement>} e - The native file input change event.
+     */
+    const handleAvatarChange = (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        if (!file.type.startsWith("image/")) {
+            setErrors((prev) => ({ ...prev, avatar: t("profile_image.errors.invalid_format") }));
+            return;
+        }
+
+        if (file.size > 5 * 1024 * 1024) {
+            setErrors((prev) => ({ ...prev, avatar: t("profile_image.errors.too_large") }));
+            return;
+        }
+
+        const previewUrl = URL.createObjectURL(file);
+        
+        setAvatarFile(file);
+        setAvatarPreview(previewUrl);
+        setAvatarDeleted(false);
+        setErrors((prev) => ({ ...prev, avatar: "" }));
+    };
+
+    /**
+     * Avatar Deletion Handler
+     *
+     * Clears the current avatar preview, removes the pending file from state, 
+     * and flags the avatar for deletion upon form submission.
+     */
+    const handleDeleteAvatar = () => {
+        setAvatarFile(null);
+        setAvatarPreview(null);
+        setAvatarDeleted(true);
+        if (fileInputRef.current) {
+            fileInputRef.current.value = "";
+        }
+    };
 
     /**
      * Form Validation Engine
@@ -182,18 +294,43 @@ export const useSettingsAccountLogic = () => {
      */
     const handleSubmit = useCallback(async (e) => {
         e.preventDefault();
-        setIsSaving(true);
-
+        
         if (validateForm()) {
+            setIsSaving(true);
+
+            let isEmailChanged = false;
+
             try {
-                console.log("Cambios guardados")
+                isEmailChanged = userProfile?.email !== formData.email;
+
+                await updateUserProfile({
+                    name: formData.username,
+                    email: formData.email
+                });
+                
+                if (avatarFile || avatarDeleted) {
+                    let payload = new FormData();
+                    if (avatarFile) {
+                        payload.append("file", avatarFile);
+                    } else if (avatarDeleted) {
+                        payload.append("deleteAvatar", "true");
+                        payload.append("file", new Blob([""], { type: "application/octet-stream" }), "empty.txt");
+                    }
+                    await updateUserAvatar(payload);
+                }
+
+                if (isEmailChanged) {
+                    await logoutAll();
+                    navigate("/");
+                    return;
+                }
             } catch (error) {
                 console.error("Error al guardar el perfil:", error);
             } finally {
                 setIsSaving(false);
             }
         }
-    }, [formData, avatarPreview, updateContextData]);
+    }, [formData, avatarFile, avatarDeleted, updateUserProfile, updateUserAvatar]);
 
     /**
      * Input Style Generator
@@ -257,8 +394,17 @@ export const useSettingsAccountLogic = () => {
 
     return {
         t,
-        settingsAccountStates: { formData, avatarPreview, isSaving, errors },
+        settingsAccountStates: { fileInputRef, formData, avatarPreview, isSaving, errors },
         settingsAccountData: { userProfile },
-        settingsAccountActions: { handleChange, handleSubmit, getInputClass, getIconClass, handleNavigateToChangePassword, handleNavigateToPlans },
+        settingsAccountActions: { handleChange, 
+            handleSubmit, 
+            getInputClass, 
+            getIconClass, 
+            handleNavigateToChangePassword, 
+            handleNavigateToPlans,
+            handleTriggerFileInput,
+            handleAvatarChange,
+            handleDeleteAvatar
+        },
     };
 }

@@ -85,7 +85,7 @@ export const NavbarComponent = () => {
             <button
                 type="button"
                 onClick={handleLogout}
-                className="w-full flex items-center justify-between bg-primary-300 md:bg-primary rounded-full px-5 py-3 md:px-4 md:py-2 text-primary md:text-primary-500 overflow-hidden hover:bg-primary-100 transition-colors mt-8 shrink-0"
+                className="w-full flex items-center justify-between bg-primary-300 md:bg-primary rounded-full px-5 py-3 md:px-4 md:py-2 text-primary md:text-primary-500 overflow-hidden transition-colors mt-8 shrink-0"
             >
                 <IconLogout2 className="w-6 h-6 md:w-5 md:h-5 shrink-0" />
                 <span className="text-lg font-medium whitespace-nowrap">

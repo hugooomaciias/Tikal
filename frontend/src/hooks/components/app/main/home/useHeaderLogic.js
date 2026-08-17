@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 
 /** Contexts, Hooks & Services */
 import { useAuth } from "../../../../core/useAuth.js";
+import { useSync } from "../../../../core/useSync.js";
 
 /**
  * Header Logic Hook
@@ -30,6 +31,13 @@ export const useHeaderLogic = ({ onEnableEdit, onDisableEdit, onSaveLayout }) =>
     const { logout } = useAuth();
 
     /**
+     * Main Context Hook
+     *
+     * Consumes the global synchronization context to retrieve the active user profile data.
+     */
+    const { getUserProfile } = useSync();
+
+    /**
      * Programmatic Navigation Hook
      *
      * Enables routing capabilities, used to redirect the user back to the login page post-logout.
@@ -45,6 +53,15 @@ export const useHeaderLogic = ({ onEnableEdit, onDisableEdit, onSaveLayout }) =>
      * This flag activates the compact header layout on mobile devices.
      */
     const [isScrolled, setIsScrolled] = useState(false);
+
+    // --- 3. Derived UI Data ---
+
+    /**
+     * User Profile Data
+     *
+     * Retrieves the high-level dashboard configuration and active user metadata.
+     */
+    const userProfile = getUserProfile();
 
     // --- 4. Side Effects ---
 
@@ -159,6 +176,7 @@ export const useHeaderLogic = ({ onEnableEdit, onDisableEdit, onSaveLayout }) =>
 
     return {
         headerStates: { isScrolled },
+        headerData: { userProfile },
         headerActions: { handleLogout, handleEnableEditMode, handleDisableEditMode, handleSaveLayout, handleNavigateToSettings, handleMobileNavigateToSettings },
     };
 };

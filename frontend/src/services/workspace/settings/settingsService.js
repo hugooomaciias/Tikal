@@ -105,4 +105,38 @@ export const settingsService = {
     updateNotificationPreferences: async (notificationData) => {
         return await apiCall("/api/settings/notification-preferences", "PATCH", notificationData);
     },
+
+    /**
+     * Update User Profile Data
+     *
+     * Sends a PATCH request to update the user's core personal information, 
+     * such as their username and email address.
+     *
+     * @async
+     * @function
+     * @param {Object} userData - The user profile payload.
+     * @param {string} [userData.name] - The updated name or username.
+     * @param {string} [userData.email] - The updated email address.
+     * @returns {Promise<Object>} The updated profile object returned by the backend.
+     * @throws {Error} Throws an error if the email is already in use or validation fails.
+     */
+    updateUserData: async (userData) => {
+        return await apiCall("/api/settings/profile", "PATCH", userData);
+    },
+
+    /**
+     * Update User Avatar
+     *
+     * Sends a POST request with a multipart/form-data payload to upload a new 
+     * profile picture to the cloud storage or delete the existing one.
+     *
+     * @async
+     * @function
+     * @param {FormData} avatarURL - The multipart form data containing the 'file' to upload, or the 'deleteAvatar' flag.
+     * @returns {Promise<Object>} The backend response containing the new avatar URL.
+     * @throws {Error} Throws an error if the file exceeds size limits or is of an invalid format.
+     */
+    updateAvatar: async (avatarURL) => {
+        return await apiCall("/api/settings/profile/avatar", "POST", avatarURL, {}, true);
+    },
 };

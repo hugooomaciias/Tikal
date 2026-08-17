@@ -8,6 +8,10 @@
     "profile_image": {
         "title": "Foto de perfil",
         "description": "Sube una foto cuadrada. Recomendamos un tamaño de 256x256 píxeles en formato PNG o JPG",
+        "errors": {
+            "invalid_format": "Formato no válido",
+            "too_large": "Máximo 5MB"
+        },
         "button": {
             "upload": "Subir foto",
             "delete": "Eliminar"

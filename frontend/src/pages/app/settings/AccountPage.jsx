@@ -37,14 +37,24 @@ export const AccountPage = () => {
      */
     const { t, settingsAccountStates, settingsAccountData, settingsAccountActions } = useSettingsAccountLogic();
     
-    const { formData, avatarPreview, isSaving, errors } = settingsAccountStates;
+    const { fileInputRef, formData, avatarPreview, isSaving, errors } = settingsAccountStates;
     const { userProfile } = settingsAccountData;
-    const { handleChange, handleSubmit, getInputClass, getIconClass, handleNavigateToChangePassword, handleNavigateToPlans } = settingsAccountActions;
+    const { 
+            handleChange,
+            handleSubmit, 
+            getInputClass, 
+            getIconClass, 
+            handleNavigateToChangePassword, 
+            handleNavigateToPlans,
+            handleTriggerFileInput,
+            handleAvatarChange,
+            handleDeleteAvatar
+        } = settingsAccountActions;
 
     // --- 2. Render ---
 
     if (!userProfile) return null;
-
+    
     return (
         <>
             <div>
@@ -64,7 +74,11 @@ export const AccountPage = () => {
                     <div className="h-full bg-primary-50/50 border border-primary-100 rounded-[1rem] p-8 flex flex-col xl:flex-row items-start xl:items-center gap-6 shadow-sm">
                         <div className="relative shrink-0">
                             <div className="w-24 h-24 xl:w-32 xl:h-32 rounded-full overflow-hidden shadow-md flex items-center justify-center">
-                                <img src="/public/Avatar_0.jpg" alt="Avatar" className="w-full h-full object-cover" />
+                                <img 
+                                    src={avatarPreview || `https://api.dicebear.com/10.x/glyphs/svg?glyphColor=3B7A57,2F6C4B,26563D,204533,1B392A,0E2018,2AB7CA,228498,226B7C,245866,224A57,11303B&seed=${userProfile.name}`}
+                                    alt="Avatar Preview" 
+                                    className="w-full h-full object-cover" 
+                                />
                             </div>
                         </div>
 
@@ -73,10 +87,17 @@ export const AccountPage = () => {
                             <p className="text-sm text-quaternary-500 max-w-md mb-1">{t("profile_image.description")}</p>
                             
                             <div className="flex flex-col xl:flex-row items-center gap-3 mt-2">
-                                <input type="file" className="hidden" />
+                                <input 
+                                    type="file" 
+                                    ref={fileInputRef}
+                                    onChange={handleAvatarChange}
+                                    accept="image/png, image/jpeg, image/jpg, image/webp"
+                                    className="hidden" 
+                                />
 
                                 <button 
                                     type="button"
+                                    onClick={handleTriggerFileInput}
                                     className="w-full xl:w-fit flex items-center justify-center gap-2 bg-primary-700 text-primary hover:bg-primary-300 px-4 py-2 rounded-lg font-semibold text-center text-base hover:shadow-lg cursor-pointer transition-all duration-500"
                                 >
                                     <IconUpload className="w-4 h-4" />
@@ -86,6 +107,7 @@ export const AccountPage = () => {
                                 {avatarPreview && (
                                     <button 
                                         type="button"
+                                        onClick={handleDeleteAvatar}
                                         className="w-full xl:w-fit flex items-center justify-center gap-2 bg-tertiary-200 text-primary px-5 py-2 rounded-lg font-semibold text-center text-base hover:shadow-lg cursor-pointer transition-all duration-500"
                                     >
                                         <IconTrash className="w-4 h-4" />

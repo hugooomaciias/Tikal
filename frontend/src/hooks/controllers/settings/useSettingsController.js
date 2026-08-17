@@ -150,6 +150,55 @@ export const useSettingsController = () => {
             throw error;
         }
     };
+    
+    /**
+     * Update User Profile
+     *
+     * Delegates to `settingsService.updateUserData` to update the user's core 
+     * personal info (name, email). Updates the `userProfile` branch on success.
+     *
+     * @async
+     * @param {Object} userData - The profile payload.
+     * @returns {Promise<Object>}
+     */
+    const updateUserProfile = async (userData) => {
+        try {
+            const updatedProfile = await settingsService.updateUserData(userData);
+            updateContextData("userProfile", (currentProfile = {}) => ({
+                ...currentProfile, ...userData
+            }));
+            return updatedProfile;
+        } catch (error) {
+            console.error("Error actualizando los datos del usuario:", error);
+            throw error;
+        }
+    };
+
+    /**
+     * Update User Avatar
+     *
+     * Delegates to `settingsService.updateAvatar` to upload a new avatar via FormData
+     * to Cloudinary or remove the existing one.
+     *
+     * @async
+     * @param {FormData} avatarData - The multipart form data containing the file.
+     * @returns {Promise<Object>}
+     */
+    const updateUserAvatar = async (avatarData) => {
+        try {
+            const response = await settingsService.updateAvatar(avatarData);
+            
+            updateContextData("userProfile", (currentProfile = {}) => ({
+                ...currentProfile, 
+                avatarUrl: response?.avatarUrl || null 
+            }));
+            
+            return response;
+        } catch (error) {
+            console.error("Error actualizando el avatar del usuario:", error);
+            throw error;
+        }
+    };
 
     // --- 3. Return Object ---
 
@@ -158,5 +207,7 @@ export const useSettingsController = () => {
         updateDashboardLayout,
         updateWidgetPreferences,
         updateNotificationSettings,
+        updateUserProfile,
+        updateUserAvatar
     };
 };

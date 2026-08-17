@@ -250,6 +250,31 @@ export const AuthProvider = ({ children }) => {
     };
 
     /**
+     * Executes the global logout flow (Logout All Devices).
+     *
+     * Invalidates ALL refresh tokens associated with the user on the backend via authService,
+     * effectively closing sessions across all devices. Clears local state and removes 
+     * authentication tokens from `localStorage`.
+     *
+     * @async
+     * @function
+     * @throws {Error} Logs an error without throwing if the server invalidation fails, guaranteeing local logout.
+     * @returns {Promise<void>}
+     */
+    const logoutAll = async () => {
+        try {
+            await authService.logoutAll(localStorage.getItem("refreshToken"));
+        } catch (error) {
+            console.error("No se pudo notificar al servidor el cierre de sesión", error);
+        } finally {
+            setUser(null);
+            setIsAuthenticated(false);
+            localStorage.removeItem("accessToken");
+            localStorage.removeItem("refreshToken");
+        }
+    };
+
+    /**
      * Initiates the password recovery flow.
      *
      * Sends the user's email to the backend via authService to request a password reset OTP.
@@ -345,6 +370,7 @@ export const AuthProvider = ({ children }) => {
                 login,
                 register,
                 logout,
+                logoutAll,
                 forgotPassword,
                 verifyOTP,
                 resetPassword,

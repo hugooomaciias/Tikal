@@ -56,9 +56,10 @@ export const Header = ({ data, isEditing, checkChanges, onEnableEdit, onDisableE
      * Extracts the resolved UI states (like scroll detection) and mapped interaction handlers
      * (like logout and edit toggles) from the headless logic hook.
      */
-    const { headerStates, headerActions } = useHeaderLogic({ onEnableEdit, onDisableEdit, onSaveLayout });
+    const { headerStates, headerData, headerActions } = useHeaderLogic({ onEnableEdit, onDisableEdit, onSaveLayout });
 
     const { isScrolled } = headerStates;
+    const { userProfile } = headerData;
     const { handleLogout, handleEnableEditMode, handleDisableEditMode, handleSaveLayout, handleNavigateToSettings, handleMobileNavigateToSettings } = headerActions;
 
     // --- 2. Render ---
@@ -80,7 +81,7 @@ export const Header = ({ data, isEditing, checkChanges, onEnableEdit, onDisableE
                         <div className="h-full w-full bg-primary-600/40 rounded-full overflow-hidden">
                             <img
                                 className="w-full h-full object-cover shadow-md"
-                                src="/public/Avatar_0.jpg"
+                                src={userProfile.avatarUrl}
                                 alt="User Avatar"
                             />
                         </div>
@@ -183,7 +184,7 @@ export const Header = ({ data, isEditing, checkChanges, onEnableEdit, onDisableE
                         <div className="h-full w-full bg-primary-600/40 rounded-full overflow-hidden cursor-pointer">
                             <img
                                 className="w-full h-full object-cover shadow-md"
-                                src="/public/Avatar_0.jpg"
+                                src={userProfile.avatarUrl}
                                 alt="User Avatar"
                             />
                         </div>

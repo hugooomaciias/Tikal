@@ -82,6 +82,21 @@ export const authService = {
     },
 
     /**
+     * Global User Logout (All Devices)
+     *
+     * Invalidates all active sessions for the user across all devices on the backend.
+     *
+     * @async
+     * @function
+     * @param {string} refreshToken - The current refresh token of the device initiating the global logout.
+     * @returns {Promise<Object>} The backend confirmation response.
+     * @throws {Error} Throws an error if the global logout request fails.
+     */
+    logoutAll: async (refreshToken) => {
+        return await apiCall("/auth/logout-all", "POST", { refresh_token: refreshToken });
+    },
+
+    /**
      * Request Password Reset
      *
      * Initiates the password recovery process by sending an OTP to the user's email.

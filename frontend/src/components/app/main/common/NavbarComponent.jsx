@@ -141,7 +141,7 @@ export const NavbarComponent = ({ theme }) => {
                 >
                     <img
                         className="w-full h-full object-cover shadow-md"
-                        src="/public/Avatar_0.jpg"
+                        src={userProfile.avatarUrl}
                         alt="User Avatar"
                     />
                 </button>
