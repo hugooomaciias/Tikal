@@ -35,7 +35,7 @@ export const SelectComponent = ({ name, value, Icon, options, onChange }) => {
     // --- 2. Render ---
 
     return (
-        <div ref={dropdownRef} className="relative inline-block text-left shrink-0">
+        <div ref={dropdownRef} className="w-full relative inline-block text-left shrink-0">
             {/* Main trigger button */}
             <button
                 type="button"
@@ -47,10 +47,8 @@ export const SelectComponent = ({ name, value, Icon, options, onChange }) => {
             </button>
 
             {/* Expanding dropdown menu */}
-            <div
-                className={`absolute right-0 mt-2 w-full origin-top bg-primary-700 rounded-xl shadow-lg z-50 transition-all duration-200 ${isOpen ? "scale-100 opacity-100" : "scale-95 opacity-0 pointer-events-none"}`}
-            >
-                <div className="flex flex-col">
+            <div className={`absolute right-0 mt-2 w-full origin-top bg-primary-700 rounded-xl shadow-lg z-50 transition-all duration-200 overflow-hidden ${isOpen ? "scale-100 opacity-100" : "scale-95 opacity-0 pointer-events-none"}`}>
+                <div className="flex flex-col max-h-60 overflow-y-auto custom-scrollbar">
                     {options.map((option) => (
                         <button
                             key={option.value}

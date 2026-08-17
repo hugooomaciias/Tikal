@@ -52,7 +52,7 @@ export const TasksPage = () => {
             <div className="flex-1 flex flex-col md:flex-row gap-4 overflow-hidden relative">
                 {/* First Column: Projects Entity List */}
                 <div
-                    className={`${mobileView === "projects" ? "flex" : "hidden"} h-full w-full md:w-1/4 md:flex flex-col items-end justify-between p-6 bg-primary rounded-[2.5rem]`}
+                    className={`${mobileView === "projects" ? "flex" : "hidden"} h-full w-full xl:w-1/4 xl:flex flex-col items-end justify-between p-6 bg-primary rounded-[2.5rem]`}
                 >
                     <ProjectsCardComponent
                         data={tasks}
@@ -65,7 +65,7 @@ export const TasksPage = () => {
 
                 {/* Second Column: Stages Entity List */}
                 <div
-                    className={`${mobileView === "stages" ? "flex" : "hidden"} h-full w-full md:w-1/3 md:flex flex-col items-end justify-between p-6 bg-primary rounded-[2.5rem]`}
+                    className={`${mobileView === "stages" ? "flex" : "hidden"} h-full w-full xl:w-1/3 xl:flex flex-col items-end justify-between p-6 bg-primary rounded-[2.5rem]`}
                 >
                     <StagesCardComponent
                         data={selectedProject ? selectedProject.stages : []}
@@ -81,7 +81,7 @@ export const TasksPage = () => {
 
                 {/* Third Column: Tasks Entity List */}
                 <div
-                    className={`${mobileView === "tasks" ? "flex" : "hidden"} h-full flex-1 md:flex flex-col items-end justify-between p-6 bg-primary rounded-[2.5rem]`}
+                    className={`${mobileView === "tasks" ? "flex" : "hidden"} h-full flex-1 xl:flex flex-col items-end justify-between p-6 bg-primary rounded-[2.5rem]`}
                 >
                     <TasksCardComponent
                         data={selectedStage ? selectedStage.tasks : []}

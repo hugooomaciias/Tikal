@@ -12,6 +12,7 @@ import esAppStatistics from "./languages/es/app_statistics.json";
 import esAppTempleMode from "./languages/es/app_temple-mode.json";
 import esAppSettingsAccount from "./languages/es/app_settings_account.json";
 import esAppSettingsPreferences from "./languages/es/app_settings_preferences.json";
+import esAppSettingsProductivity from "./languages/es/app_settings_productivity.json";
 
 import enLanding from "./languages/en/landing.json";
 import enAuth from "./languages/en/auth.json";
@@ -23,6 +24,7 @@ import enAppStatistics from "./languages/en/app_statistics.json";
 import enAppTempleMode from "./languages/en/app_temple-mode.json";
 import enAppSettingsAccount from "./languages/en/app_settings_account.json";
 import enAppSettingsPreferences from "./languages/en/app_settings_preferences.json";
+import enAppSettingsProductivity from "./languages/en/app_settings_productivity.json";
 
 const resources = {
     es: {
@@ -36,6 +38,7 @@ const resources = {
         "app_temple-mode": esAppTempleMode,
         app_settings_account: esAppSettingsAccount,
         app_settings_preferences: esAppSettingsPreferences,
+        app_settings_productivity: esAppSettingsProductivity,
     },
     en: {
         landing: enLanding,
@@ -47,7 +50,8 @@ const resources = {
         app_statistics: enAppStatistics,
         "app_temple-mode": enAppTempleMode,
         app_settings_account: enAppSettingsAccount,
-        app_settings_preferences: enAppSettingsPreferences
+        app_settings_preferences: enAppSettingsPreferences,
+        app_settings_productivity: enAppSettingsProductivity,
     },
 };
 

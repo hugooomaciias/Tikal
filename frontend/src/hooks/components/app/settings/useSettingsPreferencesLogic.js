@@ -111,8 +111,8 @@ export const useSettingsPreferencesLogic = () => {
 
     const themeOptions = [
         { value: "MAYA", label: t("appearance.themes.maya") },
-        { value: "LIGHT", label: t("appearance.themes.light") },
-        { value: "DARK", label: t("appearance.themes.dark") },
+        { value: "CLARO", label: t("appearance.themes.light") },
+        { value: "OSCURO", label: t("appearance.themes.dark") },
     ];
 
     // --- 4. Side Effects ---
@@ -128,7 +128,7 @@ export const useSettingsPreferencesLogic = () => {
         if (userSettings) {
             setFormData({
                 userLanguage: userSettings.userLanguage,
-                timezone: userSettings.timezone || "Europe/Madrid",
+                timezone: userSettings.timezone || "UTC",
                 firstDayOfWeek: userSettings.firstDayOfWeek || "LUNES",
                 timeRange: userSettings.timeRange || "SEMANAL",
                 theme: userSettings.theme || "MAYA",

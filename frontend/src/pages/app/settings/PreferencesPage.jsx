@@ -78,7 +78,7 @@ export const PreferencesPage = () => {
                             <p className="text-sm text-quaternary-500 text-left max-w-md mb-1">{t("location.description")}</p>
                         </div>
                         
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
+                        <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 w-full">
                             {/* Language */}
                             <SelectComponent
                                 name="userLanguage"
@@ -123,7 +123,7 @@ export const PreferencesPage = () => {
                             <p className="text-sm text-quaternary-500 text-left max-w-md mb-1">{t("calendar.description")}</p>
                         </div>
                         
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
+                        <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 w-full">
                             {/* Fisrt day of week */}
                             <SelectComponent
                                 name="firstDayOfWeek"
@@ -150,16 +150,16 @@ export const PreferencesPage = () => {
                     className={`relative w-full rounded-[1rem] p-8 flex flex-col items-start gap-6 shadow-sm transition-all duration-700 border overflow-hidden ${
                         formData?.theme === "MAYA" 
                             ? "bg-gradient-to-br from-primary-700 to-primary-200 border-primary-700" 
-                            : formData?.theme === "LIGHT"
+                            : formData?.theme === "CLARO"
                                 ? "bg-gradient-to-br from-slate-200 to-slate-50 border-slate-200"
                                 : "bg-gradient-to-br from-slate-800 to-slate-600 border-slate-800"
                     }`}
                 >
                     <div className="relative z-10 flex flex-col items-center md:items-start gap-1">
-                        <h3 className={`text-xl font-bold transition-colors duration-700 ${formData?.theme === "LIGHT" ? "text-quaternary-700" : "text-primary"}`}>
+                        <h3 className={`text-xl font-bold transition-colors duration-700 ${formData?.theme === "CLARO" ? "text-quaternary-700" : "text-primary"}`}>
                             {t("appearance.title")}
                         </h3>
-                        <p className={`text-sm transition-colors duration-700 max-w-md mb-2 text-center md:text-left ${formData?.theme === "LIGHT" ? "text-quaternary-500" : "text-primary/70"}`}>
+                        <p className={`text-sm transition-colors duration-700 max-w-md mb-2 text-center md:text-left ${formData?.theme === "CLARO" ? "text-quaternary-500" : "text-primary/70"}`}>
                             {t("appearance.description")}
                         </p>
                     </div>
@@ -175,14 +175,14 @@ export const PreferencesPage = () => {
                                     onClick={() => handleChange({ target: { name: "theme", value: option.value } })}
                                     className={`relative flex flex-col items-center gap-3 p-4 rounded-xl border-2 transition-all duration-300 hover:scale-105 ${
                                         isActive 
-                                            ? (formData?.theme === "LIGHT" ? "border-primary-500 shadow-md bg-transparent" : "border-white shadow-[0_0_20px_rgba(255,255,255,0.2)] bg-white/10") 
-                                            : (formData?.theme === "LIGHT" ? "border-transparent opacity-60 hover:opacity-100 hover:bg-slate-100" : "border-transparent opacity-60 hover:opacity-100 hover:bg-white/5")
+                                            ? (formData?.theme === "CLARO" ? "border-primary-500 shadow-md bg-transparent" : "border-white shadow-[0_0_20px_rgba(255,255,255,0.2)] bg-white/10") 
+                                            : (formData?.theme === "CLARO" ? "border-transparent opacity-60 hover:opacity-100 hover:bg-slate-100" : "border-transparent opacity-60 hover:opacity-100 hover:bg-white/5")
                                     }`}
                                 >
                                     {/* Miniatura visual del tema */}
                                     <div className={`w-20 h-14 md:w-32 md:h-20 rounded-lg shadow-inner border flex items-center justify-center ${
                                         option.value === "MAYA" ? "bg-gradient-to-br from-primary-600 to-primary-900 border-primary-500" :
-                                        option.value === "LIGHT" ? "bg-slate-100 border-slate-300" :
+                                        option.value === "CLARO" ? "bg-slate-100 border-slate-300" :
                                         "bg-slate-800 border-slate-600"
                                     }`}>
                                         {option.value === "MAYA"
@@ -202,14 +202,14 @@ export const PreferencesPage = () => {
                                                         }}
                                                     />
                                                 </div>
-                                            : option.value === "LIGHT"
+                                            : option.value === "CLARO"
                                                 ? <IconSunHigh className="w-6 h-6 text-quaternary-400" />
                                                 : <IconMoon className="w-6 h-6 text-quaternary-50" />
                                         }
                                     </div>
 
                                     {/* Etiqueta del tema */}
-                                    <span className={`text-sm font-bold ${formData?.theme === "LIGHT" ? "text-quaternary-700" : "text-primary"}`}>
+                                    <span className={`text-sm font-bold ${formData?.theme === "CLARO" ? "text-quaternary-700" : "text-primary"}`}>
                                         {option.label}
                                     </span>
                                 </button>

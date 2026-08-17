@@ -225,22 +225,21 @@ export const StagesCardComponent = ({ data, projectId, selectedId, onSelect, han
             </div>
 
             {/* Bottom Footer Section: Actions & Navigation */}
-            <div className="w-full flex items-center justify-between md:justify-end">
+            <div className="w-full flex items-center justify-between xl:justify-end">
                 {/* Mobile Specific Back Navigation */}
                 <button
+                    type="button"
                     onClick={handleBackNavigation}
-                    className="md:hidden flex items-center gap-1 bg-primary-200 rounded-full pr-2 text-primary"
+                    className="xl:hidden flex items-center gap-1 bg-primary-200 rounded-full pr-2 text-primary"
                 >
                     <IconCircleChevronLeftFilled className="h-9 w-9 " />
-                    <span className="font-semibold">Proyectos</span>
+                    <span className="font-semibold">{t("stages.back_projects")}</span>
                 </button>
 
                 {/* Primary Action: Create New Stage */}
-                <div className="shrink-0 w-full flex justify-end">
-                    <button onClick={handleCreateNewStage}>
-                        <IconCirclePlusFilled className="h-10 w-10 text-primary-200 md:text-primary-200/70 md:hover:text-primary-200" />
-                    </button>
-                </div>
+                <button type="button" onClick={handleCreateNewStage}>
+                    <IconCirclePlusFilled className="h-10 w-10 text-primary-200 md:text-primary-200/70 md:hover:text-primary-200" />
+                </button>
             </div>
 
             {/* Entity Creation and Editing Modal */}
