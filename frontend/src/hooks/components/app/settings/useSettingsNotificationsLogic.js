@@ -139,7 +139,6 @@ export const useSettingsNotificationsLogic = () => {
         
         setIsSaving(true);
         try {
-            // Envía directamente el formData al endpoint PATCH
             await updateNotificationSettings(formData);
         } catch (error) {
             console.error("Error al guardar las notificaciones:", error);
