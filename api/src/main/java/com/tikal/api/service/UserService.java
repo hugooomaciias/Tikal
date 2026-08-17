@@ -1,8 +1,10 @@
 package com.tikal.api.service;
 
 import com.tikal.api.config.CustomUserDetails;
+import com.tikal.api.exception.ConflictException;
 import com.tikal.api.exception.ResourceNotFoundException;
 import com.tikal.api.exception.UnauthorizedException;
+import com.tikal.api.model.dto.UpdateProfileRequest;
 import com.tikal.api.model.dto.UserDTO;
 import com.tikal.api.model.entity.RankList;
 import com.tikal.api.model.entity.User;
@@ -15,6 +17,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Optional;
 
@@ -23,6 +26,7 @@ import java.util.Optional;
 @Slf4j
 public class UserService {
     private final UserRepository userRepository;
+    private final ImageUploadService imageUploadService;
     private final RankListRepository rankListRepository;
 
     /**
@@ -68,6 +72,54 @@ public class UserService {
         }
         var user = optUser.get();
         return getUserDTO(user);
+    }
+
+    /**
+     * Updates the user's profile fields (name, email, avatarUrl).
+     * Validates uniqueness of name and email (excluding the current user).
+     */
+    @Transactional
+    public UserDTO updateProfile(Integer userId, UpdateProfileRequest request) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        // Validate and update name
+        if (request.getName() != null && !request.getName().equals(user.getName())) {
+            // Check if the new name is already taken by another user
+            if (userRepository.existsByNameAndIdNot(request.getName(), userId)) {
+                throw new ConflictException(
+                        "Username '" + request.getName() + "' is already taken by another user",
+                        "1. Data conflict"
+                );
+            }
+            user.setName(request.getName());
+        }
+
+        // Validate and update email
+        if (request.getEmail() != null && !request.getEmail().equals(user.getEmail())) {
+            if (userRepository.existsByEmailAndIdNot(request.getEmail(), userId)) {
+                throw new ConflictException(
+                        "Email '" + request.getEmail() + "' is already registered by another user",
+                        "2. Data conflict"
+                );
+            }
+            user.setEmail(request.getEmail());
+        }
+
+        User updatedUser = userRepository.save(user);
+        return getUserDTO(updatedUser);
+    }
+
+    @Transactional
+    public UserDTO updateAvatar(Integer userId, MultipartFile file) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        String imageUrl = imageUploadService.uploadImage(file);
+        user.setAvatarUrl(imageUrl);
+
+        User updatedUser = userRepository.save(user);
+        return getUserDTO(updatedUser);
     }
 
     public UserDTO getUserDTO(User user) {
