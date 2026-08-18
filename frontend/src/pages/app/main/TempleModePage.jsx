@@ -57,6 +57,8 @@ export const TempleModePage = () => {
 
     // --- 2. Render ---
 
+    console.log(data);
+
     return (
         <div 
             className={`${theme} flex flex-col md:flex-row h-[100dvh] bg-cover bg-center bg-no-repeat p-2 md:p-4 gap-4 md:gap-8 overflow-hidden`}
