@@ -4,8 +4,8 @@ import { useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
 /** Assets, Utils & Constants */
-import logoHeaderDark from "../../../assets/tikal/logoHeader_1.svg";
-import logoHeaderLight from "../../../assets/tikal/logoHeader_2.svg";
+import logoHeaderDark from "/tikal/logoHeader_1.svg";
+import logoHeaderLight from "/tikal/logoHeader_2.svg";
 
 /**
  * Landing Page Logic Hook

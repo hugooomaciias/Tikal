@@ -15,7 +15,7 @@ import {
 } from "@tabler/icons-react";
 
 /** Assets, Utils & Constants */
-import logoSabidurIA from "../../../../assets/ia/sabidurIAIcon.svg";
+import logoSabidurIA from "/ia/sabidurIAIcon.svg";
 
 /**
  * Icon Component Map

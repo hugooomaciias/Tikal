@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { useSync } from "../../../../hooks/core/useSync.js";
 
 /** Assets, Utils & Constants */
-import logoTikal from "../../../../assets/tikal/logoHeader_1.svg";
+import logoTikal from "/tikal/logoHeader_1.svg";
 
 /**
  * Settings Header Component

@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
 /** Assets, Utils & Constants */
-import logoSabidurIA from "../../../../../assets/ia/sabidurIAIcon.svg";
+import logoSabidurIA from "/ia/sabidurIAIcon.svg";
 
 /**
  * AI Assistant Widget

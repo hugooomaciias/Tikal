@@ -11,7 +11,7 @@ import { FormRegisterComponent } from "../../components/auth/FormRegisterCompone
 import { IconCircleXFilled } from "@tabler/icons-react";
 
 /** Assets, Utils & Constants */
-import logoHeader from "../../assets/tikal/logoHeader_1.svg";
+import logoHeader from "/tikal/logoHeader_1.svg";
 
 /**
  * Registration Page Presentational Component

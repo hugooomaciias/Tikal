@@ -4,9 +4,6 @@ import { useNavigate } from "react-router-dom";
 /** Icons */
 import { IconHammer, IconArrowLeft } from "@tabler/icons-react";
 
-/** Assets (Opcional - puedes reutilizar tu fondo del templo o la selva) */
-// import bg from "../../../assets/ia/chatbot.png";
-
 /**
  * Work In Progress Component
  *

@@ -10,8 +10,8 @@ import { IconCircleArrowUpRight } from "@tabler/icons-react";
 
 /** Assets, Utils & Constants */
 import { PHASE_COLOURS } from "../../../../../constants/phase_colours.js";
-import bgTemple from "../../../../../assets/temple-mode/BgTempleModeWidget.jpg";
-import bgAI from "../../../../../assets/ia/BgDiosSabidurIA.png";
+import bgTemple from "/temple-mode/BgTempleModeWidget.jpg";
+import bgAI from "/ia/BgDiosSabidurIA.png";
 import tailwindConfig from "../../../../../../tailwind.config.js";
 import resolveConfig from "tailwindcss/resolveConfig";
 

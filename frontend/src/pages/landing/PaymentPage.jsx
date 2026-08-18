@@ -9,7 +9,7 @@ import { LanguagePickerComponent } from "../../components/landing/languagePicker
 import { IconChevronLeft } from "@tabler/icons-react";
 
 /** Assets, Utils & Constants */
-import logoHeader from "../../assets/tikal/logoHeader_2.svg";
+import logoHeader from "/tikal/logoHeader_2.svg";
 
 /**
  * Payment Selection Page Component

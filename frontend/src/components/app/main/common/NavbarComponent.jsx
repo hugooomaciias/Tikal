@@ -17,7 +17,7 @@ import {
 } from "@tabler/icons-react";
 
 /** Assets, Utils & Constants */
-import logoNavbar from "../../../../assets/tikal/logoHeader_2.svg";
+import logoNavbar from "/tikal/logoHeader_2.svg";
 
 /**
  * Icon Component Map

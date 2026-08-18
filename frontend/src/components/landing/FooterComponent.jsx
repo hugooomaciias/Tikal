@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
 /** Assets, Utils & Constants */
-import logoFooter from "../../assets/tikal/logoHeader_2.svg";
+import logoFooter from "/tikal/logoHeader_2.svg";
 
 /**
  * Landing Footer Component

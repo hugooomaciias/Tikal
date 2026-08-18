@@ -11,7 +11,7 @@ import { FormForgotPasswordComponent } from "../../components/auth/FormForgotPas
 import { IconCircleXFilled } from "@tabler/icons-react";
 
 /** Assets, Utils & Constants */
-import logoHeader from "../../assets/tikal/logoHeader_1.svg";
+import logoHeader from "/tikal/logoHeader_1.svg";
 
 /**
  * Forgot Password Page Presentational Component
