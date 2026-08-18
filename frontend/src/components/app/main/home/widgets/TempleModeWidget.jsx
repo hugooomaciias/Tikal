@@ -32,7 +32,7 @@ export const TempleModeWidget = ({ props }) => {
      */
     const rank = props?.rank || 1;
 
-    const rankBadge = props.logo;
+    const rankBadge = props?.logo;
 
     // --- 2. Render ---
 

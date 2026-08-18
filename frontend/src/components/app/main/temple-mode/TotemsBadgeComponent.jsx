@@ -78,8 +78,8 @@ export const TotemsBadgeComponent = ({ totems, lockedTotems, nextTargetTotem, tT
         setIsTotemsMenuOpen((prev) => !prev);
     }, []);
 
-    const nextTotem = nextTargetTotem.totemImageUrl;
-    const totem = totem.totemImageUrl;
+    const nextTotem = nextTargetTotem?.totemImageUrl;
+    const totemLogo = totem?.totemImageUrl;
     
     // --- 2. Render ---
     
@@ -195,8 +195,8 @@ export const TotemsBadgeComponent = ({ totems, lockedTotems, nextTargetTotem, tT
                                     <div
                                         className={`w-full h-full bg-rank-50 ${totem.isUnlocked ? "" : "grayscale"}`}
                                         style={{
-                                            maskImage: `url(${totem})`,
-                                            WebkitMaskImage: `url(${totem})`,
+                                            maskImage: `url(${totemLogo})`,
+                                            WebkitMaskImage: `url(${totemLogo})`,
                                             maskRepeat: "no-repeat", WebkitMaskRepeat: "no-repeat",
                                             maskSize: "contain", WebkitMaskSize: "contain",
                                             maskPosition: "center", WebkitMaskPosition: "center",

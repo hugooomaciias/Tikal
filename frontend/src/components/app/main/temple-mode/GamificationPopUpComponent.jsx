@@ -24,7 +24,7 @@ export const GamificationPopUpComponent = () => {
     const { events, theme, activeEvent, isMultiple } = gamificationData;
     const { handleGoToSlide, handleClose } = gamificationActions;
     
-    const eventImage = activeEvent.imageUrl;
+    const eventImage = activeEvent?.imageUrl;
 
     // --- 2. Render ---
     

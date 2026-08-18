@@ -55,9 +55,9 @@ export const TempleModePage = () => {
     const circleCircumference = 2 * Math.PI * circleRadius;
     const circleOffset = circleCircumference - (circleCircumference * timerProgressPercentage) / 100;
 
-    const bgTemple = data.templeImageUrl;
-    const rankBadge = data.badgeImageUrl;
-    const totem = nextTargetTotem.totemImageUrl;
+    const bgTemple = data?.templeImageUrl;
+    const rankBadge = data?.badgeImageUrl;
+    const totem = nextTargetTotem?.totemImageUrl;
 
     // --- 2. Render ---
 
