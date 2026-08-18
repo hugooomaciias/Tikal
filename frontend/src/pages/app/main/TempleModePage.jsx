@@ -55,12 +55,16 @@ export const TempleModePage = () => {
     const circleCircumference = 2 * Math.PI * circleRadius;
     const circleOffset = circleCircumference - (circleCircumference * timerProgressPercentage) / 100;
 
+    const bgTemple = data.templeImageUrl;
+    const rankBadge = data.badgeImageUrl;
+    const totem = nextTargetTotem.totemImageUrl;
+
     // --- 2. Render ---
 
     return (
         <div 
             className={`${theme} flex flex-col md:flex-row h-[100dvh] bg-cover bg-center bg-no-repeat p-2 md:p-4 gap-4 md:gap-8 overflow-hidden`}
-            style={{ backgroundImage: `url(${data.templeImageUrl})` }}
+            style={{ backgroundImage: `url(${bgTemple})` }}
         >
             {/* Vertical Navbar Navigation Layer */}
             {!isRunning && (
@@ -87,8 +91,8 @@ export const TempleModePage = () => {
                                     <div
                                         className={`bg-rank-50 ${data.rank === 2 ? "w-[65px] h-[65px]" : data.rank === 3 ? "w-[60px] h-[60px]" : "w-full h-full"}`}
                                         style={{
-                                            maskImage: `url(${data.badgeImageUrl})`,
-                                            WebkitMaskImage: `url(${data.badgeImageUrl})`,
+                                            maskImage: `url(${rankBadge})`,
+                                            WebkitMaskImage: `url(${rankBadge})`,
                                             maskRepeat: "no-repeat",
                                             WebkitMaskRepeat: "no-repeat",
                                             maskSize: "contain",
@@ -180,8 +184,8 @@ export const TempleModePage = () => {
                                             <div
                                                 className="w-full h-full bg-rank-50"
                                                 style={{
-                                                    maskImage: `url(${nextTargetTotem.totemImageUrl})`,
-                                                    WebkitMaskImage: `url(${nextTargetTotem.totemImageUrl})`,
+                                                    maskImage: `url(${totem})`,
+                                                    WebkitMaskImage: `url(${totem})`,
                                                     maskRepeat: "no-repeat",
                                                     WebkitMaskRepeat: "no-repeat",
                                                     maskSize: "contain",

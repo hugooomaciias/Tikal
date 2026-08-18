@@ -5,6 +5,9 @@ import { useNavigate } from "react-router-dom";
 /** Contexts, Hooks & Services */
 import { useTranslation } from "react-i18next";
 
+/** Assets, Utils & Constants */
+import logoSabidurIA from "../../../../../assets/ia/sabidurIAIcon.svg";
+
 /**
  * AI Assistant Widget
  *
@@ -46,8 +49,8 @@ export const AIWidget = () => {
                 <div
                     className="w-28 h-28 bg-quaternary-50/80"
                     style={{
-                        maskImage: 'url("src/assets/ia/sabidurIAIcon.svg")',
-                        WebkitMaskImage: 'url("src/assets/ia/sabidurIAIcon.svg")',
+                        maskImage: `url(${logoSabidurIA})`,
+                        WebkitMaskImage: `url(${logoSabidurIA})`,
                         maskRepeat: "no-repeat",
                         maskSize: "contain",
                         maskPosition: "center",

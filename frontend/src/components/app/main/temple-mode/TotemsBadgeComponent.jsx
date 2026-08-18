@@ -77,6 +77,9 @@ export const TotemsBadgeComponent = ({ totems, lockedTotems, nextTargetTotem, tT
     const toggleTotemsMenu = useCallback(() => {
         setIsTotemsMenuOpen((prev) => !prev);
     }, []);
+
+    const nextTotem = nextTargetTotem.totemImageUrl;
+    const totem = totem.totemImageUrl;
     
     // --- 2. Render ---
     
@@ -158,8 +161,8 @@ export const TotemsBadgeComponent = ({ totems, lockedTotems, nextTargetTotem, tT
                             <div
                                 className="w-full h-full bg-rank-50"
                                 style={{
-                                    maskImage: `url(${nextTargetTotem.totemImageUrl})`,
-                                    WebkitMaskImage: `url(${nextTargetTotem.totemImageUrl})`,
+                                    maskImage: `url(${nextTotem})`,
+                                    WebkitMaskImage: `url(${nextTotem})`,
                                     maskRepeat: "no-repeat", WebkitMaskRepeat: "no-repeat",
                                     maskSize: "contain", WebkitMaskSize: "contain",
                                     maskPosition: "center", WebkitMaskPosition: "center",
@@ -192,8 +195,8 @@ export const TotemsBadgeComponent = ({ totems, lockedTotems, nextTargetTotem, tT
                                     <div
                                         className={`w-full h-full bg-rank-50 ${totem.isUnlocked ? "" : "grayscale"}`}
                                         style={{
-                                            maskImage: `url(${totem.totemImageUrl})`,
-                                            WebkitMaskImage: `url(${totem.totemImageUrl})`,
+                                            maskImage: `url(${totem})`,
+                                            WebkitMaskImage: `url(${totem})`,
                                             maskRepeat: "no-repeat", WebkitMaskRepeat: "no-repeat",
                                             maskSize: "contain", WebkitMaskSize: "contain",
                                             maskPosition: "center", WebkitMaskPosition: "center",

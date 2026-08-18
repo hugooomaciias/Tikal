@@ -24,6 +24,8 @@ export const GamificationPopUpComponent = () => {
     const { events, theme, activeEvent, isMultiple } = gamificationData;
     const { handleGoToSlide, handleClose } = gamificationActions;
     
+    const eventImage = activeEvent.imageUrl;
+
     // --- 2. Render ---
     
     if (!events || events.length === 0) return null;
@@ -50,8 +52,8 @@ export const GamificationPopUpComponent = () => {
                             <div
                                 className="relative z-10 w-full h-full bg-rank-50 transition-all duration-500 transform animate-float-straight"
                                 style={{
-                                    maskImage: `url(${activeEvent.imageUrl})`,
-                                    WebkitMaskImage: `url(${activeEvent.imageUrl})`,
+                                    maskImage: `url(${eventImage})`,
+                                    WebkitMaskImage: `url(${eventImage})`,
                                     maskRepeat: "no-repeat", WebkitMaskRepeat: "no-repeat",
                                     maskSize: "contain", WebkitMaskSize: "contain",
                                     maskPosition: "center", WebkitMaskPosition: "center",
