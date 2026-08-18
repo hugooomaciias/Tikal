@@ -1,4 +1,4 @@
-package com.tikal.api.model.dto;
+package com.tikal.api.model.dto.user;
 
 import lombok.Data;
 

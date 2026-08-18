@@ -1,6 +1,6 @@
 package com.tikal.api.service;
 
-import com.tikal.api.model.dto.UserSettingsDTO;
+import com.tikal.api.model.dto.user.UserSettingsDTO;
 import com.tikal.api.model.dto.calendar.CalendarEventDTO;
 import com.tikal.api.model.dto.sync.WorkspaceSyncDTO;
 import com.tikal.api.model.dto.sync.WorkspaceSyncDTO.*;

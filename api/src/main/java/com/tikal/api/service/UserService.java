@@ -4,8 +4,8 @@ import com.tikal.api.config.CustomUserDetails;
 import com.tikal.api.exception.ConflictException;
 import com.tikal.api.exception.ResourceNotFoundException;
 import com.tikal.api.exception.UnauthorizedException;
-import com.tikal.api.model.dto.UpdateProfileRequest;
-import com.tikal.api.model.dto.UserDTO;
+import com.tikal.api.model.dto.user.UpdateProfileRequest;
+import com.tikal.api.model.dto.user.UserDTO;
 import com.tikal.api.model.entity.RankList;
 import com.tikal.api.model.entity.User;
 import com.tikal.api.repository.RankListRepository;
@@ -115,8 +115,12 @@ public class UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
-        String imageUrl = imageUploadService.uploadImage(file);
-        user.setAvatarUrl(imageUrl);
+        if (file != null) {
+            String imageUrl = imageUploadService.uploadImage(file);
+            user.setAvatarUrl(imageUrl);
+        } else {
+            user.setAvatarUrl("https://api.dicebear.com/10.x/glyphs/svg?glyphColor=3B7A57,2F6C4B,26563D,204533,1B392A,0E2018,2AB7CA,228498,226B7C,245866,224A57,11303B&seed=" + user.getName());
+        }
 
         User updatedUser = userRepository.save(user);
         return getUserDTO(updatedUser);

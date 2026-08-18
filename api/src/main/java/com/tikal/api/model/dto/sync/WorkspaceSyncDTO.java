@@ -1,16 +1,15 @@
 package com.tikal.api.model.dto.sync;
 
-import com.tikal.api.model.dto.UserSettingsDTO;
+import com.tikal.api.model.dto.user.UserSettingsDTO;
 import com.tikal.api.model.dto.calendar.CalendarEventDTO;
 import com.tikal.api.model.dto.sync.domain.GamificationEventDTO;
 import com.tikal.api.model.dto.sync.domain.ProjectSyncDTO;
 import com.tikal.api.model.dto.sync.widgets.WidgetData;
-import com.tikal.api.model.entity.enumerated.EventType;
 import com.tikal.api.model.entity.enumerated.TypeOfGoal;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import java.time.LocalDateTime;
+
 import java.util.List;
 import java.util.Map;
 
