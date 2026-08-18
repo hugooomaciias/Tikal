@@ -1,5 +1,6 @@
 /** React & Third-Party Libraries */
 import React from "react";
+import { useNavigate } from "react-router-dom";
 
 /** Contexts, Hooks & Services */
 import { useTranslation } from "react-i18next";
@@ -25,6 +26,17 @@ export const AIWidget = () => {
      */
     const { t } = useTranslation("app_home");
 
+    /**
+     * Programmatic Navigation Hook
+     *
+     * Enables routing capabilities, used to redirect the user back to the login page post-logout.
+     */
+    const navigate = useNavigate();
+
+    const handleNavigateToWIP = () => {
+        navigate("/wip");
+    };
+
     // --- 2. Render ---
 
     return (
@@ -45,7 +57,11 @@ export const AIWidget = () => {
             </div>
 
             {/* Interactive Action Button */}
-            <button className="flex items-center gap-2 bg-primary-900/40 px-3 py-1 rounded-full border border-quaternary-50/40 transition-all duration-300 ease-in-out hover:border-quaternary-50/80 hover:shadow-[0_0_15px_rgba(74,222,128,0.4)] group">
+            <button
+                type="button"
+                onClick={handleNavigateToWIP}
+                className="flex items-center gap-2 bg-primary-900/40 px-3 py-1 rounded-full border border-quaternary-50/40 transition-all duration-300 ease-in-out hover:border-quaternary-50/80 hover:shadow-[0_0_15px_rgba(74,222,128,0.4)] group"
+            >
                 <span className="text-[10px] font-bold tracking-[0.2em] text-quaternary-50/80 uppercase transition-colors duration-300 group-hover:text-primary-100">
                     {t("widgets.ai.title")}
                 </span>

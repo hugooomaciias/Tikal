@@ -1,5 +1,6 @@
 /** React & Third-Party Libraries */
 import { useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 
 /** Components & Layouts */
 import { DynamicIslandComponent } from "../common/DynamicIslandComponent";
@@ -40,6 +41,13 @@ export const HeaderComponent = ({ page, primaryState, secondaryState, onTogglePr
     // --- 1. Local UI Logic ---
 
     /**
+     * Programmatic Navigation Hook
+     *
+     * Enables routing capabilities, used to redirect the user back to the login page post-logout.
+     */
+    const navigate = useNavigate();
+
+    /**
      * Enable Edit Mode Handler
      *
      * Activates the edit mode on the Statistics page and resets any pending unsaved changes state.
@@ -66,6 +74,10 @@ export const HeaderComponent = ({ page, primaryState, secondaryState, onTogglePr
     const handleSaveLayout = useCallback(() => {
         if (onSaveLayout) onSaveLayout();
     }, [onSaveLayout]);
+
+    const handleNavigateToWIP = () => {
+        navigate("/wip");
+    };
 
     // --- 2. Render ---
 
@@ -162,7 +174,11 @@ export const HeaderComponent = ({ page, primaryState, secondaryState, onTogglePr
 
                     {/* AI Assistant Global Action */}
                     <div className="h-full w-fit flex items-center gap-6">
-                        <button className={`h-fit w-fit ${theme ? "bg-rank" : "bg-primary"} p-3 rounded-full shadow-md`}>
+                        <button
+                            type="button"
+                            onClick={handleNavigateToWIP}
+                            className={`h-fit w-fit ${theme ? "bg-rank" : "bg-primary"} p-3 rounded-full shadow-md`}
+                        >
                             <div
                                 className={`w-10 h-10 ${theme ? "bg-rank-700" : "bg-primary-600"}`}
                                 style={{

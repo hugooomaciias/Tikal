@@ -31,6 +31,8 @@ import { ProductivityPage } from "./pages/app/settings/ProductivityPage";
 import { NotificationsPage } from "./pages/app/settings/NotificationsPage";
 import { SettingsTeamPage } from "./pages/app/settings/TeamPage";
 
+import { WIPComponent } from "./components/app/WIPComponent";
+
 /** Assets, Utils & Constants */
 import "./i18n";
 
@@ -110,6 +112,15 @@ function App() {
                                 <Route path="/settings-notifications" element={<NotificationsPage />} />
                                 <Route path="/settings-team" element={<SettingsTeamPage />} />
                             </Route>
+
+                            <Route
+                                path="/wip"
+                                element={
+                                    <ProtectedRoute>
+                                        <WIPComponent />
+                                    </ProtectedRoute>
+                                }
+                            />
                         </Route>
                     </Route>
 

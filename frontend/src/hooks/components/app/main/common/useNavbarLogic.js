@@ -88,7 +88,7 @@ export const useNavbarLogic = () => {
             { icon: "IconCalendarWeekFilled", title: t("navbar.calendar"), to: "/calendar" },
             { icon: "IconChartBar", title: t("navbar.statistics"), to: "/statistics" },
             { icon: "IconPyramid", title: t("navbar.temple_mode"), to: "/temple-mode" },
-            { icon: "IconUsersGroup", title: t("navbar.groups"), to: "/home" },
+            { icon: "IconUsersGroup", title: t("navbar.groups"), to: "/wip" },
         ],
         [t],
     );

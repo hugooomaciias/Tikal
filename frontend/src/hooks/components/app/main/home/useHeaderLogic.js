@@ -172,11 +172,15 @@ export const useHeaderLogic = ({ onEnableEdit, onDisableEdit, onSaveLayout }) =>
         navigate("/settings");
     };
 
+    const handleNavigateToWIP = () => {
+        navigate("/wip");
+    };
+
     // --- 6. Return Object ---
 
     return {
         headerStates: { isScrolled },
         headerData: { userProfile },
-        headerActions: { handleLogout, handleEnableEditMode, handleDisableEditMode, handleSaveLayout, handleNavigateToSettings, handleMobileNavigateToSettings },
+        headerActions: { handleLogout, handleEnableEditMode, handleDisableEditMode, handleSaveLayout, handleNavigateToSettings, handleMobileNavigateToSettings, handleNavigateToWIP },
     };
 };
