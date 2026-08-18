@@ -44,20 +44,20 @@ public class UserOnboardingService {
         LayoutsDashboardMetadata layouts = new LayoutsDashboardMetadata();
 
         // Home widgets
-        layouts.getHome().add(new LayoutsDashboardMetadata.WidgetPosition("weeklyProgressWidget", 0, 0, 1, 1));
-        layouts.getHome().add(new LayoutsDashboardMetadata.WidgetPosition("timeTrackerWidget", 1, 0, 1, 1));
+        layouts.getHome().add(new LayoutsDashboardMetadata.WidgetPosition("timeTrackerWidget", 0, 0, 1, 1));
+        layouts.getHome().add(new LayoutsDashboardMetadata.WidgetPosition("timeLogWidget", 1, 0, 1, 1));
         layouts.getHome().add(new LayoutsDashboardMetadata.WidgetPosition("templeModeWidget", 2, 0, 1, 1));
         layouts.getHome().add(new LayoutsDashboardMetadata.WidgetPosition("taskWidget", 3, 0, 1, 2));
         layouts.getHome().add(new LayoutsDashboardMetadata.WidgetPosition("AIMainWidget", 0, 1, 1, 1));
         layouts.getHome().add(new LayoutsDashboardMetadata.WidgetPosition("calendarWidget", 1, 1, 2, 1));
 
-        // Cajas para las Estadísticas
+        // Cajas para las Estad�sticas
         layouts.getStatistics().add(new LayoutsDashboardMetadata.WidgetPosition("solarChartWidget", 0, 0, 1, 2));
         layouts.getStatistics().add(new LayoutsDashboardMetadata.WidgetPosition("effectivenessChartWidget", 1, 0, 2, 1));
-        layouts.getStatistics().add(new LayoutsDashboardMetadata.WidgetPosition("timeGoalWidget", 3, 0, 1, 1));
+        layouts.getStatistics().add(new LayoutsDashboardMetadata.WidgetPosition("weeklyProgressWidget", 3, 0, 1, 1));
         layouts.getStatistics().add(new LayoutsDashboardMetadata.WidgetPosition("concentrationHeatmapWidget", 1, 1, 1, 1));
         layouts.getStatistics().add(new LayoutsDashboardMetadata.WidgetPosition("comparisonWidget", 2, 1, 1, 1));
-        layouts.getStatistics().add(new LayoutsDashboardMetadata.WidgetPosition("iaAdviceWidget", 3, 1, 1, 1));
+        layouts.getStatistics().add(new LayoutsDashboardMetadata.WidgetPosition("timeGoalWidget", 3, 1, 1, 1));
 
         settings.setLayoutsDashboards(layouts);
 
