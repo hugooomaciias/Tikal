@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 
 /** Contexts, Hooks & Services */
 import { useSync } from "../../../../core/useSync.js";
+import { useSettingsController } from "../../../../controllers/settings/useSettingsController.js";
 
 /** Components & Layouts */
 import { SolarChartWidget } from "../../../../../components/app/main/statistics/widgets/SolarChart/SolarChartWidget.jsx";
@@ -87,6 +88,14 @@ export const useStatisticsLogic = () => {
      * namespace to localize header text content dynamically.
      */
     const { t } = useTranslation("app_statistics");
+
+    /**
+     * Settings Controller Hook
+     *
+     * Extracts the layout mutation function required to persist the newly dragged/resized 
+     * widget coordinates to the backend database.
+     */
+    const { updateDashboardLayout } = useSettingsController();
 
     // --- 2. Local UI State ---
 
@@ -262,12 +271,43 @@ export const useStatisticsLogic = () => {
         setIsEditing(false);
     }, []);
 
+    /**
+     * Save Dashboard Layout
+     *
+     * Maps the current local widget layout state into the exact DTO structure expected 
+     * by the backend API, then delegates the persistence task to the `updateDashboardLayout` 
+     * controller method. Once confirmed, it resets the pending flags and exits edit mode.
+     *
+     * @async
+     * @returns {Promise<void>}
+     */
+    const saveLayout = useCallback(async () => {
+        if (!checkChanges) return;
+
+        try {
+            const statisticsLayoutPayload = widgets.map((widget) => ({
+                i: widget.grid.i,
+                x: widget.grid.x,
+                y: widget.grid.y,
+                w: widget.grid.w,
+                h: widget.grid.h,
+            }));
+
+            await updateDashboardLayout({ statistics: statisticsLayoutPayload });
+
+            setCheckChanges(false);
+            setIsEditing(false);
+        } catch (error) {
+            console.error("Error al guardar el diseño del dashboard:", error);
+        }
+    }, [widgets, checkChanges, updateDashboardLayout]);
+
     // --- 6. Return Object ---
 
     return {
         t,
         statisticsStates: { isDataLoaded, isEditing, checkChanges, widgets },
         statisticsData: { statisticsGeneralInformation },
-        statisticsActions: { handleLayoutChange, removeWidget, enableEditMode, disableEditMode },
+        statisticsActions: { handleLayoutChange, removeWidget, enableEditMode, disableEditMode, saveLayout },
     };
 };

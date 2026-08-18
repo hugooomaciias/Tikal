@@ -76,7 +76,7 @@ export const HeaderComponent = () => {
                         <div className="relative w-14 h-14 flex-shrink-0 rounded-full overflow-hidden cursor-pointer">
                             <img
                                 className="w-full h-full object-cover shadow-md"
-                                src="/public/Avatar_0.jpg"
+                                src={data?.avatarUrl}
                                 alt="User Avatar"
                             />
                         </div>

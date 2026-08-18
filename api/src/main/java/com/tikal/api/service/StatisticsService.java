@@ -10,7 +10,11 @@ import org.springframework.stereotype.Service;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
+import java.time.format.TextStyle;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -71,6 +75,89 @@ public class StatisticsService {
             }
         }
         return accuracy;
+    }
+
+    public Integer calculateEffectivenessStreak(Integer userId, double bias) {
+        double EFFECTIVENESS_THRESHOLD = 75.0;
+        if (bias > 0) {
+            EFFECTIVENESS_THRESHOLD = bias;
+        }
+
+        List<Object[]> dailyData = taskRepository.findDailyAverageEffectiveness(userId);
+
+        if (dailyData.isEmpty()) {
+            return 0;
+        }
+
+        int streak = 0;
+
+        for (Object[] row : dailyData) {
+            if (row[1] == null) continue;
+
+            double dailyEffectiveness = ((Number) row[1]).doubleValue();
+
+            if (dailyEffectiveness >= EFFECTIVENESS_THRESHOLD) {
+                streak++;
+            } else {
+                break;
+            }
+        }
+
+        return streak;
+    }
+
+    /**
+     * Retrieves the daily average effectiveness for the last 7 days.
+     * Missing days (where no tasks were completed) are represented as 0.0.
+     * Returns a chronological map (e.g., "Monday" -> 85.0).
+     */
+    public Map<String, Double> getLast7DaysEffectiveness(Integer userId) {
+        // 1. Get raw data from DB (ordered DESC by date via SQL)
+        List<Object[]> dailyData = taskRepository.findDailyAverageEffectiveness(userId);
+
+        // 2. Prepare a map for the last 7 days with default 0.0 values
+        // We use LinkedHashMap to maintain chronological insertion order
+        Map<String, Double> weeklyEffectiveness = new LinkedHashMap<>();
+        LocalDate today = LocalDate.now(ZoneOffset.UTC);
+
+        // Initialize the map chronologically (from 6 days ago up to today)
+        for (int i = 6; i >= 0; i--) {
+            LocalDate date = today.minusDays(i);
+            // Extract the English name of the day (e.g., "Monday")
+            String dayName = date.getDayOfWeek().getDisplayName(TextStyle.FULL, Locale.ENGLISH);
+            weeklyEffectiveness.put(dayName, 0.0);
+        }
+
+        // 3. Fill in the actual data from the database
+        for (Object[] row : dailyData) {
+            if (row[0] == null || row[1] == null) continue;
+
+            // Handle java.sql.Date to LocalDate conversion safely
+            LocalDate rowDate;
+            if (row[0] instanceof java.sql.Date) {
+                rowDate = ((java.sql.Date) row[0]).toLocalDate();
+            } else {
+                rowDate = LocalDate.parse(row[0].toString());
+            }
+
+            // Optimization: Since DB results are DESC, stop if we pass our 7-day window
+            if (rowDate.isBefore(today.minusDays(6))) {
+                break;
+            }
+
+            // If the date is within our 7-day window, update the value
+            if (!rowDate.isAfter(today)) {
+                String dayName = rowDate.getDayOfWeek().getDisplayName(TextStyle.FULL, Locale.ENGLISH);
+                double dailyEffectiveness = ((Number) row[1]).doubleValue();
+
+                // Round to 1 decimal place for cleaner JSON/AI context
+                dailyEffectiveness = Math.round(dailyEffectiveness * 10.0) / 10.0;
+
+                weeklyEffectiveness.put(dayName, dailyEffectiveness);
+            }
+        }
+
+        return weeklyEffectiveness;
     }
 
     // =====================================================

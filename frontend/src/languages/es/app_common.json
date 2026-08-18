@@ -75,7 +75,8 @@
             "preferences": "Preferencias generales",
             "productivity": "Productividad",
             "notifications": "Notificaciones",
-            "team": "Equipo y privacidad"
+            "team": "Equipo y privacidad",
+            "logout": "Cerrar sesión"
         }
     }
 }

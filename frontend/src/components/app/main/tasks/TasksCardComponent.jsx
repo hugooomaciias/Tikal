@@ -413,20 +413,19 @@ export const TasksCardComponent = ({
             </div>
 
             {/* Bottom Floating Actions Section: Mobile Back & Create New Task */}
-            <div className="w-full flex items-center justify-between md:justify-end">
+            <div className="w-full flex items-center justify-between xl:justify-end">
                 <button
+                    type="button"
                     onClick={handleBackNavigation}
-                    className="md:hidden flex items-center gap-1 bg-primary-200 rounded-full pr-2 text-primary"
+                    className="xl:hidden flex items-center gap-1 bg-primary-200 rounded-full pr-2 text-primary"
                 >
                     <IconCircleChevronLeftFilled className="h-9 w-9 " />
-                    <span className="font-semibold">Fases</span>
+                    <span className="font-semibold">{t("tasks.back_stages")}</span>
                 </button>
 
-                <div className="shrink-0 w-full flex justify-end">
-                    <button onClick={handleCreateTask}>
-                        <IconCirclePlusFilled className="h-10 w-10 text-primary-200 md:text-primary-200/70 md:hover:text-primary-200" />
-                    </button>
-                </div>
+                <button type="button" onClick={handleCreateTask}>
+                    <IconCirclePlusFilled className="h-10 w-10 text-primary-200 md:text-primary-200/70 md:hover:text-primary-200" />
+                </button>
             </div>
 
             {/* Application Modals & Portals Layer */}

@@ -1,7 +1,7 @@
 package com.tikal.api.service;
 
 import com.tikal.api.exception.ResourceNotFoundException;
-import com.tikal.api.model.dto.UserSettingsDTO;
+import com.tikal.api.model.dto.user.UserSettingsDTO;
 import com.tikal.api.model.entity.User;
 import com.tikal.api.model.entity.UserSettings;
 import com.tikal.api.model.entity.metadata.LayoutsDashboardMetadata;
@@ -31,13 +31,13 @@ public class SettingsService {
     public UserSettings updateSettings(Integer userId, UserSettingsDTO newSettings) {
         UserSettings currentSettings = getSettingsByUserId(userId);
 
-        currentSettings.setTheme(newSettings.getTheme());
-        currentSettings.setTimeRange(newSettings.getTimeRange());
-        currentSettings.setHoursGoal(newSettings.getHoursGoal());
-        currentSettings.setFocusSessionMinutes(newSettings.getFocusSessionMinutes());
-        currentSettings.setTimezone(newSettings.getTimezone());
-        currentSettings.setFirstDayOfWeek(newSettings.getFirstDayOfWeek());
-        currentSettings.setShowRankInTeam(newSettings.getShowRankInTeam());
+        if (newSettings.getTheme() != null) currentSettings.setTheme(newSettings.getTheme());
+        if (newSettings.getTimeRange() != null) currentSettings.setTimeRange(newSettings.getTimeRange());
+        if (newSettings.getHoursGoal() != null) currentSettings.setHoursGoal(newSettings.getHoursGoal());
+        if (newSettings.getFocusSessionMinutes() != null) currentSettings.setFocusSessionMinutes(newSettings.getFocusSessionMinutes());
+        if (newSettings.getTimezone() != null) currentSettings.setTimezone(newSettings.getTimezone());
+        if (newSettings.getFirstDayOfWeek() != null) currentSettings.setFirstDayOfWeek(newSettings.getFirstDayOfWeek());
+        if (newSettings.getShowRankInTeam() != null) currentSettings.setShowRankInTeam(newSettings.getShowRankInTeam());
 
         if (newSettings.getLayoutsDashboards() != null) {
             currentSettings.setLayoutsDashboards(newSettings.getLayoutsDashboards());
@@ -94,7 +94,14 @@ public class SettingsService {
      */
     public UserSettings updateLayout(Integer userId, LayoutsDashboardMetadata newLayout) {
         UserSettings current = getSettingsByUserId(userId);
-        current.setLayoutsDashboards(newLayout);
+        LayoutsDashboardMetadata currentLayout = current.getLayoutsDashboards();
+
+        LayoutsDashboardMetadata saveLayout = LayoutsDashboardMetadata.builder()
+                .home(newLayout.getHome().isEmpty() ? currentLayout.getHome() : newLayout.getHome())
+                .statistics(newLayout.getStatistics().isEmpty() ? currentLayout.getStatistics() : newLayout.getStatistics())
+                .team(newLayout.getTeam().isEmpty() ? currentLayout.getTeam() : newLayout.getTeam())
+                .build();
+        current.setLayoutsDashboards(saveLayout);
         return settingsRepository.save(current);
     }
 

@@ -72,7 +72,8 @@
             "preferences": "General preferences",
             "productivity": "Productivity",
             "notifications": "Notifications",
-            "team": "Team an privacity"
+            "team": "Team and privacity",
+            "logout": "Logout"
         }
     }
 }

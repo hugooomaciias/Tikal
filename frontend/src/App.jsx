@@ -96,19 +96,20 @@ function App() {
                                 }
                             />
 
-                            {/*<Route 
+                            <Route 
                                 element={
                                     <ProtectedRoute>
                                         <SettingsBasePage />
                                     </ProtectedRoute>
                                 }
                             >
+                                <Route path="/settings" element={null} />
                                 <Route path="/settings-account" element={<AccountPage />} />
                                 <Route path="/settings-preferences" element={<PreferencesPage />} />
                                 <Route path="/settings-productivity" element={<ProductivityPage />} />
                                 <Route path="/settings-notifications" element={<NotificationsPage />} />
                                 <Route path="/settings-team" element={<SettingsTeamPage />} />
-                            </Route>*/}
+                            </Route>
                         </Route>
                     </Route>
 

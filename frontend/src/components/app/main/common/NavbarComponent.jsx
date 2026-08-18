@@ -59,7 +59,7 @@ export const NavbarComponent = ({ theme }) => {
 
     const { isExpanded } = navbarStates;
     const { navbarOptions, activeTab, userProfile } = navbarData;
-    const { trackerActions, handleLogout, handleToggleSidebar } = navbarActions;
+    const { trackerActions, handleLogout, handleToggleSidebar, handleNavigateToSettings } = navbarActions;
 
     // --- 2. Render ---
 
@@ -136,11 +136,12 @@ export const NavbarComponent = ({ theme }) => {
                 {/* User Avatar Container */}
                 <button
                     type="button"
+                    onClick={handleNavigateToSettings}
                     className="relative w-12 h-12 flex-shrink-0 rounded-full overflow-hidden cursor-pointer"
                 >
                     <img
                         className="w-full h-full object-cover shadow-md"
-                        src="/public/Avatar_0.jpg"
+                        src={userProfile.avatarUrl}
                         alt="User Avatar"
                     />
                 </button>

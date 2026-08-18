@@ -139,6 +139,7 @@ export const SyncProvider = ({ children }) => {
     const getCalendarEvents = useCallback(() => rawDashboardData?.calendarEvents || null, [rawDashboardData]);
     const getTempleModeData = useCallback(() => rawDashboardData?.templeMode || null, [rawDashboardData]);
     const getGamificationEvents = useCallback(() => rawDashboardData?.gamificationEvents || null, [rawDashboardData]);
+    const getSettings = useCallback(() => rawDashboardData?.settings || null, [rawDashboardData]);
 
     /**
      * Update Context Data (The Golden Key)
@@ -214,6 +215,7 @@ export const SyncProvider = ({ children }) => {
                 getCalendarEvents,
                 getTempleModeData,
                 getGamificationEvents,
+                getSettings,
                 fetchTempleModeGamificationUpdate,
                 isDataLoaded: !!rawDashboardData,
                 refreshData: sync,

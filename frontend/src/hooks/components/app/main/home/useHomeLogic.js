@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 
 /** Contexts, Hooks & Services */
 import { useSync } from "../../../../core/useSync.js";
+import { useSettingsController } from "../../../../controllers/settings/useSettingsController.js";
 
 /** Components & Layouts */
 import { TimeLogWidget } from "../../../../../components/app/main/home/widgets/timeLogWidget/TimeLogWidget.jsx";
@@ -84,17 +85,25 @@ export const useHomeLogic = () => {
     /**
      * Main Context Hook
      *
-     * Extracts global application state getters regarding layout coordinates and widget datasets.
+     * Extracts global application state getters regarding layout coordinates, widget datasets, 
+     * and loading flags directly from the centralized synchronization context.
      */
     const { rawDashboardData, getHomeGeneralInformation, getHomeLayout, getHomeWidgetsData, getCalendarEvents, isDataLoaded } = useSync();
+
+    /**
+     * Settings Controller Hook
+     *
+     * Extracts the layout mutation function required to persist the newly dragged/resized 
+     * widget coordinates to the backend database.
+     */
+    const { updateDashboardLayout } = useSettingsController();
 
     /**
      * Translation Hook
      *
      * Provides access to the i18n instance specifically scoped to the "app_home" namespace.
      */
-    const { t: tHome } = useTranslation("app_home");
-    const { t: tCommon } = useTranslation("app_common");
+    const { t } = useTranslation("app_home");
 
     // --- 2. Local UI State ---
 
@@ -179,7 +188,7 @@ export const useHomeLogic = () => {
                             isDraggable: isDraggable,
                         },
                         config: {
-                            title: configBase.titleKey.includes(".") ? tHome(configBase.titleKey) : configBase.titleKey,
+                            title: configBase.titleKey.includes(".") ? t(configBase.titleKey) : configBase.titleKey,
                             subtitle: widgetData?.subtitle,
                             bgColor: configBase.bgColor,
                             textColor: configBase.textColor,
@@ -197,7 +206,7 @@ export const useHomeLogic = () => {
 
             setWidgets(mappedWidgets);
         }
-    }, [isDataLoaded, tHome, getHomeWidgetsData, getHomeLayout, getCalendarEvents]);
+    }, [isDataLoaded, t, getHomeWidgetsData, getHomeLayout, getCalendarEvents]);
 
     // --- 5. Interaction Handlers ---
 
@@ -279,12 +288,43 @@ export const useHomeLogic = () => {
         setIsEditing(false);
     }, []);
 
+    /**
+     * Save Dashboard Layout
+     *
+     * Maps the current local widget layout state into the exact DTO structure expected 
+     * by the backend API, then delegates the persistence task to the `updateDashboardLayout` 
+     * controller method. Once confirmed, it resets the pending flags and exits edit mode.
+     *
+     * @async
+     * @returns {Promise<void>}
+     */
+    const saveLayout = useCallback(async () => {
+        if (!checkChanges) return;
+
+        try {
+            const homeLayoutPayload = widgets.map((widget) => ({
+                i: widget.grid.i,
+                x: widget.grid.x,
+                y: widget.grid.y,
+                w: widget.grid.w,
+                h: widget.grid.h,
+            }));
+
+            await updateDashboardLayout({ home: homeLayoutPayload });
+
+            setCheckChanges(false);
+            setIsEditing(false);
+        } catch (error) {
+            console.error("Error al guardar el diseño del dashboard:", error);
+        }
+    }, [widgets, checkChanges, updateDashboardLayout]);
+
     // --- 6. Return Object ---
 
     return {
-        translations: { tHome, tCommon },
+        t,
         homeStates: { isDataLoaded, isEditing, checkChanges, widgets },
         homeData: { homeGeneralInformation },
-        homeActions: { handleLayoutChange, removeWidget, enableEditMode, disableEditMode },
+        homeActions: { handleLayoutChange, removeWidget, enableEditMode, disableEditMode, saveLayout },
     };
 };

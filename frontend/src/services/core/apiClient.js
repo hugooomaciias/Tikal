@@ -33,23 +33,24 @@ const processQueue = (error, token = null) => {
  * @returns {Promise<Object>} The parsed JSON response data.
  * @throws {Error} Throws a standardized error if the network request fails or returns a non-200 status.
  */
-export const apiCall = async (endpoint, method, payload = null, customHeaders = {}) => {
+export const apiCall = async (endpoint, method, payload = null, customHeaders = {}, multipartHeader = false) => {
     const executeRequest = async (tokenOverride = null) => {
         let token = tokenOverride || localStorage.getItem("accessToken");
 
         if (token === "undefined" || token === "null") token = null;
 
-        const headers = {
-            "Content-Type": "application/json",
-            ...customHeaders,
-        };
-
+        let headers = { ...customHeaders,};
+        
+        if (!multipartHeader) headers["Content-Type"] = "application/json";
+        
         if (token) {
             headers["Authorization"] = `Bearer ${token}`;
         }
 
         const options = { method, headers };
-        if (payload) options.body = JSON.stringify(payload);
+        if (payload) {
+            options.body = multipartHeader ? payload : JSON.stringify(payload);
+        }
 
         const response = await fetch(`${API_BASE_URL}${endpoint}`, options);
         const text = await response.text();

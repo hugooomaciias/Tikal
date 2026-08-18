@@ -43,7 +43,7 @@ export const StatisticsPage = () => {
 
     const { isDataLoaded, isEditing, checkChanges, widgets } = statisticsStates;
     const { statisticsGeneralInformation } = statisticsData;
-    const { handleLayoutChange, removeWidget, enableEditMode, disableEditMode } = statisticsActions;
+    const { handleLayoutChange, removeWidget, enableEditMode, disableEditMode, saveLayout } = statisticsActions;
 
     // --- 2. Render ---
 
@@ -61,6 +61,7 @@ export const StatisticsPage = () => {
                     secondaryState={checkChanges}
                     onTogglePrimary={enableEditMode}
                     onToggleSecondary={disableEditMode}
+                    onSaveLayout={saveLayout}
                     t={t}
                 />
 

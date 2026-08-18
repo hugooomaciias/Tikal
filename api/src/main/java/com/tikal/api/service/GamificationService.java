@@ -84,7 +84,7 @@ public class GamificationService {
 
             case EFFECTIVENESS_WITH_STREAK:
                 if (!isUnlocked) actualProgress1 = statisticsService.globalEffectiveness(userId, TimeRangeSetting.GLOBAL);
-                if (!isUnlocked) actualProgress2 = calculateEffectivenessStreak(userId, 75.0);
+                if (!isUnlocked) actualProgress2 = statisticsService.calculateEffectivenessStreak(userId, 75.0);
                 desc1 = "Porcentaje de efectividad global";
                 desc2 = "Días consecutivos con eficiencia > 75%";
                 break;
@@ -120,35 +120,6 @@ public class GamificationService {
         }
 
         return builder.build();
-    }
-
-    public Integer calculateEffectivenessStreak(Integer userId, double bias) {
-        double EFFECTIVENESS_THRESHOLD = 75.0;
-        if (bias > 0) {
-            EFFECTIVENESS_THRESHOLD = bias;
-        }
-
-        List<Object[]> dailyData = taskRepository.findDailyAverageEffectiveness(userId);
-
-        if (dailyData.isEmpty()) {
-            return 0;
-        }
-
-        int streak = 0;
-
-        for (Object[] row : dailyData) {
-            if (row[1] == null) continue;
-
-            double dailyEffectiveness = ((Number) row[1]).doubleValue();
-
-            if (dailyEffectiveness >= EFFECTIVENESS_THRESHOLD) {
-                streak++;
-            } else {
-                break;
-            }
-        }
-
-        return streak;
     }
 
     public void grantTotemToUser(Integer userId, Integer totemId) {

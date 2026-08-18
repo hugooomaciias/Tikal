@@ -31,4 +31,10 @@ public interface UserRepository extends JpaRepository<User, Integer> {
     /* --- New method: fetch user with rank already loaded (eager) --- */
     @Query("SELECT u FROM User u LEFT JOIN FETCH u.currentRank WHERE u.email = :email")
     Optional<User> findByEmailWithRank(@Param("email") String email);
+
+    /* --- Check if the user with this name exists --- */
+    boolean existsByNameAndIdNot(String name, Integer userId);
+
+    /* --- Check if the user with this email exists --- */
+    boolean existsByEmailAndIdNot(String email, Integer userId);
 }

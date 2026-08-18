@@ -1,7 +1,8 @@
 package com.tikal.api.controller;
 
-import com.tikal.api.model.dto.UserDTO;
-import com.tikal.api.model.dto.UserSettingsDTO;
+import com.tikal.api.model.dto.user.UpdateProfileRequest;
+import com.tikal.api.model.dto.user.UserDTO;
+import com.tikal.api.model.dto.user.UserSettingsDTO;
 import com.tikal.api.model.entity.UserSettings;
 import com.tikal.api.model.entity.metadata.LayoutsDashboardMetadata;
 import com.tikal.api.model.entity.metadata.NotificationSettingsMetadata;
@@ -11,6 +12,7 @@ import com.tikal.api.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("api/settings")
@@ -50,7 +52,7 @@ public class UserSettingsController {
 
     /**
      * PATCH /settings/layout
-     * Solo actualiza las posiciones de las cajas del dashboard.
+     * Updates only the dashboard box positions.
      */
     @PatchMapping("/layout")
     public ResponseEntity<UserSettingsDTO> updateLayout(@RequestBody LayoutsDashboardMetadata layout) {
@@ -62,7 +64,7 @@ public class UserSettingsController {
 
     /**
      * PATCH /settings/widget-preferences
-     * Solo actualiza los filtros internos de los widgets (ej: ocultar proyectos).
+     * Updates only the internal widget filters (e.g., hide projects).
      */
     @PatchMapping("/widget-preferences")
     public ResponseEntity<UserSettingsDTO> updateWidgetPreferences(@RequestBody WidgetPreferencesMetadata preferences) {
@@ -73,8 +75,8 @@ public class UserSettingsController {
     }
 
     /**
-     * PATCH /settings/widget-preferences
-     * Solo actualiza los filtros internos de los widgets (ej: ocultar proyectos).
+     * PATCH /settings/notification-preferences
+     * Updates only the notification preferences.
      */
     @PatchMapping("/notification-preferences")
     public ResponseEntity<UserSettingsDTO> updateNotificationPreferences(@RequestBody NotificationSettingsMetadata notificationPreferences) {
@@ -82,5 +84,27 @@ public class UserSettingsController {
 
         UserSettings savedSettings = settingsService.updateNotificationPreferences(myId, notificationPreferences);
         return ResponseEntity.ok(settingsService.mapToDTO(savedSettings));
+    }
+
+    /**
+     * PATCH /settings/profile
+     * Updates the user's profile information: name, email.
+     */
+    @PatchMapping("/profile")
+    public ResponseEntity<UserDTO> updateProfile(@RequestBody UpdateProfileRequest request) {
+        Integer myId = userService.getAuthenticatedUserID();
+        UserDTO updatedUser = userService.updateProfile(myId, request);
+        return ResponseEntity.ok(updatedUser);
+    }
+
+    /**
+     * POST /settings/profile/avatar
+     * Updates the user's avatarImage uploading it to Cloudinary.
+     */
+    @PostMapping("/profile/avatar")
+    public ResponseEntity<UserDTO> uploadAvatar(@RequestParam(value="file", required=false) MultipartFile file) {
+        Integer userId = userService.getAuthenticatedUserID();
+        UserDTO updatedUser = userService.updateAvatar(userId, file);
+        return ResponseEntity.ok(updatedUser);
     }
 }

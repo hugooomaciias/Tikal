@@ -36,3 +36,4 @@ build/
 file.txt
 actual_queries.txt
 old_queries.txt
+.env

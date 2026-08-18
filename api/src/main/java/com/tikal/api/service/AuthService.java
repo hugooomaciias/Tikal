@@ -76,7 +76,7 @@ public class AuthService {
                 .name(request.getName())
                 .email(request.getEmail())
                 .subscriptionPlan(plan)
-                .avatarUrl("/images/avatar/default.png")
+                .avatarUrl("https://api.dicebear.com/10.x/glyphs/svg?glyphColor=3B7A57,2F6C4B,26563D,204533,1B392A,0E2018,2AB7CA,228498,226B7C,245866,224A57,11303B&seed=" + request.getName())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .build();
         userRepository.save(user);

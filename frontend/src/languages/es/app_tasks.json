@@ -50,6 +50,7 @@
         "title": "Fases",
         "search": "Buscar fase",
         "no_stages": "No hay fases",
+        "back_projects": "Proyectos",
         "popup": {
             "title": {
                 "new": {
@@ -99,6 +100,7 @@
         "completed_separator": "Tareas completadas",
         "subtasks": "subtareas",
         "no_subtasks": "No hay",
+        "back_stages": "Fases",
         "popup": {
             "title": {
                 "new": "Nueva tarea",

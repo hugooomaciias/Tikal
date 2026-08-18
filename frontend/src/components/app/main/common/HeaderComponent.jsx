@@ -1,3 +1,6 @@
+/** React & Third-Party Libraries */
+import { useCallback } from "react";
+
 /** Components & Layouts */
 import { DynamicIslandComponent } from "../common/DynamicIslandComponent";
 
@@ -24,14 +27,16 @@ import logoSabidurIA from "../../../../assets/ia/sabidurIAIcon.svg";
  * @component
  * @param {Object} props - The component props.
  * @param {string} props.page - The current active page title, localized (e.g., "Tasks", "Calendar").
- * @param {boolean} props.get1 - Primary state flag (e.g., Kanban mode active, Edit mode active, etc.).
- * @param {boolean} props.get2 - Secondary state flag (e.g., Unsaved changes pending in edit mode).
+ * @param {boolean} props.primaryState - Primary state flag (e.g., Kanban mode active, Edit mode active, etc.).
+ * @param {boolean} props.secondaryState - Secondary state flag (e.g., Unsaved changes pending in edit mode).
  * @param {Function} props.onTogglePrimary - Setter function for the primary state flag.
  * @param {Function} props.onToggleSecondary - Setter function for the secondary state flag.
+ * @param {string} [props.theme=""] - Optional string to apply specific visual themes (e.g., "rank").
+ * @param {Function} [props.onSaveLayout] - Callback function triggered to persist layout modifications.
  * @param {Function} props.t - The i18n translation function.
  * @returns {JSX.Element} The rendered header component.
  */
-export const HeaderComponent = ({ page, primaryState, secondaryState, onTogglePrimary, onToggleSecondary, theme = "", t }) => {
+export const HeaderComponent = ({ page, primaryState, secondaryState, onTogglePrimary, onToggleSecondary, theme = "", onSaveLayout, t }) => {
     // --- 1. Local UI Logic ---
 
     /**
@@ -51,6 +56,16 @@ export const HeaderComponent = ({ page, primaryState, secondaryState, onTogglePr
     const handleDisableEditMode = () => {
         onToggleSecondary();
     };
+
+    /**
+     * Save Layout Handler
+     *
+     * Memoized callback that triggers the parent-provided layout save function.
+     * Used primarily when confirming modifications in customizable dashboard grids.
+     */
+    const handleSaveLayout = useCallback(() => {
+        if (onSaveLayout) onSaveLayout();
+    }, [onSaveLayout]);
 
     // --- 2. Render ---
 
@@ -129,7 +144,7 @@ export const HeaderComponent = ({ page, primaryState, secondaryState, onTogglePr
                                     `}
                             >
                                 {/* Save / Cancel Action */}
-                                <button className="cursor-pointer transition-transform" onClick={handleDisableEditMode}>
+                                <button className="cursor-pointer transition-transform" onClick={secondaryState ? handleSaveLayout : handleDisableEditMode}>
                                     {!secondaryState ? (
                                         <IconSquareRoundedXFilled className="w-8 h-8" />
                                     ) : (

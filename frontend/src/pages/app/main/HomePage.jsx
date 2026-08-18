@@ -38,12 +38,11 @@ export const HomePage = () => {
      * Extracts the resolved layout states, hydrated widget payload, translation mapping,
      * and grid interaction handlers directly from the headless logic hook.
      */
-    const { translations, homeStates, homeData, homeActions } = useHomeLogic();
+    const { t, homeStates, homeData, homeActions } = useHomeLogic();
 
-    const { tHome, tCommon } = translations;
     const { isDataLoaded, isEditing, checkChanges, widgets } = homeStates;
     const { homeGeneralInformation } = homeData;
-    const { handleLayoutChange, removeWidget, enableEditMode, disableEditMode } = homeActions;
+    const { handleLayoutChange, removeWidget, enableEditMode, disableEditMode, saveLayout } = homeActions;
 
     // --- 2. Render ---
 
@@ -59,6 +58,7 @@ export const HomePage = () => {
                 checkChanges={checkChanges}
                 onEnableEdit={enableEditMode}
                 onDisableEdit={disableEditMode}
+                onSaveLayout={saveLayout}
             />
 
             {/* Dashboard Responsive Grid Area */}
@@ -109,7 +109,7 @@ export const HomePage = () => {
 
                                 {/* Dynamic Widget Injection Component */}
                                 <BaseWidget
-                                    t={tHome}
+                                    t={t}
                                     title={widget.config.title}
                                     subtitle={widget.config.subtitle}
                                     bgColor={widget.config.bgColor}
