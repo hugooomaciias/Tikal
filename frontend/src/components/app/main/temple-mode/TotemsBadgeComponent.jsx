@@ -77,8 +77,6 @@ export const TotemsBadgeComponent = ({ totems, lockedTotems, nextTargetTotem, tT
     const toggleTotemsMenu = useCallback(() => {
         setIsTotemsMenuOpen((prev) => !prev);
     }, []);
-
-    const nextTotem = nextTargetTotem?.totemImageUrl;
     
     // --- 2. Render ---
     
@@ -160,8 +158,8 @@ export const TotemsBadgeComponent = ({ totems, lockedTotems, nextTargetTotem, tT
                             <div
                                 className="w-full h-full bg-rank-50"
                                 style={{
-                                    maskImage: `url(${nextTotem})`,
-                                    WebkitMaskImage: `url(${nextTotem})`,
+                                    maskImage: `url(${nextTargetTotem?.totemImageUrl})`,
+                                    WebkitMaskImage: `url(${nexnextTargetTotem?.totemImageUrltTotem})`,
                                     maskRepeat: "no-repeat", WebkitMaskRepeat: "no-repeat",
                                     maskSize: "contain", WebkitMaskSize: "contain",
                                     maskPosition: "center", WebkitMaskPosition: "center",
@@ -175,104 +173,100 @@ export const TotemsBadgeComponent = ({ totems, lockedTotems, nextTargetTotem, tT
             {/* Expandable Menu */}
             <div className={`absolute top-full left-0 right-0 w-full z-50 transition-all duration-300 origin-top backdrop-blur-sm ${isTotemsMenuOpen ? "md:opacity-100 md:scale-y-100" : "md:opacity-0 md:scale-y-0 md:pointer-events-none"}`}>
                 <div className={`relative isolate border border-rank-700 border-t-0 shadow-2xl rounded-[2rem] ${isTotemsMenuOpen ? "md:rounded-t-none" : ""} p-4 flex flex-col gap-2 backdrop-blur-xl h-max max-h-[50dvh] bg-rank-900/80 overflow-y-auto custom-scrollbar`}>
-                    {totems.map((totem) => {
-                        const totemLogo = totem?.totemImageUrl;
+                    {totems.map((totem) => (
+                        <div key={totem.id} className="w-full flex flex-col gap-2">
+                            {/* Legacy rank visual separator */}
+                            {totem.isFirstOfPreviousRanks && (
+                                <div className="w-full flex items-center gap-4 my-2 animate-fade-in">
+                                    <div className="flex-1 h-[2px] rounded-full bg-gradient-to-r from-transparent to-rank-100" />
+                                    <span className="text-xs font-bold tracking-wider uppercase shrink-0 text-rank-100">
+                                        {tTemple("subheader.totem_badge.menu.previous_rank_separator")}
+                                    </span>
+                                    <div className="flex-1 h-[2px] rounded-full bg-gradient-to-l from-transparent to-rank-100" />
+                                </div>
+                            )}
 
-                        return (
-                            <div key={totem.id} className="w-full flex flex-col gap-2">
-                                {/* Legacy rank visual separator */}
-                                {totem.isFirstOfPreviousRanks && (
-                                    <div className="w-full flex items-center gap-4 my-2 animate-fade-in">
-                                        <div className="flex-1 h-[2px] rounded-full bg-gradient-to-r from-transparent to-rank-100" />
-                                        <span className="text-xs font-bold tracking-wider uppercase shrink-0 text-rank-100">
-                                            {tTemple("subheader.totem_badge.menu.previous_rank_separator")}
-                                        </span>
-                                        <div className="flex-1 h-[2px] rounded-full bg-gradient-to-l from-transparent to-rank-100" />
-                                    </div>
-                                )}
+                            <div className="flex items-start gap-4 p-3 rounded-2xl transition-all duration-300 min-w-0">
+                                {/* Totem icon wrapper */}
+                                <div className="w-14 h-14 shrink-0 flex flex-col items-center justify-center relative">
+                                    <div
+                                        className={`w-full h-full bg-rank-50 ${totem.isUnlocked ? "" : "grayscale"}`}
+                                        style={{
+                                            maskImage: `url(${totem?.totemImageUrl})`,
+                                            WebkitMaskImage: `url(${totem?.totemImageUrl})`,
+                                            maskRepeat: "no-repeat", WebkitMaskRepeat: "no-repeat",
+                                            maskSize: "contain", WebkitMaskSize: "contain",
+                                            maskPosition: "center", WebkitMaskPosition: "center",
+                                        }}
+                                    />
+                                    
+                                    {/* Rank badge */}
+                                    {totem.rank < currentRank && (
+                                        <div className="absolute -bottom-1 -right-1 flex items-center justify-center w-5 h-5 bg-rank-800 border-2 border-rank-600 rounded-full shadow-lg z-10">
+                                            <span className="text-[10px] font-black text-rank-100">{totem.rank}</span>
+                                        </div>
+                                    )}
+                                </div>
 
-                                <div className="flex items-start gap-4 p-3 rounded-2xl transition-all duration-300 min-w-0">
-                                    {/* Totem icon wrapper */}
-                                    <div className="w-14 h-14 shrink-0 flex flex-col items-center justify-center relative">
-                                        <div
-                                            className={`w-full h-full bg-rank-50 ${totem.isUnlocked ? "" : "grayscale"}`}
-                                            style={{
-                                                maskImage: `url(${totemLogo})`,
-                                                WebkitMaskImage: `url(${totemLogo})`,
-                                                maskRepeat: "no-repeat", WebkitMaskRepeat: "no-repeat",
-                                                maskSize: "contain", WebkitMaskSize: "contain",
-                                                maskPosition: "center", WebkitMaskPosition: "center",
-                                            }}
-                                        />
+                                {/* Totem text & Progress info wrapper */}
+                                <div className={`flex-1 flex flex-col justify-center gap-1.5 min-w-0 ${totem.isUnlocked ? "" : "grayscale"}`}>
+                                    <div className="flex justify-between items-end w-full gap-3">
+                                        <h4 className="flex-1 min-w-0 font-passero font-bold text-lg leading-none truncate text-rank-50">
+                                            {totem.name}
+                                        </h4>
                                         
-                                        {/* Rank badge */}
-                                        {totem.rank < currentRank && (
-                                            <div className="absolute -bottom-1 -right-1 flex items-center justify-center w-5 h-5 bg-rank-800 border-2 border-rank-600 rounded-full shadow-lg z-10">
-                                                <span className="text-[10px] font-black text-rank-100">{totem.rank}</span>
-                                            </div>
-                                        )}
+                                        <span className="shrink-0 px-2 py-0.5 rounded-md text-[9px] uppercase font-bold tracking-wider bg-rank-800 text-rank-100 opacity-80">
+                                            {totem.totemType ? tTemple(`subheader.totem_badge.menu.totem_types.${totem.totemType.toLowerCase()}`) : ""}
+                                        </span>
                                     </div>
 
-                                    {/* Totem text & Progress info wrapper */}
-                                    <div className={`flex-1 flex flex-col justify-center gap-1.5 min-w-0 ${totem.isUnlocked ? "" : "grayscale"}`}>
+                                    {/* Primary goal */}
+                                    <div className="flex flex-col w-full gap-1 mt-1">
                                         <div className="flex justify-between items-end w-full gap-3">
-                                            <h4 className="flex-1 min-w-0 font-passero font-bold text-lg leading-none truncate text-rank-50">
-                                                {totem.name}
-                                            </h4>
-                                            
-                                            <span className="shrink-0 px-2 py-0.5 rounded-md text-[9px] uppercase font-bold tracking-wider bg-rank-800 text-rank-100 opacity-80">
-                                                {totem.totemType ? tTemple(`subheader.totem_badge.menu.totem_types.${totem.totemType.toLowerCase()}`) : ""}
+                                            <div className="flex-1 min-w-0">
+                                                <ScrollingText 
+                                                    className="text-[11px] leading-tight whitespace-nowrap text-rank-100 opacity-80" 
+                                                    text={totem.currentProgress?.description1} 
+                                                />
+                                            </div>
+                                            <span className="shrink-0 text-[11px] font-mono font-bold leading-none text-rank-100 opacity-80">
+                                                {totem.isUnlocked ? `${totem.targetValue1} / ${totem.targetValue1}` : `${totem.currentValue1} / ${totem.targetValue1}`} {totem.unit}
                                             </span>
                                         </div>
+                                        <div className="h-1.5 w-full rounded-full overflow-hidden bg-rank-800">
+                                            <div 
+                                                className="h-full rounded-full transition-all duration-700 ease-out bg-rank-400" 
+                                                style={{ width: `${totem.progressPercentage1}%` }} 
+                                            />
+                                        </div>
+                                    </div>
 
-                                        {/* Primary goal */}
-                                        <div className="flex flex-col w-full gap-1 mt-1">
+                                    {/* Secondary goal */}
+                                    {totem.hasSecondGoal && (
+                                        <div className="flex flex-col w-full gap-1">
                                             <div className="flex justify-between items-end w-full gap-3">
                                                 <div className="flex-1 min-w-0">
                                                     <ScrollingText 
                                                         className="text-[11px] leading-tight whitespace-nowrap text-rank-100 opacity-80" 
-                                                        text={totem.currentProgress?.description1} 
+                                                        text={totem.currentProgress?.description2} 
                                                     />
                                                 </div>
                                                 <span className="shrink-0 text-[11px] font-mono font-bold leading-none text-rank-100 opacity-80">
-                                                    {totem.isUnlocked ? `${totem.targetValue1} / ${totem.targetValue1}` : `${totem.currentValue1} / ${totem.targetValue1}`} {totem.unit}
+                                                    {totem.isUnlocked ? `${totem.targetValue2} / ${totem.targetValue2}` : `${totem.currentValue2} / ${totem.targetValue2}`} {totem.unit}
                                                 </span>
                                             </div>
                                             <div className="h-1.5 w-full rounded-full overflow-hidden bg-rank-800">
                                                 <div 
                                                     className="h-full rounded-full transition-all duration-700 ease-out bg-rank-400" 
-                                                    style={{ width: `${totem.progressPercentage1}%` }} 
+                                                    style={{ width: `${totem.progressPercentage2}%` }} 
                                                 />
                                             </div>
                                         </div>
-
-                                        {/* Secondary goal */}
-                                        {totem.hasSecondGoal && (
-                                            <div className="flex flex-col w-full gap-1">
-                                                <div className="flex justify-between items-end w-full gap-3">
-                                                    <div className="flex-1 min-w-0">
-                                                        <ScrollingText 
-                                                            className="text-[11px] leading-tight whitespace-nowrap text-rank-100 opacity-80" 
-                                                            text={totem.currentProgress?.description2} 
-                                                        />
-                                                    </div>
-                                                    <span className="shrink-0 text-[11px] font-mono font-bold leading-none text-rank-100 opacity-80">
-                                                        {totem.isUnlocked ? `${totem.targetValue2} / ${totem.targetValue2}` : `${totem.currentValue2} / ${totem.targetValue2}`} {totem.unit}
-                                                    </span>
-                                                </div>
-                                                <div className="h-1.5 w-full rounded-full overflow-hidden bg-rank-800">
-                                                    <div 
-                                                        className="h-full rounded-full transition-all duration-700 ease-out bg-rank-400" 
-                                                        style={{ width: `${totem.progressPercentage2}%` }} 
-                                                    />
-                                                </div>
-                                            </div>
-                                        )}
-                                    </div>
+                                    )}
                                 </div>
                             </div>
-                        )
-                    })}
+                        </div>
+                    ))}
                 </div>
             </div>
         </>

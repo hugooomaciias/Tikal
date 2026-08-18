@@ -8,8 +8,8 @@ import { useAuth } from "../hooks/core/useAuth";
 import { useSync } from "../hooks/core/useSync.js";
 
 /** Animations */
-import firstPartAnimation from "/animations/firstPartAnimationLoadingScreen.json";
-import secondPartAnimation from "/animations/secondPartAnimationLoadingScreen.json";
+import firstPartAnimation from "../assets/animations/firstPartAnimationLoadingScreen.json";
+import secondPartAnimation from "../assets/animations/secondPartAnimationLoadingScreen.json";
 
 /**
  * Loading Screen Component

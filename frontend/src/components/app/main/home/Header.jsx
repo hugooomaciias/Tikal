@@ -14,9 +14,6 @@ import {
     IconLogout,
 } from "@tabler/icons-react";
 
-/** Assets, Utils & Constants */
-import logoSabidurIA from "/ia/sabidurIAIcon.svg";
-
 /**
  * Icon Component Map
  *
@@ -140,8 +137,8 @@ export const Header = ({ data, isEditing, checkChanges, onEnableEdit, onDisableE
                             <div
                                 className="bg-primary-600 w-full h-full"
                                 style={{
-                                    maskImage: `url(${logoSabidurIA})`,
-                                    WebkitMaskImage: `url(${logoSabidurIA})`,
+                                    maskImage: "url(/ia/sabidurIAIcon.svg)",
+                                    WebkitMaskImage: "url(/ia/sabidurIAIcon.svg)",
                                     maskRepeat: "no-repeat",
                                     WebkitMaskRepeat: "no-repeat",
                                     maskSize: "contain",
@@ -223,8 +220,8 @@ export const Header = ({ data, isEditing, checkChanges, onEnableEdit, onDisableE
                             <div
                                 className="bg-primary-600 w-full h-full"
                                 style={{
-                                    maskImage: `url(${logoSabidurIA})`,
-                                    WebkitMaskImage: `url(${logoSabidurIA})`,
+                                    maskImage: "url(/ia/sabidurIAIcon.svg)",
+                                    WebkitMaskImage: "url(/ia/sabidurIAIcon.svg)",
                                     maskRepeat: "no-repeat",
                                     WebkitMaskRepeat: "no-repeat",
                                     maskSize: "contain",

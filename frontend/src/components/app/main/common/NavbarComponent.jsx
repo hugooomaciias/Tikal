@@ -16,9 +16,6 @@ import {
     IconUsersGroup,
 } from "@tabler/icons-react";
 
-/** Assets, Utils & Constants */
-import logoNavbar from "/tikal/logoHeader_2.svg";
-
 /**
  * Icon Component Map
  *
@@ -79,8 +76,8 @@ export const NavbarComponent = ({ theme }) => {
                     <div
                         className={`w-full h-full bg-primary`} 
                         style={{
-                            maskImage: `url(${logoNavbar})`,
-                            WebkitMaskImage: `url(${logoNavbar})`,
+                            maskImage: "url(/tikal/logoHeader_2.svg)",
+                            WebkitMaskImage: "url(/tikal/logoHeader_2.svg)",
                             maskRepeat: "no-repeat",
                             WebkitMaskRepeat: "no-repeat",
                             maskSize: "contain",

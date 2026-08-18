@@ -3,10 +3,6 @@ import { useState, useEffect, useMemo, useCallback } from "react";
 import { useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
-/** Assets, Utils & Constants */
-import logoHeaderDark from "/tikal/logoHeader_1.svg";
-import logoHeaderLight from "/tikal/logoHeader_2.svg";
-
 /**
  * Landing Page Logic Hook
  *
@@ -90,7 +86,7 @@ export const useLandingLogic = () => {
         const section_config = {
             home: {
                 bg: "bg-primary-50",
-                logo: logoHeaderDark,
+                logo: "/tikal/logoHeader_1.svg",
                 navbarBg: "bg-primary-300",
                 mobileText: "text-primary",
                 langBtnBg: "bg-primary-300",
@@ -98,7 +94,7 @@ export const useLandingLogic = () => {
             },
             plans: {
                 bg: "bg-primary-300",
-                logo: logoHeaderLight,
+                logo: "/tikal/logoHeader_2.svg",
                 navbarBg: "bg-primary-50",
                 mobileText: "text-primary-300",
                 langBtnBg: "bg-primary-50",
@@ -106,7 +102,7 @@ export const useLandingLogic = () => {
             },
             contact: {
                 bg: "bg-primary-50",
-                logo: logoHeaderDark,
+                logo: "/tikal/logoHeader_1.svg",
                 navbarBg: "bg-primary-300",
                 mobileText: "text-primary",
                 langBtnBg: "bg-primary-300",

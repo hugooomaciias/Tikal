@@ -20,9 +20,6 @@ import {
     IconChevronRight
 } from "@tabler/icons-react";
 
-/** Assets, Utils & Constants */
-import logoNavbar from "/tikal/logoHeader_2.svg";
-
 /**
  * General Preferences Settings Page Component
  *
@@ -191,8 +188,8 @@ export const PreferencesPage = () => {
                                                     <div
                                                         className="w-full h-full bg-primary"
                                                         style={{
-                                                            maskImage: `url(${logoNavbar})`,
-                                                            WebkitMaskImage: `url(${logoNavbar})`,
+                                                            maskImage: "url(/tikal/logoHeader_2.svg)",
+                                                            WebkitMaskImage: "url(/tikal/logoHeader_2.svg)",
                                                             maskRepeat: "no-repeat",
                                                             WebkitMaskRepeat: "no-repeat",
                                                             maskSize: "contain",

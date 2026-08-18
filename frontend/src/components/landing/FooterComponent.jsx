@@ -2,9 +2,6 @@
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
-/** Assets, Utils & Constants */
-import logoFooter from "/tikal/logoHeader_2.svg";
-
 /**
  * Landing Footer Component
  *
@@ -47,7 +44,7 @@ export const FooterComponent = () => {
                     <a href="#home">
                         <img
                             className="h-12 w-auto opacity-90 hover:opacity-100 transition-opacity"
-                            src={logoFooter}
+                            src="/tikal/logoHeader_2.svg"
                             alt="Logo Tikal"
                         />
                     </a>

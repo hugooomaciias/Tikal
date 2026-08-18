@@ -15,9 +15,6 @@ import {
     IconSquareRoundedPlus,
 } from "@tabler/icons-react";
 
-/** Assets, Utils & Constants */
-import logoSabidurIA from "/ia/sabidurIAIcon.svg";
-
 /**
  * Application Header Component
  *
@@ -182,8 +179,8 @@ export const HeaderComponent = ({ page, primaryState, secondaryState, onTogglePr
                             <div
                                 className={`w-10 h-10 ${theme ? "bg-rank-700" : "bg-primary-600"}`}
                                 style={{
-                                    maskImage: `url(${logoSabidurIA})`,
-                                    WebkitMaskImage: `url(${logoSabidurIA})`,
+                                    maskImage: "url(/ia/sabidurIAIcon.svg)",
+                                    WebkitMaskImage: "url(/ia/sabidurIAIcon.svg)",
                                     maskRepeat: "no-repeat",
                                     WebkitMaskRepeat: "no-repeat",
                                     maskSize: "contain",
