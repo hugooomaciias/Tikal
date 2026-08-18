@@ -1,13 +1,11 @@
 -- INSERTS PARA LA TABLA rank_lists
 
 INSERT IGNORE INTO rank_lists (id, temple_name, awarded_title, required_hours, next_hours, badge_image_url, clock_image_url, colour, temple_image_url) VALUES
-                                                                                            (1, 'Templo de los Orígenes',       'Aprendiz maya',                  0, 80, '/temple-mode/backgrounds/aprendiz-maya.png', '/images/temple/clock1.png', '#63A47D', '/temple-mode/rank-logos/aprendiz-maya.svg'),
-                                                                                            (2, 'Templo del Camino Interior',   'Iniciado del Agua y del Fuego',  80, 250, '/temple-mode/backgrounds/iniciado-agua-fuego.jpeg', '/images/temple/clock2.png', '#2AB7CA', '/temple-mode/rank-logos/iniciado-agua-fuego.svg'),
-                                                                                            (3, 'Templo de la Sabiduría',       'Guía del Sendero Secreto',       250, 700, '/temple-mode/backgrounds/guia-sendero-secreto.png', '/images/temple/clock3.png', '#C88A2A', '/temple-mode/rank-logos/guia-sendero-secreto.svg
-
-'),
-                                                                                            (4, 'Templo del Sol',               'Sabio del Tiempo',               700, 1024, '/temple-mode/backgrounds/sabio-tiempo.png', '/images/temple/clock4.png', '#F87171', '/temple-mode/rank-logos/sabio-tiempo.svg'),
-                                                                                            (5, 'Gran Pirámide de Tikal',       'Señor del Quinto Sol',           1024, 1024, '/temple-mode/backgrounds/senor-quinto-sol.png', '/images/temple/clock4.png', '#EFBF04', '/temple-mode/rank-logos/senor-quinto-sol.svg');
+                                                                                            (1, 'Templo de los Or�genes',       'Aprendiz maya',                  0, 80, '/temple-mode/rank-logos/aprendiz-maya.svg', '/images/temple/clock1.png', '#63A47D', '/temple-mode/backgrounds/aprendiz-maya.png'),
+                                                                                            (2, 'Templo del Camino Interior',   'Iniciado del Agua y del Fuego',  80, 250, '/temple-mode/rank-logos/iniciado-agua-fuego.svg', '/images/temple/clock2.png', '#2AB7CA', '/temple-mode/backgrounds/iniciado-agua-fuego.jpeg'),
+                                                                                            (3, 'Templo de la Sabidur�a',       'Gu�a del Sendero Secreto',       250, 700, '/temple-mode/rank-logos/guia-sendero-secreto.svg', '/images/temple/clock3.png', '#C88A2A', '/temple-mode/backgrounds/guia-sendero-secreto.png'),
+                                                                                            (4, 'Templo del Sol',               'Sabio del Tiempo',               700, 1024, '/temple-mode/rank-logos/sabio-tiempo.svg', '/images/temple/clock4.png', '#F87171', '/temple-mode/backgrounds/sabio-tiempo.png'),
+                                                                                            (5, 'Gran Pir�mide de Tikal',       'Se�or del Quinto Sol',           1024, 1024, 'src/assets/temple-mode/backgrounds/senor-quinto-sol.png', '/images/temple/clock4.png', '#EFBF04', 'src/assets/temple-mode/rank-logos/senor-quinto-sol.svg');
 
 
 -- INSERTS PARA LA TABLA totem_lists
