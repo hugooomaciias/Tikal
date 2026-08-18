@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
 /** Components & Layouts */
-import { LanguagePickerComponent } from "../../components/landing/LanguagePickerComponent.jsx";
+import { LanguagePickerComponent } from "../../components/landing/languagePickerComponent.jsx";
 
 /** Icons */
 import { IconChevronLeft } from "@tabler/icons-react";
