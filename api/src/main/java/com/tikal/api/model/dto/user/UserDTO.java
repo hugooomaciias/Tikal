@@ -1,6 +1,5 @@
-package com.tikal.api.model.dto;
+package com.tikal.api.model.dto.user;
 
-import com.tikal.api.model.entity.RankList;
 import com.tikal.api.model.entity.enumerated.SubscriptionPlan;
 
 import lombok.AllArgsConstructor;

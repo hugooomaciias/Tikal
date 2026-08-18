@@ -1,7 +1,7 @@
 package com.tikal.api.service;
 
 import com.tikal.api.exception.ResourceNotFoundException;
-import com.tikal.api.model.dto.UserSettingsDTO;
+import com.tikal.api.model.dto.user.UserSettingsDTO;
 import com.tikal.api.model.entity.User;
 import com.tikal.api.model.entity.UserSettings;
 import com.tikal.api.model.entity.metadata.LayoutsDashboardMetadata;
@@ -94,7 +94,14 @@ public class SettingsService {
      */
     public UserSettings updateLayout(Integer userId, LayoutsDashboardMetadata newLayout) {
         UserSettings current = getSettingsByUserId(userId);
-        current.setLayoutsDashboards(newLayout);
+        LayoutsDashboardMetadata currentLayout = current.getLayoutsDashboards();
+
+        LayoutsDashboardMetadata saveLayout = LayoutsDashboardMetadata.builder()
+                .home(newLayout.getHome() != null ? newLayout.getHome() : currentLayout.getHome())
+                .statistics(newLayout.getStatistics() != null ? newLayout.getStatistics() : currentLayout.getStatistics())
+                .team(newLayout.getTeam() != null ? newLayout.getTeam() : currentLayout.getTeam())
+                .build();
+        current.setLayoutsDashboards(saveLayout);
         return settingsRepository.save(current);
     }
 
