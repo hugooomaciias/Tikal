@@ -159,7 +159,7 @@ export const TotemsBadgeComponent = ({ totems, lockedTotems, nextTargetTotem, tT
                                 className="w-full h-full bg-rank-50"
                                 style={{
                                     maskImage: `url(${nextTargetTotem?.totemImageUrl})`,
-                                    WebkitMaskImage: `url(${nexnextTargetTotem?.totemImageUrltTotem})`,
+                                    WebkitMaskImage: `url(${nextTargetTotem?.totemImageUrltTotem})`,
                                     maskRepeat: "no-repeat", WebkitMaskRepeat: "no-repeat",
                                     maskSize: "contain", WebkitMaskSize: "contain",
                                     maskPosition: "center", WebkitMaskPosition: "center",
