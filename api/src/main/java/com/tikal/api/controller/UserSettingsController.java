@@ -102,7 +102,7 @@ public class UserSettingsController {
      * Updates the user's avatarImage uploading it to Cloudinary.
      */
     @PostMapping("/profile/avatar")
-    public ResponseEntity<UserDTO> uploadAvatar(@RequestParam("file") MultipartFile file) {
+    public ResponseEntity<UserDTO> uploadAvatar(@RequestParam(value="file", required=false) MultipartFile file) {
         Integer userId = userService.getAuthenticatedUserID();
         UserDTO updatedUser = userService.updateAvatar(userId, file);
         return ResponseEntity.ok(updatedUser);

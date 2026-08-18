@@ -312,10 +312,8 @@ export const useSettingsAccountLogic = () => {
                     let payload = new FormData();
                     if (avatarFile) {
                         payload.append("file", avatarFile);
-                    } else if (avatarDeleted) {
-                        payload.append("deleteAvatar", "true");
-                        payload.append("file", new Blob([""], { type: "application/octet-stream" }), "empty.txt");
                     }
+                    
                     await updateUserAvatar(payload);
                 }
 
