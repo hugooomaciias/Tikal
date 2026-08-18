@@ -1,9 +1,8 @@
 /** React & Third-Party Libraries */
 import { useNavigate } from "react-router-dom";
-import { useTranslation } from "react-i18next";
 
 /** Icons */
-import { IconHammer, IconArrowLeft, IconSparkles } from "@tabler/icons-react";
+import { IconHammer, IconArrowLeft } from "@tabler/icons-react";
 
 /** Assets (Opcional - puedes reutilizar tu fondo del templo o la selva) */
 // import bg from "../../../assets/ia/chatbot.png";
@@ -21,9 +20,6 @@ import { IconHammer, IconArrowLeft, IconSparkles } from "@tabler/icons-react";
 export const WIPComponent = () => {
     // --- 1. Hooks ---
     const navigate = useNavigate();
-    
-    // Si tienes traducciones para esta vista, puedes usar el hook.
-    // const { t } = useTranslation("app_common"); 
 
     // --- 2. Handlers ---
     const handleGoBack = () => {
