@@ -26,6 +26,8 @@ const LEFT_ACTIONS_WIDTH = 60;
 export const SwipeableEntityItemComponent = ({ entity, contextMenuActions, children }) => {
     // --- 1. Local UI Logic ---
 
+    console.log(contextMenuActions)
+
     /**
      * Swipe Offset State
      *
@@ -123,8 +125,6 @@ export const SwipeableEntityItemComponent = ({ entity, contextMenuActions, child
     const handleActionClick = (e, actionType) => {
         e.stopPropagation();
         setOffset(0);
-
-        contextMenuActions.setContextMenu({ visible: false, x: 0, y: 0, data: entity });
 
         if (actionType === "edit") {
             contextMenuActions.handleActionEdit(entity);
