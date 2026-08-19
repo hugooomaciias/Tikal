@@ -93,6 +93,15 @@ export const ConcentrationHeatmapWidget = ({ props }) => {
         return data;
     }, [days, year, month]);
 
+    /**
+     * Total Grid Rows Calculation
+     *
+     * Calculates the total number of weeks (rows) the heatmap will occupy by dividing 
+     * the total cells by 7. This is used to dynamically adjust the vertical positioning 
+     * of the calendar grid if the month spans across more than 5 weeks, preventing bottom overflow.
+     */
+    const totalRows = Math.ceil(heatmap.length / 7);
+
     // --- 2. Render ---
 
     if (!heatmap.length) {
@@ -100,7 +109,7 @@ export const ConcentrationHeatmapWidget = ({ props }) => {
     }
 
     return (
-        <div className="h-full w-full flex items-center justify-center p-1">
+        <div className={`h-full w-full flex items-center justify-center p-1 transition-transform duration-300 ${totalRows > 5 ? "-translate-y-1 md:-translate-y-2.5" : ""}`}>
             {/* Heatmap 7-Column Calendar Grid Layout */}
             <div className="grid grid-cols-7 gap-1 w-full">
                 {heatmap.map((day, index) => {

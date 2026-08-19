@@ -104,11 +104,11 @@ export const SolarChartWidget = ({ props }) => {
     }
 
     return (
-        <div className="h-full w-full flex flex-col items-center justify-between px-4 relative">
+        <div className="h-full w-full flex flex-col items-center px-4 relative">
             {/* Top Section: Main Content and Chart */}
-            <div className="w-full flex flex-col items-center gap-6">
+            <div className="w-full flex flex-col items-center gap-6 my-auto shrink-0">
                 {/* Interactive Nivo Pie Chart Container */}
-                <div className="flex-1 min-h-[230px] w-full mt-2">
+                <div className="min-h-[230px] w-full mt-2">
                     <ResponsivePie
                         data={visibleChartData}
                         colors={{ datum: "data.color" }}

@@ -46,15 +46,7 @@ export const TabsComponent = ({ widget, props = [], value, onChange, t }) => {
      * left tab type calculation logic.
      */
     const [internalValue, setInternalValue] = useState(() => {
-        return widget === "Calendar"
-            ? "event"
-            : widget === "Task"
-              ? "day"
-              : widget === "EffectivenessX"
-                ? "weekly"
-                : widget === "EffectivenessY"
-                  ? "concentration"
-                  : "this_week";
+        return widget === "Task" ? "day" : "concentration";
     });
 
     // --- 3. Derived Variables ---
@@ -72,16 +64,7 @@ export const TabsComponent = ({ widget, props = [], value, onChange, t }) => {
      * Computes the underlying data string representation for the left (first) tab
      * based on the contextual `widget` prop.
      */
-    const firstTabType =
-        widget === "Calendar"
-            ? "event"
-            : widget === "Task"
-              ? "day"
-              : widget === "EffectivenessX"
-                ? "weekly"
-                : widget === "EffectivenessY"
-                  ? "concentration"
-                  : "this_week";
+    const firstTabType = widget === "Task" ? "day" : "concentration";
 
     /**
      * Second Tab Identifier
@@ -89,16 +72,7 @@ export const TabsComponent = ({ widget, props = [], value, onChange, t }) => {
      * Computes the underlying data string representation for the right (second) tab
      * based on the contextual `widget` prop.
      */
-    const secondTabType =
-        widget === "Calendar"
-            ? "project"
-            : widget === "Task"
-              ? "project"
-              : widget === "EffectivenessX"
-                ? "monthly"
-                : widget === "EffectivenessY"
-                  ? "profitability"
-                  : "this_month";
+    const secondTabType = widget === "Task" ? "project" : "profitability";
 
     /**
      * Current Active Value
@@ -154,7 +128,6 @@ export const TabsComponent = ({ widget, props = [], value, onChange, t }) => {
      */
     const renderFirstTabContent = () => {
         if (widget === "Task") return t("widgets.tasks.tabs.day");
-        if (widget === "Comparison") return props.week;
 
         return (
             <div className="flex items-center gap-1.5 justify-center">
@@ -174,10 +147,9 @@ export const TabsComponent = ({ widget, props = [], value, onChange, t }) => {
      */
     const renderSecondTabContent = () => {
         if (widget === "Task") return t("widgets.tasks.tabs.project");
-        if (widget === "Comparison") return props.month;
 
         return (
-            <div className="flex items-center gap-1.5 justify-center">
+            <div className="flex items-center gap-1.5 justify-center ">
                 <IconCoin className="h-5 w-5 md:hidden" stroke={2.5} />
                 <span className="hidden md:block">{t("widgets.effectiveness_chart.tabs.profitability")}</span>
             </div>
@@ -219,8 +191,9 @@ export const TabsComponent = ({ widget, props = [], value, onChange, t }) => {
             {/* Second Tab Button (Right or Bottom) */}
             <button
                 type="button"
+                disabled
                 onClick={() => handleTabClick(secondTabType)}
-                className="relative z-10 flex-1 py-1.5 px-2 text-sm text-primary-500 font-semibold transition-colors duration-300 flex items-center justify-center"
+                className="relative z-10 flex-1 py-1.5 px-2 text-sm text-primary-500 font-semibold transition-colors duration-300 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
             >
                 {renderSecondTabContent()}
             </button>

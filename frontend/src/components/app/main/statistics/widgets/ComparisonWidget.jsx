@@ -40,22 +40,6 @@ export const ComparisonWidget = ({ props, setCustomActions }) => {
     const metrics = useMemo(() => props?.metrics || [], [props?.metrics]);
 
     /**
-     * Inject Header Actions Effect
-     *
-     * Instantiates the custom TabsComponent for navigating comparison modes and
-     * injects it into the parent's header via `setCustomActions`. Cleans up on unmount.
-     */
-    useEffect(() => {
-        const actions = <TabsComponent widget="Comparison" props={props} t={t} />;
-
-        if (setCustomActions) {
-            setCustomActions(actions);
-        }
-
-        return () => setCustomActions?.(null);
-    }, [setCustomActions, props, t]);
-
-    /**
      * Get Metric Styles
      *
      * Determines the appropriate background color class and Tabler Icon component
