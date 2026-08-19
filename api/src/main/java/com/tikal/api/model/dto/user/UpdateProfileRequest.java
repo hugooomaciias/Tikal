@@ -6,4 +6,5 @@ import lombok.Data;
 public class UpdateProfileRequest {
     private String name;
     private String email;
+    private Boolean tikalTutorialCompleted;
 }

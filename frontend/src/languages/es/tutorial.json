@@ -1,0 +1,51 @@
+{
+    "steps": {
+        "step0": {
+            "title": "¡Bienvenidos a la primera expedición!",
+            "content": "Hemos abierto las puertas del templo por primera vez. Prepárate para explorar este nuevo entorno de productividad y ayudarnos a pulir cada rincón."
+        },
+        "step1": {
+            "title": "Desglosad vuestras misiones",
+            "content": "Aquí estructurarás tu éxito. Organiza tus quehaceres al milímetro creando jerarquías detalladas para que no se escape ni el más mínimo detalle."
+        },
+        "step2": {
+            "title": "Las tareas son el núcleo",
+            "content": "Define tus tiempos estimados, deadlines y ganancias. Úsalas bien, mantén el control de tus entregables y haz que cada hora cuente."
+        },
+        "step3": {
+            "title": "¡Hora de Actuar!",
+            "content": "El tiempo es oro en la expedición. Crea tu primer proyecto, añade una tarea con su estimación y empieza a registrar tus logs de actividad."
+        },
+        "step4": {
+            "title": "Los tiempos bajo control",
+            "content": "Tu torre de control temporal. Usa esta vista central para gestionar todos tus eventos, recordatorios y compromisos conectados con el ecosistema."
+        },
+        "step5": {
+            "title": "Planificación lateral",
+            "content": "Consulta de forma rápida los próximos eventos y filtra las fechas clave para adelantarte a cualquier obstáculo en tu camino."
+        },
+        "step6": {
+            "title": "Moldea el entorno",
+            "content": "Analiza tu efectividad real. Al igual que el dashboard de inicio, aquí puedes organizar tus métricas para adaptarlas a tu flujo de trabajo."
+        },
+        "step7": {
+            "title": "El Santuario Interior",
+            "content": "Cruzad el umbral hacia el Modo Templo. Vuestro santuario de productividad para aislaros de todo ruido exterior."
+        },
+        "step8": {
+            "title": "Enfoque profundo",
+            "content": "Sumergíos en un estado de máxima concentración con este temporizador integrado para vuestras sesiones de trabajo más intensas."
+        },
+        "step9": {
+            "title": "Dejad vuestra huella",
+            "content": "Personaliza tu experiencia al máximo. Entra aquí para configurar tus datos personales, subir tu avatar y probar el increíble Tema Maya."
+        }
+    },
+    "buttons": {
+        "back": "Atrás",
+        "close": "Cerrar",
+        "next": "Siguiente",
+        "skip": "Saltar",
+        "last": "Finalizar"
+    }
+}

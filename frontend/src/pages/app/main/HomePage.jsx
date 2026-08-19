@@ -62,7 +62,7 @@ export const HomePage = () => {
             />
 
             {/* Dashboard Responsive Grid Area */}
-            <div className={`flex-1 overflow-y-auto custom-scrollbar ${isEditing ? "pb-32" : ""}`}>
+            <div className={`tour-body flex-1 overflow-y-auto custom-scrollbar ${isEditing ? "pb-32" : ""}`}>
                 <ResponsiveGridLayout
                     className="layout"
                     layouts={{

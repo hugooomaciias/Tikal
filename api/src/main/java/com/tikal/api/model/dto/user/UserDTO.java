@@ -19,4 +19,5 @@ public class UserDTO {
     private String rangeTitle;
     private Integer currentRank;
     private SubscriptionPlan subscriptionPlan;
+    private Boolean tikalTutorialCompleted;
 }

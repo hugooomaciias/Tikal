@@ -61,8 +61,8 @@ export const TempleModePage = () => {
 
     return (
         <div 
-            className={`${theme} flex flex-col md:flex-row h-[100dvh] bg-cover bg-center bg-no-repeat p-2 md:p-4 gap-4 md:gap-8 overflow-hidden`}
-            style={{ backgroundImage: `url(${data?.templeImageUrl})` }}
+            className={`tour-temple ${theme} flex flex-col md:flex-row h-[100dvh] bg-cover bg-center bg-no-repeat p-2 md:p-4 gap-4 md:gap-8 overflow-hidden`}
+            style={{ backgroundImage: `url(${data.templeImageUrl})` }}
         >
             {/* Vertical Navbar Navigation Layer */}
             {!isRunning && (
@@ -146,7 +146,7 @@ export const TempleModePage = () => {
                             </div>
 
                             {/* --- Active Timer & Chronometer Module --- */}
-                            <div className={`${!isRunning ? "hidden md:flex" : ""} w-full flex flex-1 flex-col items-center justify-center gap-6 bg-rank-900/80 border-rank-700/50 border shadow-lg rounded-[2.5rem] p-8 transition-all duration-300 backdrop-blur-md relative overflow-hidden`}>           
+                            <div className={`tour-temple-timer ${!isRunning ? "hidden md:flex" : ""} w-full flex flex-1 flex-col items-center justify-center gap-6 bg-rank-900/80 border-rank-700/50 border shadow-lg rounded-[2.5rem] p-8 transition-all duration-300 backdrop-blur-md relative overflow-hidden`}>           
                                 {/* Circular Functional Progress Ring */}
                                 <div className="relative w-48 h-48 rounded-full flex items-center justify-center shadow-[inset_0_0_20px_rgba(0,0,0,0.5)] bg-quaternary-900/30">
                                     
@@ -230,7 +230,7 @@ export const TempleModePage = () => {
                                 <button 
                                     type="button"
                                     onClick={handleOpenTimerConfig}
-                                    className="md:hidden p-3.5 rounded-2xl bg-rank-900/80 border-rank-700/50 border shadow-lg transition-all duration-300 flex items-center justify-center"
+                                    className="tour-temple-timer md:hidden p-3.5 rounded-2xl bg-rank-900/80 border-rank-700/50 border shadow-lg transition-all duration-300 flex items-center justify-center"
                                     title="Configurar Temporizador"
                                 >
                                     <div className="flex items-center justify-center gap-2 text-rank-50">

@@ -15,6 +15,7 @@ import esAppSettingsPreferences from "./languages/es/app_settings_preferences.js
 import esAppSettingsProductivity from "./languages/es/app_settings_productivity.json";
 import esAppSettingsNotifications from "./languages/es/app_settings_notifications.json";
 import esAppSettingsTeam from "./languages/es/app_settings_team.json";
+import esTutorial from "./languages/es/tutorial.json";
 
 import enLanding from "./languages/en/landing.json";
 import enAuth from "./languages/en/auth.json";
@@ -29,6 +30,7 @@ import enAppSettingsPreferences from "./languages/en/app_settings_preferences.js
 import enAppSettingsProductivity from "./languages/en/app_settings_productivity.json";
 import enAppSettingsNotifications from "./languages/en/app_settings_notifications.json";
 import enAppSettingsTeam from "./languages/en/app_settings_team.json";
+import enTutorial from "./languages/en/tutorial.json";
 
 const resources = {
     es: {
@@ -45,6 +47,7 @@ const resources = {
         app_settings_productivity: esAppSettingsProductivity,
         app_settings_notifications: esAppSettingsNotifications,
         app_settings_team: esAppSettingsTeam,
+        tutorial: esTutorial,
     },
     en: {
         landing: enLanding,
@@ -60,6 +63,7 @@ const resources = {
         app_settings_productivity: enAppSettingsProductivity,
         app_settings_notifications: enAppSettingsNotifications,
         app_settings_team: enAppSettingsTeam,
+        tutorial: enTutorial,
     },
 };
 

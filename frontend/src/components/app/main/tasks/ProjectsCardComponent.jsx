@@ -198,7 +198,7 @@ export const ProjectsCardComponent = ({ data, selectedId, onSelect, formatShortD
             {/* Floating Action: Create Project Button */}
             <div className="w-full flex items-center justify-end">
                 <button onClick={handleCreateNewProject}>
-                    <IconCirclePlusFilled className="h-10 w-10 text-primary-200/70 hover:text-primary-200" />
+                    <IconCirclePlusFilled className="tour-action h-10 w-10 text-primary-200/70 hover:text-primary-200" />
                 </button>
             </div>
 

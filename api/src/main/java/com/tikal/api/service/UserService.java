@@ -106,6 +106,8 @@ public class UserService {
             user.setEmail(request.getEmail());
         }
 
+        if (request.getTikalTutorialCompleted() != null) user.setTikalTutorialCompleted(request.getTikalTutorialCompleted());
+
         User updatedUser = userRepository.save(user);
         return getUserDTO(updatedUser);
     }
@@ -133,6 +135,7 @@ public class UserService {
                 .email(user.getEmail())
                 .currentRank(user.getCurrentRank().getId())
                 .subscriptionPlan(user.getSubscriptionPlan())
+                .tikalTutorialCompleted(user.getTikalTutorialCompleted())
                 .rangeTitle(user.getCurrentRank().getAwardedTitle())
                 .avatarUrl(user.getAvatarUrl())
                 .build();
