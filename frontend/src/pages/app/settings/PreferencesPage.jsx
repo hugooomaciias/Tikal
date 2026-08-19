@@ -169,8 +169,9 @@ export const PreferencesPage = () => {
                                 <button
                                     key={option.value}
                                     type="button"
+                                    disabled={option.value !== "MAYA"}
                                     onClick={() => handleChange({ target: { name: "theme", value: option.value } })}
-                                    className={`relative flex flex-col items-center gap-3 p-4 rounded-xl border-2 transition-all duration-300 hover:scale-105 ${
+                                    className={`relative flex flex-col items-center gap-3 p-4 rounded-xl border-2 transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed ${
                                         isActive 
                                             ? (formData?.theme === "CLARO" ? "border-primary-500 shadow-md bg-transparent" : "border-white shadow-[0_0_20px_rgba(255,255,255,0.2)] bg-white/10") 
                                             : (formData?.theme === "CLARO" ? "border-transparent opacity-60 hover:opacity-100 hover:bg-slate-100" : "border-transparent opacity-60 hover:opacity-100 hover:bg-white/5")

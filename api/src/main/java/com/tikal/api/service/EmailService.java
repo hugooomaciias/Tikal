@@ -1,5 +1,6 @@
 package com.tikal.api.service;
 
+import lombok.extern.slf4j.Slf4j;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class EmailService {
 
     private final JavaMailSender mailSender;
@@ -71,7 +73,7 @@ public class EmailService {
             mailSender.send(message);
 
         } catch (MessagingException e) {
-            System.err.println("Error al enviar el correo HTML: " + e.getMessage());
+            log.error("Error al enviar el correo HTML: " + e.getMessage());
         }
     }
 }

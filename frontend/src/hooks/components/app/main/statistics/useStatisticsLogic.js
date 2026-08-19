@@ -21,7 +21,6 @@ const WIDGET_CONFIG = {
         titleKey: "widgets.solar_chart.title",
         actions: false,
         textColor: "text-quaternary-700",
-        isResizable: false,
     },
     effectivenessChartWidget: {
         component: EffectivenessChartWidget,
@@ -35,7 +34,6 @@ const WIDGET_CONFIG = {
         actions: false,
         textColor: "text-quaternary-700",
         borderColor: "border-primary-500",
-        isResizable: false,
     },
     concentrationHeatmapWidget: {
         component: ConcentrationHeatmapWidget,
