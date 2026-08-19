@@ -249,6 +249,7 @@ public class DashboardService {
                 .email(user.getEmail())
                 .avatarUrl(user.getAvatarUrl())
                 .subscriptionPlan(user.getSubscriptionPlan().name())
+                .tikalTutorialCompleted(user.getTikalTutorialCompleted())
                 .totems(gamificationService.buildUserTotems(user))
                 .build();
     }

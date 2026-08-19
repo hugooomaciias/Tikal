@@ -137,7 +137,7 @@ export const NavbarComponent = ({ theme }) => {
                 <button
                     type="button"
                     onClick={handleNavigateToSettings}
-                    className="relative w-12 h-12 flex-shrink-0 rounded-full overflow-hidden cursor-pointer"
+                    className="tour-settings relative w-12 h-12 flex-shrink-0 rounded-full overflow-hidden cursor-pointer"
                 >
                     <img
                         className="w-full h-full object-cover shadow-md"

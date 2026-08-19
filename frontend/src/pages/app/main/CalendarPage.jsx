@@ -77,9 +77,9 @@ export const CalendarPage = () => {
             <HeaderComponent page={tCalendar("calendar_title")} primaryState={eventToEdit} onTogglePrimary={openNewEventModal} t={tCalendar} />
 
             {/* Central Data Wrapper Container */}
-            <div className="flex-1 flex gap-2 overflow-hidden">
+            <div className="tour-calendar flex-1 flex gap-2 overflow-hidden">
                 {/* Collapsible Meta Tracking Sidebar Overlay Area */}
-                <aside className="hidden shrink-0 w-1/4 md:flex flex-col bg-primary rounded-[2.5rem] shadow-sm p-6 overflow-hidden">
+                <aside className="tour-aside hidden shrink-0 w-1/4 md:flex flex-col bg-primary rounded-[2.5rem] shadow-sm p-6 overflow-hidden">
                     {/* Left Side Fast Nav DatePicker */}
                     <div className="alt-datepicker-theme w-full flex justify-center shrink-0">
                         <DatePicker
@@ -108,7 +108,7 @@ export const CalendarPage = () => {
                 </aside>
 
                 {/* Main Interaction Full Calendar Board */}
-                <main className="flex-1 flex flex-col bg-primary rounded-[2.5rem] shadow-sm p-6 overflow-hidden">
+                <main className="tour-main-calendar flex-1 flex flex-col bg-primary rounded-[2.5rem] shadow-sm p-6 overflow-hidden">
                     <div className="main-calendar-theme w-full h-full relative">
                         {/* Calendar Third-Party Instance */}
                         <FullCalendar

@@ -45,6 +45,11 @@ public class User {
     @Column(name = "avatar_url")
     private String avatarUrl;
 
+    /* --- Flag for the user onboarding tutorial --- */
+    @Column(name = "tikal_tutorial_completed", nullable = false, columnDefinition = "TINYINT(1) DEFAULT 1")
+    private Boolean tikalTutorialCompleted = false; 
+
+
     /* --- Rank relation ==> Many users may have the same Rank --- */
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "current_rank", columnDefinition = "INT DEFAULT 1")

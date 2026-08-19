@@ -36,7 +36,7 @@ export const TasksPage = () => {
     // --- 2. Render ---
 
     if (!isDataLoaded) {
-        return null;
+        return <div className="tour-tasks w-full h-full"></div>;
     }
 
     return (
@@ -49,7 +49,7 @@ export const TasksPage = () => {
             />
 
             {/* Dashboard Flex Container: 3-Column Layout */}
-            <div className="flex-1 flex flex-col md:flex-row gap-4 overflow-hidden relative">
+            <div className="tour-tasks-1 flex-1 flex flex-col md:flex-row gap-4 overflow-hidden relative">
                 {/* First Column: Projects Entity List */}
                 <div
                     className={`${mobileView === "projects" ? "flex" : "hidden"} h-full w-full xl:w-1/4 xl:flex flex-col items-end justify-between p-6 bg-primary rounded-[2.5rem]`}
@@ -81,7 +81,7 @@ export const TasksPage = () => {
 
                 {/* Third Column: Tasks Entity List */}
                 <div
-                    className={`${mobileView === "tasks" ? "flex" : "hidden"} h-full flex-1 xl:flex flex-col items-end justify-between p-6 bg-primary rounded-[2.5rem]`}
+                    className={`tour-tasks-2 ${mobileView === "tasks" ? "flex" : "hidden"} h-full flex-1 xl:flex flex-col items-end justify-between p-6 bg-primary rounded-[2.5rem]`}
                 >
                     <TasksCardComponent
                         data={selectedStage ? selectedStage.tasks : []}

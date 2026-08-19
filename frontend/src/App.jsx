@@ -1,6 +1,6 @@
 /** React & Third-Party Libraries */
 import React from "react";
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate, Outlet } from "react-router-dom";
 
 /** Contexts, Hooks & Services */
 import { AuthProvider } from "./context/AuthContext";
@@ -31,8 +31,38 @@ import { ProductivityPage } from "./pages/app/settings/ProductivityPage";
 import { NotificationsPage } from "./pages/app/settings/NotificationsPage";
 import { SettingsTeamPage } from "./pages/app/settings/TeamPage";
 
+import { TutorialOnboarding } from "./pages/app/main/TutorialOnboarding";
+
 /** Assets, Utils & Constants */
 import "./i18n";
+
+/**
+ * Synced App Layout Component
+ *
+ * Un componente "envoltorio" (Layout Route) diseñado para las rutas protegidas que ya han
+ * pasado por la capa de sincronización (SyncProvider). 
+ * 
+ * ¿Por qué es necesario?
+ * El componente `TutorialOnboarding` necesita consumir datos del backend usando `useSync()`. 
+ * Si lo colocáramos en la raíz de la App (fuera de las rutas), no tendría acceso al `SyncProvider`
+ * y la aplicación se rompería. Al colocarlo aquí, nos aseguramos de que el tutorial:
+ * 1. Tenga acceso total al contexto de sincronización.
+ * 2. Se renderice como una capa flotante global por encima de cualquier página interna.
+ * 
+ * `<Outlet />` es el marcador de posición donde React Router inyectará la página actual
+ * (HomePage, TasksPage, etc.) dependiendo de la URL.
+ *
+ * @component
+ * @returns {JSX.Element} El tutorial superpuesto y el contenido de la ruta anidada.
+ */
+const SyncedAppLayout = () => {
+    return (
+        <>
+            <TutorialOnboarding />
+            <Outlet />
+        </>
+    );
+};
 
 /**
  * Application Root Component
@@ -69,46 +99,48 @@ function App() {
                     <Route path="/forgot-password" element={<ForgotPasswordPage />} />
 
                     <Route element={<SyncProvider />}>
-                        {/* Loading Screen Route */}
-                        <Route path="/loading" element={<LoadingPage />} />
+                        <Route element={<SyncedAppLayout />}>
+                            {/* Loading Screen Route */}
+                            <Route path="/loading" element={<LoadingPage />} />
 
-                        {/* Protected App Routes */}
-                        <Route element={<TimeLogProvider />}>
-                            <Route 
-                                element={
-                                    <ProtectedRoute>
-                                        <MainBasePage />
-                                    </ProtectedRoute>
-                                }
-                            >
-                                <Route path="/home" element={<HomePage />} />
-                                <Route path="/tasks" element={<TasksPage />} />
-                                <Route path="/calendar" element={<CalendarPage />} />
-                                <Route path="/statistics" element={<StatisticsPage />} />
-                            </Route>
+                            {/* Protected App Routes */}
+                            <Route element={<TimeLogProvider />}>
+                                <Route 
+                                    element={
+                                        <ProtectedRoute>
+                                            <MainBasePage />
+                                        </ProtectedRoute>
+                                    }
+                                >
+                                    <Route path="/home" element={<HomePage />} />
+                                    <Route path="/tasks" element={<TasksPage />} />
+                                    <Route path="/calendar" element={<CalendarPage />} />
+                                    <Route path="/statistics" element={<StatisticsPage />} />
+                                </Route>
 
-                            <Route
-                                path="/temple-mode"
-                                element={
-                                    <ProtectedRoute>
-                                        <TempleModePage />
-                                    </ProtectedRoute>
-                                }
-                            />
+                                <Route
+                                    path="/temple-mode"
+                                    element={
+                                        <ProtectedRoute>
+                                            <TempleModePage />
+                                        </ProtectedRoute>
+                                    }
+                                />
 
-                            <Route 
-                                element={
-                                    <ProtectedRoute>
-                                        <SettingsBasePage />
-                                    </ProtectedRoute>
-                                }
-                            >
-                                <Route path="/settings" element={null} />
-                                <Route path="/settings-account" element={<AccountPage />} />
-                                <Route path="/settings-preferences" element={<PreferencesPage />} />
-                                <Route path="/settings-productivity" element={<ProductivityPage />} />
-                                <Route path="/settings-notifications" element={<NotificationsPage />} />
-                                <Route path="/settings-team" element={<SettingsTeamPage />} />
+                                <Route 
+                                    element={
+                                        <ProtectedRoute>
+                                            <SettingsBasePage />
+                                        </ProtectedRoute>
+                                    }
+                                >
+                                    <Route path="/settings" element={null} />
+                                    <Route path="/settings-account" element={<AccountPage />} />
+                                    <Route path="/settings-preferences" element={<PreferencesPage />} />
+                                    <Route path="/settings-productivity" element={<ProductivityPage />} />
+                                    <Route path="/settings-notifications" element={<NotificationsPage />} />
+                                    <Route path="/settings-team" element={<SettingsTeamPage />} />
+                                </Route>
                             </Route>
                         </Route>
                     </Route>

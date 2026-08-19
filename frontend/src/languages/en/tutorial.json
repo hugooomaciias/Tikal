@@ -1,0 +1,51 @@
+{
+    "steps": {
+        "step0": {
+            "title": "Welcome to the first expedition!",
+            "content": "We have opened the temple doors for the first time. Get ready to explore this new productivity environment and help us polish every corner."
+        },
+        "step1": {
+            "title": "Break down your missions",
+            "content": "Here you will structure your success. Organize your tasks to the millimeter by creating detailed hierarchies so not even the smallest detail escapes you."
+        },
+        "step2": {
+            "title": "Tasks are the core",
+            "content": "Define your estimated times, deadlines, and earnings. Use them well, keep control of your deliverables, and make every hour count."
+        },
+        "step3": {
+            "title": "Time to Act!",
+            "content": "Time is gold on the expedition. Create your first project, add a task with its estimate, and start logging your activity."
+        },
+        "step4": {
+            "title": "Times under control",
+            "content": "Your temporal control tower. Use this central view to manage all your events, reminders, and commitments connected to the ecosystem."
+        },
+        "step5": {
+            "title": "Side planning",
+            "content": "Quickly check upcoming events and filter key dates to stay ahead of any obstacles in your path."
+        },
+        "step6": {
+            "title": "Shape the environment",
+            "content": "Analyze your actual effectiveness. Just like the home dashboard, here you can organize your metrics to fit your workflow."
+        },
+        "step7": {
+            "title": "The Inner Sanctuary",
+            "content": "Cross the threshold into Temple Mode. Your sanctuary of productivity to isolate yourself from all outside noise."
+        },
+        "step8": {
+            "title": "Deep focus",
+            "content": "Plunge into a state of maximum concentration with this integrated timer for your most intense work sessions."
+        },
+        "step9": {
+            "title": "Leave your mark",
+            "content": "Customize your experience to the max. Come here to configure your personal details, upload your avatar, and try out the amazing Maya Theme."
+        }
+    },
+    "buttons": {
+        "back": "Back",
+        "close": "Close",
+        "next": "Next",
+        "skip": "Skip",
+        "last": "Finish"
+    }
+}

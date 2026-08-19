@@ -42,8 +42,9 @@ public class WorkspaceSyncDTO {
         private String email;
         private String avatarUrl;
         private String subscriptionPlan;
+        private Boolean tikalTutorialCompleted;
         private List<TotemSyncDTO> totems;
-    }
+    } 
 
     // ==========================================
     // 3. TEMPLE MODE

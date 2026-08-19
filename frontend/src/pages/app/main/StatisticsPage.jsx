@@ -52,7 +52,7 @@ export const StatisticsPage = () => {
     }
 
     return (
-        <>
+        <div className="tour-statistics">
             <div className="flex flex-col gap-2 md:gap-4">
                 {/* Top Interactive Actions Toolbar */}
                 <HeaderComponent
@@ -139,6 +139,6 @@ export const StatisticsPage = () => {
                     })}
                 </ResponsiveGridLayout>
             </div>
-        </>
+        </div>
     );
 };
