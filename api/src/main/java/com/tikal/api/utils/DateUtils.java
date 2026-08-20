@@ -1,7 +1,6 @@
 package com.tikal.api.utils;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 
@@ -48,9 +47,28 @@ public class DateUtils {
      * Format a single day.
      * Example: "26 sep"
      */
-    public static String formatSingleDate(LocalDate date) {
+    public static String formatSingleDateMonthName(LocalDate date) {
         String month = date.format(MONTH_FORMATTER).replace(".", "").toLowerCase();
         return String.format("%d %s", date.getDayOfMonth(), month);
+    }
+
+    /**
+     * Format a day with the month and the year.
+     * Example: "26-08-2026"
+     */
+    public static String formatSingleDate(LocalDate date) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        return date.format(formatter);
+    }
+
+    /**
+     * Format a day with the month the year the hours and minutes.
+     * Example: "26-08-2026 HH:mm"
+     */
+    public static String formatDateTime(Instant instant) {
+        if (instant == null) return null;
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm").withZone(ZoneOffset.UTC);
+        return formatter.format(instant);
     }
 
     /**
