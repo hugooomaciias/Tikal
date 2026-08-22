@@ -26,8 +26,6 @@ const LEFT_ACTIONS_WIDTH = 60;
 export const SwipeableEntityItemComponent = ({ entity, contextMenuActions, children }) => {
     // --- 1. Local UI Logic ---
 
-    console.log(contextMenuActions)
-
     /**
      * Swipe Offset State
      *

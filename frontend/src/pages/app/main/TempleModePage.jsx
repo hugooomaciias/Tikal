@@ -35,7 +35,7 @@ export const TempleModePage = () => {
 
     const { tTemple, tCommon } = translations;
     const { menuRef, isDataLoaded, isRunning, isPopUpOpen } = templeModeStates;
-    const { data, additionalData, formattedTime, timerProgressPercentage, cascadingOptions } = templeModeData;
+    const { data, additionalData, currentTime, formattedTime, timerProgressPercentage, cascadingOptions } = templeModeData;
     const { handleOpenTimerConfig, handleClosePopUp, handleStopSession } = templeModeActions;
 
     if (!isDataLoaded || !templeModeData) {
@@ -56,8 +56,6 @@ export const TempleModePage = () => {
     const circleOffset = circleCircumference - (circleCircumference * timerProgressPercentage) / 100;
 
     // --- 2. Render ---
-
-    console.log(data);
 
     return (
         <div 
@@ -258,6 +256,7 @@ export const TempleModePage = () => {
                     onClose={handleClosePopUp}
                     theme={theme}
                     cascadingOptions={cascadingOptions}
+                    currentTime={currentTime}
                     tTemple={tTemple}
                     tCommon={tCommon}
                 />

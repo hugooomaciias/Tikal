@@ -44,10 +44,15 @@
             "dark": "Tema oscuro"
         }
     },
-    "reset": {
+    "reset_layouts": {
         "title": "Restaurar paneles",
         "description": "Devuelve los widgets del panel de inicio y estadísticas a sus posiciones y tamaños originales",
         "button": "Restaurar"
+    },
+    "reset_tutorial": {
+        "title": "Volver a hacer el tutorial",
+        "description": "Reinicia el recorrido guiado por Tikal. Serás redirigido a la pantalla principal",
+        "button": "Reiniciar"
     },
     "button": {
         "saving": "Guardando",

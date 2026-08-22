@@ -1,5 +1,6 @@
 /** React & Third-Party Libraries */
 import { useState, useEffect, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
 /** Contexts, Hooks & Services */
@@ -33,7 +34,15 @@ export const useSettingsPreferencesLogic = () => {
      * Extracts the mutation methods required to persist the general preferences 
      * payload and to reset the dashboard layouts to their default states.
      */
-    const { updateAllSettings, updateDashboardLayout } = useSettingsController();
+    const { updateAllSettings, updateDashboardLayout, updateUserProfile } = useSettingsController();
+
+    /**
+     * Programmatic Navigation Hook
+     *
+     * Enables programmatic routing capabilities to redirect the user to the widget's
+     * designated page when the action icon is clicked.
+     */
+    const navigate = useNavigate();
 
     /**
      * Translation Hook
@@ -259,6 +268,24 @@ export const useSettingsPreferencesLogic = () => {
     }, [updateDashboardLayout]);
 
     /**
+     * Tutorial Reset Logic
+     *
+     * Clears local cache safeguards and updates the backend profile flag.
+     * Instantly navigates the user back to the home dashboard to seamlessly
+     * trigger the Joyride onboarding sequence.
+     *
+     * @async
+     */
+    const handleResetTutorial = useCallback(async () => {
+        try {
+            await updateUserProfile({ tikalTutorialCompleted: false });
+            navigate("/home");
+        } catch (error) {
+            console.error("Error al reiniciar el estado del tutorial:", error);
+        }
+    }, [updateUserProfile, navigate]);
+
+    /**
      * Input Style Generator
      *
      * Computes the Tailwind classes for input fields dynamically based on their
@@ -297,6 +324,6 @@ export const useSettingsPreferencesLogic = () => {
         t,
         settingsPreferencesStates: { formData, isSaving, errors },
         settingsPreferencesData: { userSettings, languageOptions, firstDayOptions, timeRangeOptions, themeOptions },
-        settingsPreferencesActions: { handleChange, handleSubmit, handleResetLayouts, getInputClass, getIconClass },
+        settingsPreferencesActions: { handleChange, handleSubmit, handleResetLayouts, handleResetTutorial, getInputClass, getIconClass },
     };
 }

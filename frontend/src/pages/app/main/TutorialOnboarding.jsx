@@ -193,11 +193,11 @@ export const TutorialOnboarding = () => {
             return;
         }
 
-        const isTutorialCompletedBackend = userProfile?.tikalTutorialCompleted || false;
-        if (!isTutorialCompletedBackend) {
+        const isTutorialCompleted = userProfile?.tikalTutorialCompleted || false;
+        if (!isTutorialCompleted) {
             const timer = setTimeout(() => {
                 setRunTutorial(true);
-            }, 3000);
+            }, 2000);
 
             return () => clearTimeout(timer);
         }
@@ -269,6 +269,7 @@ export const TutorialOnboarding = () => {
             stepIndex={stepIndex}
             onEvent={handleJoyrideCallback}
             continuous={true}
+            disableScrolling={true}
             locale={{
                 back: t("buttons.back"),
                 close: t("buttons.close"),
@@ -285,6 +286,7 @@ export const TutorialOnboarding = () => {
                 spotlightRadius: 45,
                 zIndex: 10000,
                 buttons: ['back', 'primary', 'skip'],
+                overlayClickAction: false 
             }}
             styles={{
                 tooltip: {
