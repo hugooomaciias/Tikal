@@ -276,8 +276,8 @@ public class WidgetBuilderService {
         Instant inThreeDays = startOfTomorrow.plus(3, ChronoUnit.DAYS);
         Instant inOneWeek = startOfTomorrow.plus(10, ChronoUnit.DAYS);
 
-        String subtitlePrevious = "Antes del " + DateUtils.formatSingleDate(today);
-        String subtitleToday = DateUtils.formatSingleDate(today);
+        String subtitlePrevious = "Antes del " + DateUtils.formatSingleDateMonthName(today);
+        String subtitleToday = DateUtils.formatSingleDateMonthName(today);
         String subtitleThreeDays = DateUtils.formatDateRange(today.plusDays(1), today.plusDays(3), false);
         String subtitleOneWeek = DateUtils.formatDateRange(today.plusDays(4), today.plusDays(10), false);
 
