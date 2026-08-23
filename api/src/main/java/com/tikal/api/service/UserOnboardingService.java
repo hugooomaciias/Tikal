@@ -44,20 +44,20 @@ public class UserOnboardingService {
         LayoutsDashboardMetadata layouts = new LayoutsDashboardMetadata();
 
         // Home widgets
-        layouts.getHome().add(new LayoutsDashboardMetadata.WidgetPosition("weeklyProgressWidget", 0, 0, 1, 1));
-        layouts.getHome().add(new LayoutsDashboardMetadata.WidgetPosition("timeTrackerWidget", 1, 0, 1, 1));
+        layouts.getHome().add(new LayoutsDashboardMetadata.WidgetPosition("timeTrackerWidget", 0, 0, 1, 1));
+        layouts.getHome().add(new LayoutsDashboardMetadata.WidgetPosition("timeLogWidget", 1, 0, 1, 1));
         layouts.getHome().add(new LayoutsDashboardMetadata.WidgetPosition("templeModeWidget", 2, 0, 1, 1));
         layouts.getHome().add(new LayoutsDashboardMetadata.WidgetPosition("taskWidget", 3, 0, 1, 2));
         layouts.getHome().add(new LayoutsDashboardMetadata.WidgetPosition("AIMainWidget", 0, 1, 1, 1));
         layouts.getHome().add(new LayoutsDashboardMetadata.WidgetPosition("calendarWidget", 1, 1, 2, 1));
 
-        // Cajas para las Estadísticas
+        // Cajas para las Estad�sticas
         layouts.getStatistics().add(new LayoutsDashboardMetadata.WidgetPosition("solarChartWidget", 0, 0, 1, 2));
         layouts.getStatistics().add(new LayoutsDashboardMetadata.WidgetPosition("effectivenessChartWidget", 1, 0, 2, 1));
-        layouts.getStatistics().add(new LayoutsDashboardMetadata.WidgetPosition("timeGoalWidget", 3, 0, 1, 1));
+        layouts.getStatistics().add(new LayoutsDashboardMetadata.WidgetPosition("weeklyProgressWidget", 3, 0, 1, 1));
         layouts.getStatistics().add(new LayoutsDashboardMetadata.WidgetPosition("concentrationHeatmapWidget", 1, 1, 1, 1));
         layouts.getStatistics().add(new LayoutsDashboardMetadata.WidgetPosition("comparisonWidget", 2, 1, 1, 1));
-        layouts.getStatistics().add(new LayoutsDashboardMetadata.WidgetPosition("iaAdviceWidget", 3, 1, 1, 1));
+        layouts.getStatistics().add(new LayoutsDashboardMetadata.WidgetPosition("timeGoalWidget", 3, 1, 1, 1));
 
         settings.setLayoutsDashboards(layouts);
 
@@ -165,7 +165,7 @@ public class UserOnboardingService {
         personalList = projectRepository.save(personalList);
 
         Stage sublist1 = new Stage();
-        sublist1.setName("Trámites");
+        sublist1.setName("Tr�mites");
         sublist1.setProject(personalList);
         sublist1.setColour("y2");
         sublist1 = stageRepository.save(sublist1);
@@ -176,28 +176,32 @@ public class UserOnboardingService {
         sublist2.setColour("b2");
         sublist2 = stageRepository.save(sublist2);
 
+        // Tarea 1: Renovar DNI
         Task listTask1 = new Task();
         listTask1.setName("Renovar el DNI");
         listTask1.setStage(sublist1);
         listTask1.setAssignedUser(user);
         taskRepository.save(listTask1);
 
+        // Tarea 2: Tomate
         Task listTask2 = new Task();
-        listTask1.setName("Tomate");
-        listTask1.setStage(sublist2);
-        listTask1.setAssignedUser(user);
+        listTask2.setName("Tomate");
+        listTask2.setStage(sublist2);
+        listTask2.setAssignedUser(user);
         taskRepository.save(listTask2);
 
+        // Tarea 3: Leche
         Task listTask3 = new Task();
-        listTask1.setName("Leche");
-        listTask1.setStage(sublist2);
-        listTask1.setAssignedUser(user);
+        listTask3.setName("Leche");
+        listTask3.setStage(sublist2);
+        listTask3.setAssignedUser(user);
         taskRepository.save(listTask3);
 
+        // Tarea 4: Pan
         Task listTask4 = new Task();
-        listTask1.setName("Pan");
-        listTask1.setStage(sublist2);
-        listTask1.setAssignedUser(user);
+        listTask4.setName("Pan");
+        listTask4.setStage(sublist2);
+        listTask4.setAssignedUser(user);
         taskRepository.save(listTask4);
     }
 }

@@ -10,8 +10,6 @@ import { IconCircleArrowUpRight } from "@tabler/icons-react";
 
 /** Assets, Utils & Constants */
 import { PHASE_COLOURS } from "../../../../../constants/phase_colours.js";
-import bgTemple from "../../../../../assets/temple-mode/BgTempleModeWidget.jpg";
-import bgAI from "../../../../../assets/ia/BgDiosSabidurIA.png";
 import tailwindConfig from "../../../../../../tailwind.config.js";
 import resolveConfig from "tailwindcss/resolveConfig";
 
@@ -161,7 +159,7 @@ export const BaseWidget = ({
     const getBackgroundStyle = () => {
         if (isTempleMode) {
             return {
-                backgroundImage: `linear-gradient(rgba(31, 41, 55, 0.5), rgba(31, 41, 55, 0.5)), url(${bgTemple})`,
+                backgroundImage: "linear-gradient(rgba(31, 41, 55, 0.5), rgba(31, 41, 55, 0.5)), url(/temple-mode/BgTempleModeWidget.jpg)",
                 backgroundSize: "cover",
                 backgroundPosition: "center",
                 backgroundRepeat: "no-repeat",
@@ -170,7 +168,7 @@ export const BaseWidget = ({
 
         if (isAIWidget) {
             return {
-                backgroundImage: `linear-gradient(rgba(10, 10, 10, 0.2), rgba(10, 10, 10, 0.2)), url(${bgAI})`,
+                backgroundImage: "linear-gradient(rgba(10, 10, 10, 0.2), rgba(10, 10, 10, 0.2)), url(/ia/BgDiosSabidurIA.png)",
                 backgroundSize: "cover",
                 backgroundPosition: "center",
                 backgroundRepeat: "no-repeat",

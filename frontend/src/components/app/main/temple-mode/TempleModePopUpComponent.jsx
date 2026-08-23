@@ -21,7 +21,7 @@ import { IconCircleXFilled } from "@tabler/icons-react";
  * @param {Function} props.t - Core i18n translation utility.
  * @returns {JSX.Element}
  */
-export const TempleModePopUpComponent = ({ onClose, theme, cascadingOptions, tTemple, tCommon }) => {
+export const TempleModePopUpComponent = ({ onClose, theme, cascadingOptions, currentTime, tTemple, tCommon }) => {
     // --- 1. Logic Hook Extraction ---
 
     /**
@@ -31,7 +31,7 @@ export const TempleModePopUpComponent = ({ onClose, theme, cascadingOptions, tTe
      * handlers from the headless hook. This keeps the component strictly focused on 
      * presentational rendering and dynamic styling.
      */
-    const { popUpStates, popUpActions } = useTempleModePopUpLogic(onClose, theme, tTemple);
+    const { popUpStates, popUpActions } = useTempleModePopUpLogic(onClose, theme, currentTime, tTemple);
     
     const { formData, errors, timerOptions } = popUpStates;
     const { scrollRef, getInputClass, handleModalClick, handleDurationSelect, handleCascadingSelection, handleSubmit } = popUpActions;

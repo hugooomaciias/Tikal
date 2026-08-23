@@ -100,6 +100,8 @@ export const PlansComponent = () => {
         },
     ];
 
+    let isDisabled = false;
+
     // --- 2. Render ---
 
     return (
@@ -146,32 +148,40 @@ export const PlansComponent = () => {
                                 {/* Features Checklist Block */}
                                 <div className="flex flex-col text-left gap-4 text-quaternary-700 mb-8">
                                     {/* Iterative Feature Rendering */}
-                                    {plan.featuresList.map((feature, featureIndex) => (
-                                        <div key={featureIndex} className="flex items-center gap-4">
-                                            {/* Feature Status Icon */}
-                                            {feature.included ? (
-                                                <IconCheck className="w-5 h-5" />
-                                            ) : (
-                                                <IconX className="w-5 h-5" />
-                                            )}
+                                    {plan.featuresList.map((feature, featureIndex) => {
+                                        isDisabled = plan.action === "/payment";
 
-                                            {/* Feature Description Text */}
-                                            <p
-                                                className={`font-thin
-                                                           ${feature.included ? "text-gray-700" : "text-gray-400 line-through decoration-gray-300"}
-                                                         `}
-                                            >
-                                                {feature.text}
-                                            </p>
-                                        </div>
-                                    ))}
+                                        return (
+                                            <div key={featureIndex} className="flex items-center gap-4">
+                                                {/* Feature Status Icon */}
+                                                {feature.included ? (
+                                                    <IconCheck className="w-5 h-5" />
+                                                ) : (
+                                                    <IconX className="w-5 h-5" />
+                                                )}
+
+                                                {/* Feature Description Text */}
+                                                <p
+                                                    className={`font-thin
+                                                            ${feature.included ? "text-gray-700" : "text-gray-400 line-through decoration-gray-300"}
+                                                            `}
+                                                >
+                                                    {feature.text}
+                                                </p>
+                                            </div>
+                                        )
+                                    })}
                                 </div>
 
                                 {/* Registration Call-to-Action Link */}
                                 <Link
-                                    to={plan.action}
+                                    to={isDisabled ? "#" : plan.action}
                                     state={plan.state}
-                                    className={`btn md:w-1/2 ${styles.bg} text-primary`}
+                                    onClick={(e) => isDisabled && e.preventDefault()}
+                                    aria-disabled={isDisabled}
+                                    className={`btn md:w-1/2 ${styles.bg} text-primary ${
+                                        isDisabled ? "opacity-50 cursor-not-allowed grayscale" : ""
+                                    }`}
                                 >
                                     {plan.textButton}
                                 </Link>

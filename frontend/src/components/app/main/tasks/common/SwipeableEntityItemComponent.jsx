@@ -124,8 +124,6 @@ export const SwipeableEntityItemComponent = ({ entity, contextMenuActions, child
         e.stopPropagation();
         setOffset(0);
 
-        contextMenuActions.setContextMenu({ visible: false, x: 0, y: 0, data: entity });
-
         if (actionType === "edit") {
             contextMenuActions.handleActionEdit(entity);
         } else if (actionType === "rename") {

@@ -3,13 +3,10 @@ import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
 /** Components & Layouts */
-import { LanguagePickerComponent } from "../../components/landing/LanguagePickerComponent.jsx";
+import { LanguagePickerComponent } from "../../components/landing/languagePickerComponent.jsx";
 
 /** Icons */
 import { IconChevronLeft } from "@tabler/icons-react";
-
-/** Assets, Utils & Constants */
-import logoHeader from "../../assets/tikal/logoHeader_2.svg";
 
 /**
  * Payment Selection Page Component
@@ -97,7 +94,7 @@ export const PaymentPage = () => {
                     <div className="w-full mx-auto flex items-center justify-between p-8">
                         {/* Brand Logo Home Link */}
                         <Link to="/">
-                            <img className="h-10 w-auto cursor-pointer" src={logoHeader} alt="Logo Tikal" />
+                            <img className="h-10 w-auto cursor-pointer" src="/tikal/logoHeader_2.svg" alt="Logo Tikal" />
                         </Link>
 
                         {/* Back to Plans Navigation Wrapper */}

@@ -5,7 +5,7 @@ import { Link } from "react-router-dom";
 import { useSettingsTeamLogic } from "../../../hooks/components/app/settings/useSettingsTeamLogic.js";
 
 /** Components & Layouts */
-import { RenderToggleComponent } from "../../../components/app/settings/notifications/renderToggleComponent.jsx";
+import { RenderToggleComponent } from "../../../components/app/settings/notifications/RenderToggleComponent.jsx";
 
 /** Icons */
 import { 

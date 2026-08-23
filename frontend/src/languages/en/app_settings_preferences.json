@@ -35,10 +35,15 @@
             "global": "Global"
         }
     },
-    "reset": {
+    "reset_layouts": {
         "title": "Reset dashboards",
         "description": "Restores the widgets on the home and stats dashboard to their original positions and sizes",
         "button": "Reset"
+    },
+    "reset_tutorial": {
+        "title": "Do again the tour",
+        "description": "The guided tour of Tikal will restart. You will be redirected to the main screen.",
+        "button": "Restart"
     },
     "appearance": {
         "title": "Visual appearance",

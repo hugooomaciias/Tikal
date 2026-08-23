@@ -5,9 +5,6 @@ import { useNavigate } from "react-router-dom";
 /** Contexts, Hooks & Services */
 import { useSync } from "../../../../hooks/core/useSync.js";
 
-/** Assets, Utils & Constants */
-import logoTikal from "../../../../assets/tikal/logoHeader_1.svg";
-
 /**
  * Settings Header Component
  *
@@ -97,7 +94,7 @@ export const HeaderComponent = () => {
                     >
                         <img
                             className="h-full w-full opacity-90 hover:opacity-100 transition-opacity"
-                            src={logoTikal}
+                            src="/tikal/logoHeader_1.svg"
                             alt="Logo Tikal"
                         />
                     </button>

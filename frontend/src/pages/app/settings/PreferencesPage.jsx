@@ -17,11 +17,9 @@ import {
     IconTimelineEvent,
     IconSunHigh,
     IconMoon,
-    IconChevronRight
+    IconChevronRight,
+    IconMapSearch
 } from "@tabler/icons-react";
-
-/** Assets, Utils & Constants */
-import logoNavbar from "../../../assets/tikal/logoHeader_2.svg";
 
 /**
  * General Preferences Settings Page Component
@@ -48,7 +46,7 @@ export const PreferencesPage = () => {
     
     const { formData, isSaving, errors } = settingsPreferencesStates;
     const { userSettings, languageOptions, firstDayOptions, timeRangeOptions, themeOptions } = settingsPreferencesData;
-    const { handleChange, handleSubmit, handleResetLayouts, getInputClass, getIconClass } = settingsPreferencesActions;
+    const { handleChange, handleSubmit, handleResetLayouts, handleResetTutorial, getInputClass, getIconClass } = settingsPreferencesActions;
 
     // --- 2. Render ---
     
@@ -192,8 +190,8 @@ export const PreferencesPage = () => {
                                                     <div
                                                         className="w-full h-full bg-primary"
                                                         style={{
-                                                            maskImage: `url(${logoNavbar})`,
-                                                            WebkitMaskImage: `url(${logoNavbar})`,
+                                                            maskImage: "url(/tikal/logoHeader_2.svg)",
+                                                            WebkitMaskImage: "url(/tikal/logoHeader_2.svg)",
                                                             maskRepeat: "no-repeat",
                                                             WebkitMaskRepeat: "no-repeat",
                                                             maskSize: "contain",
@@ -219,26 +217,48 @@ export const PreferencesPage = () => {
                     </div>
                 </div>
 
-                {/* Reset layouts */}
-                <section className="bg-tertiary-400/80 backdrop-blur-md rounded-[1rem] p-6 md:p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 w-full">
-                    <div className="flex flex-col gap-1 max-w-lg text-primary">
-                        <h3 className="text-lg font-bold flex items-center gap-2">
-                            <IconLayoutDashboard className="w-5 h-5" />
-                            {t("reset.title")}
-                        </h3>
-                        <p className="text-sm">
-                            {t("reset.description")}
-                        </p>
-                    </div>
+                <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 w-full">
+                    {/* Reset layouts */}
+                    <section className="bg-tertiary-400/80 backdrop-blur-md rounded-[1rem] p-6 md:p-8 flex flex-col items-start justify-between gap-6 w-full">
+                        <div className="flex flex-col gap-1 max-w-lg text-primary">
+                            <h3 className="text-lg font-bold flex items-center gap-2">
+                                <IconLayoutDashboard className="w-5 h-5" />
+                                {t("reset_layouts.title")}
+                            </h3>
+                            <p className="text-sm">
+                                {t("reset_layouts.description")}
+                            </p>
+                        </div>
 
-                    <button
-                        type="button"
-                        onClick={handleResetLayouts}
-                        className="btn shrink-0 bg-tertiary-50 text-tertiary-800"
-                    >
-                        {t("reset.button")}
-                    </button>
-                </section>
+                        <button
+                            type="button"
+                            onClick={handleResetLayouts}
+                            className="btn shrink-0 bg-tertiary-50 text-tertiary-800"
+                        >
+                            {t("reset_layouts.button")}
+                        </button>
+                    </section>
+
+                    <section className="bg-tertiary-400/80 backdrop-blur-md rounded-[1rem] p-6 md:p-8 flex flex-col items-start justify-between gap-6 w-full">
+                        <div className="flex flex-col gap-1 max-w-lg text-primary">
+                            <h3 className="text-lg font-bold flex items-center gap-2">
+                                <IconMapSearch className="w-5 h-5" />
+                                {t("reset_tutorial.title")}
+                            </h3>
+                            <p className="text-sm">
+                                {t("reset_tutorial.description")}
+                            </p>
+                        </div>
+
+                        <button
+                            type="button"
+                            onClick={handleResetTutorial}
+                            className="btn shrink-0 bg-tertiary-50 text-tertiary-800"
+                        >
+                            {t("reset_tutorial.button")}
+                        </button>
+                    </section>
+                </div>
 
                 <div className="w-full flex justify-center md:justify-end">
                     <button 

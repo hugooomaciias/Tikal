@@ -14,9 +14,6 @@ import {
     IconLogout,
 } from "@tabler/icons-react";
 
-/** Assets, Utils & Constants */
-import logoSabidurIA from "../../../../assets/ia/sabidurIAIcon.svg";
-
 /**
  * Icon Component Map
  *
@@ -60,7 +57,16 @@ export const Header = ({ data, isEditing, checkChanges, onEnableEdit, onDisableE
 
     const { isScrolled } = headerStates;
     const { userProfile } = headerData;
-    const { handleLogout, handleEnableEditMode, handleDisableEditMode, handleSaveLayout, handleNavigateToSettings, handleMobileNavigateToSettings } = headerActions;
+    const { 
+        handleLogout,
+        handleEnableEditMode,
+        handleDisableEditMode,
+        handleSaveLayout,
+        handleNavigateToSettings,
+        handleMobileNavigateToSettings,
+        handleNavigateToWIP
+    } = headerActions;
+
 
     // --- 2. Render ---
 
@@ -123,11 +129,25 @@ export const Header = ({ data, isEditing, checkChanges, onEnableEdit, onDisableE
                 <div className="flex gap-4 items-center shrink-0">
                     <div className="w-fit h-fit flex flex-col items-center justify-between gap-2">
                         {/* SabidurIA Assistant Logo */}
-                        <img
-                            className="w-14 h-14 cursor-pointer hover:scale-105 transition-transform duration-200"
-                            src={logoSabidurIA}
-                            alt="Icono Dios de la Sabiduría"
-                        />
+                        <button
+                            type="button"
+                            onClick={handleNavigateToWIP}
+                            className="w-14 h-14 shrink-0 flex items-center justify-center"
+                        >
+                            <div
+                                className="bg-primary-600 w-full h-full"
+                                style={{
+                                    maskImage: "url(/ia/sabidurIAIcon.svg)",
+                                    WebkitMaskImage: "url(/ia/sabidurIAIcon.svg)",
+                                    maskRepeat: "no-repeat",
+                                    WebkitMaskRepeat: "no-repeat",
+                                    maskSize: "contain",
+                                    WebkitMaskSize: "contain",
+                                    maskPosition: "center",
+                                    WebkitMaskPosition: "center",
+                                }}
+                            />
+                        </button>
 
                         {/* Edit Mode Toggle Container */}
                         <div
@@ -192,11 +212,26 @@ export const Header = ({ data, isEditing, checkChanges, onEnableEdit, onDisableE
 
                     {/* Mobile Action Controls (AI & Logout) */}
                     <div className="flex items-center gap-3 shrink-0">
-                        <img
-                            className={`cursor-pointer hover:scale-105 transition-all duration-500 ${isScrolled ? "w-8 h-8" : "w-10 h-10"}`}
-                            src={logoSabidurIA}
-                            alt="Icono Dios de la Sabiduría"
-                        />
+                        <button
+                            type="button"
+                            onClick={handleNavigateToWIP}
+                            className={`${isScrolled ? "w-8 h-8" : "w-10 h-10"} shrink-0 flex items-center justify-center`}
+                        >
+                            <div
+                                className="bg-primary-600 w-full h-full"
+                                style={{
+                                    maskImage: "url(/ia/sabidurIAIcon.svg)",
+                                    WebkitMaskImage: "url(/ia/sabidurIAIcon.svg)",
+                                    maskRepeat: "no-repeat",
+                                    WebkitMaskRepeat: "no-repeat",
+                                    maskSize: "contain",
+                                    WebkitMaskSize: "contain",
+                                    maskPosition: "center",
+                                    WebkitMaskPosition: "center",
+                                }}
+                            />
+                        </button>
+
                         <IconLogout
                             className={`text-primary-600 cursor-pointer transition-all duration-500 ${isScrolled ? "w-8 h-8" : "w-10 h-10"}`}
                             strokeWidth={1.5}

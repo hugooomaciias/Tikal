@@ -5,7 +5,7 @@ import { Link } from "react-router-dom";
 import { useSettingsNotificationsLogic } from "../../../hooks/components/app/settings/useSettingsNotificationsLogic.js";
 
 /** Components & Layouts */
-import { RenderToggleComponent } from "../../../components/app/settings/notifications/renderToggleComponent.jsx";
+import { RenderToggleComponent } from "../../../components/app/settings/notifications/RenderToggleComponent.jsx";
 
 /** Icons */
 import { 

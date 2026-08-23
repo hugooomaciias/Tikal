@@ -35,7 +35,7 @@ export const TempleModePage = () => {
 
     const { tTemple, tCommon } = translations;
     const { menuRef, isDataLoaded, isRunning, isPopUpOpen } = templeModeStates;
-    const { data, additionalData, formattedTime, timerProgressPercentage, cascadingOptions } = templeModeData;
+    const { data, additionalData, currentTime, formattedTime, timerProgressPercentage, cascadingOptions } = templeModeData;
     const { handleOpenTimerConfig, handleClosePopUp, handleStopSession } = templeModeActions;
 
     if (!isDataLoaded || !templeModeData) {
@@ -87,8 +87,8 @@ export const TempleModePage = () => {
                                     <div
                                         className={`bg-rank-50 ${data.rank === 2 ? "w-[65px] h-[65px]" : data.rank === 3 ? "w-[60px] h-[60px]" : "w-full h-full"}`}
                                         style={{
-                                            maskImage: `url(${data.badgeImageUrl})`,
-                                            WebkitMaskImage: `url(${data.badgeImageUrl})`,
+                                            maskImage: `url(${data?.badgeImageUrl})`,
+                                            WebkitMaskImage: `url(${data?.badgeImageUrl})`,
                                             maskRepeat: "no-repeat",
                                             WebkitMaskRepeat: "no-repeat",
                                             maskSize: "contain",
@@ -180,8 +180,8 @@ export const TempleModePage = () => {
                                             <div
                                                 className="w-full h-full bg-rank-50"
                                                 style={{
-                                                    maskImage: `url(${nextTargetTotem.totemImageUrl})`,
-                                                    WebkitMaskImage: `url(${nextTargetTotem.totemImageUrl})`,
+                                                    maskImage: `url(${nextTargetTotem?.totemImageUrl})`,
+                                                    WebkitMaskImage: `url(${nextTargetTotem?.totemImageUrl})`,
                                                     maskRepeat: "no-repeat",
                                                     WebkitMaskRepeat: "no-repeat",
                                                     maskSize: "contain",
@@ -256,6 +256,7 @@ export const TempleModePage = () => {
                     onClose={handleClosePopUp}
                     theme={theme}
                     cascadingOptions={cascadingOptions}
+                    currentTime={currentTime}
                     tTemple={tTemple}
                     tCommon={tCommon}
                 />

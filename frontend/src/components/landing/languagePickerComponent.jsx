@@ -129,6 +129,7 @@ export const LanguagePickerComponent = ({ btnBgColour, btnTextColour, langSectio
                 <div className="flex flex-col p-2 gap-1">
                     {/* Spanish Selection Option */}
                     <button
+                        type="button"
                         onClick={() => {
                             changeLanguage("es");
                             setIsLangMenuOpen(false);
@@ -140,6 +141,7 @@ export const LanguagePickerComponent = ({ btnBgColour, btnTextColour, langSectio
 
                     {/* English Selection Option */}
                     <button
+                        type="button"
                         onClick={() => {
                             changeLanguage("en");
                             setIsLangMenuOpen(false);
@@ -153,6 +155,7 @@ export const LanguagePickerComponent = ({ btnBgColour, btnTextColour, langSectio
 
             {/* Main Floating Action Toggle Button */}
             <button
+                type="button"
                 onClick={() => setIsLangMenuOpen(!isLangMenuOpen)}
                 className={`flex items-center justify-center w-fit gap-2 py-3 px-4 shadow-lg
                     ${isLangMenuOpen ? "rounded-b-3xl rounded-t-none" : "rounded-full"}

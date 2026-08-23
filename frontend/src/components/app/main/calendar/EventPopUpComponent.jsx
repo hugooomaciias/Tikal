@@ -4,7 +4,7 @@ import { useEventPopUpLogic } from "../../../../hooks/components/app/main/calend
 /** Components & Layouts */
 import { CascadingLinkSelect } from "../common/popups/CascadingLinkSelect.jsx";
 import { TabsComponent } from "../common/popups/TabsComponent.jsx";
-import { DatePickerComponent } from "../common/popups/DatePickerComponent.jsx";
+import { DatePickerComponent } from "../common/popups/DatepickerComponent.jsx";
 import { PickerComponent } from "../common/popups/PickerComponent.jsx";
 
 /** Icons */

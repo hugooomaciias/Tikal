@@ -1,5 +1,5 @@
 /** React & Third-Party Libraries */
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, useRef } from "react";
 
 /** Contexts, Hooks & Services */
 import { useTimeLog } from "../../../../core/useTimeLog.js";
@@ -20,7 +20,7 @@ import { resolveLinkPayload } from "../../../../../utils/calendarUtils.js";
  * @param {Function} t - Translation utility function provided by i18next.
  * @returns {Object} A structured payload containing state variables, derived data, and handlers.
  */
-export const useTempleModePopUpLogic = (onClose, theme, t) => {
+export const useTempleModePopUpLogic = (onClose, theme, currentTime, t) => {
     // --- 1. Local UI State ---
     
     /**
@@ -34,12 +34,20 @@ export const useTempleModePopUpLogic = (onClose, theme, t) => {
     const { handleStartTask } = trackerActions;
 
     /**
+     * Initial Scroll Tracker Ref
+     *
+     * A mutable reference flag to ensure the auto-scroll logic only executes once
+     * when the modal opens, preventing disruptive jumps during subsequent re-renders.
+     */
+    const initialScrollDone = useRef(false);
+
+    /**
      * Form Input Data State
      *
      * Manages the payload required to initialize a focus session.
      */
     const [formData, setFormData] = useState({
-        duration: 25, 
+        duration: currentTime / 60, 
         linkedEntity: "",
     });
 
@@ -108,8 +116,28 @@ export const useTempleModePopUpLogic = (onClose, theme, t) => {
         if (node) {
             scrollRef(node);
             scrollRefManager.current = node;
+
+            if (!initialScrollDone.current) {
+                setTimeout(() => {
+                    const buttons = Array.from(node.querySelectorAll("button"));
+                    
+                    const selectedBtn = buttons.find(
+                        (btn) => btn.textContent.trim() === String(formData.duration)
+                    );
+
+                    if (selectedBtn) {
+                        selectedBtn.scrollIntoView({
+                            behavior: "smooth",
+                            block: "nearest",
+                            inline: "center",
+                        });
+                    }
+
+                    initialScrollDone.current = true;
+                }, 100); 
+            }
         }
-    }, [scrollRef]);
+    }, [scrollRef, formData.duration]);
 
     /**
      * Modal Click Interceptor

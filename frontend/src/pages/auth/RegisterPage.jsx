@@ -10,9 +10,6 @@ import { FormRegisterComponent } from "../../components/auth/FormRegisterCompone
 /** Icons */
 import { IconCircleXFilled } from "@tabler/icons-react";
 
-/** Assets, Utils & Constants */
-import logoHeader from "../../assets/tikal/logoHeader_1.svg";
-
 /**
  * Registration Page Presentational Component
  *
@@ -67,7 +64,7 @@ export const RegisterPage = () => {
                         to="/"
                         className="text-primary-300 font-semibold cursor-pointer transition-colors duration-300"
                     >
-                        <img className="h-10 w-auto" src={logoHeader} alt="Logo Tikal" />
+                        <img className="h-10 w-auto" src="/tikal/logoHeader_1.svg" alt="Logo Tikal" />
                     </Link>
 
                     <h1 className="text-primary-300 text-3xl text-center font-bold">{t("auth.register.title")}</h1>

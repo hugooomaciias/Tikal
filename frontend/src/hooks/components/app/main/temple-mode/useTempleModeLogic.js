@@ -330,7 +330,7 @@ export const useTempleModeLogic = () => {
     return {
         translations: { tTemple, tCommon },
         templeModeStates: { menuRef, isDataLoaded, isRunning, isPopUpOpen },
-        templeModeData: { data, additionalData, formattedTime, timerProgressPercentage, cascadingOptions },
+        templeModeData: { data, additionalData, currentTime, formattedTime, timerProgressPercentage, cascadingOptions },
         templeModeActions: { handleOpenTimerConfig, handleClosePopUp, handleStopSession }
     };
 };

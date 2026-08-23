@@ -94,8 +94,8 @@ export const TempleModeWidget = ({ props }) => {
                     <div
                         className={`w-full h-full bg-quaternary-200`}
                         style={{
-                            maskImage: `url("${props.logo}")`,
-                            WebkitMaskImage: `url("${props.logo}")`,
+                            maskImage: `url("${props?.logo}")`,
+                            WebkitMaskImage: `url("${props?.logo}")`,
                             maskRepeat: "no-repeat",
                             WebkitMaskRepeat: "no-repeat",
                             maskSize: "contain",
