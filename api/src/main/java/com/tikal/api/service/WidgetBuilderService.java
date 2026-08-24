@@ -211,10 +211,12 @@ public class WidgetBuilderService {
 
         // NOTE: To avoid overloading the system, we should ideally create a method that retrieves the
         // pending and completed tasks from the last 4 days.
-        Instant daysAgo = LocalDate.now(ZoneOffset.UTC)
+        ZoneId userZone = ZoneId.of(settings.getTimezone());
+
+        Instant daysAgo = LocalDate.now(userZone)
                 .minusDays(4)
-                .atStartOfDay()
-                .toInstant(ZoneOffset.UTC);
+                .atStartOfDay(userZone)
+                .toInstant();
         List<Task> sampleTasks = taskRepository.findMainTasksPendingOrCompletedSince(userId, daysAgo);
 
         // Sort by: 1. Uncompleted, 2. Completed. Within each group, by deadline in ascending order.
@@ -245,7 +247,7 @@ public class WidgetBuilderService {
         boolean hasMoreCards = false;
 
         if (mode == TaskWidgetData.GroupingMode.BY_DEADLINE) {
-            cards = buildCardsByDeadline(sampleTasks, subtasksCountMap);
+            cards = buildCardsByDeadline(sampleTasks, subtasksCountMap, userZone);
             if (cards.size() > 3) {
                 hasMoreCards = true;
             }
@@ -267,12 +269,13 @@ public class WidgetBuilderService {
 
     private List<TaskWidgetData.TaskCard> buildCardsByDeadline(
             List<Task> pendingTasks,
-            Map<Integer, Integer> subtasksCountMap) {
+            Map<Integer, Integer> subtasksCountMap,
+            ZoneId userZone) {
 
-        LocalDate today = LocalDate.now(ZoneOffset.UTC);
+        LocalDate today = LocalDate.now(userZone);
 
-        Instant startOfToday = today.atStartOfDay().toInstant(ZoneOffset.UTC);
-        Instant startOfTomorrow = today.plusDays(1).atStartOfDay().toInstant(ZoneOffset.UTC);
+        Instant startOfToday = today.atStartOfDay(userZone).toInstant();
+        Instant startOfTomorrow = today.plusDays(1).atStartOfDay(userZone).toInstant();
         Instant inThreeDays = startOfTomorrow.plus(3, ChronoUnit.DAYS);
         Instant inOneWeek = startOfTomorrow.plus(10, ChronoUnit.DAYS);
 
@@ -433,14 +436,15 @@ public class WidgetBuilderService {
     private WidgetData buildSolarChartBase(Integer userId, UserSettings settings) {
         SolarChartWidgetData.TimeRangeFilter filter = SolarChartWidgetData.TimeRangeFilter.GLOBAL;
 
-        Instant[] dateRange = resolveDateRange(filter, null);
+        ZoneId userZone = ZoneId.of(settings.getTimezone());
+        Instant[] dateRange = resolveDateRange(filter, null, userZone);
         List<Object[]> dbResults = timeLogRepository.getSolarChartProjectData(userId, dateRange[0], dateRange[1]);
 
         return assembleSolarChartWidget("PROJECT", null, filter, null, dbResults);
     }
 
     // Sublayer (Stages)
-    public SolarChartWidgetData buildSolarChartStages(Integer projectId, String filterParam, String customStart, String customEnd) {
+    public SolarChartWidgetData buildSolarChartStages(UserSettings settings, Integer projectId, String filterParam, String customStart, String customEnd) {
         SolarChartWidgetData.TimeRangeFilter filter;
         try {
             filter = SolarChartWidgetData.TimeRangeFilter.valueOf(filterParam);
@@ -478,7 +482,8 @@ public class WidgetBuilderService {
             };
         } else {
             // For non-CUSTOM filters, ignore customStart/customEnd if provided (or you could log a warning)
-            dateRange = resolveDateRange(filter, null);
+            ZoneId userZone = ZoneId.of(settings.getTimezone());
+            dateRange = resolveDateRange(filter, null, userZone);
         }
 
         // Create customDateRange only for CUSTOM filter
@@ -491,7 +496,7 @@ public class WidgetBuilderService {
     }
 
     // Sublayer (tasks)
-    public SolarChartWidgetData buildSolarChartTasks(Integer stageId, String filterParam, String customStart, String customEnd) {
+    public SolarChartWidgetData buildSolarChartTasks(UserSettings settings, Integer stageId, String filterParam, String customStart, String customEnd) {
         SolarChartWidgetData.TimeRangeFilter filter;
         try {
             filter = SolarChartWidgetData.TimeRangeFilter.valueOf(filterParam);
@@ -528,7 +533,8 @@ public class WidgetBuilderService {
             };
         } else {
             // For non-CUSTOM filters, ignore customStart/customEnd if provided (or you could log a warning)
-            dateRange = resolveDateRange(filter, null);
+            ZoneId userZone = ZoneId.of(settings.getTimezone());
+            dateRange = resolveDateRange(filter, null, userZone);
         }
 
         // Create customDateRange only for CUSTOM filter
@@ -617,8 +623,8 @@ public class WidgetBuilderService {
                 .build();
     }
 
-    private Instant[] resolveDateRange(SolarChartWidgetData.TimeRangeFilter filter, SolarChartWidgetData.CustomDateRange customRange) {
-        LocalDate today = LocalDate.now(ZoneOffset.UTC);
+    private Instant[] resolveDateRange(SolarChartWidgetData.TimeRangeFilter filter, SolarChartWidgetData.CustomDateRange customRange, ZoneId userZone) {
+        LocalDate today = LocalDate.now(userZone);
         Instant now = Instant.now();
 
         Instant startDate;
@@ -626,15 +632,15 @@ public class WidgetBuilderService {
 
         switch (filter) {
             case DAILY -> {
-                startDate = today.atStartOfDay().toInstant(ZoneOffset.UTC);
+                startDate = today.atStartOfDay(userZone).toInstant();
             }
             case WEEKLY -> {
                 startDate = today.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
-                        .atStartOfDay().toInstant(ZoneOffset.UTC);
+                        .atStartOfDay(userZone).toInstant();
             }
             case MONTHLY -> {
                 startDate = today.withDayOfMonth(1)
-                        .atStartOfDay().toInstant(ZoneOffset.UTC);
+                        .atStartOfDay(userZone).toInstant();
             }
             case GLOBAL -> {
                 // Parseo directo a Instant (Zulu time)
@@ -642,14 +648,14 @@ public class WidgetBuilderService {
             }
             case CUSTOM -> {
                 if (customRange != null && customRange.getStartDate() != null && customRange.getEndDate() != null) {
-                    startDate = customRange.getStartDate().atStartOfDay().toInstant(ZoneOffset.UTC);
+                    startDate = customRange.getStartDate().atStartOfDay(userZone).toInstant();
                     endDate = customRange.getEndDate().atTime(23, 59, 59).toInstant(ZoneOffset.UTC);
                 } else {
-                    startDate = today.atStartOfDay().toInstant(ZoneOffset.UTC);
+                    startDate = today.atStartOfDay(userZone).toInstant();
                 }
             }
             default -> startDate = today.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
-                    .atStartOfDay().toInstant(ZoneOffset.UTC);
+                    .atStartOfDay(userZone).toInstant();
         }
 
         return new Instant[]{startDate, endDate};
@@ -740,7 +746,8 @@ public class WidgetBuilderService {
             endDate = currentMonth.atEndOfMonth();
         }
 
-        Instant startDateTime = startDate.atStartOfDay().toInstant(ZoneOffset.UTC);
+        ZoneId userZone = ZoneId.of(settings.getTimezone());
+        Instant startDateTime = startDate.atStartOfDay(userZone).toInstant();
         Instant endDateTime = endDate.atTime(23, 59, 59).toInstant(ZoneOffset.UTC);
 
         // Data obtention
@@ -886,8 +893,9 @@ public class WidgetBuilderService {
         Instant previousStart = periods[2];
         Instant previousEnd = periods[3];
 
-        LocalDateTime uiStart = LocalDateTime.ofInstant(currentStart, ZoneOffset.UTC);
-        LocalDateTime uiEnd = LocalDateTime.ofInstant(currentEnd, ZoneOffset.UTC);
+        ZoneId userZone = ZoneId.of(settings.getTimezone());
+        LocalDateTime uiStart = LocalDateTime.ofInstant(currentStart, userZone);
+        LocalDateTime uiEnd = LocalDateTime.ofInstant(currentEnd, userZone);
 
         String format = DateUtils.formatDateRangeMinimal(uiStart, uiEnd);
         String week = format.split(" ")[0];
@@ -929,7 +937,8 @@ public class WidgetBuilderService {
 
     // --- Helpers of dates ---
     private Instant[] calculateComparisonPeriods(ComparisonWidgetData.TimeRangeFilter filter, UserSettings settings) {
-        LocalDate today = LocalDate.now(ZoneOffset.UTC);
+        ZoneId userZone = ZoneId.of(settings.getTimezone());
+        LocalDate today = LocalDate.now(userZone);
 
         LocalDate currentStartLocal;
         LocalDate currentEndLocal;
@@ -958,10 +967,10 @@ public class WidgetBuilderService {
             previousEndLocal = previousStartLocal.with(TemporalAdjusters.lastDayOfMonth());
         }
 
-        Instant currentStart = currentStartLocal.atStartOfDay().toInstant(ZoneOffset.UTC);
+        Instant currentStart = currentStartLocal.atStartOfDay(userZone).toInstant();
         Instant currentEnd = currentEndLocal.atTime(23, 59, 59).toInstant(ZoneOffset.UTC);
 
-        Instant previousStart = previousStartLocal.atStartOfDay().toInstant(ZoneOffset.UTC);
+        Instant previousStart = previousStartLocal.atStartOfDay(userZone).toInstant();
         Instant previousEnd = previousEndLocal.atTime(23, 59, 59).toInstant(ZoneOffset.UTC);
 
         return new Instant[]{currentStart, currentEnd, previousStart, previousEnd};
@@ -1017,9 +1026,10 @@ public class WidgetBuilderService {
             return TimeLogWidgetData.builder().days(List.of()).build();
         }
 
+        ZoneId userZone = ZoneId.of(settings.getTimezone());
         Map<LocalDate, List<TimeLog>> groupedByDay = rollingLogs.stream()
                 .collect(Collectors.groupingBy(
-                        log -> LocalDate.ofInstant(log.getInitDateTime(), ZoneOffset.UTC)
+                        log -> LocalDate.ofInstant(log.getInitDateTime(), userZone)
                 ));
 
         List<TimeLogWidgetData.DailyTimeLogs> dailyLogsList = groupedByDay.entrySet().stream()

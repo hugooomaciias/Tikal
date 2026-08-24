@@ -1,5 +1,6 @@
 package com.tikal.api.service;
 
+import com.tikal.api.model.dto.auth.RegisterRequest;
 import com.tikal.api.model.entity.*;
 import com.tikal.api.model.entity.enumerated.*;
 import com.tikal.api.model.entity.metadata.LayoutsDashboardMetadata;
@@ -25,17 +26,32 @@ public class UserOnboardingService {
     /**
      * This method is called just after to save a new user
      */
-    public void readyNewAccount(User newUser) {
-        createDefaultSettings(newUser);
+    public void readyNewAccount(User newUser, String language, String timeZone) {
+        createDefaultSettings(newUser, language, timeZone);
         generateSampleData(newUser);
     }
 
-    private void createDefaultSettings(User user) {
+    private void createDefaultSettings(User user, String language, String timeZone) {
         UserSettings settings = new UserSettings();
         settings.setUser(user);
         settings.setTheme(ThemeSetting.MAYA);
         settings.setTimeRange(TimeRangeSetting.SEMANAL);
-        settings.setUserLanguage(SupportedLanguages.ES);
+
+        if (language == null || language.trim().isEmpty()) {
+            settings.setUserLanguage(SupportedLanguages.ES);
+        } else {
+            if (language.toLowerCase().startsWith("en")) {
+                settings.setUserLanguage(SupportedLanguages.EN);
+            } else {
+                settings.setUserLanguage(SupportedLanguages.ES);
+            }
+        }
+
+        if (timeZone == null || timeZone.trim().isEmpty()) {
+            settings.setTimezone("UTC");
+        } else {
+            settings.setTimezone(timeZone);
+        }
         settings.setHoursGoal(40);
         settings.setFocusSessionMinutes(25);
         settings.setNotificationSettings(new NotificationSettingsMetadata());
