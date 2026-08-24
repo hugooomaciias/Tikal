@@ -1,0 +1,45 @@
+{
+    "breadcrumb": {
+        "previous": "Settings",
+        "current": "Productivity"
+    },
+    "title": "Productivity and Temple Mode",
+    "description": "Adjust your primary work objective and the behavior of Temple Mode",
+    "productivity": {
+        "title": "Work target",
+        "description": "Set your ideal goal for hours worked. This helps us show you your progress in the statistics",
+        "error": "Please set a goal greater than 0"
+    },
+    "temple_mode": {
+        "title": "Temple Mode",
+        "description": "Temple Mode is your state of maximum concentration. Set the duration of each cycle before taking a break",
+        "focus": {
+            "15m": "15 minutes",
+            "20m": "20 minutes",
+            "25m": "25 minutes",
+            "30m": "30 minutes",
+            "35m": "35 minutes",
+            "40m": "40 minutes",
+            "45m": "45 minutes",
+            "50m": "50 minutes",
+            "55m": "55 minutes",
+            "60m": "60 minutes",
+            "65m": "65 minutes",
+            "70m": "70 minutes",
+            "75m": "75 minutes",
+            "80m": "80 minutes",
+            "85m": "85 minutes",
+            "90m": "90 minutes",
+            "95m": "95 minutes",
+            "100m": "100 minutes",
+            "105m": "105 minutes",
+            "110m": "110 minutes",
+            "115m": "115 minutes",
+            "120m": "120 minutes"
+        }
+    },
+    "button": {
+        "saving": "Saving",
+        "saved": "Save changes"
+    }
+}

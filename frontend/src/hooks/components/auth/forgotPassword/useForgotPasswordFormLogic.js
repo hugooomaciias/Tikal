@@ -21,7 +21,6 @@ import { useAuth } from "../../../core/useAuth";
  */
 export const useForgotPasswordFormLogic = ({ clearApiError, reportApiError, t }) => {
     // --- 1. DOM Refs & Layout State ---
-    // (No layout refs required for this component)
 
     /**
      * Navigation Hook
@@ -108,6 +107,7 @@ export const useForgotPasswordFormLogic = ({ clearApiError, reportApiError, t })
      */
     useEffect(() => {
         const emailFromUrl = searchParams.get("email");
+        const sourceFromUrl = searchParams.get("source");
 
         if (emailFromUrl) {
             setFormData((prev) => ({
@@ -115,7 +115,9 @@ export const useForgotPasswordFormLogic = ({ clearApiError, reportApiError, t })
                 email: emailFromUrl,
             }));
 
-            setStep(2);
+            if (sourceFromUrl !== "settings") {
+                setStep(2);
+            }
         }
     }, [searchParams]);
 

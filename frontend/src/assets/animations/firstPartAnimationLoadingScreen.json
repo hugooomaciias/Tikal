@@ -13,7 +13,7 @@
 				"id":"image_0",
 				"w":148,
 				"h":83,
-				"u":"/public/images/",
+				"u":"/images/",
 				"p":"img_0.png",
 				"e":0
 			},
@@ -21,7 +21,7 @@
 				"id":"image_1",
 				"w":59,
 				"h":52,
-				"u":"/public/images/",
+				"u":"/images/",
 				"p":"img_1.png",
 				"e":0
 			}

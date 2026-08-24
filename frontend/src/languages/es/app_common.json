@@ -11,8 +11,33 @@
     "confirm_time_log": {
         "title": "Registrar actividad",
         "description": "¿A qué le has dedicado tiempo exactamente durante este último bloque en la siguiente tarea?",
+        "warning": "Estás deteniendo la sesión antes de tiempo. Perderás esta progresión del Modo Templo.",
         "placeholder": "Descripción de la actividad realizada",
         "button": "Guardar registro"
+    },
+    "confirm_switch_time_log": {
+        "title": "Tarea en curso detectada",
+        "description": {
+            "tasks": "Actualmente tienes otra tarea activa. Si continúas, la tarea actual se pausará y se guardará para iniciar la nueva tarea seleccionada.",
+            "temple": "Actualmente tienes otra tarea activa. Si continúas, la tarea actual se pausará y se guardará para poder entrar al Modo Templo."
+        },
+        "current_task": "Tarea actual",
+        "new_task": {
+            "tasks": "Tarea seleccionada",
+            "temple": {
+                "title": "Entrar a",
+                "name": "Modo templo"
+            }
+        },
+        "note": "¿A qué le has dedicado tiempo exactamente durante este último bloque en",
+        "placeholder": "Descripción de la actividad realizada",
+        "button": {
+            "cancel": "Cancelar",
+            "confirm": {
+                "tasks": "Confirmar",
+                "temple": "Entrar"
+            }
+        }
     },
     "context_menu": {
         "rename": "Renombrar",
@@ -25,6 +50,33 @@
                 "cancel": "Cancelar",
                 "delete": "Eliminar"
             }
+        }
+    },
+    "cascading": {
+        "name": "Seleccionar vinculación",
+        "projects": "Proyectos",
+        "stages": "Fases",
+        "tasks": "Tareas",
+        "no_options": "No hay opciones en este nivel",
+        "button_message": {
+            "confirm": "Confirmar",
+            "cancel": "Cerrar"
+        }
+    },
+    "settings": {
+        "header": {
+            "plans": {
+                "gratuito": "Plan individual",
+                "comunitario": "Plan cooperativo"
+            }
+        },
+        "navbar": {
+            "account": "Cuenta",
+            "preferences": "Preferencias generales",
+            "productivity": "Productividad",
+            "notifications": "Notificaciones",
+            "team": "Equipo y privacidad",
+            "logout": "Cerrar sesión"
         }
     }
 }

@@ -46,4 +46,47 @@ export const timeLogService = {
     stop: async (payload) => {
         return await apiCall("/api/time_log/stop", "PATCH", payload);
     },
+
+    /**
+     * Create Time Log
+     *
+     * Inserts manually created time logs for past activities that are already completed.
+     *
+     * @async
+     * @param {Object} payload - The manual time log payload.
+     * @param {string} payload.initDateTime - Local ISO string timestamp.
+     * @param {string} payload.endDateTime - Local ISO string timestamp.
+     * @param {string} [payload.activityDescription] - Description of the manual entry.
+     * @returns {Promise<Object>} The newly created TimeLog node.
+     */
+    create: async (payload) => {
+        return await apiCall("/api/time_log", "POST", payload);
+    },
+
+    /**
+     * Update Time Log
+     *
+     * Modifies an existing time log. During updates, sending at least a projectId is mandatory to prevent orphan records.
+     *
+     * @async
+     * @param {number|string} id - The TimeLog identifier.
+     * @param {Object} payload - The updated time log data.
+     * @returns {Promise<Object>} The updated TimeLog node.
+     */
+    update: async (id, payload) => {
+        return await apiCall(`/api/time_log/${id}`, "PUT", payload);
+    },
+
+    /**
+     * Delete Time Log
+     *
+     * Permanently deletes a specific time log, validating user ownership on the backend.
+     *
+     * @async
+     * @param {number|string} id - The TimeLog identifier.
+     * @returns {Promise<void>} No content upon successful deletion.
+     */
+    remove: async (id) => {
+        return await apiCall(`/api/time_log/${id}`, "DELETE");
+    }
 };

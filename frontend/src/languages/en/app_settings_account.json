@@ -1,0 +1,46 @@
+{
+    "breadcrumb": {
+        "previous": "Settings",
+        "current": "Account"
+    },
+    "title": "User profile",
+    "description": "Manage your personal details, your image and your current subscription plan",
+    "profile_image": {
+        "title": "Profile image",
+        "description": "Upload a square image. We recommend a size of 256x256 pixels in PNG or JPG format",
+        "errors": {
+            "invalid_format": "invalid format",
+            "too_large": "Maximum 5MB"
+        },
+        "button": {
+            "upload": "Upload image",
+            "delete": "Delete"
+        }
+    },
+    "personal_info": {
+        "title": "Personal details",
+        "email": "Email",
+        "username": "Username",
+        "password": "Change password",
+        "errors": {
+            "username": "Please enter a username",
+            "email": {
+               "empty": "Please enter an email",
+               "incorrect": "Please enter a valid email"
+            }
+        }
+    },
+    "plan": {
+        "label": "Current plan",
+        "title": {
+            "gratuito": "Lone Warrior",
+            "comunitario": "City Builder"
+        },
+        "description": "You have access to all the basic time-management features and Temple Mode to boost your concentration.",
+        "button": "Upgrade plan"
+    },
+    "button": {
+        "saving": "Saving",
+        "saved": "Save changes"
+    }
+}

@@ -5,6 +5,27 @@
         "third_stat": "Proyectos pendientes"
     },
     "widgets": {
+        "time_log": {
+            "title": "Registros de tiempo",
+            "no_time_logs": {
+                "title": "Sin registros",
+                "description": "No hay tiempo registrado para esta fecha."
+            },
+            "popup": {
+                "title": {
+                    "new": "Crear nuevo registro de tiempo",
+                    "edit": "Editar registro de tiempo"
+                },
+                "start_time": "Hora de inicio",
+                "end_time": "Hora de fin",
+                "description": "Descripción de la actividad realizada",
+                "button": {
+                    "new": "Crear registro de tiempo",
+                    "edit": "Guardar cambios"
+                },
+                "error": "Por favor, selecciona una vinculación"
+            }
+        },
         "temple_mode": {
             "title": "Modo templo"
         },
@@ -18,7 +39,7 @@
             "buttonLast": "Última tarjeta"
         },
         "ai": {
-            "title": "¿Qué que saber desea conocer?"
+            "title": "¿Qué saber desea conocer?"
         },
         "calendar": {
             "title": "Calendario",

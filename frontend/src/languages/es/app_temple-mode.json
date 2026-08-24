@@ -11,6 +11,7 @@
                 "noMoreTotems": "Nivel completado"
             },
             "menu": {
+                "previous_rank_separator": "Rangos anteriores",
                 "totem_types": {
                     "concentration": "Concentración",
                     "planning_accuracy": "Precisión de planificación",
@@ -23,5 +24,34 @@
                 }
             }
         }
+    },
+    "button": {
+        "start": "Configurar temporizador",
+        "stop": "Finalizar sesión"
+    },
+    "popup": {
+        "title": {
+            "timer": "Modo concentración",
+            "chrono": "Modo cronómetro"
+        },
+        "duration": "Duración",
+        "button": "Comenzar sesión",
+        "error": "Por favor, selecciona una entidad para concentrarte"
+    },
+    "notifications": {
+        "label": {
+            "rank": "Nuevo rango alcanzado",
+            "totem": "Recompensa obtenida"
+        },
+        "title": "¡Enhorabuena!",
+        "subtitle": {
+            "rank": "Has subido al siguiente rango",
+            "totem": "Has conseguido el siguiente tótem"
+        },
+        "description": {
+            "rank": "Ya tienes disponible para usar la paleta de colores de este rango",
+            "totem": "Ya puedes centrarte en conseguir el siguiente objetivo del rango"
+        },
+        "button": "Continuar"
     }
 }

@@ -1,0 +1,45 @@
+{
+    "breadcrumb": {
+        "previous": "Configuración",
+        "current": "Productividad"
+    },
+    "title": "Productividad y Modo Templo",
+    "description": "Ajusta tu objetivo principal de trabajo y el comportamiento del Modo Templo",
+    "productivity": {
+        "title": "Meta de trabajo",
+        "description": "Define tu objetivo ideal de horas trabajadas. Esto nos ayuda a mostrarte tu progreso en las estadísticas",
+        "error": "Por favor, establece un objetivo mayor a 0"
+    },
+    "temple_mode": {
+        "title": "Modo Templo",
+        "description": "El Modo Templo es tu estado de concentración máxima. Configura la duración de cada ciclo antes de tomar un descanso",
+        "focus": {
+            "15m": "15 minutos",
+            "20m": "20 minutos",
+            "25m": "25 minutos",
+            "30m": "30 minutos",
+            "35m": "35 minutos",
+            "40m": "40 minutos",
+            "45m": "45 minutos",
+            "50m": "50 minutos",
+            "55m": "55 minutos",
+            "60m": "60 minutos",
+            "65m": "65 minutos",
+            "70m": "70 minutos",
+            "75m": "75 minutos",
+            "80m": "80 minutos",
+            "85m": "85 minutos",
+            "90m": "90 minutos",
+            "95m": "95 minutos",
+            "100m": "100 minutos",
+            "105m": "105 minutos",
+            "110m": "110 minutos",
+            "115m": "115 minutos",
+            "120m": "120 minutos"
+        }
+    },
+    "button": {
+        "saving": "Guardando",
+        "saved": "Guardar cambios"
+    }
+}

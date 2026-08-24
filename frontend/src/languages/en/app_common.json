@@ -11,8 +11,30 @@
     "confirm_time_log": {
         "title": "Log time",
         "description": "What exactly did you spend time on during this last block in the following task?",
+        "warning": "You are ending the session early. You will lose this progress in Temple Mode.",
         "placeholder": "Description of the activity performed",
         "button": "Save log"
+    },
+    "confirm_switch_time_log": {
+        "title": "Active task detected", 
+        "description": {
+            "tasks": "You currently have another task active. If you continue, the current task will be paused and saved to start the newly selected task.",
+            "temple": "You currently have another task active. If you continue, the current task will be paused and saved so that you can enter Temple Mode."
+        },
+        "current_task": "Current task",
+        "new_task": {
+            "tasks": "Selected task",
+            "temple": {
+                "title": "Go to",
+                "name": "Temple mode"
+            }
+        },
+        "note": "What exactly did you spend time on during this last block in",
+        "placeholder": "Description of the activity performed",
+        "button": {
+            "cancel": "Cancel",
+            "confirm": "Confirm"
+        }
     },
     "context_menu": {
         "rename": "Rename",
@@ -25,6 +47,33 @@
                 "cancel": "Cancel",
                 "delete": "Delete"
             }
+        }
+    },
+    "cascading": {
+        "name": "Select link",
+        "projects": "Projects",
+        "stages": "Stages",
+        "tasks": "Tasks",
+        "no_options": "No options in this level",
+        "button_message": {
+            "confirm": "Confirm",
+            "cancel": "Close"
+        }
+    },
+    "settings": {
+        "header": {
+            "plans": {
+                "gratuito": "Individual plan",
+                "comunitario": "Cooperative plan"
+            }
+        },
+        "navbar": {
+            "account": "Account",
+            "preferences": "General preferences",
+            "productivity": "Productivity",
+            "notifications": "Notifications",
+            "team": "Team and privacity",
+            "logout": "Logout"
         }
     }
 }

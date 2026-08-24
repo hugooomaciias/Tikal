@@ -35,7 +35,7 @@ export const LoadingPage = () => {
      * Provides the 'isLoading' state to communicate with the Auth Context/API.
      */
     const { isLoading } = useAuth();
-    const { sync } = useSync();
+    const { sync, getHomeWidgetsData } = useSync();
 
     /**
      * State to control which phase of the animation is currently active.
@@ -83,6 +83,24 @@ export const LoadingPage = () => {
         }
     };
 
+    /**
+     * Target Route Resolver
+     *
+     * Evaluates the recently synchronized global state to determine the user's destination.
+     * If an active Temple Mode session was detected during sync, it intercepts the default
+     * routing and sends the user directly to the deep focus screen.
+     */
+    const handleNavigation = () => {
+        const widgetsData = getHomeWidgetsData();
+        const isTempleModeActive = widgetsData?.timeTrackerWidget?.isTempleMode;
+
+        if (isTempleModeActive) {
+            navigate("/temple-mode", { state: { bypassInterceptor: true } });
+        } else {
+            navigate("/home");
+        }
+    };
+
     return (
         <div className="min-h-screen bg-primary flex items-center justify-center overflow-hidden">
             <div className="text-center w-full h-full flex items-center justify-center">
@@ -102,7 +120,7 @@ export const LoadingPage = () => {
                             animationData={secondPartAnimation}
                             loop={false}
                             autoplay={true}
-                            onComplete={() => navigate("/home")}
+                            onComplete={handleNavigation}
                         />
                     )}
                 </div>

@@ -5,6 +5,27 @@
         "third_stat": "Pending projects"
     },
     "widgets": {
+        "time_log": {
+            "title": "Time logs",
+            "no_time_logs": {
+                "title": "No time logs",
+                "description": "No time logged for this date."
+            },
+            "popup": {
+                "title": {
+                    "new": "Create new time log",
+                    "edit": "Edit time log"
+                },
+                "start_time": "Start hour",
+                "end_time": "End hour",
+                "description": "Description of the activity performed",
+                "button": {
+                    "new": "Create time log",
+                    "edit": "Save changes"
+                },
+                "error": "Please select a link"
+            }
+        },
         "temple_mode": {
             "title": "Temple mode"
         },

@@ -1,0 +1,19 @@
+{
+    "breadcrumb": {
+        "previous": "Settings",
+        "current": "Team and privacity"
+    },
+    "title": "Team and privacity",
+    "description": "Control the information you share with your colleagues and manage your visibility within the workspace",
+    "visibility": {
+        "title": "Profile visibility",
+        "description": "Choose which statistics, achievements, and performance metrics are visible to the rest of your team members",
+        "options": {
+            "show_rank": "Show rank"
+        }
+    },
+    "button": {
+        "saving": "Saving",
+        "saved": "Save changes"
+    }
+}

@@ -7,6 +7,20 @@
 
 import { API_BASE_URL } from "../../constants/api.js";
 
+let isRefreshing = false;
+let failedQueue = [];
+
+const processQueue = (error, token = null) => {
+    failedQueue.forEach((prom) => {
+        if (error) {
+            prom.reject(error);
+        } else {
+            prom.resolve(token);
+        }
+    });
+    failedQueue = [];
+};
+
 /**
  * Executes a standardized HTTP request to the backend.
  *
@@ -19,45 +33,96 @@ import { API_BASE_URL } from "../../constants/api.js";
  * @returns {Promise<Object>} The parsed JSON response data.
  * @throws {Error} Throws a standardized error if the network request fails or returns a non-200 status.
  */
-export const apiCall = async (endpoint, method, payload = null, customHeaders = {}) => {
-    // 1. Retrieve the latest authorization token from local storage
-    const token = localStorage.getItem("accessToken");
+export const apiCall = async (endpoint, method, payload = null, customHeaders = {}, multipartHeader = false) => {
+    const executeRequest = async (tokenOverride = null) => {
+        let token = tokenOverride || localStorage.getItem("accessToken");
 
-    // 2. Prepare the base headers
-    const headers = {
-        "Content-Type": "application/json",
-        ...customHeaders,
-    };
+        if (token === "undefined" || token === "null") token = null;
 
-    // 3. Inject the security token if it exists
-    if (token) {
-        headers["Authorization"] = `Bearer ${token}`;
+        let headers = { ...customHeaders,};
+        
+        if (!multipartHeader) headers["Content-Type"] = "application/json";
+        
+        if (token) {
+            headers["Authorization"] = `Bearer ${token}`;
+        }
+
+        const options = { method, headers };
+        if (payload) {
+            options.body = multipartHeader ? payload : JSON.stringify(payload);
+        }
+
+        const response = await fetch(`${API_BASE_URL}${endpoint}`, options);
+        const text = await response.text();
+        const data = text ? JSON.parse(text) : {};
+
+        if (!response.ok) {
+            const error = new Error(data.message || `Error (${response.status})`);
+            error.status = response.status;
+            error.data = data;
+            throw error;
+        }
+
+        return data;
     }
 
-    // 4. Compile the fetch configuration options
-    const options = {
-        method,
-        headers,
-    };
+    try {
+        return await executeRequest();
+    } catch(error) {
+        if (error.status === 401 && !endpoint.includes("/auth/refresh")) {
+            let refreshToken = localStorage.getItem("refreshToken");
 
-    if (payload) {
-        options.body = JSON.stringify(payload);
-    }
+            if (refreshToken === "undefined" || refreshToken === "null") refreshToken = null;
 
-    // 5. Execute the HTTP request
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, options);
+            if (!refreshToken) {
+                window.dispatchEvent(new CustomEvent("auth:session-expired"));
+                throw error;
+            }
 
-    // 6. Safely parse the response to handle empty bodies
-    const text = await response.text();
-    const data = text ? JSON.parse(text) : {};
+            if (isRefreshing) {
+                return new Promise((resolve, reject) => {
+                    failedQueue.push({
+                        resolve: (newToken) => resolve(executeRequest(newToken)),
+                        reject: (err) => reject(err),
+                    });
+                });
+            }
 
-    // 7. Global HTTP error handling
-    if (!response.ok) {
-        // Optional: If a 401 (Unauthorized) occurs, logout could be forced from here in the future
-        const error = new Error(data.message || `An error occurred during the request (${response.status})`);
-        error.status = response.status;
+            isRefreshing = true;
+
+            try {
+                const refreshResponse = await fetch(`${API_BASE_URL}/auth/refresh`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${refreshToken}`,
+                    },
+                });
+
+                const refreshText = await refreshResponse.text();
+                const refreshData = refreshText ? JSON.parse(refreshText) : {};
+
+                if (!refreshResponse.ok) {
+                    throw new Error("El token de refresco ha expirado");
+                }
+
+                localStorage.setItem("accessToken", refreshData.accessToken);
+                localStorage.setItem("refreshToken", refreshData.refreshToken);
+
+                processQueue(null, refreshData.access_token);
+
+                return await executeRequest(refreshData.access_token);
+            } catch (refreshError) {
+                processQueue(refreshError, null);
+                localStorage.removeItem("accessToken");
+                localStorage.removeItem("refreshToken");
+                window.dispatchEvent(new CustomEvent("auth:session-expired"));
+                throw refreshError;
+            } finally {
+                isRefreshing = false;
+            }
+        }
+
         throw error;
     }
-
-    return data;
 };

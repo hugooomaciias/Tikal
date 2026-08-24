@@ -1,0 +1,19 @@
+{
+    "breadcrumb": {
+        "previous": "Configuración",
+        "current": "Equipo y privacidad"
+    },
+    "title": "Equipo y privacidad",
+    "description": "Controla la información que compartes con tus compañeros y gestiona tu visibilidad dentro del espacio de trabajo",
+    "visibility": {
+        "title": "Visibilidad del perfil",
+        "description": "Elige qué estadísticas, logros y métricas de rendimiento son visibles para el resto de los miembros de tu equipo",
+        "options": {
+            "show_rank": "Mostrar rango"
+        }
+    },
+    "button": {
+        "saving": "Guardando",
+        "saved": "Guardar cambios"
+    }
+}

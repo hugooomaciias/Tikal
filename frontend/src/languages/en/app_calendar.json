@@ -13,15 +13,6 @@
             "unlinked": "Unlinked"
         },
         "linked": {
-            "name": "Select link",
-            "projects": "Projects",
-            "stages": "Stages",
-            "tasks": "Tasks",
-            "no_options": "No options in this level",
-            "button_message": {
-                "confirm": "Confirm",
-                "cancel": "Close"
-            },
             "start_time_tracker": "Start time tracker automatically"
         },
         "name": "Event title",
@@ -34,6 +25,10 @@
         "button": {
             "new": "Create event",
             "edit": "Save changes"
+        },
+        "error": {
+            "name": "Please enter a event name",
+            "linkedEntity": "Please select a link"
         }
     }
 }

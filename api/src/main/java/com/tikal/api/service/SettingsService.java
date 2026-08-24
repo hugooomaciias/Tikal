@@ -97,9 +97,9 @@ public class SettingsService {
         LayoutsDashboardMetadata currentLayout = current.getLayoutsDashboards();
 
         LayoutsDashboardMetadata saveLayout = LayoutsDashboardMetadata.builder()
-                .home(newLayout.getHome() != null ? newLayout.getHome() : currentLayout.getHome())
-                .statistics(newLayout.getStatistics() != null ? newLayout.getStatistics() : currentLayout.getStatistics())
-                .team(newLayout.getTeam() != null ? newLayout.getTeam() : currentLayout.getTeam())
+                .home(newLayout.getHome().isEmpty() ? currentLayout.getHome() : newLayout.getHome())
+                .statistics(newLayout.getStatistics().isEmpty() ? currentLayout.getStatistics() : newLayout.getStatistics())
+                .team(newLayout.getTeam().isEmpty() ? currentLayout.getTeam() : newLayout.getTeam())
                 .build();
         current.setLayoutsDashboards(saveLayout);
         return settingsRepository.save(current);

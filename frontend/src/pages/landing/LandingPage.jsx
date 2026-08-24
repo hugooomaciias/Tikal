@@ -9,7 +9,7 @@ import { HeroComponent } from "../../components/landing/HeroComponent.jsx";
 import { PlansComponent } from "../../components/landing/PlansComponent.jsx";
 import { ContactComponent } from "../../components/landing/contact/ContactComponent.jsx";
 import { FooterComponent } from "../../components/landing/FooterComponent.jsx";
-import { LanguagePickerComponent } from "../../components/landing/LanguagePickerComponent.jsx";
+import { LanguagePickerComponent } from "../../components/landing/languagePickerComponent.jsx";
 
 /** Icons */
 import { IconMenu2Filled, IconX } from "@tabler/icons-react";

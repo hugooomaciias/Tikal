@@ -13,15 +13,6 @@
             "unlinked": "Independiente"
         },
         "linked": {
-            "name": "Seleccionar vinculación",
-            "projects": "Proyectos",
-            "stages": "Fases",
-            "tasks": "Tareas",
-            "no_options": "No hay opciones en este nivel",
-            "button_message": {
-                "confirm": "Confirmar",
-                "cancel": "Cerrar"
-            },
             "start_time_tracker": "Iniciar registro de tiempo automáticamente"
         },
         "name": "Título del evento",
@@ -34,6 +25,10 @@
         "button": {
             "new": "Crear evento",
             "edit": "Guardar cambios"
+        },
+        "error": {
+            "name": "Por favor, introduce un nombre para el evento",
+            "linkedEntity": "Por favor, selecciona una vinculación"
         }
     }
 }

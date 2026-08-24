@@ -50,6 +50,7 @@
         "title": "Stages",
         "search": "Search stage",
         "no_stages": "No stages found",
+        "back_projects": "Projects",
         "popup": {
             "title": {
                 "new": {
@@ -99,6 +100,7 @@
         "completed_separator": "Completed tasks",
         "subtasks": "subtasks",
         "no_subtasks": "No",
+        "back_stages": "Stages",
         "popup": {
             "title": {
                 "new": "New task",

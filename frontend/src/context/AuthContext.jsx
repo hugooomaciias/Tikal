@@ -135,6 +135,23 @@ export const AuthProvider = ({ children }) => {
         };
 
         checkAuth();
+
+        const handleSessionExpired = () => {
+            localStorage.removeItem("accessToken");
+            localStorage.removeItem("refreshToken");
+            setIsAuthenticated(false);
+            setUser(null);
+            
+            navigate("/login", {
+                state: { setApiError: "Por seguridad, tu sesión ha expirado. Por favor, inicia sesión de nuevo" }
+            });
+        };
+
+        window.addEventListener("auth:session-expired", handleSessionExpired);
+
+        return () => {
+            window.removeEventListener("auth:session-expired", handleSessionExpired);
+        };
     }, [navigate]);
 
     // --- 3. API & Action Methods ---
@@ -222,6 +239,31 @@ export const AuthProvider = ({ children }) => {
     const logout = async () => {
         try {
             await authService.logout(localStorage.getItem("refreshToken"));
+        } catch (error) {
+            console.error("No se pudo notificar al servidor el cierre de sesión", error);
+        } finally {
+            setUser(null);
+            setIsAuthenticated(false);
+            localStorage.removeItem("accessToken");
+            localStorage.removeItem("refreshToken");
+        }
+    };
+
+    /**
+     * Executes the global logout flow (Logout All Devices).
+     *
+     * Invalidates ALL refresh tokens associated with the user on the backend via authService,
+     * effectively closing sessions across all devices. Clears local state and removes 
+     * authentication tokens from `localStorage`.
+     *
+     * @async
+     * @function
+     * @throws {Error} Logs an error without throwing if the server invalidation fails, guaranteeing local logout.
+     * @returns {Promise<void>}
+     */
+    const logoutAll = async () => {
+        try {
+            await authService.logoutAll(localStorage.getItem("refreshToken"));
         } catch (error) {
             console.error("No se pudo notificar al servidor el cierre de sesión", error);
         } finally {
@@ -328,6 +370,7 @@ export const AuthProvider = ({ children }) => {
                 login,
                 register,
                 logout,
+                logoutAll,
                 forgotPassword,
                 verifyOTP,
                 resetPassword,

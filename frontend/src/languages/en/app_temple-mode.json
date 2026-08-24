@@ -11,6 +11,7 @@
                 "noMoreTotems": "Complete level"
             },
             "menu": {
+                "previous_rank_separator": "Previous ranks",
                 "totem_types": {
                     "concentration": "Concentration",
                     "planning_accuracy": "Planning accuracy",
@@ -23,5 +24,34 @@
                 }
             }
         }
+    },
+    "button": {
+        "start": "Config timer",
+        "stop": "Stop session"
+    },
+    "popup": {
+        "title": {
+            "timer": "Concentration mode",
+            "chrono": "Stopwatch mode"
+        },
+        "duration": "Duration",
+        "button": "Start session",
+        "error": "Please select an entity to focus on"
+    },
+    "notifications": {
+        "label": {
+            "rank": "New rank achieved",
+            "totem": "Reward received"
+        },
+        "title": "Congratulations!",
+        "subtitle": {
+            "rank": "You have been promoted to the next rank",
+            "totem": "You have earned the following totem"
+        },
+        "description": {
+            "rank": "The colour range for this rank is now available for you to use",
+            "totem": "You can now focus on achieving the next rank objective"
+        },
+        "button": "Continue"
     }
 }

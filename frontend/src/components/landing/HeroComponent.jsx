@@ -8,9 +8,9 @@ import resolveConfig from "tailwindcss/resolveConfig";
 import { TimeLogContext } from "../../context/TimeLogContext";
 
 /** Components & Layouts */
-import { BaseWidget } from "../app/common/widgets/BaseWidget";
-import { TimeTrackerWidget } from "../app/home/widgets/TimeTrackerWidget";
-import { SolarChartWidget } from "../app/statistics/widgets/SolarChart/SolarChartWidget.jsx";
+import { BaseWidget } from "../app/main/common/widgets/BaseWidget";
+import { TimeTrackerWidget } from "../app/main/home/widgets/TimeTrackerWidget";
+import { SolarChartWidget } from "../app/main/statistics/widgets/SolarChart/SolarChartWidget.jsx";
 
 /** Assets, Utils & Constants */
 import tailwindConfig from "../../../tailwind.config.js";
@@ -71,7 +71,7 @@ export const HeroComponent = () => {
                 taskId: "mock-task-id-101",
                 entityName: "Desarrollo Landing",
                 projectOrPhaseName: "Optimizando UI",
-                colour: "b3",
+                colour: "b1",
                 logo: "IconDatabase",
                 initDateTime: null,
             },
