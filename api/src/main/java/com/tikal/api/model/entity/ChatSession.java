@@ -8,6 +8,8 @@ import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * This class represents the ChatSession entity, which groups a series of
@@ -43,4 +45,8 @@ public class ChatSession {
     @ManyToOne(optional = false)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
+
+    /* --- Message relation ==> If a session is deleted, all its messages are deleted. Lazy loaded. --- */
+    @OneToMany(mappedBy = "session", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<ChatMessage> chatMessages = new ArrayList<>();
 }

@@ -84,4 +84,15 @@ public class AiController {
 
         return ResponseEntity.ok(aiAdvisorService.startNewChat(request.getContent()));
     }
+
+    /**
+     * Delete /api/ai/sessions/{sessionId}
+     * Sends a new user message from a new session to the AI and returns the AI's response.
+     */
+    @DeleteMapping("/sessions/{sessionId}")
+    public ResponseEntity<Void> startNewChat(
+            @PathVariable Integer sessionId) {
+        aiAdvisorService.deleteSession(sessionId);
+        return ResponseEntity.noContent().build();
+    }
 }

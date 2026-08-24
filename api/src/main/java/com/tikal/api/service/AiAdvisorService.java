@@ -1,5 +1,6 @@
 package com.tikal.api.service;
 
+import com.tikal.api.exception.ForbiddenAccessException;
 import com.tikal.api.exception.ResourceNotFoundException;
 import com.tikal.api.model.dto.ai.AiMessageDTO;
 import com.tikal.api.model.dto.ai.AiNewChatResponse;
@@ -251,5 +252,17 @@ public class AiAdvisorService {
                 .session(finalSessionDTO)
                 .firstAiMessage(aiResponse)
                 .build();
+    }
+
+    public void deleteSession(Integer sessionId) {
+        User currentUser = userService.getAuthenticatedUser();
+        ChatSession session = sessionRepository.findById(sessionId)
+                .orElseThrow(() -> new ResourceNotFoundException("ChatSession", sessionId));
+
+        if (!session.getUser().getId().equals(currentUser.getId())) {
+            throw new ForbiddenAccessException("No tienes permisos para eliminar esta sesión de chat");
+        }
+
+        sessionRepository.delete(session);
     }
 }
