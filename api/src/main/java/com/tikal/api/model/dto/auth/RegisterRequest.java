@@ -9,5 +9,7 @@ public class RegisterRequest {
     private String name;
     private String email;
     private String password;
+    private String timeZone;
+    private String language;
     private String subscriptionPlan;
 }

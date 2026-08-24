@@ -183,4 +183,3 @@ api/
 │                       └── ApiApplicationTests.java
 └── ...otros archivos y carpetas generados (target/, etc.)
 ```
-

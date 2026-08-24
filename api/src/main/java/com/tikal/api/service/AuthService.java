@@ -83,7 +83,7 @@ public class AuthService {
         var jwtToken = jwtService.generateToken(user);
         var refreshToken = jwtService.generateRefreshToken(user);
         saveUserToken(user, refreshToken);
-        userOnboardingService.readyNewAccount(user);
+        userOnboardingService.readyNewAccount(user, request.getLanguage(), request.getTimeZone());
         return new TokenResponse(jwtToken, refreshToken);
     }
 
@@ -201,7 +201,7 @@ public class AuthService {
         otpRepository.delete(otpEntity);
     }
 
-    public TokenResponse loginWithGoogle(String idTokenString) {
+    public TokenResponse loginWithGoogle(String idTokenString, String language, String timeZone) {
         GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(new NetHttpTransport(), new GsonFactory())
                 .setAudience(Collections.singletonList(googleClientId))
                 .build();
@@ -228,7 +228,7 @@ public class AuthService {
 
                 User savedUser = userRepository.save(newUser);
 
-                userOnboardingService.readyNewAccount(savedUser);
+                userOnboardingService.readyNewAccount(savedUser, language, timeZone);
 
                 return savedUser;
             });
