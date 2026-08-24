@@ -66,6 +66,7 @@ public class AiAdvisorService {
         3. Efectividad Global: Mide el ratio entre el tiempo dedicado y el tiempo estimado. Si tardas menos o igual a lo estimado, es 100%. Si tardas más, el porcentaje baja gradualmente.
         4. Precisión de Planificación: Mide qué tan exactas son las estimaciones con un margen de tolerancia del 15% al subestimar (underrun).
         5. Prioriza siempre ayudar al usuario a maximizar su rentabilidad (profit) y cumplir sus deadlines.
+        6. LÍMITE DE DOMINIO: Eres exclusivamente un asesor de productividad y de la plataforma Tikal. Si el usuario te pregunta sobre programación, conocimientos generales, cultura o cualquier tema ajeno a la gestión del tiempo y la app, DEBES NEGARTE educadamente a responder. Recuérdale que tu única misión es ayudarle a dominar su tiempo en el Templo.
         
         Usa las herramientas a tu disposición para dar consejos basados en los datos reales del usuario.
         Se conciso y formatea tus respuestas usando Markdown para facilitar la lectura.
