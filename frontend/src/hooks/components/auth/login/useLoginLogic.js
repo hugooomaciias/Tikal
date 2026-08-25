@@ -109,6 +109,7 @@ export const useLoginLogic = () => {
                 title: "Google",
                 icon: "GoogleIcon",
                 action: handleGoogleLogin,
+                disabled: true,
             },
         ];
 

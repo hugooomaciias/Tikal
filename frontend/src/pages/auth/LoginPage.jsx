@@ -93,21 +93,27 @@ export const LoginPage = () => {
                             return (
                                 <div
                                     key={index}
-                                    className="relative btn-primary h-12 w-12 rounded-full md:opacity-80 hover:opacity-100 transition-all duration-300 shadow-md bg-white overflow-hidden"
+                                    className={`relative btn-primary h-12 w-12 rounded-full shadow-md overflow-hidden transition-all duration-300 ${
+                                        option.disabled 
+                                            ? "opacity-50 cursor-not-allowed"
+                                            : "md:opacity-80 hover:opacity-100 bg-white"
+                                    }`}
                                 >
                                     <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                                         <IconComponent />
                                     </div>
 
-                                    <div className="absolute inset-0 opacity-0 z-10 flex items-center justify-center transform scale-[1.5]">
-                                        <LoginComponent
-                                            type="icon"
-                                            title={option.title}
-                                            onSuccess={option.action}
-                                            shape="circle"
-                                            size="large"
-                                        />
-                                    </div>
+                                    {!option.disabled && (
+                                        <div className="absolute inset-0 opacity-0 z-10 flex items-center justify-center transform scale-[1.5]">
+                                            <LoginComponent
+                                                type="icon"
+                                                title={option.title}
+                                                onSuccess={option.action}
+                                                shape="circle"
+                                                size="large"
+                                            />
+                                        </div>
+                                    )}
                                 </div>
                             );
                         })}
