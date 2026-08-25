@@ -64,6 +64,22 @@ export const useTempleModeLogic = () => {
      */
     const menuRef = useRef(null);
 
+    /**
+     * Ambient Audio Reference
+     *
+     * Maintains a persistent reference to the background environmental audio track 
+     * that loops continuously while the user remains in the Temple Mode view.
+     */
+    const ambientAudioRef = useRef(null);
+
+    /**
+     * Running Timer Audio Reference
+     *
+     * Maintains a persistent reference to the active focus audio track (e.g., brown noise)
+     * that plays exclusively while the countdown timer is actively ticking.
+     */
+    const runningAudioRef = useRef(null);
+
     // --- 2. Local UI State ---
 
     /**
@@ -283,15 +299,83 @@ export const useTempleModeLogic = () => {
      * Auto-Stop Session Effect (The Watcher)
      *
      * Actively monitors the countdown. The exact moment it reaches 0, it automatically
-     * summons the confirmation modal. If the user dismisses the modal without confirming,
-     * the `hasAutoTriggered` guard prevents an infinite loop.
+     * triggers an audible alert and summons the confirmation modal. If the user dismisses 
+     * the modal without confirming, the `hasAutoTriggered` guard prevents an infinite loop.
      */
     useEffect(() => {
         if (isRunning && currentTime === 0 && !showStopModal && !hasAutoTriggered) {
             setHasAutoTriggered(true);
+            
+            try {
+                const alertSound = new Audio('/sounds/temple-bell.m4a');
+
+                alertSound.play().catch(error => {
+                    console.warn("El navegador bloqueó la reproducción del sonido:", error);
+                });
+
+                runningAudioRef.current.pause();
+            } catch (error) {
+                console.error("Error al cargar el archivo de audio:", error);
+            }
+
             handleStopSession();
         }
     }, [isRunning, currentTime, showStopModal, hasAutoTriggered]);
+
+    /**
+     * Audio Assets Initialization Effect (Mount / Unmount)
+     *
+     * Preloads and configures the ambient and running audio tracks when the Temple Mode
+     * view mounts. Attempts an immediate autoplay for the ambient background. Ensures 
+     * both audio instances are paused and garbage-collected upon component unmount to 
+     * prevent memory leaks and overlapping tracks across routes.
+     */
+    useEffect(() => {
+        ambientAudioRef.current = new Audio('/sounds/temple-ambient.mp3');
+        ambientAudioRef.current.loop = true;
+        ambientAudioRef.current.volume = 0.2;
+
+        ambientAudioRef.current.play().catch(error => {
+            console.warn("Autoplay bloqueado para el ambiente general:", error);
+        });
+
+        runningAudioRef.current = new Audio('/sounds/temple-timer.m4a');
+        runningAudioRef.current.loop = true;
+        runningAudioRef.current.volume = 0.4;
+
+        return () => {
+            if (ambientAudioRef.current) {
+                ambientAudioRef.current.pause();
+                ambientAudioRef.current = null;
+            }
+            if (runningAudioRef.current) {
+                runningAudioRef.current.pause();
+                runningAudioRef.current = null;
+            }
+        };
+    }, []);
+
+    /**
+     * Active Audio Synchronization Effect
+     *
+     * Listens to the `isRunning` state to dynamically toggle the active focus audio track.
+     * Initiates playback when the timer starts and pauses it when stopped. Additionally, 
+     * it acts as a fallback to trigger the ambient background audio if the browser's 
+     * initial autoplay policies previously blocked it.
+     */
+    useEffect(() => {
+        if (!ambientAudioRef.current) return;
+
+        if (isRunning) {
+            runningAudioRef.current.play().catch(e => console.warn(e));
+
+            if (ambientAudioRef.current && ambientAudioRef.current.paused) {
+                ambientAudioRef.current.play().catch(e => console.warn(e));
+            }
+        } else {
+            runningAudioRef.current.pause();
+        }
+    }, [isRunning]);
 
     // --- 5. Interaction Handlers ---
 

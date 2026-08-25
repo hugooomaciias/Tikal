@@ -79,6 +79,17 @@ export const LoadingPage = () => {
      */
     const handleLoopComplete = () => {
         if (dataReady) {
+            try {
+                const successSound = new Audio('/sounds/tikal-success.m4a');
+                successSound.volume = 0.6;
+                
+                successSound.play().catch(error => {
+                    console.warn("El navegador bloqueó la reproducción del sonido de éxito:", error);
+                });
+            } catch (error) {
+                console.error("Error al cargar el archivo de audio de éxito:", error);
+            }
+            
             setShowSecondPartAnimation(true);
         }
     };
