@@ -172,8 +172,13 @@ export const useHeaderLogic = ({ onEnableEdit, onDisableEdit, onSaveLayout }) =>
         navigate("/settings");
     };
 
-    const handleNavigateToWIP = () => {
-        navigate("/wip");
+    /**
+     * AI Navigation Handler
+     *
+     * Redirects the user to the dedicated AI module ("Dios SabidurIA").
+     */
+    const handleNavigateIA = () => {
+        navigate("/dios-sabiduria");
     };
 
     // --- 6. Return Object ---
@@ -181,6 +186,6 @@ export const useHeaderLogic = ({ onEnableEdit, onDisableEdit, onSaveLayout }) =>
     return {
         headerStates: { isScrolled },
         headerData: { userProfile },
-        headerActions: { handleLogout, handleEnableEditMode, handleDisableEditMode, handleSaveLayout, handleNavigateToSettings, handleMobileNavigateToSettings, handleNavigateToWIP },
+        headerActions: { handleLogout, handleEnableEditMode, handleDisableEditMode, handleSaveLayout, handleNavigateToSettings, handleMobileNavigateToSettings, handleNavigateIA },
     };
 };

@@ -20,6 +20,7 @@ import {
     IconCirclePlusFilled,
     IconCircleChevronLeftFilled,
     IconCalendarEventFilled,
+    IconDotsVerticalFilled
 } from "@tabler/icons-react";
 
 /** Assets, Utils & Constants */
@@ -212,6 +213,15 @@ export const StagesCardComponent = ({ data, projectId, selectedId, onSelect, han
                                                 </div>
                                             </div>
                                         </div>
+
+                                        <button
+                                            type="button"
+                                            onClick={(e) => handleContextMenu(e, stage)}
+                                            className={`transition-colors duration-200 ${isActive && "xl:text-primary"}`}
+                                            style={{color: !isActive && colour.hex }}
+                                        >
+                                            <IconDotsVerticalFilled className="h-5 w-5" />
+                                        </button>
                                     </div>
                                 </SwipeableEntityItemComponent>
                             );

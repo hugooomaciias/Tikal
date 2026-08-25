@@ -168,12 +168,13 @@ export const BaseWidget = ({
 
         if (isAIWidget) {
             return {
-                backgroundImage: "linear-gradient(rgba(10, 10, 10, 0.2), rgba(10, 10, 10, 0.2)), url(/ia/BgDiosSabidurIA.png)",
+                backgroundImage: "linear-gradient(rgba(10, 10, 10, 0.2), rgba(10, 10, 10, 0.2)), url(/ia/chatbot.png)",
                 backgroundSize: "cover",
                 backgroundPosition: "center",
                 backgroundRepeat: "no-repeat",
             };
         }
+
         return { backgroundColor: foundColor };
     };
 

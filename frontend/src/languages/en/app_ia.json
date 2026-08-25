@@ -1,0 +1,17 @@
+{
+    "navbar": {
+        "new_chat": "New chat",
+        "recent_chats": "Recent chats",
+        "logout": "Log out"
+    },
+    "agents": {
+        "agent_1": "Performance auditor",
+        "agent_2": "Project manager",
+        "agent_3": "Gamification guide",
+        "agent_4": "Employer auditor"
+    },
+    "placeholder": {
+        "Without_agent": "Type your question here...",
+        "With_agent": "Ask a question..."
+    }
+}

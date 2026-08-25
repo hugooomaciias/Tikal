@@ -55,7 +55,7 @@ const WIDGET_CONFIG = {
         titleKey: "Dios de la SabidurIA",
         pageLink: "/home",
         bgColor: "bg-primary-700",
-        textColor: "text-quaternary-50/80",
+        textColor: "text-primary/80",
         actions: false,
         isResizable: false,
         isDraggable: false,

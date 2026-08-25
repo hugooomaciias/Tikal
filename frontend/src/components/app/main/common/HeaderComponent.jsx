@@ -72,8 +72,13 @@ export const HeaderComponent = ({ page, primaryState, secondaryState, onTogglePr
         if (onSaveLayout) onSaveLayout();
     }, [onSaveLayout]);
 
-    const handleNavigateToWIP = () => {
-        navigate("/wip");
+    /**
+     * AI Navigation Handler
+     *
+     * Redirects the user to the dedicated AI module ("Dios SabidurIA").
+     */
+    const handleNavigateIA = () => {
+        navigate("/dios-sabiduria");
     };
 
     // --- 2. Render ---
@@ -153,7 +158,10 @@ export const HeaderComponent = ({ page, primaryState, secondaryState, onTogglePr
                                     `}
                             >
                                 {/* Save / Cancel Action */}
-                                <button className="cursor-pointer transition-transform" onClick={secondaryState ? handleSaveLayout : handleDisableEditMode}>
+                                <button
+                                    type="button"
+                                    onClick={secondaryState ? handleSaveLayout : handleDisableEditMode}
+                                    className="cursor-pointer transition-transform">
                                     {!secondaryState ? (
                                         <IconSquareRoundedXFilled className="w-8 h-8" />
                                     ) : (
@@ -173,9 +181,8 @@ export const HeaderComponent = ({ page, primaryState, secondaryState, onTogglePr
                     <div className="h-full w-fit flex items-center gap-6">
                         <button
                             type="button"
-                            onClick={handleNavigateToWIP}
-                            className={`h-fit w-fit ${theme ? "bg-rank" : "bg-primary"} p-3 rounded-full shadow-md`}
-                        >
+                            onClick={handleNavigateIA}
+                            className={`h-fit w-fit ${theme ? "bg-rank" : "bg-primary"} p-3 rounded-full shadow-md`}>
                             <div
                                 className={`w-10 h-10 ${theme ? "bg-rank-700" : "bg-primary-600"}`}
                                 style={{

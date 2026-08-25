@@ -13,7 +13,7 @@ import { DeleteComponent } from "../common/DeleteComponent.jsx";
 import { SwipeableEntityItemComponent } from "./common/SwipeableEntityItemComponent.jsx";
 
 /** Icons */
-import { IconSearch, IconCircleXFilled, IconNote, IconCirclePlusFilled, IconCalendarEventFilled } from "@tabler/icons-react";
+import { IconSearch, IconCircleXFilled, IconNote, IconCirclePlusFilled, IconCalendarEventFilled, IconDotsVerticalFilled } from "@tabler/icons-react";
 
 /**
  * Projects Card Component
@@ -133,7 +133,7 @@ export const ProjectsCardComponent = ({ data, selectedId, onSelect, formatShortD
                                         onClick={() => onSelect(project.id)}
                                         onDoubleClick={() => handleEditProject(project)}
                                         onContextMenu={(e) => handleContextMenu(e, project)}
-                                        className={`flex items-center justify-between text-primary rounded-full py-3 transition-all duration-200 cursor-pointer bg-transparent ${
+                                        className={`flex items-center justify-between gap-2 text-primary rounded-full py-3 pr-3 transition-all duration-200 cursor-pointer bg-transparent ${
                                             isActive ? "md:bg-primary-200" : ""
                                         } ${isBeingEdited ? "bg-quaternary-50/60" : "bg-transparent"}`}
                                     >
@@ -182,6 +182,14 @@ export const ProjectsCardComponent = ({ data, selectedId, onSelect, formatShortD
                                                 </div>
                                             </div>
                                         </div>
+
+                                        <button
+                                            type="button"
+                                            onClick={(e) => handleContextMenu(e, project)}
+                                            className={`transition-colors duration-200 text-quaternary-700 ${isActive ? "xl:text-primary" : ""}`}
+                                        >
+                                            <IconDotsVerticalFilled className="h-5 w-5" />
+                                        </button>
                                     </div>
                                 </SwipeableEntityItemComponent>
                             );

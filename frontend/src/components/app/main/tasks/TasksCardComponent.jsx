@@ -29,6 +29,7 @@ import {
     IconCalendarEventFilled,
     IconStopwatch,
     IconMoneybag,
+    IconDotsVerticalFilled
 } from "@tabler/icons-react";
 
 /** Assets, Utils & Constants */
@@ -292,56 +293,67 @@ export const TasksCardComponent = ({
 
                                                 {/* Task Row Action Buttons (Play/Edit) */}
                                                 {!task.isCompleted && (
-                                                    <div className="flex items-center gap-2 shrink-0">
-                                                        {/* PLAY / PAUSE */}
-                                                        <div
-                                                            className="p-1.5 rounded-full transition-all cursor-pointer"
-                                                            style={
-                                                                isActive && hasSubtasks
-                                                                    ? { backgroundColor: `${colour.alt}10`, color: colour.alt, border: `2px solid ${colour.alt}` }
-                                                                    : { backgroundColor: `${colour.hex}10`, color: colour.hex, border: `2px solid ${colour.hex}` }
-                                                            }
-                                                            onMouseEnter={(e) => handleButtonMouseEnter(e, colour.hex, colour.alt, isActive && hasSubtasks)}
-                                                            onMouseLeave={(e) => handleButtonMouseLeave(e, colour.hex, colour.alt, isActive && hasSubtasks)}
-                                                            onClick={handlePlayTask(task)}
-                                                        >
-                                                            {isThisTaskTimerRunning ? (
-                                                                <IconPlayerPauseFilled className="w-4 h-4" style={{ color: "inherit" }} />
+                                                    <div className="flex items-center gap-1">
+                                                        <div className="flex items-center gap-2 shrink-0">
+                                                            {/* PLAY / PAUSE */}
+                                                            <div
+                                                                className="p-1.5 rounded-full transition-all cursor-pointer"
+                                                                style={
+                                                                    isActive && hasSubtasks
+                                                                        ? { backgroundColor: `${colour.alt}10`, color: colour.alt, border: `2px solid ${colour.alt}` }
+                                                                        : { backgroundColor: `${colour.hex}10`, color: colour.hex, border: `2px solid ${colour.hex}` }
+                                                                }
+                                                                onMouseEnter={(e) => handleButtonMouseEnter(e, colour.hex, colour.alt, isActive && hasSubtasks)}
+                                                                onMouseLeave={(e) => handleButtonMouseLeave(e, colour.hex, colour.alt, isActive && hasSubtasks)}
+                                                                onClick={handlePlayTask(task)}
+                                                            >
+                                                                {isThisTaskTimerRunning ? (
+                                                                    <IconPlayerPauseFilled className="w-4 h-4" style={{ color: "inherit" }} />
+                                                                ) : (
+                                                                    <IconPlayerPlayFilled className="w-4 h-4" style={{ color: "inherit" }} />
+                                                                )}
+                                                            </div>
+
+                                                            {/* STOP / EDIT */}
+                                                            {isThisTaskInContext ? (
+                                                                <div
+                                                                    onClick={handleStopTask}
+                                                                    className="p-1.5 rounded-full transition-all cursor-pointer"
+                                                                    style={
+                                                                        isActive && hasSubtasks
+                                                                            ? { backgroundColor: `${colour.alt}10`, color: colour.alt, border: `2px solid ${colour.alt}` }
+                                                                            : { backgroundColor: `${colour.hex}10`, color: colour.hex, border: `2px solid ${colour.hex}` }
+                                                                    }
+                                                                    onMouseEnter={(e) => handleButtonMouseEnter(e, colour.hex, colour.alt, isActive && hasSubtasks)}
+                                                                    onMouseLeave={(e) => handleButtonMouseLeave(e, colour.hex, colour.alt, isActive && hasSubtasks)}
+                                                                >
+                                                                    <IconPlayerStopFilled className="w-4 h-4" style={{ color: "inherit" }} />
+                                                                </div>
                                                             ) : (
-                                                                <IconPlayerPlayFilled className="w-4 h-4" style={{ color: "inherit" }} />
+                                                                <div
+                                                                    onClick={handleEditTask(task)}
+                                                                    className="p-1.5 rounded-full transition-all cursor-pointer"
+                                                                    style={
+                                                                        isActive && hasSubtasks
+                                                                            ? { backgroundColor: `${colour.alt}10`, color: colour.alt, border: `2px solid ${colour.alt}` }
+                                                                            : { backgroundColor: `${colour.hex}10`, color: colour.hex, border: `2px solid ${colour.hex}` }
+                                                                    }
+                                                                    onMouseEnter={(e) => handleButtonMouseEnter(e, colour.hex, colour.alt, isActive && hasSubtasks)}
+                                                                    onMouseLeave={(e) => handleButtonMouseLeave(e, colour.hex, colour.alt, isActive && hasSubtasks)}
+                                                                >
+                                                                    <IconEditFilled className="w-4 h-4" style={{ color: "inherit" }} />
+                                                                </div>
                                                             )}
                                                         </div>
 
-                                                        {/* STOP / EDIT */}
-                                                        {isThisTaskInContext ? (
-                                                            <div
-                                                                onClick={handleStopTask}
-                                                                className="p-1.5 rounded-full transition-all cursor-pointer"
-                                                                style={
-                                                                    isActive && hasSubtasks
-                                                                        ? { backgroundColor: `${colour.alt}10`, color: colour.alt, border: `2px solid ${colour.alt}` }
-                                                                        : { backgroundColor: `${colour.hex}10`, color: colour.hex, border: `2px solid ${colour.hex}` }
-                                                                }
-                                                                onMouseEnter={(e) => handleButtonMouseEnter(e, colour.hex, colour.alt, isActive && hasSubtasks)}
-                                                                onMouseLeave={(e) => handleButtonMouseLeave(e, colour.hex, colour.alt, isActive && hasSubtasks)}
-                                                            >
-                                                                <IconPlayerStopFilled className="w-4 h-4" style={{ color: "inherit" }} />
-                                                            </div>
-                                                        ) : (
-                                                            <div
-                                                                onClick={handleEditTask(task)}
-                                                                className="p-1.5 rounded-full transition-all cursor-pointer"
-                                                                style={
-                                                                    isActive && hasSubtasks
-                                                                        ? { backgroundColor: `${colour.alt}10`, color: colour.alt, border: `2px solid ${colour.alt}` }
-                                                                        : { backgroundColor: `${colour.hex}10`, color: colour.hex, border: `2px solid ${colour.hex}` }
-                                                                }
-                                                                onMouseEnter={(e) => handleButtonMouseEnter(e, colour.hex, colour.alt, isActive && hasSubtasks)}
-                                                                onMouseLeave={(e) => handleButtonMouseLeave(e, colour.hex, colour.alt, isActive && hasSubtasks)}
-                                                            >
-                                                                <IconEditFilled className="w-4 h-4" style={{ color: "inherit" }} />
-                                                            </div>
-                                                        )}
+                                                        <button
+                                                            type="button"
+                                                            onClick={(e) => handleContextMenu(e, task)}
+                                                            className="transition-colors duration-200"
+                                                            style={{color: isActive ? colour.alt : colour.hex }}
+                                                        >
+                                                            <IconDotsVerticalFilled className="h-5 w-5" />
+                                                        </button>
                                                     </div>
                                                 )}
                                             </div>

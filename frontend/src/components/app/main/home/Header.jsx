@@ -57,16 +57,15 @@ export const Header = ({ data, isEditing, checkChanges, onEnableEdit, onDisableE
 
     const { isScrolled } = headerStates;
     const { userProfile } = headerData;
-    const { 
+    const {
         handleLogout,
         handleEnableEditMode,
         handleDisableEditMode,
         handleSaveLayout,
         handleNavigateToSettings,
         handleMobileNavigateToSettings,
-        handleNavigateToWIP
+        handleNavigateIA
     } = headerActions;
-
 
     // --- 2. Render ---
 
@@ -131,7 +130,7 @@ export const Header = ({ data, isEditing, checkChanges, onEnableEdit, onDisableE
                         {/* SabidurIA Assistant Logo */}
                         <button
                             type="button"
-                            onClick={handleNavigateToWIP}
+                            onClick={handleNavigateIA}
                             className="w-14 h-14 shrink-0 flex items-center justify-center"
                         >
                             <div
@@ -214,7 +213,7 @@ export const Header = ({ data, isEditing, checkChanges, onEnableEdit, onDisableE
                     <div className="flex items-center gap-3 shrink-0">
                         <button
                             type="button"
-                            onClick={handleNavigateToWIP}
+                            onClick={handleNavigateIA}
                             className={`${isScrolled ? "w-8 h-8" : "w-10 h-10"} shrink-0 flex items-center justify-center`}
                         >
                             <div

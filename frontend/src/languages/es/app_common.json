@@ -42,15 +42,24 @@
     "context_menu": {
         "rename": "Renombrar",
         "edit": "Editar",
-        "delete": {
-            "name": "Eliminar",
-            "modal": {
-                "title": "Eliminar evento",
-                "description": "¿Estás seguro de que deseas eliminar este evento?",
-                "cancel": "Cancelar",
-                "delete": "Eliminar"
-            }
-        }
+        "delete": "Eliminar"
+    },
+    "rename": {
+        "title": {
+            "event": "Renombrar evento",
+            "ia": "Renombrar chat"
+        },
+        "input_label": "Nuevo nombre",
+        "button": "Renombrar"
+    },
+    "delete": {
+        "title": {
+            "event": "Eliminar evento",
+            "ia": "Eliminar chat"
+        },
+        "description": "¿Estás seguro de que deseas eliminar este evento?",
+        "cancel": "Cancelar",
+        "delete": "Eliminar"
     },
     "cascading": {
         "name": "Seleccionar vinculación",

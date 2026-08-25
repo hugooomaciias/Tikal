@@ -1,5 +1,6 @@
 /** React & Third-Party Libraries */
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import resolveConfig from "tailwindcss/resolveConfig";
 
 /** Components & Layouts */
@@ -37,8 +38,15 @@ const tailwindColors = fullConfig.theme.colors;
  * @param {Function} props.onRename - Callback function triggered to execute the renaming action.
  * @returns {JSX.Element} The rendered rename modal overlay.
  */
-export const RenameComponent = ({ onClose, data, onRename }) => {
+export const RenameComponent = ({ iaModule, onClose, data, onRename }) => {
     // --- 1. Local UI Logic ---
+
+    /**
+     * Translation Hook
+     *
+     * Injects the translation function scoped to the common application namespace.
+     */
+    const { t } = useTranslation("app_common");
 
     /**
      * Input Value State
@@ -94,18 +102,20 @@ export const RenameComponent = ({ onClose, data, onRename }) => {
         >
             {/* Modal Content Container */}
             <div
-                className="relative w-[90%] max-w-md shadow-2xl flex flex-col gap-6 bg-primary-50 rounded-[2.5rem] p-8 animate-fade-in-up"
+                className={`relative w-[90%] max-w-md shadow-2xl flex flex-col gap-6 ${iaModule ? "bg-primary-800/80 border border-primary-700/50 backdrop-blur-sm" : "bg-primary-50"}  rounded-[2.5rem] p-8 animate-fade-in-up`}
                 onClick={(e) => e.stopPropagation()}
             >
                 {/* Header Information Section */}
                 <div className="flex flex-col gap-2">
                     {/* Header: Title and Close Action */}
                     <div className="flex items-center justify-between">
-                        <span className="text-2xl font-bold text-quaternary-700">Renombrar Evento</span>
+                        <span className={`text-2xl font-bold ${iaModule ? "text-primary" : "text-quaternary-700"} `}>
+                            {iaModule ? t("rename.title.ia") : t("rename.title.event")}
+                        </span>
 
                         <button
                             type="button"
-                            className="text-primary-500/70 hover:text-primary-500 transition-colors"
+                            className={`${iaModule ? "text-primary/70 hover:text-primary" : "text-primary-500/70 hover:text-primary-500"} transition-colors`}
                             onClick={onClose}
                         >
                             <IconCircleXFilled className="h-8 w-8" />
@@ -114,14 +124,14 @@ export const RenameComponent = ({ onClose, data, onRename }) => {
 
                     {/* Target Entity Information Banner */}
                     <div
-                        className="w-full flex items-center justify-between gap-3 py-3 px-4 mt-4 rounded-xl text-primary shadow-sm"
-                        style={{ backgroundColor: color?.hex || tailwindColors.primary[500] }}
+                        className={`w-full flex items-center ${iaModule ? "justify-center text-primary-600" : "justify-between text-primary"} gap-3 py-3 px-4 mt-4 rounded-xl shadow-sm`}
+                        style={{ backgroundColor: color?.hex || iaModule ? tailwindColors.primary[50] : tailwindColors.primary[500] }}
                     >
                         {/* Entity Logo */}
                         {LogoComponent && <LogoComponent className="w-5 h-5" />}
 
                         {/* Entity Title */}
-                        <ScrollingText className="font-bold text-end" text={data?.title} />
+                        <ScrollingText className={`font-bold ${iaModule ? "text-center" : "text-end"}`} text={data?.title} />
                     </div>
                 </div>
 
@@ -141,7 +151,7 @@ export const RenameComponent = ({ onClose, data, onRename }) => {
                         />
 
                         <label htmlFor="newName" className="input-label input-textarea-label-primary">
-                            Nuevo nombre
+                            {t("rename.input_label")}
                         </label>
 
                         {/* Input Icon Decorator */}
@@ -153,10 +163,10 @@ export const RenameComponent = ({ onClose, data, onRename }) => {
                     {/* Confirmation Action Button */}
                     <button
                         type="submit"
-                        className="btn btn-primary md:min-w-1/2 mx-auto"
+                        className={`btn md:min-w-1/2 mx-auto ${iaModule ? "bg-gradient-to-r from-primary-200 to-primary-500 text-primary" : "btn-primary"}`}
                         disabled={newName.trim() === ""}
                     >
-                        <span>Renombrar</span>
+                        <span>{t("rename.button")}</span>
                     </button>
                 </form>
             </div>

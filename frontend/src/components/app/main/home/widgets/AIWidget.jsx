@@ -33,8 +33,13 @@ export const AIWidget = () => {
      */
     const navigate = useNavigate();
 
-    const handleNavigateToWIP = () => {
-        navigate("/wip");
+    /**
+     * AI Navigation Handler
+     *
+     * Redirects the user to the dedicated AI module ("Dios SabidurIA").
+     */
+    const handleNavigateIA = () => {
+        navigate("/dios-sabiduria");
     };
 
     // --- 2. Render ---
@@ -44,7 +49,7 @@ export const AIWidget = () => {
             {/* Masked Icon Wrapper */}
             <div className="relative flex items-center justify-center">
                 <div
-                    className="w-28 h-28 bg-quaternary-50/80"
+                    className="w-28 h-28 bg-primary/80"
                     style={{
                         maskImage: "url(/ia/sabidurIAIcon.svg)",
                         WebkitMaskImage: "url(/ia/sabidurIAIcon.svg)",
@@ -59,10 +64,9 @@ export const AIWidget = () => {
             {/* Interactive Action Button */}
             <button
                 type="button"
-                onClick={handleNavigateToWIP}
-                className="flex items-center gap-2 bg-primary-900/40 px-3 py-1 rounded-full border border-quaternary-50/40 transition-all duration-300 ease-in-out hover:border-quaternary-50/80 hover:shadow-[0_0_15px_rgba(74,222,128,0.4)] group"
-            >
-                <span className="text-[10px] font-bold tracking-[0.2em] text-quaternary-50/80 uppercase transition-colors duration-300 group-hover:text-primary-100">
+                onClick={handleNavigateIA}
+                className="flex items-center gap-2 bg-primary-900/40 px-3 py-1 rounded-full border border-primary/40 transition-all duration-300 ease-in-out hover:border-primary/80 hover:shadow-[0_0_15px_rgba(74,222,128,0.4)] group">
+                <span className="text-[10px] font-bold tracking-[0.2em] text-primary/80 uppercase transition-colors duration-300 group-hover:text-primary">
                     {t("widgets.ai.title")}
                 </span>
             </button>

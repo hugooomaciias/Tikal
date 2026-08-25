@@ -140,6 +140,7 @@ export const SyncProvider = ({ children }) => {
     const getTempleModeData = useCallback(() => rawDashboardData?.templeMode || null, [rawDashboardData]);
     const getGamificationEvents = useCallback(() => rawDashboardData?.gamificationEvents || null, [rawDashboardData]);
     const getSettings = useCallback(() => rawDashboardData?.settings || null, [rawDashboardData]);
+    const getAISessions = useCallback(() => rawDashboardData?.aiSessions || null, [rawDashboardData]);
 
     /**
      * Update Context Data (The Golden Key)
@@ -216,6 +217,7 @@ export const SyncProvider = ({ children }) => {
                 getTempleModeData,
                 getGamificationEvents,
                 getSettings,
+                getAISessions,
                 fetchTempleModeGamificationUpdate,
                 isDataLoaded: !!rawDashboardData,
                 refreshData: sync,

@@ -17,6 +17,9 @@ import { RegisterPage } from "./pages/auth/RegisterPage";
 import { ForgotPasswordPage } from "./pages/auth/ForgotPasswordPage";
 import { LoadingPage } from "./pages/LoadingPage";
 
+import { TutorialOnboarding } from "./pages/app/main/TutorialOnboarding";
+import { WIPComponent } from "./components/app/WIPComponent";
+
 import { MainBasePage } from "./pages/app/main/BasePage";
 import { HomePage } from "./pages/app/main/HomePage";
 import { TasksPage } from "./pages/app/main/TasksPage";
@@ -31,8 +34,7 @@ import { ProductivityPage } from "./pages/app/settings/ProductivityPage";
 import { NotificationsPage } from "./pages/app/settings/NotificationsPage";
 import { SettingsTeamPage } from "./pages/app/settings/TeamPage";
 
-import { WIPComponent } from "./components/app/WIPComponent";
-import { TutorialOnboarding } from "./pages/app/main/TutorialOnboarding";
+import { DiosSabidurIAPage } from "./pages/app/DiosSabidurIAPage";
 
 /** Assets, Utils & Constants */
 import "./i18n";
@@ -149,6 +151,24 @@ function App() {
                                 element={
                                     <ProtectedRoute>
                                         <WIPComponent />
+                                    </ProtectedRoute>
+                                }
+                            />
+
+                            <Route
+                                path="/dios-sabiduria"
+                                element={
+                                    <ProtectedRoute>
+                                        <DiosSabidurIAPage />
+                                    </ProtectedRoute>
+                                }
+                            />
+
+                            <Route
+                                path="/dios-sabiduria/:chatId"
+                                element={
+                                    <ProtectedRoute>
+                                        <DiosSabidurIAPage />
                                     </ProtectedRoute>
                                 }
                             />

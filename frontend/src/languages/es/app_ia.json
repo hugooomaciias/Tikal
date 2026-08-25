@@ -1,0 +1,17 @@
+{
+    "navbar": {
+        "new_chat": "Nuevo chat",
+        "recent_chats": "Chat recientes",
+        "logout": "Cerrar sesión"
+    },
+    "agents": {
+        "agent_1": "Auditor de rendimiento",
+        "agent_2": "Responsable de proyectos",
+        "agent_3": "Guía de gamificación",
+        "agent_4": "Auditor de patrones"
+    },
+    "placeholder": {
+        "Without_agent": "Escribe tu pregunta aquí...",
+        "With_agent": "Pregunta algo..."
+    }
+}

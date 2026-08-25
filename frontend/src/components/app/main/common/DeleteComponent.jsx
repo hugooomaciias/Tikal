@@ -37,11 +37,11 @@ const tailwindColors = fullConfig.theme.colors;
  * @param {Function} props.onDelete - Callback function triggered to confirm and execute the deletion.
  * @returns {JSX.Element} The rendered deletion confirmation modal overlay.
  */
-export const DeleteComponent = ({ onClose, data, onDelete }) => {
+export const DeleteComponent = ({ iaModule, onClose, data, onDelete }) => {
     // --- 1. Local UI Logic ---
 
     /**
-     * Localization Hook
+     * Translation Hook
      *
      * Injects the translation function scoped to the common application namespace.
      */
@@ -92,12 +92,12 @@ export const DeleteComponent = ({ onClose, data, onDelete }) => {
             >
                 {/* Modal Dialog Container */}
                 <div
-                    className="relative w-[90%] max-w-md shadow-2xl flex flex-col gap-4 bg-primary-50 rounded-[2.5rem] p-8 animate-fade-in-up"
+                    className={`relative w-[90%] max-w-md shadow-2xl flex flex-col gap-4 ${iaModule ? "bg-primary-800/80 border border-primary-700/50 backdrop-blur-sm" : "bg-primary-50"} rounded-[2.5rem] p-8 animate-fade-in-up`}
                     onClick={(e) => e.stopPropagation()}
                 >
                     {/* Header: Title Section */}
-                    <span className="text-2xl font-bold text-quaternary-700">
-                        {t("context_menu.delete.modal.title")}
+                    <span className={`text-2xl font-bold ${iaModule ? "text-primary" : "text-quaternary-700"}`}>
+                        {iaModule ? t("delete.title.ia") : t("delete.title.event")}
                     </span>
 
                     {/* Warning Message Section */}
@@ -106,28 +106,28 @@ export const DeleteComponent = ({ onClose, data, onDelete }) => {
                         <IconAlertTriangle className="w-12 h-12 text-tertiary-200" stroke={1.5} />
 
                         {/* Warning Text */}
-                        <p className="text-quaternary-500 font-medium leading-relaxed">
-                            {t("context_menu.delete.modal.description")}
+                        <p className={`${iaModule ? "text-primary" : "text-quaternary-700"} font-medium leading-relaxed`}>
+                            {t("delete.description")}
                         </p>
                     </div>
 
                     {/* Target Entity Information Banner */}
                     <div
-                        className="w-full flex items-center justify-center gap-3 py-3 px-4 mt-4 rounded-xl text-primary shadow-sm"
-                        style={{ backgroundColor: color?.hex || tailwindColors.primary[500] }}
+                        className={`w-full flex items-center ${iaModule ? "justify-center text-primary-600" : "justify-between text-primary"} gap-3 py-3 px-4 mt-4 rounded-xl shadow-sm`}
+                        style={{ backgroundColor: color?.hex || iaModule ? tailwindColors.primary[50] : tailwindColors.primary[500] }}
                     >
                         {/* Entity Logo */}
                         {LogoComponent && <LogoComponent className="w-5 h-5" />}
 
                         {/* Entity Title */}
-                        <ScrollingText className="font-bold text-end" text={data?.title} />
+                        <ScrollingText className={`font-bold ${iaModule ? "text-center" : "text-end"}`} text={data?.title} />
                     </div>
 
                     {/* Action Buttons Section */}
                     <div className="flex items-center justify-between gap-4 mt-2">
                         {/* Cancel Button */}
                         <button type="button" onClick={onClose} className="w-full btn text-primary bg-primary-200">
-                            {t("context_menu.delete.modal.cancel")}
+                            {t("delete.cancel")}
                         </button>
 
                         {/* Confirm Delete Button */}
@@ -136,7 +136,7 @@ export const DeleteComponent = ({ onClose, data, onDelete }) => {
                             onClick={handleDelete}
                             className="w-full btn text-primary bg-tertiary-200"
                         >
-                            {t("context_menu.delete.modal.delete")}
+                            {t("delete.delete")}
                         </button>
                     </div>
                 </div>
