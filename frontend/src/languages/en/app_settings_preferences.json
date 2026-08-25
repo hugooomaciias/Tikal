@@ -38,7 +38,10 @@
     "reset_layouts": {
         "title": "Reset dashboards",
         "description": "Restores the widgets on the home and stats dashboard to their original positions and sizes",
-        "button": "Reset"
+        "button": {
+            "reseting": "Reseting",
+            "reseted": "Reset"
+        }
     },
     "reset_tutorial": {
         "title": "Do again the tour",

@@ -47,7 +47,10 @@
     "reset_layouts": {
         "title": "Restaurar paneles",
         "description": "Devuelve los widgets del panel de inicio y estadísticas a sus posiciones y tamaños originales",
-        "button": "Restaurar"
+        "button": {
+            "reseting": "Restaurando",
+            "reseted": "Restaurar"
+        }
     },
     "reset_tutorial": {
         "title": "Volver a hacer el tutorial",

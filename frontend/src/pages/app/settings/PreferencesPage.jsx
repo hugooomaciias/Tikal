@@ -44,7 +44,7 @@ export const PreferencesPage = () => {
      */
     const { t, settingsPreferencesStates, settingsPreferencesData, settingsPreferencesActions } = useSettingsPreferencesLogic();
     
-    const { formData, isSaving, errors } = settingsPreferencesStates;
+    const { formData, isSaving, isResetingLayouts, errors } = settingsPreferencesStates;
     const { userSettings, languageOptions, firstDayOptions, timeRangeOptions, themeOptions } = settingsPreferencesData;
     const { handleChange, handleSubmit, handleResetLayouts, handleResetTutorial, getInputClass, getIconClass } = settingsPreferencesActions;
 
@@ -233,9 +233,10 @@ export const PreferencesPage = () => {
                         <button
                             type="button"
                             onClick={handleResetLayouts}
-                            className="btn shrink-0 bg-tertiary-50 text-tertiary-800"
+                            className="btn shrink-0 flex items-center gap-3 bg-tertiary-50 text-tertiary-800"
                         >
-                            {t("reset_layouts.button")}
+                            <span>{isResetingLayouts ? t("reset_layouts.button.reseting") : t("reset_layouts.button.reseted")}</span>
+                            {isResetingLayouts && <IconLoader className="h-5 w-5 animate-spin" />}
                         </button>
                     </section>
 

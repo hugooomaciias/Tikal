@@ -78,6 +78,15 @@ export const useSettingsPreferencesLogic = () => {
     const [isSaving, setIsSaving] = useState(false);
 
     /**
+     * Reseting Layout Execution State
+     *
+     * Boolean flag that disables form inputs and buttons while an async 
+     * save operation is in flight, preventing duplicate submissions.
+     * @type {[boolean, Function]}
+     */
+    const [isResetingLayouts, setIsResetingLayouts] = useState(false);
+
+    /**
      * Validation Error State
      *
      * Stores localized error messages mapped by their respective input field keys.
@@ -242,6 +251,8 @@ export const useSettingsPreferencesLogic = () => {
      * @async
      */
     const handleResetLayouts = useCallback(async () => {
+        setIsResetingLayouts(true);
+
         try {
             await updateDashboardLayout({
                 home: [
@@ -264,6 +275,8 @@ export const useSettingsPreferencesLogic = () => {
             });
         } catch (error) {
             console.error("Error al restaurar los layouts:", error);
+        } finally {
+            setIsResetingLayouts(false);
         }
     }, [updateDashboardLayout]);
 
@@ -322,7 +335,7 @@ export const useSettingsPreferencesLogic = () => {
 
     return {
         t,
-        settingsPreferencesStates: { formData, isSaving, errors },
+        settingsPreferencesStates: { formData, isSaving, isResetingLayouts, errors },
         settingsPreferencesData: { userSettings, languageOptions, firstDayOptions, timeRangeOptions, themeOptions },
         settingsPreferencesActions: { handleChange, handleSubmit, handleResetLayouts, handleResetTutorial, getInputClass, getIconClass },
     };
