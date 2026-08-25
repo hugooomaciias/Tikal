@@ -17,6 +17,8 @@ import org.springframework.ai.chat.messages.AssistantMessage;
 import org.springframework.ai.chat.messages.Message;
 import org.springframework.ai.chat.messages.SystemMessage;
 import org.springframework.ai.chat.messages.UserMessage;
+import org.springframework.ai.retry.NonTransientAiException;
+import org.springframework.ai.retry.TransientAiException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -208,9 +210,19 @@ public class AiAdvisorService {
                     .call()
                     .content();
 
+        } catch (NonTransientAiException | TransientAiException e) {
+            // Spring AI wraps HTTP errors here. We're looking for a 429.
+            if (e.getMessage() != null && (e.getMessage().contains("429") || e.getMessage().contains("rate_limit"))) {
+                log.warn("Límite de tokens/peticiones excedido en Groq para la sesión {}", sessionId);
+                aiResponse = "El dios de la SabidurIA necesita descansar (Límite de peticiones excedido). Por favor, deja pasar unos minutos antes de volver a consultar.";
+            } else {
+                log.error("Error de comunicación HTTP con la API de Groq en la sesión {}", sessionId, e);
+                aiResponse = "Parece que hay interferencias en el templo (Error de conexión). Por favor, inténtalo de nuevo en unos instantes.";
+            }
         } catch (Exception e) {
-            log.error("Error de comunicación con la API de Groq en la sesión {}", sessionId, e);
-            aiResponse = "Parece que hay interferencias en el templo (Error de conexión). Por favor, inténtalo de nuevo en unos instantes.";
+            // Handle any other unexpected errors (e.g., database errors, null values, etc.)
+            log.error("Error inesperado procesando la IA en la sesión {}", sessionId, e);
+            aiResponse = "Los dioses están confundidos (Error interno). Por favor, inténtalo de nuevo más tarde.";
         }
 
         // 7. Persist the AI answer in the database
