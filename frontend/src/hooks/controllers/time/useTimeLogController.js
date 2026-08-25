@@ -142,16 +142,25 @@ export const useTimeLogController = () => {
     useEffect(() => {
         let interval = null;
 
+        const syncTimeWithSystem = () => {
+            if (isTimerRunning && activeWidgetData?.initDateTime) {
+                const exactSeconds = baseAccumulatedSeconds + calculateElapsedSince(activeWidgetData.initDateTime);
+                setLocalSeconds(exactSeconds);
+            }
+        };
+
         if (isTimerRunning) {
-            interval = setInterval(() => {
-                setLocalSeconds((prev) => prev + 1);
-            }, 1000);
+            interval = setInterval(syncTimeWithSystem, 1000);
+            document.addEventListener("visibilitychange", syncTimeWithSystem);
         }
 
         return () => {
             if (interval) clearInterval(interval);
+            document.removeEventListener("visibilitychange", syncTimeWithSystem);
         };
-    }, [isTimerRunning]);
+
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [isTimerRunning, baseAccumulatedSeconds, activeWidgetData?.initDateTime]);
 
     // --- 5. Interaction Handlers ---
 
