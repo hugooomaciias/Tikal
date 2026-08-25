@@ -106,11 +106,10 @@ export const apiCall = async (endpoint, method, payload = null, customHeaders = 
                     throw new Error("El token de refresco ha expirado");
                 }
 
-                localStorage.setItem("accessToken", refreshData.accessToken);
-                localStorage.setItem("refreshToken", refreshData.refreshToken);
+                localStorage.setItem("accessToken", refreshData.access_token);
+                localStorage.setItem("refreshToken", refreshData.refresh_token);
 
                 processQueue(null, refreshData.access_token);
-
                 return await executeRequest(refreshData.access_token);
             } catch (refreshError) {
                 processQueue(refreshError, null);

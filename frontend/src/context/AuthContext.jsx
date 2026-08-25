@@ -1,5 +1,5 @@
 /** React & Context */
-import { createContext, useState, useEffect } from "react";
+import { createContext, useState, useEffect, useRef } from "react";
 
 /** Routing & Navigation */
 import { useNavigate } from "react-router-dom";
@@ -24,6 +24,8 @@ export const AuthContext = createContext();
  */
 export const AuthProvider = ({ children }) => {
     // --- 1. Context State ---
+
+    const isAuthChecked = useRef(false);
 
     /**
      * User State
@@ -68,10 +70,14 @@ export const AuthProvider = ({ children }) => {
      * a new access token via the API before marking the user as authenticated.
      */
     useEffect(() => {
+        if (isAuthChecked.current) return;
+        isAuthChecked.current = true;
+
         const checkAuth = async () => {
             const token = localStorage.getItem("accessToken");
 
-            if (!token) {
+            if (!token || token === "undefined" || token === "null") {
+                localStorage.removeItem("accessToken");
                 setIsLoading(false);
                 return;
             }
@@ -92,7 +98,7 @@ export const AuthProvider = ({ children }) => {
                 if (isExpired) {
                     const refreshToken = localStorage.getItem("refreshToken");
 
-                    if (refreshToken) {
+                    if (refreshToken && refreshToken !== "undefined" && refreshToken !== "null") {
                         try {
                             const data = await authService.refreshTokens(refreshToken);
 
