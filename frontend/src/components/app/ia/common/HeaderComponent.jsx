@@ -48,7 +48,7 @@ export const HeaderComponent = ({ onOpen }) => {
                     <button
                         type="button"
                         onClick={onOpen}
-                        className="md:hidden shrink-0 bg-primary p-3 rounded-full text-primary-600 shadow-md transition-transform  z-20"
+                        className="md:hidden shrink-0 bg-primary p-3 rounded-full text-primary-600 shadow-md transition-transform z-20"
                     >
                         <IconMenu2 className="w-6 h-6" />
                     </button>
@@ -59,12 +59,12 @@ export const HeaderComponent = ({ onOpen }) => {
                 </div>
 
                 {/* Return home button */}
-                <div className="h-16 w-16 flex items-center gap-6">
+                <div className="h-12 w-12 md:h-16 md:w-16 flex items-center gap-6">
                     <button
                         type="button"
                         onClick={handleNavigateToHome}
                         title="Volver a Tikal"
-                        className="relative h-full w-full bg-primary p-3 rounded-full shadow-md group flex items-center justify-center overflow-hidden"
+                        className="relative h-full w-full bg-primary p-2 md:p-3 rounded-full shadow-md group flex items-center justify-center overflow-hidden"
                     >
                         <div
                             className="w-full h-full bg-primary-600 transition-all duration-300 transform group-hover:scale-50 group-hover:opacity-0" 
