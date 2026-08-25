@@ -5,6 +5,9 @@ import { useNavigate } from "react-router-dom";
 /** Contexts, Hooks & Services */
 import { useSync } from "../../../../hooks/core/useSync.js";
 
+/** Icons */
+import { IconHomeFilled } from "@tabler/icons-react";
+
 /**
  * Settings Header Component
  *
@@ -70,7 +73,7 @@ export const HeaderComponent = () => {
                 {/* User Profile & Subscription Info */}
                 <div className="h-full w-fit flex items-center gap-2 md:gap-4 rounded-full">
                     <div className="h-full w-fit bg-primary flex items-center gap-3 rounded-full shadow-md pl-3 pr-5">
-                        <div className="relative w-14 h-14 flex-shrink-0 rounded-full overflow-hidden cursor-pointer">
+                        <div className="relative w-12 h-12 flex-shrink-0 rounded-full overflow-hidden cursor-pointer">
                             <img
                                 className="w-full h-full object-cover shadow-md"
                                 src={data?.avatarUrl}
@@ -86,16 +89,29 @@ export const HeaderComponent = () => {
                 </div>
 
                 {/* Contextual Action Bar */}
-                <div className="h-full w-auto flex items-center gap-6">
+                <div className="h-16 w-16 flex items-center gap-6">
                     <button
                         type="button"
                         onClick={handleNavigateToHome}
-                        className="h-20 w-20 bg-primary p-3 rounded-full shadow-md"
+                        title="Volver a Tikal"
+                        className="relative h-full w-full bg-primary p-3 rounded-full shadow-md group flex items-center justify-center overflow-hidden"
                     >
-                        <img
-                            className="h-full w-full opacity-90 hover:opacity-100 transition-opacity"
-                            src="/tikal/logoHeader_1.svg"
-                            alt="Logo Tikal"
+                        <div
+                            className="w-full h-full bg-primary-600 transition-all duration-300 transform group-hover:scale-50 group-hover:opacity-0" 
+                            style={{
+                                maskImage: "url(/tikal/logoHeader_1.svg)",
+                                WebkitMaskImage: "url(/tikal/logoHeader_1.svg)",
+                                maskRepeat: "no-repeat",
+                                WebkitMaskRepeat: "no-repeat",
+                                maskSize: "contain",
+                                WebkitMaskSize: "contain",
+                                maskPosition: "center",
+                                WebkitMaskPosition: "center",
+                            }}
+                        />
+
+                        <IconHomeFilled 
+                            className="absolute w-8 h-8 text-primary-600 transition-all duration-300 transform scale-50 opacity-0 group-hover:scale-100 group-hover:opacity-100" 
                         />
                     </button>
                 </div>

@@ -2,7 +2,7 @@
 import { useNavigate } from "react-router-dom";
 
 /** Icons */
-import { IconMenu2 } from "@tabler/icons-react";
+import { IconMenu2, IconHomeFilled } from "@tabler/icons-react";
 
 /**
  * AI Module Header Component
@@ -59,15 +59,15 @@ export const HeaderComponent = ({ onOpen }) => {
                 </div>
 
                 {/* Return home button */}
-                <div className="h-full w-auto flex items-center gap-6">
+                <div className="h-16 w-16 flex items-center gap-6">
                     <button
                         type="button"
                         onClick={handleNavigateToHome}
-                        className="h-12 w-12 md:h-14 md:w-14 xl:h-20 xl:w-20 bg-primary p-3 rounded-full shadow-md"
+                        title="Volver a Tikal"
+                        className="relative h-full w-full bg-primary p-3 rounded-full shadow-md group flex items-center justify-center overflow-hidden"
                     >
-
                         <div
-                            className={`w-full h-full bg-primary-600`} 
+                            className="w-full h-full bg-primary-600 transition-all duration-300 transform group-hover:scale-50 group-hover:opacity-0" 
                             style={{
                                 maskImage: "url(/tikal/logoHeader_1.svg)",
                                 WebkitMaskImage: "url(/tikal/logoHeader_1.svg)",
@@ -78,6 +78,10 @@ export const HeaderComponent = ({ onOpen }) => {
                                 maskPosition: "center",
                                 WebkitMaskPosition: "center",
                             }}
+                        />
+
+                        <IconHomeFilled 
+                            className="absolute w-8 h-8 text-primary-600 transition-all duration-300 transform scale-50 opacity-0 group-hover:scale-100 group-hover:opacity-100" 
                         />
                     </button>
                 </div>
