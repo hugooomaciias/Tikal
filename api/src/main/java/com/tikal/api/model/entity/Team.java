@@ -24,6 +24,10 @@ public class Team {
     @Column(nullable = false, length = 100)
     private String name;
 
+    /* --- Team image --- */
+    @Column(name = "image_url", nullable = false)
+    private String imageUrl;
+
     /* --- Invitation code for colleagues to join your team --- */
     @Column(name = "invitation_code", unique = true, length = 50)
     private String invitationCode;

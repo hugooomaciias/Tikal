@@ -37,18 +37,29 @@ public class Message {
     @Column(name = "is_read", columnDefinition = "TINYINT(1) DEFAULT 0")
     private Boolean isRead = false; 
 
-    /* --- User relation ==> Many messages can be send by the same emitter User --- */
+    /* --- User relation ==> Many messages can be sent by the same emitter User --- */
     @ManyToOne(optional = false)
     @JoinColumn(name = "emitter_id", nullable = false)
     private User emitter;
 
-    /* --- Team relation ==> Many messages can be send to the same Team or none --- */
+    /* --- Team relation ==> Many messages can be sent to the same Team or none --- */
     @ManyToOne(optional = true)
     @JoinColumn(name = "target_team_id") 
     private Team targetTeam;
 
-    /* --- User relation ==> Many messages can be send to the same receiver User --- */
+    /* --- User relation ==> Many messages can be sent to the same receiver User --- */
     @ManyToOne(optional = true)
     @JoinColumn(name = "receiver_id")
     private User receiver;
+
+    @PrePersist
+    @PreUpdate
+    private void validateTarget() {
+        boolean hasReceiver = receiver != null;
+        boolean hasTeam = targetTeam != null;
+
+        if (hasReceiver == hasTeam) {
+            throw new IllegalStateException("Un mensaje debe tener exactamente un destinatario (Usuario O Equipo), pero no ambos ni ninguno.");
+        }
+    }
 }
