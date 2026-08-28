@@ -5,7 +5,6 @@ import java.util.Optional;
 import org.springframework.stereotype.Repository;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.tikal.api.model.dto.TeamDTO;
 import com.tikal.api.model.entity.Team;
 
 @Repository
@@ -18,4 +17,7 @@ public interface TeamRepository extends JpaRepository<Team, Integer> {
 
     /* --- Obtain the teams with a name similar to 'name' --- */
     List<Team> findByNameContainingIgnoreCase(String name);
+
+    /* --- Obtain if a user exists by invitation code or not --- */
+    boolean existsByInvitationCode(String invitationCode);
 }

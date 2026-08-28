@@ -62,11 +62,11 @@ public class AiToolsConfig {
     // TOOL 2: PROJECT MANAGER (Pending Tasks & Prioritization)
     // ========================================================
     public record TasksRequest(String dummy) {}
-    public record TaskAiDTO(String projectName, String stageName, String taskName, String deadline, Long daysUntilDeadline, Integer estimatedMinutes, BigDecimal estimatedProfit) {}
+    public record TaskAiDTO(String projectName, String stageName, String taskName, String deadline, Long daysUntilDeadline, Integer estimatedMinutes, Integer currentMinutesSpend, BigDecimal estimatedProfit) {}
     public record PendingTasksResponse(String currentDate, List<TaskAiDTO> pendingTasks) {}
 
     @Bean
-    @Description("Gets the user's pending tasks. Includes project structure, profitability, and deadlines to help prioritize urgency vs profit.")
+    @Description("Gets the user's pending tasks. Includes project structure, profitability, time currently spend, and deadlines to help prioritize urgency vs profit.")
     public Function<TasksRequest, PendingTasksResponse> getPendingTasksOverview(
             TaskRepository taskRepository,
             UserService userService) {
@@ -108,6 +108,7 @@ public class AiToolsConfig {
                         effectiveDeadline != null ? DateUtils.formatSingleDate(effectiveDeadline.atZone(ZoneOffset.UTC).toLocalDate()) : "Sin Deadline",
                         daysUntil,
                         task.getEstimatedTime(),
+                        task.getTotalLoggedMinutes(),
                         task.getEstimatedProfit()
                 );
             }).collect(Collectors.toList());

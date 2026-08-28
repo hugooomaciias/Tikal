@@ -3,6 +3,9 @@ package com.tikal.api.repository;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.List;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -63,4 +66,28 @@ public interface MessageRepository extends JpaRepository<Message, Integer> {
                     "  MAX(send_date) DESC",
             nativeQuery = true)
     List<Integer> findAllConversationPartners(@Param("myId") Integer myId);
+
+    /* --- Get the paginated messages from a team --- */
+    Page<Message> findByTargetTeamIdOrderBySendDateDesc(Integer teamId, Pageable pageable);
+
+    /* --- Get just the absolute last message from a team --- */
+    Message findTopByTargetTeamIdOrderBySendDateDesc(Integer teamId);
+
+    /* --- Get the paginated direct messages between two users --- */
+    @Query("SELECT m FROM Message m WHERE " +
+            "(m.emitter.id = :myId AND m.receiver.id = :otherUserId) OR " +
+            "(m.emitter.id = :otherUserId AND m.receiver.id = :myId) " +
+            "ORDER BY m.sendDate DESC")
+    Page<Message> findChatHistory1to1Paginated(@Param("myId") Integer myId,
+                                               @Param("otherUserId") Integer otherUserId,
+                                               Pageable pageable);
+
+    /* --- Get only the absolute last direct message between two users --- */
+    @Query(value = "SELECT * FROM messages WHERE " +
+            "(emitter_id = :myId AND receiver_id = :otherUserId) OR " +
+            "(emitter_id = :otherUserId AND receiver_id = :myId) " +
+            "ORDER BY send_date DESC LIMIT 1",
+            nativeQuery = true)
+    Message findTopDirectMessageBetween(@Param("myId") Integer myId,
+                                        @Param("otherUserId") Integer otherUserId);
 }

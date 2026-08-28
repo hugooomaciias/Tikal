@@ -5,7 +5,7 @@ import com.tikal.api.exception.ForbiddenAccessException;
 import com.tikal.api.exception.ResourceNotFoundException;
 import com.tikal.api.model.dto.timer.ActiveTimerDTO;
 import com.tikal.api.model.dto.timer.TimeLogBatchRequest;
-import com.tikal.api.model.dto.TimeLogDTO;
+import com.tikal.api.model.dto.timer.TimeLogDTO;
 import com.tikal.api.model.dto.timer.TimeLogPause;
 import com.tikal.api.model.dto.timer.TimeLogRequest;
 import com.tikal.api.model.entity.*;
@@ -16,7 +16,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
 
