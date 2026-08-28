@@ -5,6 +5,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * This class represents the Team entity within the application. It maps to the
  * team table in the database and manages the groups of users that collaborate on
@@ -37,4 +40,12 @@ public class Team {
     @JoinColumn(name = "parent_team_id")
     @ToString.Exclude
     private Team parentTeam;
+
+    /* --- Team Members relation ==> If a Team is deleted, all its team Members are deleted --- */
+    @OneToMany(mappedBy = "team", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<TeamMember> teamMembers = new ArrayList<>();
+
+    public String getDefaultImageUrl() {
+        return "https://api.dicebear.com/10.x/triangles/svg?backgroundColor=3B7A57,2F6C4B,26563D,204533,1B392A,0E2018,2AB7CA,228498,226B7C,245866,224A57,11303B&seed=" + this.getName();
+    }
 }

@@ -46,7 +46,7 @@ public class User {
     private String avatarUrl;
 
     /* --- Flag for the user onboarding tutorial --- */
-    @Column(name = "tikal_tutorial_completed", nullable = false, columnDefinition = "TINYINT(1) DEFAULT 1")
+    @Column(name = "tikal_tutorial_completed", nullable = false, columnDefinition = "TINYINT(1) DEFAULT 0")
     private Boolean tikalTutorialCompleted = false; 
 
 
