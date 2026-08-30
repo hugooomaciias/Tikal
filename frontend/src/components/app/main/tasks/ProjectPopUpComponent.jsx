@@ -7,7 +7,7 @@ import { DatePickerComponent } from "../common/popups/DatepickerComponent.jsx";
 import { PickerComponent } from "../common/popups/PickerComponent.jsx";
 
 /** Icons */
-import { IconCircleXFilled, IconNote, IconLoader } from "@tabler/icons-react";
+import { IconCircleXFilled, IconNote, IconLoader, IconAlertTriangleFilled } from "@tabler/icons-react";
 
 /** Assets, Utils & Constants */
 import { PROJECTS_ICONS } from "../../../../constants/projects_icons.js";
@@ -53,18 +53,6 @@ export const ProjectPopUpComponent = ({ onClose, initialData, t }) => {
             className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm"
             onClick={handleClose}
         >
-            {/* API Error Alert Banner */}
-            {apiError && (
-                <div
-                    className={`absolute top-10 md:top-16 h-16 w-[89%] md:w-1/4 bg-primary border-2 border-tertiary-200 text-tertiary-200 px-4 py-3 rounded-lg flex items-center justify-center gap-3 shadow-xl transition-all duration-300 animate-fade-in-up z-50
-                                ${isVisible ? "opacity-100 scale-100" : "opacity-0 scale-95 pointer-events-none"}`}
-                    role="alert"
-                >
-                    <IconCircleXFilled className="h-6 w-6" />
-                    <span className="block sm:inline font-medium text-center">{apiError}</span>
-                </div>
-            )}
-
             {/* Modal Content Container */}
             <div
                 className="relative w-[90%] max-w-md shadow-2xl flex flex-col gap-6 bg-primary-50 rounded-[2.5rem] p-8 animate-fade-in-up"
@@ -85,6 +73,7 @@ export const ProjectPopUpComponent = ({ onClose, initialData, t }) => {
                     </span>
 
                     <button
+                        type="button"
                         className="text-primary-500/70 hover:text-primary-500 transition-colors"
                         onClick={handleClose}
                     >
@@ -226,6 +215,18 @@ export const ProjectPopUpComponent = ({ onClose, initialData, t }) => {
                     </button>
                 </form>
             </div>
+
+            {/* API Error Alert Banner */}
+            {apiError && (
+                <div
+                    className={`absolute bottom-8 left-0 right-0 mx-auto w-[90%] md:w-fit md:min-w-[350px] max-w-md bg-primary border-2 border-tertiary-200 text-tertiary-200 px-6 py-4 rounded-2xl flex items-center justify-center gap-3 shadow-2xl transition-all duration-500 ease-out z-50
+                                ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10 pointer-events-none"}`}
+                    role="alert"
+                >
+                    <IconAlertTriangleFilled className="h-6 w-6 shrink-0" />
+                    <span className="block sm:inline font-medium text-center">{apiError}</span>
+                </div>
+            )}
         </div>
     );
 };

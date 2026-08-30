@@ -125,7 +125,7 @@ export const RenameComponent = ({ iaModule, onClose, data, onRename }) => {
                     {/* Target Entity Information Banner */}
                     <div
                         className={`w-full flex items-center ${iaModule ? "justify-center text-primary-600" : "justify-between text-primary"} gap-3 py-3 px-4 mt-4 rounded-xl shadow-sm`}
-                        style={{ backgroundColor: color?.hex || iaModule ? tailwindColors.primary[50] : tailwindColors.primary[500] }}
+                        style={{ backgroundColor: color ? color?.hex : iaModule ? tailwindColors.primary[50] : tailwindColors.primary[500] }}
                     >
                         {/* Entity Logo */}
                         {LogoComponent && <LogoComponent className="w-5 h-5" />}

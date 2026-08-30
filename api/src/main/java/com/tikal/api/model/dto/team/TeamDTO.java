@@ -16,4 +16,5 @@ public class TeamDTO {
     private String imagePath;
     private Boolean isAdmin;
     private String teamRole;
+    private Long members;
 }

@@ -37,7 +37,7 @@ const tailwindColors = fullConfig.theme.colors;
  * @param {Function} props.onDelete - Callback function triggered to confirm and execute the deletion.
  * @returns {JSX.Element} The rendered deletion confirmation modal overlay.
  */
-export const DeleteComponent = ({ iaModule, onClose, data, onDelete }) => {
+export const DeleteComponent = ({ iaModule, isLeave, onClose, data, onDelete }) => {
     // --- 1. Local UI Logic ---
 
     /**
@@ -97,7 +97,7 @@ export const DeleteComponent = ({ iaModule, onClose, data, onDelete }) => {
                 >
                     {/* Header: Title Section */}
                     <span className={`text-2xl font-bold ${iaModule ? "text-primary" : "text-quaternary-700"}`}>
-                        {iaModule ? t("delete.title.ia") : t("delete.title.event")}
+                        {iaModule ? t("delete.title.ia") : isLeave ? t("delete.title.leave") : t("delete.title.event")}
                     </span>
 
                     {/* Warning Message Section */}
@@ -106,21 +106,21 @@ export const DeleteComponent = ({ iaModule, onClose, data, onDelete }) => {
                         <IconAlertTriangle className="w-12 h-12 text-tertiary-200" stroke={1.5} />
 
                         {/* Warning Text */}
-                        <p className={`${iaModule ? "text-primary" : "text-quaternary-700"} font-medium leading-relaxed`}>
-                            {t("delete.description")}
+                        <p className={`${iaModule ? "text-primary" : "text-quaternary-700"} font-medium leading-relaxed max-w-xs`}>
+                            {isLeave ? t("delete.description.leave") : t("delete.description.event")}
                         </p>
                     </div>
 
                     {/* Target Entity Information Banner */}
                     <div
                         className={`w-full flex items-center ${iaModule ? "justify-center text-primary-600" : "justify-between text-primary"} gap-3 py-3 px-4 mt-4 rounded-xl shadow-sm`}
-                        style={{ backgroundColor: color?.hex || iaModule ? tailwindColors.primary[50] : tailwindColors.primary[500] }}
+                        style={{ backgroundColor: color ? color?.hex : iaModule ? tailwindColors.primary[50] : tailwindColors.primary[500] }}
                     >
                         {/* Entity Logo */}
                         {LogoComponent && <LogoComponent className="w-5 h-5" />}
 
                         {/* Entity Title */}
-                        <ScrollingText className={`font-bold ${iaModule ? "text-center" : "text-end"}`} text={data?.title} />
+                        <ScrollingText className={`font-bold ${iaModule || isLeave ? "text-center" : "text-end"}`} text={data?.title || data.name} />
                     </div>
 
                     {/* Action Buttons Section */}
@@ -136,7 +136,7 @@ export const DeleteComponent = ({ iaModule, onClose, data, onDelete }) => {
                             onClick={handleDelete}
                             className="w-full btn text-primary bg-tertiary-200"
                         >
-                            {t("delete.delete")}
+                            {isLeave ? t("delete.button_delete.leave") : t("delete.button_delete.event")}
                         </button>
                     </div>
                 </div>

@@ -1,0 +1,62 @@
+{
+    "teams_title": "Teams",
+    "teams": {
+        "no_teams": "You don't have any teams in this role. Start by creating or joining one.",
+        "new": "New team",
+        "code": "Invitation code",
+        "members": "members",
+        "popup": {
+            "title": {
+                "new": {
+                    "create": "New team",
+                    "join": "Join a team"
+                }, 
+                "edit": "Edit team"
+            },
+            "tabs": {
+                "create": "Create",
+                "join": "Join"
+            },
+            "image": {
+                "upload": "Upload image",
+                "delete": "Delete"
+            },
+            "name": {
+                "create": "Team name",
+                "join": "Invitation code"
+            },
+            "button": {
+                "new": {
+                    "create": {
+                        "loading": "Creating team",
+                        "loaded": "Create team"
+                    },
+                    "join": {
+                        "loading": "Joining the team",
+                        "loaded": "Join the team"
+                    }
+                },
+                "edit": {
+                    "loading": "Saving changes",
+                    "loaded": "Save changes"
+                }
+            },
+            "error": {
+                "name": {
+                    "create": "Please enter a computer name",
+                    "join": "Please enter an invitation code"
+                }
+            }
+        }
+    },
+    "teams_members": {
+        "label": "Members",
+        "popup": {
+            "title": "Members",
+            "search": "Search by name",
+            "no_members": "No members were found",
+            "role": "Member",
+            "kick": "Should we kick him off the team?"
+        }
+    }
+}

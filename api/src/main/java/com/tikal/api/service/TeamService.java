@@ -1,4 +1,4 @@
-package com.tikal.api.service;
+    package com.tikal.api.service;
 
 import com.tikal.api.exception.BadRequestException;
 import com.tikal.api.exception.ForbiddenAccessException;
@@ -221,7 +221,8 @@ public class TeamService {
                         member.getUser().getName(),
                         member.getUser().getAvatarUrl(),
                         member.getIsAdmin(),
-                        member.getTeamRole()
+                        member.getTeamRole(),
+                        member.getUser().getId() == myId
                 ))
                 .toList();
     }
@@ -283,7 +284,8 @@ public class TeamService {
                 team.getInvitationCode(),
                 team.getImageUrl(),
                 member != null ? member.getIsAdmin() : false,
-                member != null ? member.getTeamRole() : null
+                member != null ? member.getTeamRole() : null,
+                teamMemberRepo.countByTeamId(team.getId())
         );
     }
 }

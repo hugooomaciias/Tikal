@@ -13,4 +13,5 @@ public class TeamMemberDTO {
     private String avatar;
     private Boolean isAdmin;
     private String teamRole;
+    private Boolean loggedUser;
 }

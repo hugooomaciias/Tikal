@@ -1,0 +1,62 @@
+{
+    "teams_title": "Equipos",
+    "teams": {
+        "no_teams": "No tienes equipos en esta rol. Empieza creando o uniéndote a uno.",
+        "new": "Nuevo equipo",
+        "code": "Código de invitación",
+        "members": "miembros",
+        "popup": {
+            "title": {
+                "new": {
+                    "create": "Nuevo equipo",
+                    "join": "Unirse a un equipo"
+                }, 
+                "edit": "Editar equipo"
+            },
+            "tabs": {
+                "create": "Crear",
+                "join": "Unirse"
+            },
+            "image": {
+                "upload": "Subir foto",
+                "delete": "Eliminar"
+            },
+            "name": {
+                "create": "Nombre del equipo",
+                "join": "Código de invitación"
+            },
+            "button": {
+                "new": {
+                    "create": {
+                        "loading": "Creando equipo",
+                        "loaded": "Crear equipo"
+                    },
+                    "join": {
+                        "loading": "Uniendose a equipo",
+                        "loaded": "Unirme a equipo"
+                    }
+                },
+                "edit": {
+                    "loading": "Guardando cambios",
+                    "loaded": "Guardar cambios"
+                }
+            },
+            "error": {
+                "name": {
+                    "create": "Por favor, introduzca un nombre de equipo",
+                    "join": "Por favor, introduzca un código de invitación"
+                }
+            }
+        }
+    },
+    "teams_members": {
+        "label": "Miembros",
+        "popup": {
+            "title": "Miembros",
+            "search": "Buscar por nombre",
+            "no_members": "No se han encontrado miembros",
+            "role": "Miembro",
+            "kick": "¿Expulsar del equipo?"
+        }
+    }
+}

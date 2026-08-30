@@ -12,6 +12,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 @RestController
+@CrossOrigin(origins = "*")
 @RequestMapping("/api/teams")
 @RequiredArgsConstructor
 public class TeamController {
