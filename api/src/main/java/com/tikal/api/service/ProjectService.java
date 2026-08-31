@@ -70,7 +70,6 @@ public class ProjectService {
         project.setDescription(request.getDescription());
         project.setDeadline(request.getDeadline());
         project.setLogoUrl(request.getLogo());
-        project.setUserOwner(currentUser);
         project.setIsGroupBased(request.getIsGroupBased() != null ? request.getIsGroupBased() : false);
         if (request.getType() != null) {
             project.setProjectType(ProjectType.valueOf(request.getType().toUpperCase()) );
@@ -88,6 +87,9 @@ public class ProjectService {
                 throw new ForbiddenAccessException("No está permitido crear un proyecto nuevo, el usuario no es administrador.");
             }
             project.setTeam(team);
+            project.setUserOwner(null);
+        } else {
+            project.setUserOwner(currentUser);
         }
 
         Project savedProject = projectRepository.save(project);
@@ -168,6 +170,24 @@ public class ProjectService {
         return mapToDTO(updatedProject, hasDeadline);
     }
 
+    public List<ProjectDTO> getTeamProjects(Integer teamId) {
+        User currentUser = userService.getAuthenticatedUser();
+
+        boolean isMember = teamMemberRepository.existsByUserIdAndTeamId(currentUser.getId(), teamId);
+        if (!isMember) {
+            throw new ForbiddenAccessException("No tienes permiso para ver los proyectos de este equipo.");
+        }
+
+        List<Project> projects = projectRepository.findByTeam_Id(teamId);
+
+        if (projects.isEmpty()) {
+            return List.of();
+        }
+
+        List<Integer> projectIds = projects.stream().map(Project::getId).toList();
+        return mapProjectsWithDeadlines(projects, projectIds);
+    }
+
     // ==========================================
     //          AUXILIARY METHODS
     // ==========================================
@@ -195,7 +215,8 @@ public class ProjectService {
         event.setInitDateTime(project.getDeadline().minus(1, ChronoUnit.HOURS));
         event.setEndDateTime(project.getDeadline());
         event.setEventType(EventType.DEADLINE);
-        event.setUser(user);
+        event.setOrganizer(user);
+        event.getAttendees().add(user);
         event.setProject(project);
         calendarEventRepository.save(event);
     }
@@ -236,6 +257,7 @@ public class ProjectService {
                 .logo(project.getLogoUrl())
                 .isGroupBased(project.getIsGroupBased())
                 .teamId(project.getTeam() != null ? project.getTeam().getId() : null)
+                .teamImage(project.getTeam() != null ? project.getTeam().getImageUrl(): null)
                 .teamName(project.getTeam() != null ? project.getTeam().getName() : null)
                 .addToCalendar(addToCalendar)
                 .type(project.getProjectType())

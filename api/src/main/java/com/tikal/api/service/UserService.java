@@ -74,6 +74,10 @@ public class UserService {
         return getUserDTO(user);
     }
 
+    public User getUserById(Integer userId){
+        return userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("user", userId));
+    }
+
     /**
      * Updates the user's profile fields (name, email, avatarUrl).
      * Validates uniqueness of name and email (excluding the current user).

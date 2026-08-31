@@ -8,6 +8,7 @@ import lombok.Data;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @Builder
@@ -25,6 +26,7 @@ public class CalendarEventRequest {
     @NotNull
     private EventType eventType;
     private Boolean isCompleteDay;
+    private List<Integer> attendeeIds;
 
     // Relations (Opcional)
     private Integer projectId;

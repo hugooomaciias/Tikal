@@ -1,7 +1,6 @@
 package com.tikal.api.repository;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.Query;
@@ -20,7 +19,7 @@ public interface TaskRepository extends JpaRepository<Task, Integer>{
     List<Task> findByParentTask_Id(Integer parentTaskId);
     
     /* --- Obtain tasks from an assigned user --- */
-    List<Task> findByAssignedUser_Id(Integer userId);
+    List<Task> findByAssignedUsers_Id(Integer userId);
 
     /* --- Obtain main tasks (without a parent) from an assigned user --- */
     @Query("SELECT t FROM Task t " +
@@ -35,11 +34,11 @@ public interface TaskRepository extends JpaRepository<Task, Integer>{
     List<Task> findByStage_IdIn(List<Integer> stagesIds);
 
     /* --- Fallback: Get any task from the user (for onboarding) --- */
-    Task findFirstByAssignedUser_Id(Integer userId);
+    Task findFirstByAssignedUsers_Id(Integer userId);
 
     /* --- Count the number of main tasks completed within a date range --- */
-    @Query("SELECT COUNT(t) FROM Task t " +
-            "WHERE t.stage.project.userOwner.id = :userId " +
+    @Query("SELECT COUNT(DISTINCT t) FROM Task t JOIN t.assignedUsers u " +
+            "WHERE u.id = :userId " +
             "AND t.isCompleted = true " +
             "AND t.parentTask IS NULL " +
             "AND t.completionDate >= :startDate AND t.completionDate <= :endDate")
@@ -49,8 +48,8 @@ public interface TaskRepository extends JpaRepository<Task, Integer>{
             @Param("endDate") Instant endDate);
 
     /* --- Show main tasks (without a parent) that are pending or have been recently completed --- */
-    @Query("SELECT t FROM Task t " +
-            "WHERE t.stage.project.userOwner.id= :userId " +
+    @Query("SELECT DISTINCT t FROM Task t JOIN t.assignedUsers u " +
+            "WHERE u.id = :userId " +
             "AND t.parentTask IS NULL " +
             "AND t.deadline IS NOT NULL " +
             "AND (t.isCompleted = false OR (t.isCompleted = true AND t.completionDate >= :since))")
@@ -65,8 +64,8 @@ public interface TaskRepository extends JpaRepository<Task, Integer>{
     List<Object[]> countPendingSubtasksByParentIds(@Param("parentTaskIds") List<Integer> parentTaskIds);
 
     /* --- Obtain completed parent tasks with a valid time estimate for a specific user since a given date --- */
-    @Query("SELECT t FROM Task t " +
-            "WHERE t.stage.project.userOwner.id = :userId " +
+    @Query("SELECT DISTINCT t FROM Task t JOIN t.assignedUsers u " +
+            "WHERE u.id = :userId " +
             "AND t.isCompleted = true " +
             "AND t.estimatedTime IS NOT NULL " +
             "AND t.estimatedTime > 0 " +
@@ -77,8 +76,8 @@ public interface TaskRepository extends JpaRepository<Task, Integer>{
             @Param("since") Instant since);
 
     /* --- Obtain the total number of completed parent tasks with a valid time estimate for a specific user since a given date --- */
-    @Query("SELECT COUNT(t) FROM Task t " +
-            "WHERE t.stage.project.userOwner.id = :userId " +
+    @Query("SELECT COUNT(DISTINCT t) FROM Task t JOIN t.assignedUsers u " +
+            "WHERE u.id = :userId " +
             "AND t.isCompleted = true " +
             "AND t.estimatedTime IS NOT NULL " +
             "AND t.estimatedTime > 0 " +
@@ -89,8 +88,8 @@ public interface TaskRepository extends JpaRepository<Task, Integer>{
             @Param("since") Instant since);
 
     /* --- Obtain the total number of completed parent tasks for a specific user since a given date --- */
-    @Query("SELECT COUNT(t) FROM Task t " +
-            "WHERE t.stage.project.userOwner.id = :userId " +
+    @Query("SELECT COUNT(DISTINCT t) FROM Task t JOIN t.assignedUsers u " +
+            "WHERE u.id = :userId " +
             "AND t.isCompleted = true " +
             "AND t.completionDate >= :since " +
             "AND t.parentTask IS NULL")
@@ -109,8 +108,8 @@ public interface TaskRepository extends JpaRepository<Task, Integer>{
             "       END " +
             "   ELSE NULL " +
             "END) " +
-            "FROM Task t " +
-            "WHERE t.stage.project.userOwner.id = :userId " +
+            "FROM Task t JOIN t.assignedUsers u " +
+            "WHERE u.id = :userId " +
             "AND t.isCompleted = true " +
             "AND t.parentTask IS NULL " +
             "AND t.completionDate IS NOT NULL " +
@@ -119,8 +118,8 @@ public interface TaskRepository extends JpaRepository<Task, Integer>{
     List<Object[]> findDailyAverageEffectiveness(@Param("userId") Integer userId);
 
     /* --- Count the user's pending tasks --- */
-    @Query("SELECT COUNT(t) FROM Task t " +
-            "WHERE t.stage.project.userOwner.id = :userId " +
+    @Query("SELECT COUNT(t) FROM Task t JOIN t.assignedUsers u " +
+            "WHERE u.id = :userId " +
             "AND t.isCompleted = false " +
             "AND t.parentTask IS NULL " +
             "AND t.deadline IS NOT NULL")
@@ -129,8 +128,8 @@ public interface TaskRepository extends JpaRepository<Task, Integer>{
     /* --- Count the user's pending tasks --- */
     @Query("""
         SELECT COUNT(t)
-        FROM Task t
-        WHERE t.stage.project.userOwner.id = :userId
+        FROM Task t JOIN t.assignedUsers u
+        WHERE u.id = :userId
         AND t.isCompleted = false
         AND t.parentTask IS NULL
         AND t.deadline >= :startOfDay
@@ -143,5 +142,33 @@ public interface TaskRepository extends JpaRepository<Task, Integer>{
     );
 
     /* --- Count the total number of tasks completed by the user --- */
-    Integer countByAssignedUser_IdAndIsCompletedTrue(Integer userId);
+    Integer countByAssignedUsers_IdAndIsCompletedTrue(Integer userId);
+
+    /* --- Overall Progress and Project Task Count [Total tasks, completed tasks] --- */
+    @Query("SELECT COUNT(t), SUM(CASE WHEN t.isCompleted = true THEN 1 ELSE 0 END) " +
+            "FROM Task t WHERE t.stage.project.id = :projectId AND t.parentTask IS NULL")
+    Object[] getProjectTaskProgress(@Param("projectId") Integer projectId);
+
+    /* --- Team Effectiveness in This Project --- */
+    @Query("SELECT AVG(" +
+            "CASE " +
+            "   WHEN (t.totalLoggedMinutes IS NOT NULL AND t.estimatedTime IS NOT NULL AND t.estimatedTime > 0) " +
+            "   THEN " +
+            "       CASE " +
+            "           WHEN t.totalLoggedMinutes <= t.estimatedTime THEN 100.0 " +
+            "           ELSE GREATEST(0.0, 100.0 - ((t.totalLoggedMinutes - t.estimatedTime) * 100.0 / t.estimatedTime)) " +
+            "       END " +
+            "   ELSE NULL " +
+            "END) " +
+            "FROM Task t WHERE t.stage.project.id = :projectId AND t.isCompleted = true AND t.parentTask IS NULL")
+    Double getProjectTeamEffectiveness(@Param("projectId") Integer projectId);
+
+    /* --- Workload per Member [User ID, Pending Tasks, Completed Tasks] --- */
+    @Query("SELECT u.id, " +
+            "SUM(CASE WHEN t.isCompleted = false THEN 1 ELSE 0 END), " +
+            "SUM(CASE WHEN t.isCompleted = true THEN 1 ELSE 0 END) " +
+            "FROM Task t JOIN t.assignedUsers u " +
+            "WHERE t.stage.project.id = :projectId AND t.parentTask IS NULL " +
+            "GROUP BY u.id")
+    List<Object[]> getMemberWorkloadForProject(@Param("projectId") Integer projectId);
 }
