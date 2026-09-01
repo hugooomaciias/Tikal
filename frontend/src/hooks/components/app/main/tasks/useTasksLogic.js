@@ -185,7 +185,6 @@ export const useTasksLogic = () => {
         setIsCompleted((prev) => !prev);
     }, []);
 
-    /** PREGUNTAR A FERNANDO SI LO HACE EL */
     const formatShortDate = (dateInput, language = "es") => {
         if (!dateInput) return "";
 

@@ -141,6 +141,12 @@ export const SyncProvider = ({ children }) => {
     const getGamificationEvents = useCallback(() => rawDashboardData?.gamificationEvents || null, [rawDashboardData]);
     const getSettings = useCallback(() => rawDashboardData?.settings || null, [rawDashboardData]);
     const getAISessions = useCallback(() => rawDashboardData?.aiSessions || null, [rawDashboardData]);
+    const getTeamsData = useCallback(() => rawDashboardData?.teams || null, [rawDashboardData]);
+    const getTeamMembersData = useCallback((teamId) => {
+        if (!rawDashboardData?.teamMembers) return null;
+        return rawDashboardData.teamMembers[teamId] || null;
+    }, [rawDashboardData]);
+    const getSidebarChats = useCallback(() => rawDashboardData?.sidebarChats || null, [rawDashboardData]);
 
     /**
      * Update Context Data (The Golden Key)
@@ -218,6 +224,9 @@ export const SyncProvider = ({ children }) => {
                 getGamificationEvents,
                 getSettings,
                 getAISessions,
+                getTeamsData,
+                getTeamMembersData,
+                getSidebarChats,
                 fetchTempleModeGamificationUpdate,
                 isDataLoaded: !!rawDashboardData,
                 refreshData: sync,

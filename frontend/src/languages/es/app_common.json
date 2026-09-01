@@ -5,7 +5,13 @@
         "calendar": "Calendario",
         "statistics": "Estadísticas",
         "temple_mode": "Modo templo",
-        "groups": "Grupos",
+        "teams": {
+            "title": "Equipos",
+            "subs": {
+                "home": "Inicio",
+                "chat": "Chat"
+            }
+        },
         "logout": "Cerrar sesión"
     },
     "confirm_time_log": {
@@ -55,11 +61,18 @@
     "delete": {
         "title": {
             "event": "Eliminar evento",
-            "ia": "Eliminar chat"
+            "ia": "Eliminar chat",
+            "leave": "Abandonar equipo"
         },
-        "description": "¿Estás seguro de que deseas eliminar este evento?",
+        "description": {
+            "event": "¿Estás seguro de que deseas eliminar este evento?",
+            "leave": "¿Estás seguro de que deseas abandonar este equipo?"
+        },
         "cancel": "Cancelar",
-        "delete": "Eliminar"
+        "button_delete": {
+            "event": "Eliminar",
+            "leave": "Abandonar"
+        }
     },
     "cascading": {
         "name": "Seleccionar vinculación",

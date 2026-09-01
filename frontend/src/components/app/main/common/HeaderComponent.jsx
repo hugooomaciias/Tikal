@@ -13,6 +13,8 @@ import {
     IconSquareRoundedXFilled,
     IconSquareRoundedCheckFilled,
     IconSquareRoundedPlus,
+    IconUser,
+    IconUserShield
 } from "@tabler/icons-react";
 
 /**
@@ -34,7 +36,7 @@ import {
  * @param {Function} props.t - The i18n translation function.
  * @returns {JSX.Element} The rendered header component.
  */
-export const HeaderComponent = ({ page, primaryState, secondaryState, onTogglePrimary, onToggleSecondary, theme = "", onSaveLayout, t }) => {
+export const HeaderComponent = ({ page, primaryState, secondaryState, onTogglePrimary, onToggleSecondary, theme = "", onSaveLayout, teams, t }) => {
     // --- 1. Local UI Logic ---
 
     /**
@@ -173,6 +175,43 @@ export const HeaderComponent = ({ page, primaryState, secondaryState, onTogglePr
                                 <div className="cursor-pointer transition-transform">
                                     <IconSquareRoundedPlus className="w-8 h-8" />
                                 </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {page === t("teams_title") && teams && (
+                        <div className="flex items-center gap-3 md:gap-4">
+                            <div className="relative flex items-center bg-primary rounded-full shadow-md p-1">
+                                {/* Sliding Background */}
+                                <div 
+                                    className={`absolute top-1 left-1 w-10 h-10 bg-primary-600 rounded-full transition-transform duration-300 ease-out ${
+                                        primaryState ? "translate-x-10" : "translate-x-0"
+                                    }`}
+                                />
+                                
+                                {/* Normal user */}
+                                <button
+                                    type="button"
+                                    onClick={() => primaryState && onTogglePrimary()}
+                                    className={`relative z-10 flex items-center justify-center w-10 h-10 rounded-full transition-colors duration-300 ${
+                                        !primaryState ? "text-primary" : "text-primary-600 hover:bg-primary-100"
+                                    }`}
+                                    title="Vista de Integrante"
+                                >
+                                    <IconUser className="w-6 h-6" />
+                                </button>
+
+                                {/* Administrator user */}
+                                <button
+                                    type="button"
+                                    onClick={() => !primaryState && onTogglePrimary()}
+                                    className={`relative z-10 flex items-center justify-center w-10 h-10 rounded-full transition-colors duration-300 ${
+                                        primaryState ? "text-primary" : "text-primary-600 hover:bg-primary-100"
+                                    }`}
+                                    title="Vista de Administrador"
+                                >
+                                    <IconUserShield className="w-6 h-6" />
+                                </button>
                             </div>
                         </div>
                     )}

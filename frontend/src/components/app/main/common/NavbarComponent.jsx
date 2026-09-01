@@ -14,6 +14,8 @@ import {
     IconChartBar,
     IconPyramid,
     IconUsersGroup,
+    IconLayoutDashboard,
+    IconMessageCircle
 } from "@tabler/icons-react";
 
 /**
@@ -29,6 +31,8 @@ const ICON_MAP = {
     IconChartBar,
     IconPyramid,
     IconUsersGroup,
+    IconLayoutDashboard,
+    IconMessageCircle
 };
 
 /**
@@ -54,9 +58,9 @@ export const NavbarComponent = ({ theme }) => {
      */
     const { t, navbarStates, navbarData, navbarActions } = useNavbarLogic();
 
-    const { isExpanded } = navbarStates;
+    const { isExpanded, isTeamsOpen, isFloatingTeamsOpen } = navbarStates;
     const { navbarOptions, activeTab, userProfile } = navbarData;
-    const { trackerActions, handleLogout, handleToggleSidebar, handleNavigateToSettings } = navbarActions;
+    const { trackerActions, handleLogout, handleToggleSidebar, handleNavigateToSettings, handleToggleTeams, handleCloseFloatingMenu } = navbarActions;
 
     // --- 2. Render ---
 
@@ -64,12 +68,12 @@ export const NavbarComponent = ({ theme }) => {
 
     return (
         <aside
-            className={`${theme} flex ${theme ? "bg-rank-900/80 border-rank-700/50 backdrop-blur-sm text-rank" : "bg-primary-300 text-primary"} shadow-2xl transition-all duration-[300ms] shrink-0 z-50 flex-col p-5 justify-between rounded-[3rem] h-full max-md:order-last max-md:flex-row max-md:w-full max-md:h-[72px] max-md:p-2 max-md:rounded-[2rem] max-md:items-center max-md:justify-around ${isExpanded ? "w-72" : "w-[104px]"}`}
+            className={`${theme} flex ${theme ? "bg-rank-900/80 border-rank-700/50 backdrop-blur-sm text-rank" : "bg-primary-300 text-primary"} shadow-2xl transition-all duration-[300ms] shrink-0 z-50 flex-col p-5 justify-between rounded-[3rem] h-full max-md:order-last max-md:flex-row max-md:w-full max-md:h-[72px] max-md:py-2 max-md:px-4 ${isFloatingTeamsOpen ? "max-md:rounded-tr-none" : "max-md:rounded-[2rem]"} max-md:items-center max-md:justify-around ${isExpanded ? "w-72" : "w-[104px]"}`}
         >
             {/* Top Logo Container */}
             <div
-                className={`hidden h-10 w-auto md:flex items-center gap-12 cursor-pointer ${isExpanded ? "justify-between" : "justify-center"}`}
                 onClick={handleToggleSidebar}
+                className={`hidden h-10 w-auto md:flex items-center gap-12 cursor-pointer ${isExpanded ? "justify-between" : "justify-center"}`}
             >
                 {/* Brand Logo Image */}
                 <div className="h-full w-16 shrink-0 opacity-90 hover:opacity-100 transition-opacity cursor-pointer">
@@ -100,6 +104,81 @@ export const NavbarComponent = ({ theme }) => {
                 {navbarOptions.map((option, index) => {
                     const IconComponent = ICON_MAP[option.icon];
                     const isActive = activeTab === option.title;
+
+                    let colorClasses = "";
+                    if (theme) {
+                        colorClasses = isActive || (option.hasSubmenu && (isTeamsOpen || isFloatingTeamsOpen))
+                            ? "text-rank-400" 
+                            : "text-rank hover:text-rank-100";
+                    } else {
+                        colorClasses = isActive || (option.hasSubmenu && (isTeamsOpen || isFloatingTeamsOpen))
+                            ? "text-primary" 
+                            : "text-primary-500 hover:text-primary-200";
+                    }
+
+                    if (option.hasSubmenu) {
+                        return (
+                            <div key={index} className="relative md:w-full">
+                                {/* Teams button */}
+                                <button
+                                    type="button"
+                                    onClick={() => handleToggleTeams(option.subItems[0].to)}
+                                    className={`md:w-full md:flex items-center justify-center md:gap-6 transition-all duration-200 cursor-pointer ${isExpanded && isTeamsOpen ? "bg-primary-50 rounded-t-[1rem] p-3 text-primary-500" : "text-primary"} ${colorClasses}`}
+                                >
+                                    <IconComponent className="h-8 w-8 shrink-0" />
+
+                                    {isExpanded && (
+                                        <span className="text-2xl font-light tracking-[0.05em] whitespace-nowrap flex-1 text-left">
+                                            {option.title}
+                                        </span>
+                                    )}
+                                </button>
+
+                                {/* Teams subitems when Navbar is expanded */}
+                                {isExpanded && isTeamsOpen && (
+                                    <div className="flex flex-col gap-2 bg-primary-50 text-primary-600 rounded-b-[1rem] pt-0 pr-3 pb-3 pl-2 animate-fade-in-up">
+                                        {option.subItems.map((sub, subIdx) => {
+                                            const SubIcon = ICON_MAP[sub.icon];
+                                            const isSubActive = location.pathname === sub.to;
+
+                                            return (
+                                                <Link
+                                                    key={subIdx}
+                                                    to={sub.to}
+                                                    className={`flex items-center gap-4 px-2 p-1 rounded-lg text-lg font-medium transition-colors ${isSubActive ? "bg-primary-300 text-primary-50" : "text-primary-500"}`}
+                                                >
+                                                    <SubIcon className="h-6 w-6" />
+                                                    <span>{sub.title}</span>
+                                                </Link>
+                                            );
+                                        })}
+                                    </div>
+                                )}
+
+                                {/* Teams subitems when Navbar is not expanded */}
+                                {!isExpanded && isFloatingTeamsOpen && (
+                                    <div className="md:w-fit absolute -right-9 md:left-full -top-28 md:-top-9 flex flex-col gap-3 bg-primary-300 p-2 md:p-3 md:pr-2 rounded-t-2xl md:rounded-r-2xl z-50 animate-fade-in-up">
+                                        {option.subItems.map((sub, subIdx) => {
+                                            const SubIcon = ICON_MAP[sub.icon];
+                                            const isSubActive = location.pathname === sub.to;
+
+                                            return (
+                                                <Link
+                                                    key={subIdx}
+                                                    to={sub.to}
+                                                    onClick={handleCloseFloatingMenu}
+                                                    className={`flex items-center gap-3 px-2 p-1 rounded-lg text-lg font-medium transition-colors ${isSubActive ? "bg-primary-300 text-primary-50" : "text-primary-500"}`}
+                                                >
+                                                    <SubIcon className="h-6 w-6" />
+                                                    <span>{sub.title}</span>
+                                                </Link>
+                                            );
+                                        })}
+                                    </div>
+                                )}
+                            </div>
+                        );
+                    }
 
                     return (
                         <Link

@@ -1,5 +1,6 @@
 package com.tikal.api.controller;
 
+import com.tikal.api.model.dto.sync.ProjectDashboardDTO;
 import com.tikal.api.model.dto.sync.WorkspaceSyncDTO;
 import com.tikal.api.model.dto.sync.domain.GamificationEventDTO;
 import com.tikal.api.model.dto.temple.TempleUpdateResponse;
@@ -7,6 +8,7 @@ import com.tikal.api.model.entity.User;
 import com.tikal.api.repository.TimeLogRepository;
 import com.tikal.api.service.DashboardService;
 import com.tikal.api.service.GamificationService;
+import com.tikal.api.service.ProjectDashboardService;
 import com.tikal.api.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -22,6 +24,7 @@ import java.util.List;
 public class DashboardController {
 
     private final DashboardService dashboardService;
+    private final ProjectDashboardService projectDashboardService;
     private final GamificationService gamificationService;
     private final UserService userService;
     private final TimeLogRepository timeLogRepository;
@@ -35,6 +38,16 @@ public class DashboardController {
         WorkspaceSyncDTO syncData = dashboardService.buildInitialWorkspaceSync();
 
         return ResponseEntity.ok(syncData);
+    }
+
+    /**
+     * GET /dashboard/project/{projectId}
+     * Builds and returns the entire dashboard state for a specific project.
+     */
+    @GetMapping("/project/{projectId}")
+    public ResponseEntity<ProjectDashboardDTO> getProjectDashboard(@PathVariable Integer projectId) {
+        ProjectDashboardDTO dashboardData = projectDashboardService.getProjectDashboard(projectId);
+        return ResponseEntity.ok(dashboardData);
     }
 
     @GetMapping("/temple-status")

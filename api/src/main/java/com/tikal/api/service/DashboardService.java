@@ -245,6 +245,7 @@ public class DashboardService {
 
     private UserProfileSyncDTO buildUserProfile(User user) {
         return UserProfileSyncDTO.builder()
+                .id(user.getId())
                 .name(user.getName())
                 .email(user.getEmail())
                 .avatarUrl(user.getAvatarUrl())
@@ -291,7 +292,7 @@ public class DashboardService {
 
         // 3. Fetch all deadlines in ONE query
         List<CalendarEvent> allDeadlines = calendarEventRepository
-                .findDeadlinesByProyectIdsOrStageIdsOrTaskIds(projectIds, stageIds, taskIds, EventType.DEADLINE);
+                .findDeadlinesByProjectIdsOrStageIdsOrTaskIds(projectIds, stageIds, taskIds, EventType.DEADLINE);
 
         // 4. Build in‑memory sets for quick lookup
         Set<Integer> projectsWithDeadline = allDeadlines.stream()
@@ -361,6 +362,20 @@ public class DashboardService {
                 idLinkedEntity = "t_" + event.getTask().getId();
             }
 
+            CalendarEventDTO.EventUser organizerDto = CalendarEventDTO.EventUser.builder()
+                    .id(event.getOrganizer().getId())
+                    .name(event.getOrganizer().getName())
+                    .avatar(event.getOrganizer().getAvatarUrl())
+                    .build();
+
+            List<CalendarEventDTO.EventUser> attendeesDto = event.getAttendees().stream()
+                    .map(u -> CalendarEventDTO.EventUser.builder()
+                            .id(u.getId())
+                            .name(u.getName())
+                            .avatar(u.getAvatarUrl())
+                            .build())
+                    .toList();
+
             return CalendarEventDTO.builder()
                     .id(event.getId())
                     .logo(eventLogo)
@@ -373,6 +388,8 @@ public class DashboardService {
                     .eventType(event.getEventType())
                     .isActivateTracker(event.getIsActivateTracker())
                     .isCompleteDay(event.getIsCompleteDay())
+                    .organizer(organizerDto)
+                    .attendees(attendeesDto)
                     .build();
 
         }).collect(Collectors.toList());
@@ -536,6 +553,14 @@ public class DashboardService {
                 .map(this::mapSubTaskToSubtaskSyncDTO)
                 .collect(Collectors.toList());
 
+        List<TaskSyncDTO.AssignedUser> assignedUsers = task.getAssignedUsers().stream()
+                .map(u -> TaskSyncDTO.AssignedUser.builder()
+                        .id(u.getId())
+                        .name(u.getName())
+                        .avatar(u.getAvatarUrl())
+                        .build())
+                .toList();
+
         return TaskSyncDTO.builder()
                 .id(task.getId())
                 .name(task.getName())
@@ -550,6 +575,7 @@ public class DashboardService {
                 .logo(logo)
                 .numberOfSubTask(subtaskSyncDTOS.size())
                 .subtasks(subtaskSyncDTOS)
+                .assignedUsers(assignedUsers)
                 .build();
     }
 

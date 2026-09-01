@@ -20,7 +20,7 @@ import { IconPlayerPlayFilled, IconPlayerPauseFilled, IconPlayerStopFilled } fro
  */
 export const TimeTrackerWidget = () => {
     // --- 1. Logic Hook Extraction ---
-
+    
     /**
      * Time Tracker Widget Data & Action Handlers
      *

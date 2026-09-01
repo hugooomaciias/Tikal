@@ -30,7 +30,11 @@ public class TeamMember {
 
     /* --- If the User is administrator of the team, this attribute has to be 'True' --- */
     @Column(name = "is_admin", columnDefinition = "TINYINT(1) DEFAULT 0")
-    private Boolean isAdmin = false; 
+    private Boolean isAdmin = false;
+
+    /* --- Team role --- */
+    @Column(name = "team_role")
+    private String teamRole;
 
     /* --- Date of joining the Team --- */
     @CreationTimestamp
@@ -41,7 +45,7 @@ public class TeamMember {
     /* --- Last date of reading messages from the Team --- */
     @CreationTimestamp
     @JdbcTypeCode(org.hibernate.type.SqlTypes.TIMESTAMP_UTC)
-    @Column(name = "last_read_date", updatable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
+    @Column(name = "last_read_date", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private Instant lastReadDate;
 
     /* --- User relation ==> The same User can be a member of different teams --- */

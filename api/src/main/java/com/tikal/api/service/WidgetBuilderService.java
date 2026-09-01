@@ -126,7 +126,7 @@ public class WidgetBuilderService {
         }
 
         // CASE 3: A completely new user with no history. We are looking for any tasks they have
-        Task fallbackTask = taskRepository.findFirstByAssignedUser_Id(userId);
+        Task fallbackTask = taskRepository.findFirstByAssignedUsers_Id(userId);
 
         if (fallbackTask != null) {
             return TimeTrackerWidgetData.builder()

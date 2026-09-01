@@ -1,6 +1,14 @@
 package com.tikal.api.service;
 
+import com.tikal.api.controller.ChatWebSocketController;
+import com.tikal.api.exception.ResourceNotFoundException;
+import com.tikal.api.model.dto.chat.ChatMessageDTO;
+import com.tikal.api.model.dto.chat.ChatSummaryDTO;
+import com.tikal.api.model.entity.Team;
+import com.tikal.api.model.entity.User;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.tikal.api.model.entity.Message;
@@ -12,6 +20,8 @@ import com.tikal.api.repository.TeamRepository;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -45,8 +55,8 @@ public class ChatService {
      */
     public Message sendDirectMessage(Integer emitterId, Integer receiverId, String content) {
         Message message = new Message();
-        message.setEmitter(userRepo.findById(emitterId).orElseThrow());
-        message.setReceiver(userRepo.findById(receiverId).orElseThrow());
+        message.setEmitter(userRepo.findById(emitterId).orElseThrow(() -> new ResourceNotFoundException("usuario", emitterId)));
+        message.setReceiver(userRepo.findById(receiverId).orElseThrow(() -> new ResourceNotFoundException("usuario", receiverId)));
         message.setContent(content);
         message.setIsRead(false);
         return messageRepo.save(message);
@@ -61,11 +71,14 @@ public class ChatService {
      * @return the saved Message object
      */
     public Message sendTeamMessage(Integer emitterId, Integer teamId, String content) {
-        Message message = new Message();
-        message.setEmitter(userRepo.findById(emitterId).orElseThrow());
+        TeamMember teamMember = teamMemberRepo.findByUserIdAndTeamId(emitterId, teamId).orElseThrow(() -> new ResourceNotFoundException("teamMember", teamId));
+        Message message = new Message();        message.setEmitter(userRepo.findById(emitterId).orElseThrow());
         message.setTargetTeam(teamRepo.findById(teamId).orElseThrow());
         message.setContent(content);
+        message.setSendDate(Instant.now());
         message.setIsRead(false);
+        teamMember.setLastReadDate(Instant.now());
+        teamMemberRepo.save(teamMember);
         return messageRepo.save(message);
     }
 
@@ -88,6 +101,44 @@ public class ChatService {
      */
     public List<Message> getTeamChatHistory(Integer teamId) {
         return messageRepo.findByTargetTeamIdOrderBySendDateAsc(teamId);
+    }
+
+    /**
+     * Retrieves the paginated chat history between two users (1-to-1 conversation)
+     */
+    public Page<ChatMessageDTO> getDirectChatHistoryPaginated(Integer myId, Integer otherUserId, Pageable pageable) {
+        Page<Message> messagePage = messageRepo.findChatHistory1to1Paginated(myId, otherUserId, pageable);
+
+        return messagePage.map(msg -> ChatMessageDTO.builder()
+                        .id(msg.getId())
+                        .content(msg.getContent())
+                        .sendDate(msg.getSendDate())
+                        .emitterId(msg.getEmitter().getId())
+                        .emitterName(msg.getEmitter().getName())
+                        .emitterAvatar(msg.getEmitter().getAvatarUrl())
+                        .isTeamMessage(false)
+                        .build()
+        );
+    }
+
+    /**
+     * Retrieves the paginated messages from a team/group chat
+     */
+    public Page<ChatMessageDTO> getTeamChatHistoryPaginated(Integer teamId, Pageable pageable) {
+        Page<Message> messagePage = messageRepo.findByTargetTeamIdOrderBySendDateDesc(teamId, pageable);
+
+        return messagePage.map(msg -> ChatMessageDTO.builder()
+                .id(msg.getId())
+                .content(msg.getContent())
+                .sendDate(msg.getSendDate())
+                .emitterId(msg.getEmitter().getId())
+                .emitterName(msg.getEmitter().getName())
+                .emitterAvatar(msg.getEmitter().getAvatarUrl())
+                .isTeamMessage(true)
+                .teamId(teamId)
+                .teamImage(msg.getTargetTeam().getImageUrl())
+                .build()
+        );
     }
 
     /**
@@ -122,7 +173,76 @@ public class ChatService {
         }
     }
 
+    /**
+     * Marks all messages in a team conversation as read by updating the lastReadDate
+     */
+    public void markTeamConversationAsRead(Integer myId, Integer teamId) {
+        TeamMember member = teamMemberRepo.findByUserIdAndTeamId(myId, teamId)
+                .orElseThrow(() -> new RuntimeException("El usuario no pertenece a este equipo"));
+
+        member.setLastReadDate(Instant.now());
+        teamMemberRepo.save(member);
+    }
+
     /* --- Unread Message Counts --- */
+
+    public List<ChatSummaryDTO> getMixedSidebar(Integer myId, String searchParam) {
+        List<ChatSummaryDTO> sidebar = new ArrayList<>();
+
+        // 1. Obtain the team information
+        List<TeamMember> myTeams = teamMemberRepo.findByUserId(myId);
+        for (TeamMember tm : myTeams) {
+            Team team = tm.getTeam();
+
+            // Manual search filter (if searchParam is not null)
+            if (searchParam != null && !team.getName().toLowerCase().contains(searchParam.toLowerCase())) {
+                continue;
+            }
+
+            Message lastMsg = messageRepo.findTopByTargetTeamIdOrderBySendDateDesc(team.getId());
+            Long unread = getUnreadTeamMessageCount(team.getId(), tm.getLastReadDate());
+
+            sidebar.add(new ChatSummaryDTO(
+                    team.getId(),
+                    team.getName(),
+                    team.getImageUrl(),
+                    true,
+                    lastMsg != null ? lastMsg.getContent() : "No hay mensajes",
+                    lastMsg != null ? lastMsg.getSendDate() : tm.getJoiningDate(),
+                    unread
+            )
+            );
+        }
+
+        // 2. Get information from Direct Chats
+        List<Integer> directPartners = messageRepo.findAllConversationPartners(myId);
+        for (Integer partnerId : directPartners) {
+            User partner = userRepo.findById(partnerId).orElse(null);
+            if (partner == null) continue;
+
+            if (searchParam != null && !partner.getName().toLowerCase().contains(searchParam.toLowerCase())) {
+                continue;
+            }
+
+            Message lastMsg = messageRepo.findTopDirectMessageBetween(myId, partnerId);
+            Long unread = getUnreadMessageCountFromUser(myId, partnerId);
+
+            sidebar.add(new ChatSummaryDTO(
+                    partner.getId(),
+                    partner.getName(),
+                    partner.getAvatarUrl(),
+                    false,
+                    lastMsg != null ? lastMsg.getContent() : "",
+                    lastMsg != null ? lastMsg.getSendDate() : Instant.EPOCH,
+                    unread
+            ));
+        }
+
+        // 3. Sort the mixed list by the date of the last message (most recent first)
+        sidebar.sort(Comparator.comparing(ChatSummaryDTO::getLastMessageDate).reversed());
+
+        return sidebar;
+    }
 
     /**
      * Gets the total count of unread messages from all direct conversations and team chats

@@ -2,7 +2,7 @@ package com.tikal.api.controller;
 
 import com.tikal.api.model.dto.timer.ActiveTimerDTO;
 import com.tikal.api.model.dto.timer.TimeLogBatchRequest;
-import com.tikal.api.model.dto.TimeLogDTO;
+import com.tikal.api.model.dto.timer.TimeLogDTO;
 import com.tikal.api.model.dto.timer.TimeLogPause;
 import com.tikal.api.model.dto.timer.TimeLogRequest;
 import com.tikal.api.service.TimeLogService;

@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 
 import java.time.Instant;
+import java.util.List;
 
 @Data
 @Builder
@@ -19,5 +20,15 @@ public class CalendarEventDTO {
     private String colour;
     private EventType eventType;
     private String logo;
+    private EventUser organizer;
+    private List<EventUser> attendees;
     private String linkedEntity;
+
+    @Data
+    @Builder
+    public static class EventUser {
+        private Integer id;
+        private String name;
+        private String avatar;
+    }
 }

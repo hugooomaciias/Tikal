@@ -12,7 +12,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
 
@@ -30,7 +29,7 @@ public class CalendarEventService {
         User user = userService.getAuthenticatedUser();
 
         List<CalendarEvent> events = calendarEventRepository
-                .findByUserIdAndInitDateTimeGreaterThanEqualAndEndDateTimeLessThanEqual(user.getId(), start, end);
+                .findEventsForUserInTimeRange(user.getId(), start, end);
 
         return events.stream().map(this::toDto).toList();
     }
@@ -39,7 +38,17 @@ public class CalendarEventService {
     public CalendarEventDTO createEvent(CalendarEventRequest request) {
         User user = userService.getAuthenticatedUser();
         CalendarEvent event = new CalendarEvent();
-        event.setUser(user);
+        event.setOrganizer(user);
+        event.getAttendees().add(user);
+
+        if (request.getAttendeeIds() != null && !request.getAttendeeIds().isEmpty()) {
+            for (Integer attendeeId : request.getAttendeeIds()) {
+                if (!attendeeId.equals(user.getId())) {
+                    User attendee = userService.getUserById(attendeeId);
+                    event.getAttendees().add(attendee);
+                }
+            }
+        }
 
         mapRequestToEntity(request, event);
         mapLinkedEntities(request, event);
@@ -54,8 +63,16 @@ public class CalendarEventService {
         CalendarEvent event = calendarEventRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Evento no encontrado"));
 
-        if (!event.getUser().getId().equals(user.getId())) {
+        if (!event.getOrganizer().getId().equals(user.getId())) {
             throw new ForbiddenAccessException("No tienes permiso para editar este evento");
+        }
+
+        if (request.getAttendeeIds() != null) {
+            event.getAttendees().clear();
+            for (Integer attendeeId : request.getAttendeeIds()) {
+                User attendee = userService.getUserById(attendeeId);
+                event.getAttendees().add(attendee);
+            }
         }
 
         mapRequestToEntity(request, event);
@@ -70,7 +87,7 @@ public class CalendarEventService {
         CalendarEvent event = calendarEventRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Evento no encontrado"));
 
-        if (!event.getUser().getId().equals(user.getId())) {
+        if (!event.getOrganizer().getId().equals(user.getId())) {
             throw new ForbiddenAccessException("No tienes permiso");
         }
 
@@ -86,7 +103,7 @@ public class CalendarEventService {
         CalendarEvent event = calendarEventRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Evento no encontrado"));;
 
-        if (!event.getUser().getId().equals(user.getId())) {
+        if (!event.getOrganizer().getId().equals(user.getId())) {
             throw new ForbiddenAccessException("No tienes permiso");
         }
 
@@ -188,6 +205,20 @@ public class CalendarEventService {
             idLinkedEntity = "t_" + event.getTask().getId();
         }
 
+        CalendarEventDTO.EventUser organizerDto = CalendarEventDTO.EventUser.builder()
+                .id(event.getOrganizer().getId())
+                .name(event.getOrganizer().getName())
+                .avatar(event.getOrganizer().getAvatarUrl())
+                .build();
+
+        List<CalendarEventDTO.EventUser> attendeesDto = event.getAttendees().stream()
+                .map(u -> CalendarEventDTO.EventUser.builder()
+                        .id(u.getId())
+                        .name(u.getName())
+                        .avatar(u.getAvatarUrl())
+                        .build())
+                .toList();
+
         return CalendarEventDTO.builder()
                 .id(event.getId())
                 .name(event.getName())
@@ -200,6 +231,8 @@ public class CalendarEventService {
                 .isCompleteDay(event.getIsCompleteDay())
                 .logo(event.getProject() != null ? event.getProject().getLogoUrl() : null)
                 .linkedEntity(idLinkedEntity)
+                .organizer(organizerDto)
+                .attendees(attendeesDto)
                 .build();
     }
 }

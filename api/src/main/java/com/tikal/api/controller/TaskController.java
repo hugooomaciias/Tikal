@@ -1,5 +1,6 @@
 package com.tikal.api.controller;
 
+import com.tikal.api.model.dto.task.AssignTaskRequest;
 import com.tikal.api.model.dto.task.TaskRequest;
 import com.tikal.api.model.dto.task.TaskDTO;
 import com.tikal.api.service.TaskService;
@@ -43,5 +44,18 @@ public class TaskController {
     @PatchMapping("/{id}/toggle-status")
     public ResponseEntity<TaskDTO> toggleTaskStatus(@PathVariable("id") Integer id) {
         return ResponseEntity.ok(taskService.toggleTaskStatus(id));
+    }
+
+    /**
+     * PATCH /api/tasks/{taskId}/assign
+     * Reassign users to a task (Drag & Drop or Multi-select)
+     */
+    @PatchMapping("/{taskId}/assign")
+    public ResponseEntity<Void> assignUsersToTask(
+            @PathVariable Integer taskId,
+            @RequestBody AssignTaskRequest request) {
+
+        taskService.assignUsersToTask(taskId, request.getAssignedUserIds());
+        return ResponseEntity.noContent().build();
     }
 }

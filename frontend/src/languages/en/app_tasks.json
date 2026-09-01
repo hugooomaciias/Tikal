@@ -3,7 +3,14 @@
     "projects": {
         "title": "Projects",
         "search": "Search project",
-        "no_projects": "No projects found",
+        "no_projects": {
+            "title": "There are no projects yet",
+            "description": "Create your first project by clicking the + button below to get started."
+        },
+        "no_results": {
+            "title": "No results",
+            "description": "We didn't find anything for"
+        },
         "popup": {
             "title": {
                 "new": {
@@ -49,7 +56,14 @@
     "stages": {
         "title": "Stages",
         "search": "Search stage",
-        "no_stages": "No stages found",
+        "no_stages": {
+            "title": "There are no projects yet",
+            "description": "Create your first stage by clicking the + button below to get started."
+        },
+        "no_results": {
+            "title": "No results",
+            "description": "We didn't find anything for"
+        },
         "back_projects": "Projects",
         "popup": {
             "title": {
@@ -96,7 +110,14 @@
     "tasks": {
         "title": "Tasks",
         "search": "Search task",
-        "no_tasks": "No tasks found",
+        "no_tasks": {
+            "title": "There are no tasks yet",
+            "description": "Create your first task by clicking the + button below to get started."
+        },
+        "no_results": {
+            "title": "No results",
+            "description": "We didn't find anything for"
+        },
         "completed_separator": "Completed tasks",
         "subtasks": "subtasks",
         "no_subtasks": "No",

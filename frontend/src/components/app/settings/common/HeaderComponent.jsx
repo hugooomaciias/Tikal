@@ -60,8 +60,8 @@ export const HeaderComponent = () => {
      *
      * Redirects the user from the settings layout back to the primary authenticated dashboard.
      */
-    const handleNavigateToHome = () => {
-        navigate("/home");
+    const handleNavigateToBack = () => {
+        navigate(-1);
     };
 
     // --- 3. Render ---
@@ -92,7 +92,7 @@ export const HeaderComponent = () => {
                 <div className="h-16 w-16 flex items-center gap-6">
                     <button
                         type="button"
-                        onClick={handleNavigateToHome}
+                        onClick={handleNavigateToBack}
                         title="Volver a Tikal"
                         className="relative h-full w-full bg-primary p-3 rounded-full shadow-md group flex items-center justify-center overflow-hidden"
                     >

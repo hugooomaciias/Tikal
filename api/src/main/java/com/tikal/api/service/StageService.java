@@ -177,7 +177,8 @@ public class StageService {
         event.setInitDateTime(stage.getDeadline().minus(1, ChronoUnit.HOURS));
         event.setEndDateTime(stage.getDeadline());
         event.setEventType(EventType.DEADLINE);
-        event.setUser(user);
+        event.setOrganizer(user);
+        event.getAttendees().add(user);
         event.setProject(stage.getProject());
         event.setStage(stage);
         calendarEventRepository.save(event);

@@ -32,9 +32,9 @@ export const TabsComponent = ({ page, formData, onChangeType, onChangeSelected, 
      * and right (second) tabs based on the contextual `page` prop.
      */
     const firstTabType =
-        normalizedPage === "project" ? "project" : normalizedPage === "stage" ? "stage" : normalizedPage === "tasks" ? "details" : "linked";
+        normalizedPage === "project" ? "project" : normalizedPage === "stage" ? "stage" : normalizedPage === "tasks" ? "details" : normalizedPage === "event" ? "linked" : "create";
     const secondTabType =
-        normalizedPage === "project" ? "list" : normalizedPage === "stage" ? "sublist" : normalizedPage === "tasks" ? "subtasks" : "unlinked";
+        normalizedPage === "project" ? "list" : normalizedPage === "stage" ? "sublist" : normalizedPage === "tasks" ? "subtasks" : normalizedPage === "event" ? "unlinked" : "join";
 
     /**
      * Current Selection State
@@ -68,12 +68,15 @@ export const TabsComponent = ({ page, formData, onChangeType, onChangeSelected, 
         } else if (normalizedPage === "tasks") {
             defaultId = newType === "details" ? "pri-100" : "sec-100";
             newDefault = PHASE_COLOURS.find((colour) => colour.id === defaultId);
-        } else {
+        } else if (normalizedPage === "event") {
             defaultId = newType === "linked" ? "pri-100" : "sec-100";
+            newDefault = PHASE_COLOURS.find((colour) => colour.id === defaultId);
+        } else {
+            defaultId = newType === "create" ? "pri-100" : "sec-100";
             newDefault = PHASE_COLOURS.find((colour) => colour.id === defaultId);
         }
 
-        if (newDefault) {
+        if (newDefault && typeof onChangeSelected === "function") {
             onChangeSelected(newDefault);
         }
     };
@@ -104,7 +107,9 @@ export const TabsComponent = ({ page, formData, onChangeType, onChangeSelected, 
                       ? t("stages.popup.tabs.stage")
                       : normalizedPage === "tasks"
                         ? t("tasks.popup.tabs.details")
-                        : t("popup.tabs.linked")
+                        : normalizedPage === "event"
+                          ? t("popup.tabs.linked")
+                          : t("teams.popup.tabs.create")
                 }
             </button>
 
@@ -125,7 +130,9 @@ export const TabsComponent = ({ page, formData, onChangeType, onChangeSelected, 
                       ? t("stages.popup.tabs.sublist")
                       : normalizedPage === "tasks"
                         ? t("tasks.popup.tabs.subtasks")
-                        : t("popup.tabs.unlinked")
+                        : normalizedPage === "event"
+                          ? t("popup.tabs.unlinked")
+                          : t("teams.popup.tabs.join")
                 }
             </button>
         </div>

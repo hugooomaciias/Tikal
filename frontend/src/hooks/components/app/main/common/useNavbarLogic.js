@@ -1,5 +1,5 @@
 /** React & Third-Party Libraries */
-import { useState, useMemo, useCallback } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
@@ -23,6 +23,11 @@ import { useTimeLog } from "../../../../core/useTimeLog.js";
 export const useNavbarLogic = () => {
     // --- 1. DOM Refs & Layout State ---
 
+    /**
+     * Time Tracker Context
+     *
+     * Injects the global time tracking actions to be accessible from the navbar controls.
+     */
     const { trackerActions } = useTimeLog();
 
     /**
@@ -73,6 +78,20 @@ export const useNavbarLogic = () => {
      */
     const [isExpanded, setIsExpanded] = useState(false);
 
+    /**
+     * Standard Teams Menu State
+     *
+     * Tracks the visibility of the "Teams" sub-menu accordion when the sidebar is expanded.
+     */
+    const [isTeamsOpen, setIsTeamsOpen] = useState(false);
+
+    /**
+     * Floating Teams Menu State
+     *
+     * Tracks the visibility of the "Teams" floating popover menu when the sidebar is collapsed.
+     */
+    const [isFloatingTeamsOpen, setIsFloatingTeamsOpen] = useState(false);
+
     // --- 3. Derived UI Data ---
 
     /**
@@ -88,7 +107,15 @@ export const useNavbarLogic = () => {
             { icon: "IconCalendarWeekFilled", title: t("navbar.calendar"), to: "/calendar" },
             { icon: "IconChartBar", title: t("navbar.statistics"), to: "/statistics" },
             { icon: "IconPyramid", title: t("navbar.temple_mode"), to: "/temple-mode" },
-            { icon: "IconUsersGroup", title: t("navbar.groups"), to: "/wip" },
+            {
+                icon: "IconUsersGroup",
+                title: t("navbar.teams.title"),
+                hasSubmenu: true,
+                subItems: [
+                    { icon: "IconHome", title: t("navbar.teams.subs.home") || "Dashboard", to: "/teams" },
+                    { icon: "IconMessageCircle", title: t("navbar.teams.subs.chat") || "Chat", to: "/teams/chat" }
+                ]
+            },
         ],
         [t],
     );
@@ -101,7 +128,15 @@ export const useNavbarLogic = () => {
      * on irrelevant component re-renders.
      */
     const activeTab = useMemo(() => {
-        const currentOption = navbarOptions.find((option) => option.to === location.pathname);
+        const currentOption = navbarOptions.find((option) => {
+            if (option.to === location.pathname) return true;
+            if (option.subItems) {
+                return option.subItems.some(sub => sub.to === location.pathname);
+            }
+            
+            return false;
+        });
+
         return currentOption ? currentOption.title : "";
     }, [navbarOptions, location.pathname]);
 
@@ -111,6 +146,22 @@ export const useNavbarLogic = () => {
      * Retrieves the high-level dashboard configuration and active user metadata.
      */
     const userProfile = getUserProfile();
+
+    // --- 4. Side Effects ---
+
+    /**
+     * Route Watcher (Auto-Close Menus)
+     *
+     * Actively listens to URL changes. If the user navigates away from the Teams section
+     * (e.g., clicking 'Home' or 'Tasks'), it automatically forces the Teams submenus to close,
+     * removing any "active" visual highlighting from the Teams icon.
+     */
+    useEffect(() => {
+        if (!location.pathname.startsWith("/teams")) {
+            setIsTeamsOpen(false);
+            setIsFloatingTeamsOpen(false);
+        }
+    }, [location.pathname]);
 
     // --- 5. Interaction Handlers ---
 
@@ -140,8 +191,62 @@ export const useNavbarLogic = () => {
      */
     const handleToggleSidebar = useCallback(() => {
         setIsExpanded((prev) => !prev);
+        setIsFloatingTeamsOpen(false);
     }, []);
 
+    /**
+     * Teams Menu Toggle Handler
+     *
+     * Manages the intelligent toggling of either the floating menu (if collapsed) 
+     * or the accordion menu (if expanded). Handles optional immediate routing to a default path.
+     *
+     * @param {string} defaultPath - The route to navigate to if opening the menu from outside the section.
+     * @returns {void}
+     */
+    const handleToggleTeams = useCallback((defaultPath) => {
+        if (!isExpanded) {
+            setIsFloatingTeamsOpen((prev) => {
+                const willOpen = !prev;
+                if (willOpen && defaultPath && !location.pathname.startsWith("/teams")) {
+                    navigate(defaultPath);
+                    setIsFloatingTeamsOpen(true);
+                }
+
+                return willOpen;
+            });
+
+            return;
+        }
+
+        setIsTeamsOpen((prev) => {
+            const willOpen = !prev;
+            if (willOpen && defaultPath && !location.pathname.startsWith("/teams")) {
+                navigate(defaultPath);
+                setIsTeamsOpen(true);
+            }
+
+            return willOpen;
+        });
+    }, [isExpanded, location.pathname, navigate]);
+
+    /**
+     * Floating Menu Close Handler
+     *
+     * Triggers the dismissal of the Teams floating menu overlay.
+     *
+     * @returns {void}
+     */
+    const handleCloseFloatingMenu = useCallback(() => {
+        setIsFloatingTeamsOpen(false);
+    }, []);
+
+    /**
+     * Settings Navigation Handler
+     *
+     * Triggers a client-side redirect to the user's account settings page.
+     *
+     * @returns {void}
+     */
     const handleNavigateToSettings = () => {
         navigate("/settings-account");
     };
@@ -150,8 +255,8 @@ export const useNavbarLogic = () => {
 
     return {
         t,
-        navbarStates: { isExpanded },
+        navbarStates: { isExpanded, isTeamsOpen, isFloatingTeamsOpen },
         navbarData: { navbarOptions, activeTab, userProfile },
-        navbarActions: { trackerActions, handleLogout, handleToggleSidebar, handleNavigateToSettings },
+        navbarActions: { trackerActions, handleLogout, handleToggleSidebar, handleNavigateToSettings, handleToggleTeams, handleCloseFloatingMenu },
     };
 };

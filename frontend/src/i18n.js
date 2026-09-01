@@ -23,6 +23,9 @@ import esAppSettingsTeam from "./languages/es/app_settings_team.json";
 
 import esAppIA from "./languages/es/app_ia.json";
 
+import esAppTeams from "./languages/es/app_teams.json";
+import esAppChat from "./languages/es/app_chat.json";
+
 /** Inglés */
 import enLanding from "./languages/en/landing.json";
 import enAuth from "./languages/en/auth.json";
@@ -44,6 +47,9 @@ import enAppSettingsTeam from "./languages/en/app_settings_team.json";
 
 import enAppIA from "./languages/en/app_ia.json";
 
+import enAppTeams from "./languages/en/app_teams.json";
+import enAppChat from "./languages/en/app_chat.json";
+
 const resources = {
     es: {
         landing: esLanding,
@@ -61,6 +67,8 @@ const resources = {
         app_settings_notifications: esAppSettingsNotifications,
         app_settings_team: esAppSettingsTeam,
         app_ia: esAppIA,
+        app_teams: esAppTeams,
+        app_chat: esAppChat,
     },
     en: {
         landing: enLanding,
@@ -78,6 +86,8 @@ const resources = {
         app_settings_notifications: enAppSettingsNotifications,
         app_settings_team: enAppSettingsTeam,
         app_ia: enAppIA,
+        app_teams: enAppTeams,
+        app_chat: enAppChat,
     },
 };
 

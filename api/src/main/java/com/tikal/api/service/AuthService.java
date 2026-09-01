@@ -46,6 +46,7 @@ public class AuthService {
     @Value("${google.client.id}")
     private String googleClientId;
 
+    @Transactional
     public TokenResponse register (RegisterRequest request) {
         boolean existsByEmail = userRepository.existsByEmail(request.getEmail());
         boolean existsByName = userRepository.existsByName(request.getName());

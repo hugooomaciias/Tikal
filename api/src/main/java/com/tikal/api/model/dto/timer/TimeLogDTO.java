@@ -1,4 +1,4 @@
-package com.tikal.api.model.dto;
+package com.tikal.api.model.dto.timer;
 
 import lombok.Builder;
 import lombok.Data;
