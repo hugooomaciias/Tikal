@@ -47,7 +47,11 @@ public class Team {
 
     /* --- Team Members relation ==> If a Team is deleted, all its projects are deleted --- */
     @OneToMany(mappedBy = "team", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<TeamMember> teamProjects = new ArrayList<>();
+    private List<Project> teamProjects = new ArrayList<>();
+
+    /* --- Messages relation ==> If a Team is deleted, all the messages of the team are deleted --- */
+    @OneToMany(mappedBy = "targetTeam", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<Message> messages = new ArrayList<>();
 
     public String getDefaultImageUrl() {
         return "https://api.dicebear.com/10.x/triangles/svg?backgroundColor=3B7A57,2F6C4B,26563D,204533,1B392A,0E2018,2AB7CA,228498,226B7C,245866,224A57,11303B&seed=" + this.getName();

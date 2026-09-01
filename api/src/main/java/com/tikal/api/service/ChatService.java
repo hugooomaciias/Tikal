@@ -71,11 +71,14 @@ public class ChatService {
      * @return the saved Message object
      */
     public Message sendTeamMessage(Integer emitterId, Integer teamId, String content) {
-        Message message = new Message();
-        message.setEmitter(userRepo.findById(emitterId).orElseThrow());
+        TeamMember teamMember = teamMemberRepo.findByUserIdAndTeamId(emitterId, teamId).orElseThrow(() -> new ResourceNotFoundException("teamMember", teamId));
+        Message message = new Message();        message.setEmitter(userRepo.findById(emitterId).orElseThrow());
         message.setTargetTeam(teamRepo.findById(teamId).orElseThrow());
         message.setContent(content);
+        message.setSendDate(Instant.now());
         message.setIsRead(false);
+        teamMember.setLastReadDate(Instant.now());
+        teamMemberRepo.save(teamMember);
         return messageRepo.save(message);
     }
 
@@ -202,7 +205,7 @@ public class ChatService {
             sidebar.add(new ChatSummaryDTO(
                     team.getId(),
                     team.getName(),
-                    null,
+                    team.getImageUrl(),
                     true,
                     lastMsg != null ? lastMsg.getContent() : "No hay mensajes",
                     lastMsg != null ? lastMsg.getSendDate() : tm.getJoiningDate(),
@@ -227,7 +230,7 @@ public class ChatService {
             sidebar.add(new ChatSummaryDTO(
                     partner.getId(),
                     partner.getName(),
-                    null,
+                    partner.getAvatarUrl(),
                     false,
                     lastMsg != null ? lastMsg.getContent() : "",
                     lastMsg != null ? lastMsg.getSendDate() : Instant.EPOCH,

@@ -1,0 +1,28 @@
+{
+    "sidebar": {
+        "search": "Search chat",
+        "no_contacts": {
+            "title": "Empty inbox", 
+            "description": "You don't have any conversations yet. Start a new chat."
+        },
+        "no_results": {
+            "title": "No results", 
+            "description": "We couldn't find any chats with"
+        }
+    },
+    "chat": {
+        "empty_state": {
+            "title": "Your messages",
+            "description": "Select a conversation from the sidebar to start chatting or interacting with your team."
+        },
+        "placeholder": "Type a message"
+    },
+    "members": {
+        "members": "members",
+        "search": "Search members",
+        "no_results": {
+            "title": "No results", 
+            "description": "No one agrees with "
+        }
+    }
+}

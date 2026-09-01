@@ -245,6 +245,7 @@ public class DashboardService {
 
     private UserProfileSyncDTO buildUserProfile(User user) {
         return UserProfileSyncDTO.builder()
+                .id(user.getId())
                 .name(user.getName())
                 .email(user.getEmail())
                 .avatarUrl(user.getAvatarUrl())

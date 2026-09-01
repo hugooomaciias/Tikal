@@ -1,7 +1,10 @@
 {
     "teams_title": "Equipos",
     "teams": {
-        "no_teams": "No tienes equipos en esta rol. Empieza creando o uniéndote a uno.",
+        "no_teams": {
+            "title": "No tienes equipos",
+            "description": "Empieza creando o uniéndote a uno para empezar a organizar tu espacio de trabajo."
+        },
         "new": "Nuevo equipo",
         "code": "Código de invitación",
         "members": "miembros",

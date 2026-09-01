@@ -13,7 +13,7 @@ import { DeleteComponent } from "../common/DeleteComponent.jsx";
 import { SwipeableEntityItemComponent } from "./common/SwipeableEntityItemComponent.jsx";
 
 /** Icons */
-import { IconSearch, IconCircleXFilled, IconNote, IconCirclePlusFilled, IconCalendarEventFilled, IconDotsVerticalFilled } from "@tabler/icons-react";
+import { IconSearch, IconCircleXFilled, IconNote, IconCirclePlusFilled, IconCalendarEventFilled, IconDotsVerticalFilled, IconFolderOff } from "@tabler/icons-react";
 
 /**
  * Projects Card Component
@@ -99,6 +99,7 @@ export const ProjectsCardComponent = ({ data, selectedId, onSelect, formatShortD
 
                         {/* Search Toggle Action */}
                         <button
+                            type="button"
                             className="flex-shrink-0 cursor-pointer hover:text-quaternary-900 transition-colors"
                             onClick={handleToggleSearch}
                         >
@@ -195,9 +196,28 @@ export const ProjectsCardComponent = ({ data, selectedId, onSelect, formatShortD
                             );
                         })
                     ) : (
-                        /* Empty State Indicator */
-                        <div className="flex-1 flex items-center justify-center text-quaternary-400 italic">
-                            {t("projects.no_projects")}
+                        <div className="flex-1 flex flex-col items-center justify-center p-6 animate-fade-in-up opacity-90">
+                            <div className="w-20 h-20 bg-primary-100 rounded-full flex items-center justify-center mb-4 shadow-inner transition-transform hover:scale-105 duration-300">
+                                {projectSearchQuery ? (
+                                    <IconSearch className="w-10 h-10 text-primary-500/60" stroke={1.5} />
+                                ) : (
+                                    <IconFolderOff className="w-10 h-10 text-primary-500/60" stroke={1.5} />
+                                )}
+                            </div>
+                            
+                            <h3 className="text-lg font-bold text-quaternary-700 mb-2 text-center">
+                                {projectSearchQuery 
+                                    ? t("projects.no_results.title") 
+                                    : t("projects.no_projects.title")}
+                            </h3>
+                            
+                            <p className="text-center text-sm text-quaternary-500 max-w-[200px] leading-relaxed font-medium">
+                                {projectSearchQuery 
+                                    ? `${t("projects.no_results.description")} '${projectSearchQuery}'`
+                                    : t("projects.no_projects.description")}
+                            </p>
+                            
+                            <div className="w-12 h-1 bg-primary-300 rounded-full mt-5 opacity-50"></div>
                         </div>
                     )}
                 </div>
@@ -205,7 +225,7 @@ export const ProjectsCardComponent = ({ data, selectedId, onSelect, formatShortD
 
             {/* Floating Action: Create Project Button */}
             <div className="w-full flex items-center justify-end">
-                <button onClick={handleCreateNewProject}>
+                <button type="button" onClick={handleCreateNewProject}>
                     <IconCirclePlusFilled className="tour-action h-10 w-10 text-primary-200/70 hover:text-primary-200" />
                 </button>
             </div>
