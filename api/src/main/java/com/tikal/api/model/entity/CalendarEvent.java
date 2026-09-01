@@ -7,6 +7,8 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.JdbcTypeCode;
 
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * This class represents the Calendar Event entity. It maps to the calendar_event
@@ -64,9 +66,18 @@ public class CalendarEvent {
     /* --- User relation ==> Many events can belong to the same User --- */
     @ManyToOne(optional = false)
     @JoinColumn(name = "user_id", nullable = false) 
-    private User user;
+    private User organizer;
 
-    /* --- Project relation ==> Many envents can belong to the same Project --- */
+    /* --- Users invited to this event --- */
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "event_attendees",
+            joinColumns = @JoinColumn(name = "event_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id")
+    )
+    private List<User> attendees = new ArrayList<>();
+
+    /* --- Project relation ==> Many events can belong to the same Project --- */
     @ManyToOne(optional = true)
     @JoinColumn(name = "project_id")
     private Project project;

@@ -4,6 +4,7 @@ import com.tikal.api.exception.BadRequestException;
 import com.tikal.api.exception.ForbiddenAccessException;
 import com.tikal.api.exception.ResourceNotFoundException;
 import com.tikal.api.exception.UnauthorizedException;
+import com.tikal.api.model.dto.task.ProjectDTO;
 import com.tikal.api.model.dto.team.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;

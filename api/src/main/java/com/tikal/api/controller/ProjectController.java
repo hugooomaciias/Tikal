@@ -5,6 +5,7 @@ import com.tikal.api.model.dto.task.ProjectDTO;
 import com.tikal.api.model.dto.task.UpdateProjectRequest;
 import com.tikal.api.model.entity.Project;
 import com.tikal.api.service.ProjectService;
+import com.tikal.api.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -51,5 +52,10 @@ public class ProjectController {
 
         ProjectDTO updatedProject = projectService.updateProject(projectId, request);
         return ResponseEntity.ok(updatedProject);
+    }
+
+    @GetMapping("/team/{teamId}")
+    public ResponseEntity<List<ProjectDTO>> getTeamProjects(@PathVariable Integer teamId) {
+        return ResponseEntity.ok(projectService.getTeamProjects(teamId));
     }
 }

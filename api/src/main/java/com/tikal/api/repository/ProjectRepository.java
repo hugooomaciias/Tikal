@@ -30,6 +30,7 @@ public interface ProjectRepository extends JpaRepository<Project, Integer> {
     /* --- Fetch everything in one tree --- */
     @Query("SELECT DISTINCT p FROM Project p " +
             "LEFT JOIN FETCH p.stages s " +
-            "WHERE p.userOwner.id = :userId")
+            "WHERE p.userOwner.id = :userId " +
+            "OR p.team.id IN (SELECT tm.team.id FROM TeamMember tm WHERE tm.user.id = :userId)")
     List<Project> findProjectsWithStage(@Param("userId") Integer userId);
 }

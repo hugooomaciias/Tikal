@@ -112,18 +112,18 @@ public class UserOnboardingService {
         task1.setName("Descubre el poder de las subtareas");
         task1.setDescription("Haz clic en la tarea para ver cómo funciona.");
         task1.setStage(stageTodo);
-        task1.setAssignedUser(user);
+        task1.getAssignedUsers().add(user);
 
         Task subtask1 = new Task();
         subtask1.setName("Crear mi primer proyecto propio");
         subtask1.setStage(stageTodo);
-        subtask1.setAssignedUser(user);
+        subtask1.getAssignedUsers().add(user);
         subtask1.setParentTask(task1);
 
         Task subtask2 = new Task();
         subtask2.setName("Invitar a un amigo al equipo");
         subtask2.setStage(stageTodo);
-        subtask2.setAssignedUser(user);
+        subtask2.getAssignedUsers().add(user);
         subtask2.setParentTask(task1);
 
         task1.getSubtasks().add(subtask1);
@@ -135,7 +135,7 @@ public class UserOnboardingService {
         task2.setName("Revisar mi calendario de Tikal");
         task2.setDescription("Esta tarea tiene una fecha límite y se ha añadido a tu calendario automáticamente.");
         task2.setStage(stageTodo);
-        task2.setAssignedUser(user);
+        task2.getAssignedUsers().add(user);
         Instant deadline = now.atZone(ZoneOffset.UTC)
                 .plusDays(1)
                 .withHour(18)
@@ -152,7 +152,8 @@ public class UserOnboardingService {
         calendarEvent.setInitDateTime(task2.getDeadline().minus(1, ChronoUnit.HOURS));
         calendarEvent.setEndDateTime(task2.getDeadline());
         calendarEvent.setEventType(EventType.DEADLINE);
-        calendarEvent.setUser(user);
+        calendarEvent.setOrganizer(user);
+        calendarEvent.getAttendees().add(user);
         calendarEvent.setProject(tutorialProject);
         calendarEvent.setStage(stageTodo);
         calendarEvent.setTask(task2);
@@ -162,7 +163,7 @@ public class UserOnboardingService {
         Task task3 = new Task();
         task3.setName("Registrarme en Tikal");
         task3.setStage(stage2);
-        task3.setAssignedUser(user);
+        task3.getAssignedUsers().add(user);
         task3.setIsCompleted(true);
         task3.setCompletionDate(now);
         taskRepository.save(task3);
@@ -196,28 +197,28 @@ public class UserOnboardingService {
         Task listTask1 = new Task();
         listTask1.setName("Renovar el DNI");
         listTask1.setStage(sublist1);
-        listTask1.setAssignedUser(user);
+        listTask1.getAssignedUsers().add(user);
         taskRepository.save(listTask1);
 
         // Tarea 2: Tomate
         Task listTask2 = new Task();
         listTask2.setName("Tomate");
         listTask2.setStage(sublist2);
-        listTask2.setAssignedUser(user);
+        listTask2.getAssignedUsers().add(user);
         taskRepository.save(listTask2);
 
         // Tarea 3: Leche
         Task listTask3 = new Task();
         listTask3.setName("Leche");
         listTask3.setStage(sublist2);
-        listTask3.setAssignedUser(user);
+        listTask3.getAssignedUsers().add(user);
         taskRepository.save(listTask3);
 
         // Tarea 4: Pan
         Task listTask4 = new Task();
         listTask4.setName("Pan");
         listTask4.setStage(sublist2);
-        listTask4.setAssignedUser(user);
+        listTask4.getAssignedUsers().add(user);
         taskRepository.save(listTask4);
     }
 }

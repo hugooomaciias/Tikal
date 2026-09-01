@@ -74,9 +74,13 @@ public class Task {
     private Stage stage;
 
     /* --- User relation ==> Many tasks can belong to the same User --- */
-    @ManyToOne(optional = true)
-    @JoinColumn(name = "assigned_user_id") 
-    private User assignedUser;
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "task_assignments",
+            joinColumns = @JoinColumn(name = "task_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id")
+    )
+    private List<User> assignedUsers;
 
     /* --- Task relation ==> Many tasks (subtasks) can belong to the same Task --- */
     @ManyToOne(optional = true)

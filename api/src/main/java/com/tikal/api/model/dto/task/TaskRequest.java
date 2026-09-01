@@ -24,6 +24,7 @@ public class TaskRequest {
     @NotNull
     private Integer stageId;
 
+    private List<Integer> assignedUserIds;
     private List<SubtaskRequest> subtasks;
 
     @Data

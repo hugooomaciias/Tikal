@@ -1,7 +1,6 @@
 package com.tikal.api.service;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
@@ -169,7 +168,7 @@ public class TimeService {
      * @return List of tasks assigned to the user
      */
     public List<Task> getTasksByUser(Integer userId) {
-        return taskRepo.findByAssignedUser_Id(userId);
+        return taskRepo.findByAssignedUsers_Id(userId);
     }
     
     /**
@@ -354,7 +353,7 @@ public class TimeService {
      * @return List of calendar events ordered by date
      */
     public List<CalendarEvent> getCalendarEventsByUser(Integer userId) {
-        return calendarRepo.findByUserIdOrderByInitDateTimeAsc(userId);
+        return calendarRepo.findEventsForUserOrderByInitDateTimeAsc(userId);
     }
     
     /**
@@ -365,7 +364,7 @@ public class TimeService {
      * @return List of calendar events in the time range
      */
     public List<CalendarEvent> getCalendarEventsByUserAndDateRange(Integer userId, Instant start, Instant end) {
-        return calendarRepo.findByUserIdAndInitDateTimeBetweenOrderByInitDateTimeAsc(userId, start, end);
+        return calendarRepo.findEventsForUserBetweenDates(userId, start, end);
     }
     
     /**
@@ -384,7 +383,7 @@ public class TimeService {
      * @return List of calendar events matching the name
      */
     public List<CalendarEvent> searchCalendarEventsByName(Integer userId, String name) {
-        return calendarRepo.findByUserIdAndNameContainingIgnoreCaseOrderByInitDateTimeAsc(userId, name);
+        return calendarRepo.findEventsForUserAndName(userId, name);
     }
     
     /**

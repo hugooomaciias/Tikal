@@ -1,5 +1,6 @@
 package com.tikal.api.service;
 
+import com.tikal.api.exception.BadRequestException;
 import com.tikal.api.exception.ForbiddenAccessException;
 import com.tikal.api.exception.ResourceNotFoundException;
 import com.tikal.api.model.dto.task.*;
@@ -31,7 +32,7 @@ public class TaskService {
         Stage stage = stageRepository.findById(stageId)
                 .orElseThrow(() -> new ResourceNotFoundException("Fase", stageId));
 
-        validateTaskPermissions(stage.getProject(), currentUser, "ver");
+        validateTaskPermissions(stage.getProject(), currentUser, "ver", null);
 
         List<Task> tasks = taskRepository.findByStage_IdAndParentTaskIsNull(stageId);
 
@@ -60,7 +61,7 @@ public class TaskService {
         Stage stage = stageRepository.findById(request.getStageId())
                 .orElseThrow(() -> new ResourceNotFoundException("Fase", request.getStageId()));
 
-        validateTaskPermissions(stage.getProject(), currentUser, "crear");
+        validateTaskPermissions(stage.getProject(), currentUser, "crear", null);
 
         Task parentTask = new Task();
         parentTask.setName(request.getName());
@@ -70,7 +71,7 @@ public class TaskService {
         parentTask.setEstimatedProfit(request.getEstimatedProfit());
         parentTask.setDeadline(request.getDeadline());
         parentTask.setStage(stage);
-        parentTask.setAssignedUser(currentUser);
+        parentTask.getAssignedUsers().add(currentUser);
 
         // For subtask, we only save the name
         if (request.getSubtasks() != null) {
@@ -78,7 +79,7 @@ public class TaskService {
                 Task subtask = new Task();
                 subtask.setName(subDto.getName());
                 subtask.setStage(stage);
-                subtask.setAssignedUser(currentUser);
+                subtask.getAssignedUsers().add(currentUser);
                 subtask.setParentTask(parentTask);
 
                 parentTask.getSubtasks().add(subtask);
@@ -104,7 +105,7 @@ public class TaskService {
         Task task = taskRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Tarea", id));
 
-        validateTaskPermissions(task.getStage().getProject(), currentUser, "borrar");
+        validateTaskPermissions(task.getStage().getProject(), currentUser, "borrar", task);
 
         taskRepository.delete(task);
     }
@@ -116,42 +117,37 @@ public class TaskService {
         Task task = taskRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Tarea", id));
 
-        validateTaskPermissions(task.getStage().getProject(), currentUser, "actualizar");
+        Project project = task.getStage().getProject();
 
-        // Basic actualization
-        if (request.getName() != null) task.setName(request.getName());
-        if (request.getDescription() != null) task.setDescription(request.getDescription());
-        if (request.getEstimatedTime() != null) task.setEstimatedTime(request.getEstimatedTime());
-        if (request.getEstimatedProfit() != null) task.setEstimatedProfit(request.getEstimatedProfit());
-        if (request.getDeadline() != null) task.setDeadline(request.getDeadline());
-        if (request.getTimeUnit() != null) task.setTimeUnit(request.getTimeUnit());
+        validateTaskPermissions(project, currentUser, "gestionar_subtareas", task);
 
-        // Subtask synchronization
+        if (isUserAdminOfProject(project, currentUser)) {
+            if (request.getName() != null) task.setName(request.getName());
+            if (request.getDescription() != null) task.setDescription(request.getDescription());
+            if (request.getEstimatedTime() != null) task.setEstimatedTime(request.getEstimatedTime());
+            if (request.getEstimatedProfit() != null) task.setEstimatedProfit(request.getEstimatedProfit());
+            if (request.getDeadline() != null) task.setDeadline(request.getDeadline());
+            if (request.getTimeUnit() != null) task.setTimeUnit(request.getTimeUnit());
+        }
+
         if (request.getSubtasks() != null) {
             List<Task> currentSubtasks = task.getSubtasks();
-
-            // We retrieve the IDs of the subtasks sent to us from the frontend
             Set<Integer> requestedSubtaskIds = request.getSubtasks().stream()
                     .map(TaskRequest.SubtaskRequest::getId)
                     .filter(subId -> subId != null)
                     .collect(Collectors.toSet());
 
-            // DELETE: We remove the subtasks that are NO LONGER in the Frontend Request
-            // Thanks to `orphanRemoval = true` in the Task entity, Hibernate will delete them from MySQL automatically
             currentSubtasks.removeIf(subtask -> !requestedSubtaskIds.contains(subtask.getId()));
 
-            // B. UPDATE OR CREATE
             for (TaskRequest.SubtaskRequest subDto : request.getSubtasks()) {
                 if (subDto.getId() == null) {
-                    // If it has no ID, it is a NEW subtask
                     Task newSubtask = new Task();
                     newSubtask.setName(subDto.getName());
                     newSubtask.setStage(task.getStage());
-                    newSubtask.setAssignedUser(currentUser);
+                    newSubtask.getAssignedUsers().add(currentUser);
                     newSubtask.setParentTask(task);
                     currentSubtasks.add(newSubtask);
                 } else {
-                    // If it has an ID, we UPDATE the existing one
                     currentSubtasks.stream()
                             .filter(sub -> sub.getId().equals(subDto.getId()))
                             .findFirst()
@@ -162,14 +158,12 @@ public class TaskService {
 
         Task updatedTask = taskRepository.save(task);
 
-        // 3. Calendar logic
         boolean hasDeadline = false;
         if (updatedTask.getParentTask() == null) {
             hasDeadline = syncDeadlineEvent(updatedTask, currentUser, request.getAddToCalendar());
         }
 
         Set<Integer> deadlineSet = hasDeadline ? Set.of(updatedTask.getId()) : Set.of();
-
         return toDtoMainTask(updatedTask, deadlineSet);
     }
 
@@ -180,7 +174,7 @@ public class TaskService {
         Task task = taskRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Tarea", id));
 
-        validateTaskPermissions(task.getStage().getProject(), currentUser, "actualizar");
+        validateTaskPermissions(task.getStage().getProject(), currentUser, "completar", task);
 
         boolean newStatus = !task.getIsCompleted();
         Instant completionDate = newStatus ? Instant.now() : null;
@@ -210,33 +204,97 @@ public class TaskService {
         return toDtoMainTask(updatedTask, deadlineSet);
     }
 
+    @Transactional
+    public void assignUsersToTask(Integer taskId, List<Integer> userIds) {
+        User currentUser = userService.getAuthenticatedUser();
+
+        Task task = taskRepository.findById(taskId)
+                .orElseThrow(() -> new ResourceNotFoundException("Tarea", taskId));
+
+        Project project = task.getStage().getProject();
+
+        validateTaskPermissions(project, currentUser, "asignar", task);
+
+        task.getAssignedUsers().clear();
+
+        assignUsersToTaskEntity(task, project, currentUser, userIds);
+
+        taskRepository.save(task);
+    }
+
     // ==========================================
     //          AUXILIARY METHODS
     // ==========================================
 
-    private void validateTaskPermissions(Project project, User user, String action) {
+    private void validateTaskPermissions(Project project, User user, String action, Task task) {
         if (project.getIsGroupBased()) {
-            if (action.equalsIgnoreCase("ver")) {
-                boolean isMember = teamMemberRepository
-                        .findByUserIdAndTeamId(user.getId(), project.getTeam().getId())
-                        .isPresent();
-                if (!isMember) {
-                    throw new ForbiddenAccessException("Debes ser miembro del equipo para ver las tareas.");
-                }
-            } else {
-                List<TeamMember> adminMembers = teamMemberRepository.findTeamAdmins(project.getTeam().getId());
-                boolean isCurrentUserAdmin = adminMembers.stream()
-                        .anyMatch(member -> member.getUser().getId().equals(user.getId()));
+            boolean isAdmin = teamMemberRepository.findTeamAdmins(project.getTeam().getId())
+                    .stream().anyMatch(member -> member.getUser().getId().equals(user.getId()));
 
-                if (!isCurrentUserAdmin) {
-                    throw new ForbiddenAccessException("Solo los administradores del equipo pueden " + action + " tareas.");
-                }
+            boolean isAssigned = (task != null) && task.getAssignedUsers().stream()
+                    .anyMatch(u -> u.getId().equals(user.getId()));
+
+            switch (action.toLowerCase()) {
+                case "ver":
+                    boolean isMember = teamMemberRepository.existsByUserIdAndTeamId(user.getId(), project.getTeam().getId());
+                    if (!isMember) throw new ForbiddenAccessException("Debes ser miembro del equipo para ver las tareas.");
+                    break;
+
+                case "completar":
+                case "gestionar_subtareas":
+                    // Admin user or assigned user
+                    if (!isAdmin && !isAssigned) {
+                        throw new ForbiddenAccessException("Debes ser administrador o estar asignado para " + action + ".");
+                    }
+                    break;
+
+                case "crear":
+                case "borrar":
+                case "editar_padre":
+                case "asignar":
+                default:
+                    // Admin actions
+                    if (!isAdmin) {
+                        throw new ForbiddenAccessException("Solo los administradores del equipo pueden " + action + ".");
+                    }
+                    break;
             }
         } else {
             if (project.getUserOwner() == null || !project.getUserOwner().getId().equals(user.getId())) {
-                throw new ForbiddenAccessException("No tienes permiso para " + action + " esta tarea.");
+                throw new ForbiddenAccessException("No tienes permiso para realizar esta acción en el proyecto personal.");
             }
         }
+    }
+
+    private void assignUsersToTaskEntity(Task task, Project project, User creator, List<Integer> requestedUserIds) {
+        if (!project.getIsGroupBased()) {
+            task.getAssignedUsers().add(creator);
+            return;
+        }
+
+        if (requestedUserIds == null || requestedUserIds.isEmpty()) {
+            task.getAssignedUsers().add(creator);
+            return;
+        }
+
+        Integer teamId = project.getTeam().getId();
+
+        for (Integer userId : requestedUserIds) {
+            boolean isMember = teamMemberRepository.existsByUserIdAndTeamId(userId, teamId);
+            if (!isMember) {
+                throw new BadRequestException("El usuario con ID " + userId + " no pertenece a este equipo.");
+            }
+
+            User userToAssign = userService.getUserById(userId);
+            task.getAssignedUsers().add(userToAssign);
+        }
+    }
+
+    // Auxiliar method to know if the user is admin
+    private boolean isUserAdminOfProject(Project project, User user) {
+        if (!project.getIsGroupBased()) return project.getUserOwner().getId().equals(user.getId());
+        return teamMemberRepository.findTeamAdmins(project.getTeam().getId())
+                .stream().anyMatch(member -> member.getUser().getId().equals(user.getId()));
     }
 
     private void createDeadlineEvent(Task task, User user) {
@@ -245,7 +303,8 @@ public class TaskService {
         event.setInitDateTime(task.getDeadline().minus(1, ChronoUnit.HOURS));
         event.setEndDateTime(task.getDeadline());
         event.setEventType(EventType.DEADLINE);
-        event.setUser(user);
+        event.setOrganizer(user);
+        event.getAttendees().add(user);
         event.setProject(task.getStage().getProject());
         event.setStage(task.getStage());
         event.setTask(task);

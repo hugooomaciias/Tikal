@@ -22,6 +22,14 @@ public class TaskSyncDTO {
     private String logo;
     private String colour;
     private Boolean addToCalendar;
-
     private List<SubtaskSyncDTO> subtasks;
+    private List<AssignedUser> assignedUsers;
+
+    @Data
+    @Builder
+    public static class AssignedUser {
+        private Integer id;
+        private String name;
+        private String avatar;
+    }
 }
