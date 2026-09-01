@@ -90,4 +90,10 @@ public interface MessageRepository extends JpaRepository<Message, Integer> {
             nativeQuery = true)
     Message findTopDirectMessageBetween(@Param("myId") Integer myId,
                                         @Param("otherUserId") Integer otherUserId);
+
+    /* --- Find out if there are any unread team messages --- */
+    @Query("SELECT COUNT(m) FROM Message m WHERE m.targetTeam.id = :teamId AND m.sendDate > :lastReadDate")
+    Long countUnreadMessagesForTeam(
+            @Param("teamId") Integer teamId,
+            @Param("lastReadDate") Instant lastReadDate);
 }

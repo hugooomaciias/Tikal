@@ -43,4 +43,18 @@ public interface TeamMemberRepository extends JpaRepository<TeamMember, Integer>
 
     /* --- Find the team members that are in the team that has the teamId --- */
     List<TeamMember> findByTeamId(Integer teamId);
+
+    /* --- Get the Team Member Ranking by Total Minutes --- */
+    @Query("SELECT tm.user.id, tm.user.name, tm.teamRole, tm.user.avatarUrl, " +
+            "(SELECT COALESCE(SUM(TIMESTAMPDIFF(MINUTE, tl.initDateTime, tl.endDateTime)), 0) " +
+            " FROM TimeLog tl " +
+            " WHERE tl.user.id = tm.user.id " +
+            " AND tl.endDateTime IS NOT NULL " +
+            " AND (tl.task.stage.project.team.id = :teamId " +
+            "      OR tl.stage.project.team.id = :teamId " +
+            "      OR tl.project.team.id = :teamId)) as score " +
+            "FROM TeamMember tm " +
+            "WHERE tm.team.id = :teamId " +
+            "ORDER BY score DESC")
+    List<Object[]> getTeamRankingByTempleMinutes(@Param("teamId") Integer teamId);
 }

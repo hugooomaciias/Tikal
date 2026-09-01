@@ -3,6 +3,7 @@ package com.tikal.api.model.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.JdbcTypeCode;
 
 import java.math.BigDecimal;
@@ -67,6 +68,11 @@ public class Task {
     /* --- Time spent specifically in Temple Mode (in minutes) --- */
     @Column(name = "temple_logged_minutes", columnDefinition = "INT DEFAULT 0")
     private Integer templeLoggedMinutes = 0;
+
+    /* --- Instant when the task was created --- */
+    @CreationTimestamp
+    @Column(name = "created_at", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP", updatable = false, nullable = false)
+    private Instant createdAt;
 
     /* --- Stage relation ==> Many tasks can belong to the same Stage --- */
     @ManyToOne(optional = false)

@@ -19,7 +19,7 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 public class WebSocketSecurityConfig implements WebSocketMessageBrokerConfigurer {
 
     private final JwtService jwtService;
-    private final UserDetailsService userDetailsService; // Necesario para cargar el usuario de la BD
+    private final UserDetailsService userDetailsService;
 
     @Override
     public void configureClientInboundChannel(ChannelRegistration registration) {
