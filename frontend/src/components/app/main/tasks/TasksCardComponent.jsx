@@ -29,7 +29,8 @@ import {
     IconCalendarEventFilled,
     IconStopwatch,
     IconMoneybag,
-    IconDotsVerticalFilled
+    IconDotsVerticalFilled,
+    IconListFilled
 } from "@tabler/icons-react";
 
 /** Assets, Utils & Constants */
@@ -153,12 +154,13 @@ export const TasksCardComponent = ({
                             type="text"
                             placeholder={t("tasks.search")}
                             value={taskSearchQuery}
-                            onChange={handleSearchChange}
+                            onChange={(e) => handleSearchChange(e.target.value)}
                             autoFocus={isTaskSearchOpen}
                             className={`bg-transparent outline-none text-primary-600 transition-all duration-500 ease-in-out ${isTaskSearchOpen ? "w-full opacity-100 ml-2" : "w-0 opacity-0"}`}
                         />
 
                         <button
+                            type="button"
                             className="flex-shrink-0 cursor-pointer hover:text-quaternary-900 transition-colors"
                             onClick={handleSearchToggle}
                         >
@@ -417,8 +419,28 @@ export const TasksCardComponent = ({
                             );
                         })
                     ) : (
-                        <div className="flex-1 flex items-center justify-center text-quaternary-400 italic">
-                            {t("tasks.no_tasks")}
+                        <div className="flex-1 flex flex-col items-center justify-center p-6 animate-fade-in-up opacity-90">
+                            <div className="w-20 h-20 bg-primary-100 rounded-full flex items-center justify-center mb-4 shadow-inner transition-transform hover:scale-105 duration-300">
+                                {taskSearchQuery ? (
+                                    <IconSearch className="w-10 h-10 text-primary-500/60" stroke={1.5} />
+                                ) : (
+                                    <IconListFilled className="w-10 h-10 text-primary-500/60" stroke={1.5} />
+                                )}
+                            </div>
+                            
+                            <h3 className="text-lg font-bold text-quaternary-700 mb-2 text-center">
+                                {taskSearchQuery 
+                                    ? t("tasks.no_results.title") 
+                                    : t("tasks.no_tasks.title")}
+                            </h3>
+                            
+                            <p className="text-center text-sm text-quaternary-500 max-w-[200px] leading-relaxed font-medium">
+                                {taskSearchQuery 
+                                    ? `${t("tasks.no_results.description")} '${taskSearchQuery}'`
+                                    : t("tasks.no_tasks.description")}
+                            </p>
+                            
+                            <div className="w-12 h-1 bg-primary-300 rounded-full mt-5 opacity-50"></div>
                         </div>
                     )}
                 </div>

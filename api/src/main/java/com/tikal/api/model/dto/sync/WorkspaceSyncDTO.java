@@ -38,6 +38,7 @@ public class WorkspaceSyncDTO {
     @Data
     @Builder
     public static class UserProfileSyncDTO {
+        private Integer id;
         private String name;
         private String email;
         private String avatarUrl;

@@ -146,6 +146,7 @@ export const SyncProvider = ({ children }) => {
         if (!rawDashboardData?.teamMembers) return null;
         return rawDashboardData.teamMembers[teamId] || null;
     }, [rawDashboardData]);
+    const getSidebarChats = useCallback(() => rawDashboardData?.sidebarChats || null, [rawDashboardData]);
 
     /**
      * Update Context Data (The Golden Key)
@@ -225,6 +226,7 @@ export const SyncProvider = ({ children }) => {
                 getAISessions,
                 getTeamsData,
                 getTeamMembersData,
+                getSidebarChats,
                 fetchTempleModeGamificationUpdate,
                 isDataLoaded: !!rawDashboardData,
                 refreshData: sync,

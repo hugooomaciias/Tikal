@@ -58,8 +58,8 @@ public interface MessageRepository extends JpaRepository<Message, Integer> {
     @Query(value =
             "SELECT " +
                     "  CASE WHEN emitter_id = :myId THEN receiver_id ELSE emitter_id END AS partner_id " +
-                    "FROM message " +
-                    "WHERE emitter_id = :myId OR receiver_id = :myId " +
+                    "FROM messages m " +
+                    "WHERE (emitter_id = :myId OR receiver_id = :myId) AND m.receiver_id IS NOT NULL " +
                     "GROUP BY partner_id " +
                     "ORDER BY " +
                     "  SUM(CASE WHEN receiver_id = :myId AND is_read = false THEN 1 ELSE 0 END) DESC, " +

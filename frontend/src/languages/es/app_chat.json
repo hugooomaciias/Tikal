@@ -1,0 +1,28 @@
+{
+    "sidebar": {
+        "search": "Buscar chat",
+        "no_contacts": {
+            "title": "Bandeja vacía", 
+            "description": "Aún no tienes conversaciones. Empieza un nuevo chat."
+        },
+        "no_results": {
+            "title": "Sin resultados", 
+            "description": "No encontramos chats con"
+        }
+    },
+    "chat": {
+        "empty_state": {
+            "title": "Tus mensajes",
+            "description": "Selecciona una conversación en la barra lateral para empezar a chatear o interactuar con tu equipo."
+        },
+        "placeholder": "Escribe un mensaje"
+    },
+    "members": {
+        "members": "miembros",
+        "search": "Buscar miembros",
+        "no_results": {
+            "title": "Sin resultados", 
+            "description": "Nadie coincide con "
+        }
+    }
+}

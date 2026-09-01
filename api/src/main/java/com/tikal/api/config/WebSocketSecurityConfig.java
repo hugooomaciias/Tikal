@@ -39,8 +39,13 @@ public class WebSocketSecurityConfig implements WebSocketMessageBrokerConfigurer
                         if (userEmail != null && jwtService.isTokenValid(token, userEmail)) {
                             // Cargamos el usuario y creamos el objeto de autenticación
                             UserDetails userDetails = userDetailsService.loadUserByUsername(userEmail);
-                            UsernamePasswordAuthenticationToken authentication =
-                                    new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+                            UsernamePasswordAuthenticationToken authentication = 
+                                new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities()) {
+                                    @Override
+                                    public String getName() {
+                                        return String.valueOf(((CustomUserDetails) getPrincipal()).getUser().getId());
+                                    }
+                            };
 
                             // Vinculamos este usuario a la sesión del WebSocket
                             accessor.setUser(authentication);

@@ -1,7 +1,10 @@
 {
     "teams_title": "Teams",
     "teams": {
-        "no_teams": "You don't have any teams in this role. Start by creating or joining one.",
+        "no_teams": {
+            "title": "You don't have any teams",
+            "description": "Start by creating or joining one to begin organizing your workspace."
+        },
         "new": "New team",
         "code": "Invitation code",
         "members": "members",
