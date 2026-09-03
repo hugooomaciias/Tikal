@@ -171,4 +171,51 @@ public interface TaskRepository extends JpaRepository<Task, Integer>{
             "WHERE t.stage.project.id = :projectId AND t.parentTask IS NULL " +
             "GROUP BY u.id")
     List<Object[]> getMemberWorkloadForProject(@Param("projectId") Integer projectId);
+
+    /* --- User Progress on the Team (Completed vs. Total) --- */
+    @Query("SELECT COUNT(DISTINCT t), SUM(CASE WHEN t.isCompleted = true THEN 1 ELSE 0 END) " +
+            "FROM Task t JOIN t.assignedUsers u " +
+            "WHERE u.id = :userId AND t.stage.project.team.id = :teamId " +
+            "AND t.parentTask IS NULL")
+    List<Object[]> getUserProgressInTeam(@Param("userId") Integer userId, @Param("teamId") Integer teamId);
+
+    /* --- Overall Team Effectiveness (All Team Tasks) --- */
+    @Query("SELECT AVG(" +
+            "CASE " +
+            "   WHEN (t.totalLoggedMinutes IS NOT NULL AND t.estimatedTime IS NOT NULL AND t.estimatedTime > 0) " +
+            "   THEN " +
+            "       CASE " +
+            "           WHEN t.totalLoggedMinutes <= t.estimatedTime THEN 100.0 " +
+            "           ELSE GREATEST(0.0, 100.0 - ((t.totalLoggedMinutes - t.estimatedTime) * 100.0 / t.estimatedTime)) " +
+            "       END " +
+            "   ELSE NULL " +
+            "END) " +
+            "FROM Task t WHERE t.stage.project.team.id = :teamId AND t.isCompleted = true AND t.parentTask IS NULL")
+    Double getGlobalTeamEffectiveness(@Param("teamId") Integer teamId);
+
+    /* --- Recent Activity: New Tasks Assigned to the User (Last 48 Hours) --- */
+    @Query("SELECT DISTINCT t FROM Task t JOIN t.assignedUsers u " +
+            "WHERE u.id = :userId AND t.stage.project.team.id = :teamId " +
+            "AND t.createdAt >= :since ORDER BY t.createdAt DESC")
+    List<Task> findRecentAssignedTasks(
+            @Param("userId") Integer userId,
+            @Param("teamId") Integer teamId,
+            @Param("since") Instant since);
+
+    /* --- Recent Activity: Upcoming Deadlines (Next 48 Hours) or Expired --- */
+    @Query("SELECT DISTINCT t FROM Task t JOIN t.assignedUsers u " +
+            "WHERE u.id = :userId AND t.stage.project.team.id = :teamId " +
+            "AND t.isCompleted = false AND t.deadline IS NOT NULL " +
+            "AND t.deadline <= :threshold " +
+            "ORDER BY t.deadline ASC")
+    List<Task> findUpcomingDeadlines(
+            @Param("userId") Integer userId,
+            @Param("teamId") Integer teamId,
+            @Param("threshold") Instant threshold);
+
+    /* --- Get all of a user's main tasks within a team --- */
+    @Query("SELECT DISTINCT t FROM Task t JOIN t.assignedUsers u " +
+            "WHERE u.id = :userId AND t.stage.project.team.id = :teamId " +
+            "AND t.parentTask IS NULL")
+    List<Task> findMainTasksByUserAndTeam(@Param("userId") Integer userId, @Param("teamId") Integer teamId);
 }

@@ -26,6 +26,8 @@ public class WidgetBuilderService {
     private final TimeLogRepository timeLogRepository;
     private final ProjectRepository projectRepository;
     private final StageRepository stageRepository;
+    private final TeamMemberRepository teamMemberRepository;
+    private final CalendarEventRepository calendarEventRepository;
     private final PreFetchedDashboardData preFetchedData;
 
     public WidgetData buildSingleWidget(String widgetId, User user, UserSettings settings) {
@@ -328,10 +330,10 @@ public class WidgetBuilderService {
 
     private List<TaskWidgetData.TaskCard> buildCardsByProject(
             List<Task> pendingTasks,
-            List<Task> allUserTasks, // Necesitamos las completadas para calcular el 1/8
+            List<Task> allUserTasks,
             Map<Integer, Integer> subtasksCountMap) {
 
-        // Agrupamos las tareas pendientes por ID de Proyecto (asumiendo que Task -> Stage -> Project)
+        // We group pending tasks by Project ID (assuming Task -> Stage -> Project)
         Map<Integer, List<Task>> pendingByProject = pendingTasks.stream()
                 .filter(t -> t.getStage() != null && t.getStage().getProject() != null)
                 .collect(Collectors.groupingBy(t -> t.getStage().getProject().getId()));
@@ -342,10 +344,10 @@ public class WidgetBuilderService {
             Integer projectId = entry.getKey();
             List<Task> pTasks = entry.getValue();
 
-            // Proyecto asociado a estas tareas
+            // Project related to these tasks
             Project project = pTasks.get(0).getStage().getProject();
 
-            // Calculamos el total de tareas de este proyecto (pendientes + completadas) para el 1/8
+            // We calculated the total number of tasks for this project (pending + completed) as of August 1
             long totalProjectTasks = allUserTasks.stream()
                     .filter(t -> t.getStage() != null && t.getStage().getProject() != null && t.getStage().getProject().getId().equals(projectId))
                     .count();
@@ -365,7 +367,7 @@ public class WidgetBuilderService {
             ));
         }
 
-        // The projects with more task are more important
+        // The projects with the most tasks are the most important ones.
         projectCards.sort((c1, c2) -> Integer.compare(c2.getTasks().size(), c1.getTasks().size()));
 
         return projectCards;
@@ -398,7 +400,7 @@ public class WidgetBuilderService {
     }
     // ==========================================
 
-    private WidgetData buildCalendarWidgetData(UserSettings settings) {
+    public WidgetData buildCalendarWidgetData(UserSettings settings) {
         LocalDate today = LocalDate.now();
         LocalDate startDate;
 
@@ -1076,6 +1078,105 @@ public class WidgetBuilderService {
                 .durationInSeconds(duration)
                 .isTempleMode(log.getIsTempleMode() != null ? log.getIsTempleMode() : false)
                 .activityDescription(log.getActivityDescription())
+                .build();
+    }
+    // ==========================================
+
+    // ==========================================
+    //      TEAM WIDGETS
+    // ==========================================
+
+    public RankingMemberWidgetData buildTeamRankingWidget(Integer teamId, Integer userId) {
+        List<Object[]> rawRanking = teamMemberRepository.getTeamRankingByTempleMinutes(teamId);
+        List<RankingMemberWidgetData.UserRankData> members = new ArrayList<>();
+
+        for (int i = 0; i < rawRanking.size() && i < 10; i++) {
+            Object[] row = rawRanking.get(i);
+            members.add(RankingMemberWidgetData.UserRankData.builder()
+                    .id(((Number) row[0]).intValue())
+                    .name((String) row[1])
+                    .rol((String) row[2])
+                    .avatar((String) row[3])
+                    .score(((Number) row[4]).intValue())
+                    .build());
+        }
+
+        return RankingMemberWidgetData.builder().members(members).build();
+    }
+
+    public RecentActivityWidgetData buildRecentActivityWidget(Integer userId, Integer teamId) {
+        Instant now = Instant.now();
+        Instant past48h = now.minus(48, ChronoUnit.HOURS);
+        Instant future48h = now.plus(48, ChronoUnit.HOURS);
+        Instant future3Days = now.plus(3, ChronoUnit.DAYS);
+
+        List<RecentActivityWidgetData.ActivityData> activities = new ArrayList<>();
+
+        // A. Tasks assigned
+        List<Task> recentTasks = taskRepository.findRecentAssignedTasks(userId, teamId, past48h);
+        for (Task t : recentTasks) {
+            activities.add(RecentActivityWidgetData.ActivityData.builder()
+                    .title("Nueva Tarea")
+                    .description(t.getName())
+                    .date(t.getCreatedAt() != null ? t.getCreatedAt() : now)
+                    .type(RecentActivityWidgetData.ActivityType.TASK)
+                    .build());
+        }
+
+        // B. Deadlines
+        List<Task> urgentTasks = taskRepository.findUpcomingDeadlines(userId, teamId, future48h);
+        for (Task t : urgentTasks) {
+            boolean isExpired = t.getDeadline().isBefore(now);
+            activities.add(RecentActivityWidgetData.ActivityData.builder()
+                    .title(isExpired ? "Tarea Caducada" : "Entrega Próxima")
+                    .description(t.getName())
+                    .date(t.getDeadline())
+                    .type(RecentActivityWidgetData.ActivityType.DEADLINE)
+                    .build());
+        }
+
+        // C. Events
+        List<CalendarEvent> upcomingEvents = calendarEventRepository.findUpcomingTeamEvents(userId, teamId, now, future3Days);
+        for (CalendarEvent e : upcomingEvents) {
+            activities.add(RecentActivityWidgetData.ActivityData.builder()
+                    .title("Próximo Evento")
+                    .description(e.getName())
+                    .date(e.getInitDateTime())
+                    .type(RecentActivityWidgetData.ActivityType.CALENDAR)
+                    .build());
+        }
+
+        activities.sort(Comparator.comparing(RecentActivityWidgetData.ActivityData::getDate).reversed());
+
+        return RecentActivityWidgetData.builder()
+                .activities(activities.stream().limit(15).collect(Collectors.toList()))
+                .build();
+    }
+
+    public TaskWidgetData buildTeamTaskWidget(Integer userId, Integer teamId) {
+        // Obtain the team tasks
+        List<Task> myTeamTasks = taskRepository.findMainTasksByUserAndTeam(userId, teamId);
+        List<Task> pendingTasks = myTeamTasks.stream().filter(t -> !t.getIsCompleted()).collect(Collectors.toList());
+        List<Task> completedTasks = myTeamTasks.stream().filter(Task::getIsCompleted).toList();
+
+        Map<Integer, Integer> subtasksCountMap = new HashMap<>();
+        if (!pendingTasks.isEmpty()) {
+            List<Integer> pendingIds = pendingTasks.stream().map(Task::getId).collect(Collectors.toList());
+            List<Object[]> counts = taskRepository.countPendingSubtasksByParentIds(pendingIds);
+            for (Object[] row : counts) {
+                subtasksCountMap.put(((Number) row[0]).intValue(), ((Number) row[1]).intValue());
+            }
+        }
+
+        List<TaskWidgetData.TaskCard> cards = buildCardsByProject(pendingTasks, myTeamTasks, subtasksCountMap);
+
+        double globalProgress = myTeamTasks.isEmpty() ? 0.0 : (completedTasks.size() * 100.0) / myTeamTasks.size();
+
+        return TaskWidgetData.builder()
+                .selectedGroupingMode(TaskWidgetData.GroupingMode.BY_PROJECT)
+                .subtitle(Math.round(globalProgress * 10.0) / 10.0 + "%")
+                .hasMoreCards(false)
+                .cards(cards)
                 .build();
     }
     // ==========================================

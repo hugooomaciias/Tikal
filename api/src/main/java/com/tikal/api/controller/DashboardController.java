@@ -1,15 +1,13 @@
 package com.tikal.api.controller;
 
 import com.tikal.api.model.dto.sync.ProjectDashboardDTO;
+import com.tikal.api.model.dto.sync.TeamMemberDashboardDTO;
 import com.tikal.api.model.dto.sync.WorkspaceSyncDTO;
 import com.tikal.api.model.dto.sync.domain.GamificationEventDTO;
 import com.tikal.api.model.dto.temple.TempleUpdateResponse;
 import com.tikal.api.model.entity.User;
 import com.tikal.api.repository.TimeLogRepository;
-import com.tikal.api.service.DashboardService;
-import com.tikal.api.service.GamificationService;
-import com.tikal.api.service.ProjectDashboardService;
-import com.tikal.api.service.UserService;
+import com.tikal.api.service.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -28,6 +26,7 @@ public class DashboardController {
     private final GamificationService gamificationService;
     private final UserService userService;
     private final TimeLogRepository timeLogRepository;
+    private final TeamMemberDashboardService teamMemberDashboardService;
 
     /**
      * GET /dashboard/sync
@@ -50,9 +49,13 @@ public class DashboardController {
         return ResponseEntity.ok(dashboardData);
     }
 
+    /**
+     * GET /dashboard/temple-status
+     * Builds and returns the current temple status and related gamification events for the authenticated user.
+     */
     @GetMapping("/temple-status")
     public ResponseEntity<TempleUpdateResponse> getTempleStatus() {
-        User currentUser = userService.getAuthenticatedUser(); // O como lo extraigas
+        User currentUser = userService.getAuthenticatedUser();
 
         List<GamificationEventDTO> events = new ArrayList<>();
 
@@ -66,6 +69,16 @@ public class DashboardController {
                 .build();
 
         return ResponseEntity.ok(response);
+    }
+
+    /**
+     * GET /dashboard/team/{teamId}/member
+     * Builds and returns the entire dashboard state for a standard team member.
+     */
+    @GetMapping("/team/{teamId}/member")
+    public ResponseEntity<TeamMemberDashboardDTO> getTeamMemberDashboard(@PathVariable Integer teamId) {
+        TeamMemberDashboardDTO dashboardData = teamMemberDashboardService.getTeamMemberDashboard(teamId);
+        return ResponseEntity.ok(dashboardData);
     }
 
     /**
