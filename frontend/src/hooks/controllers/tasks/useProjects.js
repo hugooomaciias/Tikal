@@ -110,11 +110,34 @@ export const useProjects = () => {
         }
     };
 
+    /**
+     * Fetch Team Projects
+     *
+     * Delegates to `projectService.getTeamProjects` to retrieve all projects
+     * associated with a specific team. This function simply returns the data
+     * so it can be managed by the local state of the calling component.
+     *
+     * @async
+     * @param {string|number} teamId - The unique identifier of the team.
+     * @returns {Promise<Array<Object>>} The array of team projects returned by the backend.
+     * @throws {Error} Re-throws the service error after logging, allowing the caller to handle it.
+     */
+    const fetchTeamProjects = async (teamId) => {
+        try {
+            const teamProjects = await projectService.getTeamProjects(teamId);
+            return teamProjects;
+        } catch (error) {
+            console.error(`Error obteniendo los proyectos del equipo ${teamId}:`, error);
+            throw error;
+        }
+    };
+
     // --- 3. Return Object ---
 
     return {
         createProject,
         updateProject,
         deleteProject,
+        fetchTeamProjects
     };
 };

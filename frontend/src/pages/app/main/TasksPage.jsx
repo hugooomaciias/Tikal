@@ -7,6 +7,9 @@ import { ProjectsCardComponent } from "../../../components/app/main/tasks/Projec
 import { StagesCardComponent } from "../../../components/app/main/tasks/StagesCardComponent.jsx";
 import { TasksCardComponent } from "../../../components/app/main/tasks/TasksCardComponent.jsx";
 
+/** Assets, Utils & Constants */
+import { formatShortDate } from "../../../utils/calendarUtils.js";
+
 /**
  * Tasks Layout Page Component
  *
@@ -31,7 +34,7 @@ export const TasksPage = () => {
 
     const { isDataLoaded, isCompleted, selectedProjectId, selectedStageId, mobileView, tasks } = tasksStates;
     const { selectedProject, selectedStage } = tasksData;
-    const { handleProjectSelect, handleStageSelect, handleBackNavigation, toggleCompletedView, formatShortDate } = tasksActions;
+    const { handleProjectSelect, handleStageSelect, handleBackNavigation, toggleCompletedView } = tasksActions;
 
     // --- 2. Render ---
 

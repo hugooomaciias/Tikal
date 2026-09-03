@@ -61,5 +61,16 @@
             "role": "Miembro",
             "kick": "¿Expulsar del equipo?"
         }
+    },
+    "teams_projects": {
+        "no_teams": {
+            "title": "No tienes proyectos",
+            "description": "Empieza creando un proyecto para organizar tu trabajo."
+        },
+        "new": "Nuevo proyecto",
+        "no_deadline_label": "Sin fecha límite",
+        "stages": "Fases",
+        "tasks": "Tareas",
+        "label": "Editar"
     }
 }

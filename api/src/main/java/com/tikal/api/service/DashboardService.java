@@ -509,6 +509,8 @@ public class DashboardService {
                 .addToCalendar(projectsWithDeadline.contains(project.getId()))
                 .type(project.getProjectType())
                 .stages(stageDTOs)
+                .groupBased(project.getIsGroupBased())
+                .teamId(project.getTeam() != null ? project.getTeam().getId() : null)
                 .build();
     }
 

@@ -254,7 +254,7 @@ export const TasksCardComponent = ({
 
                                                             {hasDeadline && (
                                                                 <span className="flex items-center gap-[3px]">
-                                                                    <IconCalendarEventFilled className="h-4 w-4 transition-colors duration-200 text-quaternary-700" />
+                                                                    <IconCalendarEventFilled className="h-4 w-4 transition-colors duration-200 text-quaternary-700 mb-0.5" />
                                                                     {formattedDeadline}
                                                                 </span>
                                                             )}

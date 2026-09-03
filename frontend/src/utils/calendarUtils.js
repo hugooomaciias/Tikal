@@ -204,3 +204,30 @@ export const generateCascadingOptions = (tasksData = []) => {
 
     return options;
 };
+
+/**
+ * Format Short Date Helper
+ *
+ * Converts a valid raw date input into a localized, human-readable short string
+ * representation (e.g., "Mon, 12 Oct"). It leverages the native Intl.DateTimeFormat API
+ * and gracefully falls back to Spanish ("es") if an unsupported locale is provided
+ * or an formatting error occurs.
+ *
+ * @param {string|number|Date} dateInput - The raw date representation to format.
+ * @param {string} [language="es"] - The ISO language locale code to use (defaults to Spanish).
+ * @returns {string} The localized short date string, or an empty string if the input is invalid.
+ */
+export const formatShortDate = (dateInput, language = "es") => {
+    if (!dateInput) return "";
+
+    const date = new Date(dateInput);
+    if (isNaN(date.getTime())) return "";
+
+    const options = { weekday: "short", day: "numeric", month: "short" };
+
+    try {
+        return new Intl.DateTimeFormat(language, options).format(date);
+    } catch (error) {
+        return new Intl.DateTimeFormat("es", options).format(date);
+    }
+};

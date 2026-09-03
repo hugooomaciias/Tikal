@@ -185,27 +185,12 @@ export const useTasksLogic = () => {
         setIsCompleted((prev) => !prev);
     }, []);
 
-    const formatShortDate = (dateInput, language = "es") => {
-        if (!dateInput) return "";
-
-        const date = new Date(dateInput);
-        if (isNaN(date.getTime())) return "";
-
-        const options = { weekday: "short", day: "numeric", month: "short" };
-
-        try {
-            return new Intl.DateTimeFormat(language, options).format(date);
-        } catch (error) {
-            return new Intl.DateTimeFormat("es", options).format(date);
-        }
-    };
-
     // --- 6. Return Object ---
 
     return {
         t,
         tasksStates: { isDataLoaded, isCompleted, selectedProjectId, selectedStageId, mobileView, tasks },
         tasksData: { selectedProject, selectedStage },
-        tasksActions: { handleProjectSelect, handleStageSelect, handleBackNavigation, toggleCompletedView, formatShortDate },
+        tasksActions: { handleProjectSelect, handleStageSelect, handleBackNavigation, toggleCompletedView },
     };
 };

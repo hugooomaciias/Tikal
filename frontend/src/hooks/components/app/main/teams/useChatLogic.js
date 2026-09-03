@@ -9,8 +9,6 @@ import { useSync } from "../../../../core/useSync.js";
 import { useChat } from "../../../../controllers/teams/useChat.js";
 import { useTeams } from "../../../../controllers/teams/useTeams.js";
 
-import { API_BASE_URL } from "../../constants/api.js";
-
 /**
  * Chat Dashboard Logic Hook
  *
@@ -558,7 +556,7 @@ export const useChatLogic = () => {
         if (!token) return;
 
         const client = new Client({
-            webSocketFactory: () => new SockJS(`${API_BASE_URL}/ws`),
+            webSocketFactory: () => new SockJS("http://192.168.1.54/ws"),
             connectHeaders: {
                 Authorization: `Bearer ${token}`
             },

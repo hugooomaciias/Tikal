@@ -61,5 +61,16 @@
             "role": "Member",
             "kick": "Should we kick him off the team?"
         }
+    },
+    "teams_projects": {
+        "no_teams": {
+            "title": "You don't have any projects",
+            "description": "Start by creating a project to organize your work."
+        },
+        "new": "New project",
+        "no_deadline_label": "No deadline",
+        "stages": "Stages",
+        "tasks": "Tasks",
+        "label": "Edit"
     }
 }

@@ -18,7 +18,7 @@ import {
     IconUsersGroup,
     IconChevronLeft,
     IconMoodSmileFilled,
-    IconMessageOff
+    IconMessage
 } from "@tabler/icons-react";
 
 /**
@@ -152,7 +152,7 @@ export const ChatPage = () => {
                                 {searchQuery ? (
                                     <IconSearch className="w-10 h-10 text-primary-500/60" stroke={1.5} />
                                 ) : (
-                                    <IconMessageOff className="w-10 h-10 text-primary-500/60" stroke={1.5} />
+                                    <IconMessage className="w-10 h-10 text-primary-500/60" stroke={1.5} />
                                 )}
                             </div>
                             

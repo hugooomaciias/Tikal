@@ -21,7 +21,7 @@ import {
     IconCircleChevronLeftFilled,
     IconCalendarEventFilled,
     IconDotsVerticalFilled,
-    IconFlagOff
+    IconLayoutKanban
 } from "@tabler/icons-react";
 
 /** Assets, Utils & Constants */
@@ -186,7 +186,7 @@ export const StagesCardComponent = ({ data, projectId, selectedId, onSelect, han
                                                         <span className={`flex items-center gap-[3px] text-sm text-quaternary-700 ${
                                                             isActive ? "md:text-primary" : ""
                                                         }`}>
-                                                            <IconCalendarEventFilled className="h-4 w-4 transition-colors duration-200" />
+                                                            <IconCalendarEventFilled className="h-4 w-4 transition-colors duration-200 mb-0.5" />
                                                             {formattedDeadline}
                                                         </span>
                                                     )}
@@ -234,7 +234,7 @@ export const StagesCardComponent = ({ data, projectId, selectedId, onSelect, han
                                 {stageSearchQuery ? (
                                     <IconSearch className="w-10 h-10 text-primary-500/60" stroke={1.5} />
                                 ) : (
-                                    <IconFlagOff className="w-10 h-10 text-primary-500/60" stroke={1.5} />
+                                    <IconLayoutKanban className="w-10 h-10 text-primary-500/60" stroke={1.5} />
                                 )}
                             </div>
                             

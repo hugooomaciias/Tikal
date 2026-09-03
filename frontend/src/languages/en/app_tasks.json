@@ -57,7 +57,7 @@
         "title": "Stages",
         "search": "Search stage",
         "no_stages": {
-            "title": "There are no projects yet",
+            "title": "There are no stages yet",
             "description": "Create your first stage by clicking the + button below to get started."
         },
         "no_results": {

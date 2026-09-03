@@ -61,7 +61,7 @@ export const HeaderComponent = () => {
      * Redirects the user from the settings layout back to the primary authenticated dashboard.
      */
     const handleNavigateToBack = () => {
-        navigate(-1);
+        navigate("/home");
     };
 
     // --- 3. Render ---

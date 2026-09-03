@@ -13,7 +13,7 @@ import { DeleteComponent } from "../common/DeleteComponent.jsx";
 import { SwipeableEntityItemComponent } from "./common/SwipeableEntityItemComponent.jsx";
 
 /** Icons */
-import { IconSearch, IconCircleXFilled, IconNote, IconCirclePlusFilled, IconCalendarEventFilled, IconDotsVerticalFilled, IconFolderOff } from "@tabler/icons-react";
+import { IconSearch, IconCircleXFilled, IconNote, IconCirclePlusFilled, IconCalendarEventFilled, IconDotsVerticalFilled, IconFolder } from "@tabler/icons-react";
 
 /**
  * Projects Card Component
@@ -154,7 +154,7 @@ export const ProjectsCardComponent = ({ data, selectedId, onSelect, formatShortD
                                                         <span className={`flex items-center gap-[3px] text-sm text-quaternary-700 ${
                                                             isActive ? "md:text-primary" : ""
                                                         }`}>
-                                                            <IconCalendarEventFilled className="h-4 w-4 transition-colors duration-200" />
+                                                            <IconCalendarEventFilled className="h-4 w-4 transition-colors duration-200 mb-0.5" />
                                                             {formattedDeadline}
                                                         </span>
                                                     )}
@@ -201,7 +201,7 @@ export const ProjectsCardComponent = ({ data, selectedId, onSelect, formatShortD
                                 {projectSearchQuery ? (
                                     <IconSearch className="w-10 h-10 text-primary-500/60" stroke={1.5} />
                                 ) : (
-                                    <IconFolderOff className="w-10 h-10 text-primary-500/60" stroke={1.5} />
+                                    <IconFolder className="w-10 h-10 text-primary-500/60" stroke={1.5} />
                                 )}
                             </div>
                             

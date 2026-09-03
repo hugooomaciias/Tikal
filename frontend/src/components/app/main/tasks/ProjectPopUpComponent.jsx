@@ -26,11 +26,12 @@ import { PROJECTS_ICONS } from "../../../../constants/projects_icons.js";
  * @param {Function} props.t - Translation function from i18next.
  * @returns {JSX.Element} The rendered popup modal.
  */
-export const ProjectPopUpComponent = ({ onClose, initialData, t }) => {
+export const ProjectPopUpComponent = ({ onClose, initialData, activeTeam, t }) => {
     const { projectsPopUpStates, projectsPopUpData, projectsPopUpActions } = useProjectsPopUpLogic(
         t,
         initialData,
         onClose,
+        activeTeam
     );
 
     const { selectedIcon, formData, errors, isLoading, apiError, isVisible } = projectsPopUpStates;

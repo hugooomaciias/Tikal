@@ -19,4 +19,6 @@ public class ProjectSyncDTO {
     private Boolean addToCalendar;
     private ProjectType type;
     private List<StageSyncDTO> stages;
+    private Boolean groupBased;
+    private Integer teamId;
 }

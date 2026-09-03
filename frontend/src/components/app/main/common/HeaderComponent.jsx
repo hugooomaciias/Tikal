@@ -1,6 +1,6 @@
 /** React & Third-Party Libraries */
 import { useCallback } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 /** Components & Layouts */
 import { DynamicIslandComponent } from "../common/DynamicIslandComponent";
@@ -14,7 +14,8 @@ import {
     IconSquareRoundedCheckFilled,
     IconSquareRoundedPlus,
     IconUser,
-    IconUserShield
+    IconUserShield,
+    IconChevronLeft
 } from "@tabler/icons-react";
 
 /**
@@ -36,7 +37,7 @@ import {
  * @param {Function} props.t - The i18n translation function.
  * @returns {JSX.Element} The rendered header component.
  */
-export const HeaderComponent = ({ page, primaryState, secondaryState, onTogglePrimary, onToggleSecondary, theme = "", onSaveLayout, teams, t }) => {
+export const HeaderComponent = ({ imageURL, page, primaryState, secondaryState, onTogglePrimary, onToggleSecondary, theme = "", onSaveLayout, teams, onNavigateToBack, t }) => {
     // --- 1. Local UI Logic ---
 
     /**
@@ -45,6 +46,14 @@ export const HeaderComponent = ({ page, primaryState, secondaryState, onTogglePr
      * Enables routing capabilities, used to redirect the user back to the login page post-logout.
      */
     const navigate = useNavigate();
+
+    /**
+     * Location Watcher Hook
+     *
+     * Subscribes to the router's location object to dynamically synchronize
+     * the active navigation tab based on the current browser URL (Layout State).
+     */
+    const location = useLocation();
 
     /**
      * Enable Edit Mode Handler
@@ -91,8 +100,22 @@ export const HeaderComponent = ({ page, primaryState, secondaryState, onTogglePr
             <div className="flex items-center justify-between">
                 {/* Page Title & Time Tracker Section */}
                 <div className="h-full w-fit flex items-center gap-2 md:gap-4 rounded-full">
+                    <button
+                        type="button"
+                        onClick={onNavigateToBack}
+                        className="h-16 w-16 flex items-center justify-center bg-primary p-3 rounded-full shadow-md text-primary-600"
+                    >
+                        <IconChevronLeft className="w-8 h-8" />
+                    </button>
+
                     {/* Active Page Indicator */}
-                    <div className="h-full w-fit bg-primary flex items-center px-5 py-3 rounded-full shadow-md text-2xl font-bold text-primary-600">
+                    <div className={`h-16 w-fit bg-primary flex items-center ${imageURL ? "p-2 pr-4 gap-3" : "px-5 py-3" } rounded-full shadow-md text-2xl font-bold text-primary-600`}>
+                        {imageURL && (
+                            <div className="h-full w-auto rounded-full flex-shrink-0">
+                                <img src={imageURL} alt={page} className="w-full h-full rounded-full object-cover" />
+                            </div>
+                        )}
+
                         {theme ? ( 
                             <h2 className="text-rank-700">{page}</h2>
                         ) : (
@@ -179,7 +202,7 @@ export const HeaderComponent = ({ page, primaryState, secondaryState, onTogglePr
                         </div>
                     )}
 
-                    {page === t("teams_title") && teams && (
+                    {(page === t("teams_title") || location.pathname.includes("/teams")) && teams && (
                         <div className="flex items-center gap-3 md:gap-4">
                             <div className="relative flex items-center bg-primary rounded-full shadow-md p-1">
                                 {/* Sliding Background */}

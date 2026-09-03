@@ -244,13 +244,24 @@ export const useTeamsLogic = () => {
 
         try {
             await leaveTeam(teamToLeave.id);
-            navigate("/home");
+
+            if (teams.length <= 1) {
+                navigate("/home");
+            }
         } catch (error) {
             console.error(error.response?.data?.message || "Error al cambiar rol de administrador");
         } finally {
             setTeamToLeave(null);
         }
     }, [leaveTeam, navigate, teamToLeave]);
+
+    const handleNavigateToTeamProjects = useCallback((team) => {
+        navigate(`/teams/${team.id}/projects`, { state: { teamData: team } });
+    }, [navigate]);
+
+    /*const handleNavigateToTeamUserDashboard = useCallback((team) => {
+        navigate(`/teams/${team.id}`, { state: { teamData: team } });
+    }, [navigate]);*/
 
     // --- 6. Return Object ---
 
@@ -275,7 +286,8 @@ export const useTeamsLogic = () => {
             handleOpenEditModal,
             handleCloseTeamModal,
             handleOpenMembersModal,
-            handleCloseMembersModal
+            handleCloseMembersModal,
+            handleNavigateToTeamProjects
         }
     };
 };

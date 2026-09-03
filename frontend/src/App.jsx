@@ -36,8 +36,9 @@ import { SettingsTeamPage } from "./pages/app/settings/TeamPage";
 
 import { DiosSabidurIAPage } from "./pages/app/DiosSabidurIAPage";
 
-import { TeamsPage } from "./pages/app/main/teams/TeamsPage.jsx";
-import { ChatPage } from "./pages/app/main/teams/ChatPage.jsx";
+import { TeamsPage } from "./pages/app/main/teams/TeamsPage";
+import { TeamProjectsPage } from "./pages/app/main/teams/TeamProjectsPage";
+import { ChatPage } from "./pages/app/main/teams/ChatPage";
 
 /** Assets, Utils & Constants */
 import "./i18n";
@@ -123,6 +124,7 @@ function App() {
                                     <Route path="/calendar" element={<CalendarPage />} />
                                     <Route path="/statistics" element={<StatisticsPage />} />
                                     <Route path="/teams" element={<TeamsPage />} />
+                                    <Route path="/teams/:teamId/projects" element={<TeamProjectsPage />} />
                                     <Route path="/teams/chat" element={<ChatPage />} />
                                 </Route>
 

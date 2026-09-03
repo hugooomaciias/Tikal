@@ -21,7 +21,7 @@ import { PROJECTS_ICONS } from "../../../../../constants/projects_icons.js";
  * @param {Function} onClose - Callback function to trigger modal closure in the parent component.
  * @returns {Object} A structured payload containing component state, derived data, and action handlers.
  */
-export const useProjectsPopUpLogic = (t, initialData, onClose) => {
+export const useProjectsPopUpLogic = (t, initialData, onClose, activeTeam) => {
     // --- 1. DOM Refs & Layout State ---
 
     /**
@@ -212,7 +212,10 @@ export const useProjectsPopUpLogic = (t, initialData, onClose) => {
 
                     handleClose();
                 } else {
-                    projectPayload.isGroupBased = false;
+                    const isGroupBased = activeTeam ? true : false;
+                    projectPayload.isGroupBased = isGroupBased;
+                    projectPayload.teamId = activeTeam.id;
+
                     await createProject(projectPayload);
 
                     setFormData({ type: "project", project: "", date: "", note: "" });
