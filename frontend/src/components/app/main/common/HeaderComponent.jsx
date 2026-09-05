@@ -256,9 +256,9 @@ export const HeaderComponent = ({ teamImage, page, projectIcon, projectName, pri
                                 </button>
 
                                 {/* Supplementary Action Tool */}
-                                <div className="cursor-pointer transition-transform">
+                                {/*<div className="cursor-pointer transition-transform">
                                     <IconSquareRoundedPlus className="w-8 h-8" />
-                                </div>
+                                </div>*/}
                             </div>
                         </div>
                     )}

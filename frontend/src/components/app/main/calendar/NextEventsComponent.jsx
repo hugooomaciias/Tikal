@@ -9,7 +9,7 @@ import { PROJECTS_ICONS } from "../../../../constants/projects_icons.js";
 import { PHASE_COLOURS } from "../../../../constants/phase_colours.js";
 
 /** Icons */
-import { IconCirclePlusFilled, IconCalendarEvent } from "@tabler/icons-react";
+import { IconCirclePlusFilled, IconCalendarEvent, IconUsersGroup } from "@tabler/icons-react";
 
 /**
  * Next Events Presentational Component
@@ -125,11 +125,11 @@ export const NextEventsComponent = ({ groupedEvents, handleEventClick, handleCon
                                                         }
                                                     }
                                                 }}
-                                                className={`flex flex-col p-3 rounded-xl shadow-sm cursor-pointer ${dragOverEventId === event.id ? "shadow-md border-2 border-dashed border-primary-600" : "border-transparent"}`}
-                                                style={{
-                                                    backgroundColor: `${color.hex}20`,
-                                                    borderLeft: `4px solid ${color.hex}`,
-                                                }}
+                                                className={`flex flex-col p-3 rounded-xl shadow-sm cursor-pointer transition-all duration-100 ${dragOverEventId === event.id ? "shadow-md border-dashed" : "border-transparent"}`}
+                                                style={
+                                                    dragOverEventId === event.id
+                                                        ? { backgroundColor: `${color.hex}20`, border: `2px dashed ${color.hex}` }
+                                                        : { backgroundColor: `${color.hex}20`, borderLeft: `4px solid ${color.hex}` }}
                                             >
                                                 <span className="text-xs font-medium text-quaternary-500 mt-1">
                                                     {formatTimeDisplay(event)}
@@ -142,6 +142,10 @@ export const NextEventsComponent = ({ groupedEvents, handleEventClick, handleCon
                                                         )}
                                                         <span className="text-xs font-bold truncate">{event.title || event.name}</span>
                                                     </div>
+
+                                                    {event.isGroupBased && (
+                                                        <IconUsersGroup className="w-5 h-5 shrink-0 text-quaternary-700" />
+                                                    )}
 
                                                     {/* User avatars */}
                                                     {event.attendees && event.attendees.length > 0 && (

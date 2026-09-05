@@ -292,7 +292,7 @@ export const useEventPopUpLogic = (initialData, onClose, onError, cascadingOptio
                     initDateTime,
                     endDateTime,
                     isActivateTracker: formData.autoTracker,
-                    colour: formData.color.id,
+                    colour: formData.color.id || formData.color,
                     isCompleteDay: formData.allDay,
                     ...linkPayload
                 }

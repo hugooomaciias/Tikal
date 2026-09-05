@@ -161,6 +161,7 @@ export const useCalendarLogic = () => {
                     allDay: event.isCompleteDay,
                     backgroundColor: colourObj.hex || tailwindColors.primary[500],
                     borderColor: colourObj.hex || tailwindColors.primary[500],
+                    isGroupBased: event.isGroupBased,
                     extendedProps: {
                         description: event.description || "",
                         eventDate: eventDate,

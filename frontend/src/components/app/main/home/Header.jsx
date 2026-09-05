@@ -178,9 +178,9 @@ export const Header = ({ data, isEditing, checkChanges, onEnableEdit, onDisableE
                                     )}
                                 </div>
                                 {/* Additional Edit Action (Placeholder) */}
-                                <div className="w-full h-1/2 cursor-pointer hover:text-primary-600 transition-all mt-1">
+                                {/*<div className="w-full h-1/2 cursor-pointer hover:text-primary-600 transition-all mt-1">
                                     <IconSquareRoundedPlus className="w-full h-full" />
-                                </div>
+                                </div>*/}
                             </div>
                         </div>
                     </div>

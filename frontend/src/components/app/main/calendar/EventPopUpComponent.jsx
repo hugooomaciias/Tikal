@@ -116,7 +116,7 @@ export const EventPopUpComponent = ({ onClose, onError, initialData, cascadingOp
                             />
 
                             {/* Auto Tracker Boolean Toggle Layout */}
-                            <div className="flex items-center justify-between">
+                            {/*<div className="flex items-center justify-between">
                                 <span className="text-primary-500 text-sm font-bold">
                                     {tCalendar("popup.linked.start_time_tracker")}
                                 </span>
@@ -129,7 +129,7 @@ export const EventPopUpComponent = ({ onClose, onError, initialData, cascadingOp
                                         className={`inline-block h-4 w-4 rounded-full bg-primary transform transition-transform duration-300 ${formData.autoTracker ? "translate-x-6" : "translate-x-1"}`}
                                     />
                                 </button>
-                            </div>
+                            </div>*/}
                         </div>
                     )}
 

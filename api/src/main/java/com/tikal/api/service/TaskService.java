@@ -3,6 +3,7 @@ package com.tikal.api.service;
 import com.tikal.api.exception.BadRequestException;
 import com.tikal.api.exception.ForbiddenAccessException;
 import com.tikal.api.exception.ResourceNotFoundException;
+import com.tikal.api.model.dto.sync.domain.TaskSyncDTO;
 import com.tikal.api.model.dto.task.*;
 import com.tikal.api.model.entity.*;
 import com.tikal.api.model.entity.enumerated.EventType;
@@ -11,7 +12,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
@@ -362,6 +362,14 @@ public class TaskService {
                 ? task.getSubtasks().stream().map(this::toDtoSubtask).toList()
                 : null;
 
+        List<TaskDTO.AssignedUser> assignedUsers = task.getAssignedUsers().stream()
+                .map(u -> TaskDTO.AssignedUser.builder()
+                        .id(u.getId())
+                        .name(u.getName())
+                        .avatar(u.getAvatarUrl())
+                        .build())
+                .toList();
+
         return TaskDTO.builder()
                 .id(task.getId())
                 .name(task.getName())
@@ -377,8 +385,10 @@ public class TaskService {
                 .colour(task.getStage().getColour())
                 .logo(task.getStage().getProject().getLogoUrl())
                 .addToCalendar(tasksWithDeadline.contains(task.getId()))
+                .isGroupBased(task.getStage().getProject().getIsGroupBased())
                 .subtasks(subtasks)
                 .subtasksCount(count)
+                .assignedUsers(assignedUsers)
                 .build();
     }
 

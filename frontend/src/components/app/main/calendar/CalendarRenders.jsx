@@ -5,7 +5,7 @@ import React from "react";
 import { ScrollingText } from "../../../../components/app/main/common/ScrollingText.jsx";
 
 /** Icons */
-import { IconDotsVerticalFilled } from "@tabler/icons-react";
+import { IconDotsVerticalFilled, IconUsersGroup } from "@tabler/icons-react";
 
 /** Config, Constants & Utils */
 import { PHASE_COLOURS } from "../../../../constants/phase_colours.js";
@@ -206,13 +206,20 @@ export const renderEventContent = (eventInfo, handleContextMenu) => {
                 </div>
 
                 {/* Bold Standard Target Title Wrapper */}
-                <div className="flex items-center gap-2">
-                    {LogoComponent && (
-                        <LogoComponent.component className="w-5 h-5" />
-                    )}
+                <div className="w-full flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2">
+                        {LogoComponent && (
+                            <LogoComponent.component className="w-5 h-5" />
+                        )}
 
-                    <span className="text-sm font-extrabold leading-tight">{event.title}</span>
+                        <span className="text-sm font-extrabold leading-tight">{event.title}</span>
+                    </div>
+
+                    {event.extendedProps?.isGroupBased && (
+                        <IconUsersGroup className="w-5 h-5 shrink-0" style={{ color: color.text }} />
+                    )}
                 </div>
+
             </div>
         );
     }

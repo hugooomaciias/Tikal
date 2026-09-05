@@ -29,5 +29,15 @@ public class TaskDTO {
     private String colour;
     private String logo;
     private Boolean addToCalendar;
+    private Boolean isGroupBased;
     private List<TaskDTO> subtasks;
+    private List<AssignedUser> assignedUsers;
+
+    @Data
+    @Builder
+    public static class AssignedUser {
+        private Integer id;
+        private String name;
+        private String avatar;
+    }
 }
