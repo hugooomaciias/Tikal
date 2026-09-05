@@ -18,7 +18,7 @@ import { useStages } from "../../../../controllers/tasks/useStages.js";
  * @param {Array<Object>} data - The raw array of stage objects passed down as props.
  * @returns {Object} A structured payload containing states, derived data, and action handlers.
  */
-export const useStagesCardLogic = (projectId, data) => {
+export const useStagesCardLogic = ({ projectId, data, onError }) => {
     // --- 1. DOM Refs & Layout State ---
     
     /**
@@ -132,7 +132,11 @@ export const useStagesCardLogic = (projectId, data) => {
             try {
                 await deleteStage(projectId, id);
             } catch (error) {
-                console.error("Error deleting stage:", error);
+                if (onError) {
+                    onError(error.message);
+                }
+                
+                closeDeleteModal();
             }
         },
         [deleteStage, projectId],
@@ -152,7 +156,11 @@ export const useStagesCardLogic = (projectId, data) => {
             try {
                 await updateStage(projectId, id, stageData);
             } catch (error) {
-                console.error("Error updating stage:", error);
+                if (onError) {
+                    onError(error.message);
+                }
+                
+                closeRenameModal();
             }
         },
         [updateStage, projectId],

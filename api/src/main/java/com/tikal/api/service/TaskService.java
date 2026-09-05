@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
@@ -121,12 +122,18 @@ public class TaskService {
 
         validateTaskPermissions(project, currentUser, "gestionar_subtareas", task);
 
-        if (isUserAdminOfProject(project, currentUser)) {
+        boolean isAdmin = isUserAdminOfProject(project, currentUser);
+
+        if (!isAdmin) {
+            if (isTryingToChangeRestrictedFields(task, request)) {
+                throw new ForbiddenAccessException("Los miembros estándar solo pueden modificar subtareas. No tienes permiso para editar los detalles principales de la tarea.");
+            }
+        } else {
             if (request.getName() != null) task.setName(request.getName());
             if (request.getDescription() != null) task.setDescription(request.getDescription());
             if (request.getEstimatedTime() != null) task.setEstimatedTime(request.getEstimatedTime());
             if (request.getEstimatedProfit() != null) task.setEstimatedProfit(request.getEstimatedProfit());
-            if (request.getDeadline() != null) task.setDeadline(request.getDeadline());
+            task.setDeadline(request.getDeadline());
             if (request.getTimeUnit() != null) task.setTimeUnit(request.getTimeUnit());
         }
 
@@ -160,7 +167,8 @@ public class TaskService {
 
         boolean hasDeadline = false;
         if (updatedTask.getParentTask() == null) {
-            hasDeadline = syncDeadlineEvent(updatedTask, currentUser, request.getAddToCalendar());
+            Boolean addToCalendar = isAdmin && request.getAddToCalendar(); 
+            hasDeadline = syncDeadlineEvent(updatedTask, currentUser, addToCalendar);
         }
 
         Set<Integer> deadlineSet = hasDeadline ? Set.of(updatedTask.getId()) : Set.of();
@@ -288,6 +296,17 @@ public class TaskService {
             User userToAssign = userService.getUserById(userId);
             task.getAssignedUsers().add(userToAssign);
         }
+    }
+
+    private boolean isTryingToChangeRestrictedFields(Task task, TaskRequest request) {        
+        if (request.getName() != null && !request.getName().equals(task.getName())) return true;
+        if (request.getDescription() != null && !request.getDescription().equals(task.getDescription())) return true;
+        if (request.getEstimatedTime() != null && !request.getEstimatedTime().equals(task.getEstimatedTime())) return true;
+        if (request.getEstimatedProfit() != null && (request.getEstimatedProfit().doubleValue() != task.getEstimatedProfit().doubleValue())) return true;
+        if (request.getDeadline() != null && !request.getDeadline().equals(task.getDeadline())) return true;
+        if (request.getTimeUnit() != null && !request.getTimeUnit().equals(task.getTimeUnit())) return true;
+        
+        return false;
     }
 
     // Auxiliar method to know if the user is admin

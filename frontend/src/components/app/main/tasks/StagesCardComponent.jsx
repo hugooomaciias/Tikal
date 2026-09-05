@@ -55,7 +55,7 @@ const tailwindColors = fullConfig.theme.colors;
  * @param {Function} props.t - Translation function from i18next.
  * @returns {JSX.Element|null} The rendered stages card, or null if data is invalid.
  */
-export const StagesCardComponent = ({ data, projectId, selectedId, onSelect, handleBackNavigation, formatShortDate, projectType, admin, t }) => {
+export const StagesCardComponent = ({ data, projectId, selectedId, onSelect, onError, handleBackNavigation, formatShortDate, projectType, admin, t }) => {
     // --- 1. Logic Hook Extraction ---
 
     /**
@@ -64,7 +64,7 @@ export const StagesCardComponent = ({ data, projectId, selectedId, onSelect, han
      * Extracts derived datasets (e.g., filtered arrays), internal UI states (e.g., tooltip/modal visibility, active context menu),
      * and specific action handlers from the headless hook.
      */
-    const { stagesCardStates, stagesCardData, stagesCardActions } = useStagesCardLogic(projectId, data);
+    const { stagesCardStates, stagesCardData, stagesCardActions } = useStagesCardLogic({ projectId, data, onError });
 
     const {
         contextMenuRef,
@@ -278,6 +278,7 @@ export const StagesCardComponent = ({ data, projectId, selectedId, onSelect, han
             {stageToEdit && (
                 <StagePopUpComponent
                     onClose={handleClosePopUp}
+                    onError={onError}
                     initialData={stageToEdit === "new" ? null : stageToEdit}
                     projectId={projectId}
                     projectType={projectType}

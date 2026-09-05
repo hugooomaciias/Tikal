@@ -10,6 +10,9 @@ import { TasksCardComponent } from "../../../components/app/main/tasks/TasksCard
 /** Assets, Utils & Constants */
 import { formatShortDate } from "../../../utils/calendarUtils.js";
 
+/** Icons */
+import { IconAlertTriangleFilled } from "@tabler/icons-react";
+
 /**
  * Tasks Layout Page Component
  *
@@ -32,9 +35,9 @@ export const TasksPage = () => {
      */
     const { t, tasksStates, tasksData, tasksActions } = useTasksLogic();
 
-    const { isDataLoaded, isCompleted, selectedProjectId, selectedStageId, mobileView, tasks, isTeam } = tasksStates;
+    const { isDataLoaded, isCompleted, selectedProjectId, selectedStageId, mobileView, tasks, isTeam, apiError, isVisible } = tasksStates;
     const { selectedProject, selectedStage } = tasksData;
-    const { handleProjectSelect, handleStageSelect, handleBackNavigation, toggleCompletedView, toggleTeamView } = tasksActions;
+    const { handleProjectSelect, handleStageSelect, handleBackNavigation, toggleCompletedView, toggleTeamView, handleShowError } = tasksActions;
 
     // --- 2. Render ---
 
@@ -63,6 +66,7 @@ export const TasksPage = () => {
                         data={tasks}
                         selectedId={selectedProjectId}
                         onSelect={handleProjectSelect}
+                        onError={handleShowError}
                         formatShortDate={formatShortDate}
                         isTeamFilter={isTeam}
                         t={t}
@@ -78,6 +82,7 @@ export const TasksPage = () => {
                         projectId={selectedProjectId}
                         selectedId={selectedStageId}
                         onSelect={handleStageSelect}
+                        onError={handleShowError}
                         handleBackNavigation={handleBackNavigation}
                         formatShortDate={formatShortDate}
                         projectType={selectedProject ? selectedProject.type : "project"}
@@ -98,9 +103,22 @@ export const TasksPage = () => {
                         stageName={selectedStage?.name}
                         stageColour={selectedStage?.colour}
                         formatShortDate={formatShortDate}
+                        onError={handleShowError}
                         t={t}
                     />
                 </div>
+
+                {/* API Error Alert Banner */}
+                {apiError && (
+                    <div
+                        className={`fixed bottom-8 left-0 right-0 mx-auto w-[90%] md:w-fit md:min-w-[350px] max-w-md bg-primary border-2 border-tertiary-200 text-tertiary-200 px-6 py-4 rounded-2xl flex items-center justify-center gap-3 shadow-2xl transition-all duration-500 ease-out z-[9999]
+                                    ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10 pointer-events-none"}`}
+                        role="alert"
+                    >
+                        <IconAlertTriangleFilled className="h-6 w-6 shrink-0" />
+                        <span className="block sm:inline font-medium text-center">{apiError}</span>
+                    </div>
+                )}
             </div>
         </>
     );

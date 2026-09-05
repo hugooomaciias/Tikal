@@ -76,6 +76,7 @@ export const TasksCardComponent = ({
     stageColour,
     formatShortDate,
     admin,
+    onError,
     t,
 }) => {
     // --- 1. Logic Hook Extraction ---
@@ -92,6 +93,7 @@ export const TasksCardComponent = ({
         stageId,
         isCompletedFilter,
         stageName,
+        onError
     );
 
     const {
@@ -527,6 +529,7 @@ export const TasksCardComponent = ({
             {taskToEdit && (
                 <TaskPopUpComponent
                     onClose={handleClosePopUp}
+                    onError={onError}
                     initialData={taskToEdit === "new" ? null : taskToEdit}
                     projectId={projectId}
                     stageId={stageId}

@@ -7,7 +7,7 @@ import { DatePickerComponent } from "../common/popups/DatepickerComponent.jsx";
 import { PickerComponent } from "../common/popups/PickerComponent.jsx";
 
 /** Icons */
-import { IconCircleXFilled, IconNote, IconLoader, IconAlertTriangleFilled } from "@tabler/icons-react";
+import { IconCircleXFilled, IconNote, IconLoader } from "@tabler/icons-react";
 
 /**
  * Stage PopUp Component
@@ -24,7 +24,7 @@ import { IconCircleXFilled, IconNote, IconLoader, IconAlertTriangleFilled } from
  * @param {Function} props.t - Translation function from i18next for multi-language support.
  * @returns {JSX.Element} The rendered modal component.
  */
-export const StagePopUpComponent = ({ onClose, initialData, projectId, projectType, t }) => {
+export const StagePopUpComponent = ({ onClose, onError, initialData, projectId, projectType, t }) => {
     // --- 1. Logic Hook Extraction ---
 
     /**
@@ -36,12 +36,13 @@ export const StagePopUpComponent = ({ onClose, initialData, projectId, projectTy
     const { stagesPopUpStates, stagesPopUpData, stagesPopUpActions } = useStagesPopUpLogic(
         initialData,
         onClose,
+        onError,
         projectId,
         projectType,
         t,
     );
 
-    const { selectedColour, formData, errors, isLoading, apiError, isVisible } = stagesPopUpStates;
+    const { selectedColour, formData, errors, isLoading } = stagesPopUpStates;
     const { isEditing, disabledTabType, gamifiedColours } = stagesPopUpData;
     const {
         handleChange,
@@ -219,18 +220,6 @@ export const StagePopUpComponent = ({ onClose, initialData, projectId, projectTy
                     </button>
                 </form>
             </div>
-
-            {/* API Error Alert Banner */}
-            {apiError && (
-                <div
-                    className={`absolute bottom-8 left-0 right-0 mx-auto w-[90%] md:w-fit md:min-w-[350px] max-w-md bg-primary border-2 border-tertiary-200 text-tertiary-200 px-6 py-4 rounded-2xl flex items-center justify-center gap-3 shadow-2xl transition-all duration-500 ease-out z-50
-                                ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10 pointer-events-none"}`}
-                    role="alert"
-                >
-                    <IconAlertTriangleFilled className="h-6 w-6 shrink-0" />
-                    <span className="block sm:inline font-medium text-center">{apiError}</span>
-                </div>
-            )}
         </div>
     );
 };

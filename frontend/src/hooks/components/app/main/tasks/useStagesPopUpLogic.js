@@ -1,5 +1,5 @@
 /** React & Third-Party Libraries */
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useCallback, useMemo } from "react";
 
 /** Contexts, Hooks & Services */
 import { useSync } from "../../../../core/useSync.js";
@@ -22,7 +22,7 @@ import { PHASE_COLOURS } from "../../../../../constants/phase_colours.js";
  * @param {Function} t - Translation function for i18n text rendering.
  * @returns {Object} A structured payload containing states, derived data, and action handlers.
  */
-export const useStagesPopUpLogic = (initialData, onClose, projectId, projectType, t) => {
+export const useStagesPopUpLogic = (initialData, onClose, onError, projectId, projectType, t) => {
     // --- 1. DOM Refs & Layout State ---
 
     const { getTempleModeData } = useSync();
@@ -81,20 +81,6 @@ export const useStagesPopUpLogic = (initialData, onClose, projectId, projectType
      */
     const [isLoading, setIsLoading] = useState(false);
 
-    /**
-     * API Error State
-     *
-     * Tracks high-level server or network errors resulting from a failed submission.
-     */
-    const [apiError, setApiError] = useState("");
-
-    /**
-     * Alert Visibility State
-     *
-     * Tracks the visual rendering state of the API error alert banner to manage enter/exit CSS animations smoothly.
-     */
-    const [isVisible, setIsVisible] = useState(false);
-
     // --- 3. Derived UI Data ---
 
     /**
@@ -126,27 +112,6 @@ export const useStagesPopUpLogic = (initialData, onClose, projectId, projectType
             isLocked: data.rank < (colour.minRank)
         }));
     }, [data.rank]);
-
-    // --- 4. Side Effects ---
-
-    /**
-     * API Error Auto-Hide Effect
-     *
-     * Triggers a timer whenever a new API error occurs, automatically dismissing the alert
-     * after 5 seconds to ensure the UI remains uncluttered without requiring manual user dismissal.
-     */
-    useEffect(() => {
-        if (apiError) {
-            setIsVisible(true);
-
-            const timer = setTimeout(() => {
-                handleClose();
-            }, 5000);
-
-            return () => clearTimeout(timer);
-        }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [apiError]);
 
     // --- 5. Interaction Handlers ---
 
@@ -215,12 +180,6 @@ export const useStagesPopUpLogic = (initialData, onClose, projectId, projectType
      * @returns {void}
      */
     const handleClose = useCallback(() => {
-        setIsVisible(false);
-
-        setTimeout(() => {
-            setApiError("");
-        }, 300);
-
         onClose();
     }, [onClose]);
 
@@ -236,7 +195,6 @@ export const useStagesPopUpLogic = (initialData, onClose, projectId, projectType
     const handleSubmit = useCallback(
         async (e) => {
             e.preventDefault();
-            setApiError("");
 
             if (validateForm()) {
                 setIsLoading(true);
@@ -270,7 +228,11 @@ export const useStagesPopUpLogic = (initialData, onClose, projectId, projectType
                         handleClose();
                     }
                 } catch (error) {
-                    setApiError(error.message || "Ocurrió un error al crear la fase.");
+                    if (onError) {
+                        onError(error.message);
+                    }
+                    
+                    handleClose();
                 } finally {
                     setIsLoading(false);
                 }
@@ -366,7 +328,7 @@ export const useStagesPopUpLogic = (initialData, onClose, projectId, projectType
     // --- 6. Return Object ---
 
     return {
-        stagesPopUpStates: { selectedColour, formData, errors, isLoading, apiError, isVisible },
+        stagesPopUpStates: { selectedColour, formData, errors, isLoading },
         stagesPopUpData: { isEditing, disabledTabType, gamifiedColours },
         stagesPopUpActions: {
             handleChange,

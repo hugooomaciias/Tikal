@@ -29,7 +29,7 @@ import { TIME_OPTIONS } from "../../../../utils/calendarUtils.js";
  * @param {Function} props.t - Core i18n translation utility.
  * @returns {JSX.Element} The completely logic-less rendered modal component interface.
  */
-export const EventPopUpComponent = ({ onClose, initialData, cascadingOptions = [], projectId, admin, tCalendar, tCommon }) => {
+export const EventPopUpComponent = ({ onClose, onError, initialData, cascadingOptions = [], projectId, admin, tCalendar, tCommon }) => {
     // --- 1. Logic Hook Extraction ---
 
     /**
@@ -44,6 +44,7 @@ export const EventPopUpComponent = ({ onClose, initialData, cascadingOptions = [
     const { eventPopUpStates, eventPopUpData, eventPopUpActions } = useEventPopUpLogic(
         initialData,
         onClose,
+        onError,
         cascadingOptions,
         projectId,
         tCalendar,

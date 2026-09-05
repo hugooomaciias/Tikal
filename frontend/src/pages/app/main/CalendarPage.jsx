@@ -10,7 +10,6 @@ import DatePicker from "react-datepicker";
 
 /** Contexts, Hooks & Services */
 import { useCalendarLogic } from "../../../hooks/components/app/main/calendar/useCalendarLogic.js";
-import { useContextMenu } from "../../../hooks/components/app/main/common/useContextMenu.js";
 import i18n from "../../../i18n.js";
 
 /** Components & Layouts */
@@ -21,6 +20,9 @@ import { DeleteComponent } from "../../../components/app/main/common/DeleteCompo
 import { NextEventsComponent } from "../../../components/app/main/calendar/NextEventsComponent.jsx";
 import { ContextMenuComponent } from "../../../components/app/main/common/ContextMenuComponent.jsx";
 import { renderEventContent, renderCustomDayContents } from "../../../components/app/main/calendar/CalendarRenders.jsx";
+
+/** Icons */
+import { IconAlertTriangleFilled } from "@tabler/icons-react";
 
 /**
  * Calendar Page Component
@@ -45,7 +47,7 @@ export const CalendarPage = () => {
     const { calendarRef, translations, calendarStates, calendarData, calendarActions } = useCalendarLogic();
 
     const { tCalendar, tCommon } = translations;
-    const { isDataLoaded, selectedDate, eventToEdit, isMobile } = calendarStates;
+    const { contextMenuRef, contextMenuStates, contextMenuActions, isDataLoaded, selectedDate, eventToEdit, isMobile, apiError, isVisible } = calendarStates;
     const { events, highlightDates, eventsColorMap, groupedEvents, cascadingOptions, hasAllDayEvents } = calendarData;
     const {
         openNewEventModal,
@@ -58,10 +60,9 @@ export const CalendarPage = () => {
         handleEventDrop,
         handleEventResize,
         handleEditEvent,
-        handleDeleteEvent
+        handleDeleteEvent,
+        handleShowError
     } = calendarActions;
-
-    const { contextMenuRef, contextMenuStates, contextMenuActions } = useContextMenu(handleEventClick);
 
     const { contextMenu, entityToRename, entityToDelete } = contextMenuStates;
     const { closeRenameModal, closeDeleteModal, handleContextMenu } = contextMenuActions;
@@ -184,6 +185,7 @@ export const CalendarPage = () => {
             {eventToEdit && (
                 <EventPopUpComponent
                     onClose={closeEventModal}
+                    onError={handleShowError}
                     initialData={eventToEdit}
                     cascadingOptions={cascadingOptions}
                     tCalendar={tCalendar}
@@ -210,6 +212,18 @@ export const CalendarPage = () => {
                     onDelete={(id) => {handleDeleteEvent(id)}}
                     nextEvent={true}
                 />
+            )}
+
+            {/* API Error Alert Banner */}
+            {apiError && (
+                <div
+                    className={`fixed bottom-8 left-0 right-0 mx-auto w-[90%] md:w-fit md:min-w-[350px] max-w-md bg-primary border-2 border-tertiary-200 text-tertiary-200 px-6 py-4 rounded-2xl flex items-center justify-center gap-3 shadow-2xl transition-all duration-500 ease-out z-[9999]
+                                ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10 pointer-events-none"}`}
+                    role="alert"
+                >
+                    <IconAlertTriangleFilled className="h-6 w-6 shrink-0" />
+                    <span className="block sm:inline font-medium text-center">{apiError}</span>
+                </div>
             )}
         </>
     );

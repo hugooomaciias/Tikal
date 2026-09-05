@@ -1,5 +1,5 @@
 /** React & Third-Party Libraries */
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback } from "react";
 
 /** Contexts, Hooks & Services */
 import { useSync } from "../../../../core/useSync.js";
@@ -22,7 +22,7 @@ import { resolveColorObject, safeParseDate, formatDateTimeISO, resolveLinkPayloa
  * @param {Array<Object>} cascadingOptions - Injected nested hierarchical data array (projects, phases, tasks) for the link dropdown.
  * @returns {Object} A structured payload containing grouped DOM refs, state variables, derived data, and interaction handlers.
  */
-export const useEventPopUpLogic = (initialData, onClose, cascadingOptions, projectId, t) => {
+export const useEventPopUpLogic = (initialData, onClose, onError, cascadingOptions, projectId, t) => {
     // --- 1. Contexts & DOM Refs ---
 
     const { getTempleModeData } = useSync();
@@ -310,7 +310,11 @@ export const useEventPopUpLogic = (initialData, onClose, cascadingOptions, proje
                 setFormData((prev) => ({ ...prev, project: "", note: prev.note || "" }));
                 onClose();
             } catch (error) {
-                console.error("Error procesando el evento de calendario:", error);
+                if (onError) {
+                    onError(error.message);
+                }
+                
+                onClose();
             }
         },
         [validateForm, formData, isEditing, initialData, updateCalendarEvent, createCalendarEvent, onClose],

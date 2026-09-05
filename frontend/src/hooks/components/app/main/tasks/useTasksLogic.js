@@ -19,25 +19,7 @@ import { useSync } from "../../../../core/useSync.js";
  */
 export const useTasksLogic = () => {
     // --- 1. DOM Refs & Layout State ---
-
-    /**
-     * Mobile Layout State
-     *
-     * Tracks which section of the layout (projects, stages, or tasks) is currently
-     * visible on mobile viewports, allowing for hierarchical sliding navigation.
-     */
-    const [mobileView, setMobileView] = useState("projects");
-
-    // --- 2. Local UI State ---
-
-    /**
-     * Main Context Hook
-     *
-     * Extracts global application state regarding user profile data, task datasets,
-     * and backend loading status.
-     */
-    const { rawDashboardData, isDataLoaded } = useSync();
-
+    
     /**
      * Translation Hook
      *
@@ -45,6 +27,24 @@ export const useTasksLogic = () => {
      * tasks namespace.
      */
     const { t } = useTranslation("app_tasks");
+
+    /**
+     * Main Context Hook
+    *
+    * Extracts global application state regarding user profile data, task datasets,
+    * and backend loading status.
+    */
+   const { rawDashboardData, isDataLoaded } = useSync();
+    
+   // --- 2. Local UI State ---
+   
+   /**
+    * Mobile Layout State
+    *
+    * Tracks which section of the layout (projects, stages, or tasks) is currently
+    * visible on mobile viewports, allowing for hierarchical sliding navigation.
+    */
+   const [mobileView, setMobileView] = useState("projects");
 
     /**
      * Completed Filter State
@@ -60,7 +60,7 @@ export const useTasksLogic = () => {
      * Toggles whether the downstream interfaces include team-based collaborative 
      * projects or restrict the view exclusively to individual, personal projects.
      */
-    const [isTeam, setIsTeam] = useState(false);
+    const [isTeam, setIsTeam] = useState(true);
 
     /**
      * Selected Project State
@@ -75,6 +75,20 @@ export const useTasksLogic = () => {
      * Tracks the currently active stage within the selected project.
      */
     const [selectedStageId, setSelectedStageId] = useState(null);
+
+    /**
+     * API Error State
+     *
+     * Stores any global errors returned by the server during form submission.
+     */
+    const [apiError, setApiError] = useState("");
+
+    /**
+     * Popup Visibility State
+     *
+     * Controls the visibility of the popup for smooth entry/exit animations.
+     */
+    const [isVisible, setIsVisible] = useState(false);
 
     // --- 3. Derived UI Data ---
 
@@ -124,6 +138,33 @@ export const useTasksLogic = () => {
             }
         }
     }, [isDataLoaded, tasks, selectedProjectId]);
+
+    /**
+     * Error Toast Auto-Hide Effect
+     *
+     * Monitors the `isVisible` state. Once the toast is fully rendered and visible,
+     * it waits 5 seconds before triggering the exit animation. After the CSS transition
+     * completes (500ms), it safely unmounts the DOM node.
+     */
+    useEffect(() => {
+        let exitTimer;
+        let unmountTimer;
+
+        if (isVisible && apiError) {
+            exitTimer = setTimeout(() => {
+                setIsVisible(false);
+
+                unmountTimer = setTimeout(() => {
+                    setApiError("");
+                }, 500);
+            }, 5000);
+        }
+
+        return () => {
+            clearTimeout(exitTimer);
+            clearTimeout(unmountTimer);
+        };
+    }, [isVisible, apiError]);
 
     // --- 5. Interaction Handlers ---
 
@@ -205,12 +246,30 @@ export const useTasksLogic = () => {
         setIsTeam((prev) => !prev);
     }, []);
 
+    /**
+     * Show Delegated Error Handler
+     *
+     * Captures elevated errors from child components (like popups) and triggers
+     * the master toast notification.
+     *
+     * @param {string} errorMessage - The localized or raw error message to display.
+     * @returns {void}
+     */
+    const handleShowError = useCallback((errorMessage) => {
+        setApiError(errorMessage);
+        setIsVisible(false);
+
+        setTimeout(() => {
+            setIsVisible(true);
+        }, 300);
+    }, []);
+
     // --- 6. Return Object ---
 
     return {
         t,
-        tasksStates: { isDataLoaded, isCompleted, selectedProjectId, selectedStageId, mobileView, tasks, isTeam },
+        tasksStates: { isDataLoaded, isCompleted, selectedProjectId, selectedStageId, mobileView, tasks, isTeam, apiError, isVisible },
         tasksData: { selectedProject, selectedStage },
-        tasksActions: { handleProjectSelect, handleStageSelect, handleBackNavigation, toggleCompletedView, toggleTeamView },
+        tasksActions: { handleProjectSelect, handleStageSelect, handleBackNavigation, toggleCompletedView, toggleTeamView, handleShowError },
     };
 };

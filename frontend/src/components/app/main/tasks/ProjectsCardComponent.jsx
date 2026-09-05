@@ -30,7 +30,7 @@ import { IconSearch, IconCircleXFilled, IconNote, IconCirclePlusFilled, IconCale
  * @param {Function} props.t - Translation function from i18next.
  * @returns {JSX.Element|null} The rendered projects card UI, or null if data is invalid.
  */
-export const ProjectsCardComponent = ({ data, selectedId, onSelect, formatShortDate, isTeamFilter, t }) => {
+export const ProjectsCardComponent = ({ data, selectedId, onSelect, onError, formatShortDate, isTeamFilter, t }) => {
     // --- 1. Logic Hook Extraction ---
 
     /**
@@ -39,7 +39,7 @@ export const ProjectsCardComponent = ({ data, selectedId, onSelect, formatShortD
      * Extracts all managed UI states, derived datasets, and interaction handlers
      * required to power this presentational component.
      */
-    const { projectsCardStates, projectsCardData, projectsCardActions } = useProjectsCardLogic({ data, isTeamFilter });
+    const { projectsCardStates, projectsCardData, projectsCardActions } = useProjectsCardLogic({ data, isTeamFilter, onError });
 
     const {
         contextMenuRef,
@@ -245,6 +245,7 @@ export const ProjectsCardComponent = ({ data, selectedId, onSelect, formatShortD
             {projectToEdit && (
                 <ProjectPopUpComponent
                     onClose={handleClosePopUp}
+                    onError={onError}
                     initialData={projectToEdit === "new" ? null : projectToEdit}
                     t={t}
                 />

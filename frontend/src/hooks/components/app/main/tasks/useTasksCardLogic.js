@@ -35,7 +35,7 @@ const tailwindColors = fullConfig.theme.colors;
  * @param {string} stageName - The display name of the parent stage, used for global timer context.
  * @returns {Object} A structured payload containing states, derived datasets, and action handlers.
  */
-export const useTasksCardLogic = (data, projectId, stageId, isCompletedFilter, stageName) => {
+export const useTasksCardLogic = (data, projectId, stageId, isCompletedFilter, stageName, onError) => {
     // --- 1. DOM Refs & Layout State ---
 
     /**
@@ -454,7 +454,11 @@ export const useTasksCardLogic = (data, projectId, stageId, isCompletedFilter, s
             try {
                 await deleteTask(projectId, stageId, id);
             } catch (error) {
-                console.error("Error deleting task:", error);
+                if (onError) {
+                    onError(error.message);
+                }
+                
+                closeDeleteModal();
             }
         },
         [deleteTask, projectId, stageId],
@@ -475,7 +479,11 @@ export const useTasksCardLogic = (data, projectId, stageId, isCompletedFilter, s
             try {
                 await updateTask(projectId, stageId, id, updateData, parentId);
             } catch (error) {
-                console.error("Error updating entity:", error);
+                if (onError) {
+                    onError(error.message);
+                }
+                
+                closeRenameModal();
             }
         },
         [updateTask, projectId, stageId],
@@ -495,7 +503,9 @@ export const useTasksCardLogic = (data, projectId, stageId, isCompletedFilter, s
             try {
                 await deleteTask(projectId, stageId, subtaskId, parentId);
             } catch (error) {
-                console.error("Error deleting subtask:", error);
+                if (onError) {
+                    onError(error.message);
+                }
             }
         },
         [deleteTask, projectId, stageId],
@@ -542,7 +552,9 @@ export const useTasksCardLogic = (data, projectId, stageId, isCompletedFilter, s
                 await assignUserToTask(projectId, stageId, taskId, newAssignedUsers);
 
             } catch (error) {
-                console.error("Error al asignar el miembro a la tarea:", error);
+                if (onError) {
+                    onError(error.message);
+                }
             }
         },
         [data, projectId, stageId, assignUserToTask]

@@ -1,5 +1,5 @@
 /** React & Third-Party Libraries */
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useCallback, useMemo } from "react";
 
 /** Contexts, Hooks & Services */
 import { useProjects } from "../../../../controllers/tasks/useProjects.js";
@@ -21,7 +21,7 @@ import { PROJECTS_ICONS } from "../../../../../constants/projects_icons.js";
  * @param {Function} onClose - Callback function to trigger modal closure in the parent component.
  * @returns {Object} A structured payload containing component state, derived data, and action handlers.
  */
-export const useProjectsPopUpLogic = (t, initialData, onClose, activeTeam) => {
+export const useProjectsPopUpLogic = (t, initialData, onClose, activeTeam, onError) => {
     // --- 1. DOM Refs & Layout State ---
 
     /**
@@ -55,7 +55,7 @@ export const useProjectsPopUpLogic = (t, initialData, onClose, activeTeam) => {
     const [formData, setFormData] = useState({
         type: initialData ? initialData.type.toLowerCase() : "project",
         project: initialData ? initialData.name : "",
-        date: initialData && initialData.deadline ? new Date(initialData.deadline) : null,
+        date: initialData?.deadline ? new Date(initialData.deadline) : null,
         addToCalendar: initialData ? initialData.addToCalendar : false,
         note: initialData ? initialData.description : "",
     });
@@ -74,20 +74,6 @@ export const useProjectsPopUpLogic = (t, initialData, onClose, activeTeam) => {
      */
     const [isLoading, setIsLoading] = useState(false);
 
-    /**
-     * API Error State
-     *
-     * Stores any global errors returned by the server during form submission.
-     */
-    const [apiError, setApiError] = useState("");
-
-    /**
-     * Popup Visibility State
-     *
-     * Controls the visibility of the popup for smooth entry/exit animations.
-     */
-    const [isVisible, setIsVisible] = useState(false);
-
     // --- 3. Derived UI Data ---
 
     /**
@@ -100,28 +86,7 @@ export const useProjectsPopUpLogic = (t, initialData, onClose, activeTeam) => {
         return Boolean(initialData);
     }, [initialData]);
 
-    // --- 4. Side Effects ---
-
-    /**
-     * Popup Auto-Hide Effect
-     *
-     * Monitors the `apiError` state. When an error is present, it displays
-     * the popup and sets a timeout to automatically close it after 5 seconds.
-     * Cleans up the timeout if the component unmounts or if the error state changes.
-     */
-    useEffect(() => {
-        if (apiError) {
-            setIsVisible(true);
-
-            const timer = setTimeout(() => {
-                handleClose();
-            }, 5000);
-
-            return () => clearTimeout(timer);
-        }
-    }, [apiError]);
-
-    // --- 5. Interaction Handlers ---
+    // --- 4. Interaction Handlers ---
 
     /**
      * Form Validation Logic
@@ -185,7 +150,6 @@ export const useProjectsPopUpLogic = (t, initialData, onClose, activeTeam) => {
      */
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setApiError("");
 
         if (validateForm()) {
             setIsLoading(true);
@@ -223,7 +187,11 @@ export const useProjectsPopUpLogic = (t, initialData, onClose, activeTeam) => {
                     handleClose();
                 }
             } catch (error) {
-                setApiError(error.message || "Ocurrió un error al crear el proyecto.");
+                if (onError) {
+                    onError(error.message);
+                }
+                
+                handleClose();
             } finally {
                 setIsLoading(false);
             }
@@ -233,19 +201,13 @@ export const useProjectsPopUpLogic = (t, initialData, onClose, activeTeam) => {
     /**
      * Close Modal Handler
      *
-     * Triggers the parent's callback to dismiss the popup modal after animating out.
+     * Triggers the parent's callback to explicitly dismiss the popup modal.
      *
      * @returns {void}
      */
-    const handleClose = () => {
-        setIsVisible(false);
-
-        setTimeout(() => {
-            setApiError("");
-        }, 300);
-
+    const handleClose = useCallback(() => {
         onClose();
-    };
+    }, [onClose]);
 
     /**
      * Toggle Deadline Handler
@@ -323,7 +285,7 @@ export const useProjectsPopUpLogic = (t, initialData, onClose, activeTeam) => {
     // --- 6. Return Object ---
 
     return {
-        projectsPopUpStates: { selectedIcon, formData, errors, isLoading, apiError, isVisible },
+        projectsPopUpStates: { selectedIcon, formData, errors, isLoading },
         projectsPopUpData: { isEditing },
         projectsPopUpActions: {
             handleChange,
