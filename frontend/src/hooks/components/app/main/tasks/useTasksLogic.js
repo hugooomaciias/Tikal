@@ -55,6 +55,14 @@ export const useTasksLogic = () => {
     const [isCompleted, setIsCompleted] = useState(false);
 
     /**
+     * Team Filter State
+     *
+     * Toggles whether the downstream interfaces include team-based collaborative 
+     * projects or restrict the view exclusively to individual, personal projects.
+     */
+    const [isTeam, setIsTeam] = useState(false);
+
+    /**
      * Selected Project State
      *
      * Tracks the currently active project by its unique identifier.
@@ -134,7 +142,7 @@ export const useTasksLogic = () => {
 
             const projectClicked = tasks?.find((p) => p.id === id);
 
-            if (projectClicked && projectClicked.stages && projectClicked.stages.length > 0) {
+            if (projectClicked.stages && projectClicked.stages.length > 0) {
                 setSelectedStageId(projectClicked.stages[0].id);
             } else {
                 setSelectedStageId(null);
@@ -185,12 +193,24 @@ export const useTasksLogic = () => {
         setIsCompleted((prev) => !prev);
     }, []);
 
+    /**
+     * Team View Toggle Handler
+     *
+     * Inverts the team filter state, commanding downstream components to either show
+     * all projects (including collaborative ones) or strictly personal projects.
+     *
+     * @returns {void}
+     */
+    const toggleTeamView = useCallback(() => {
+        setIsTeam((prev) => !prev);
+    }, []);
+
     // --- 6. Return Object ---
 
     return {
         t,
-        tasksStates: { isDataLoaded, isCompleted, selectedProjectId, selectedStageId, mobileView, tasks },
+        tasksStates: { isDataLoaded, isCompleted, selectedProjectId, selectedStageId, mobileView, tasks, isTeam },
         tasksData: { selectedProject, selectedStage },
-        tasksActions: { handleProjectSelect, handleStageSelect, handleBackNavigation, toggleCompletedView },
+        tasksActions: { handleProjectSelect, handleStageSelect, handleBackNavigation, toggleCompletedView, toggleTeamView },
     };
 };

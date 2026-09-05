@@ -1,3 +1,6 @@
+/** Components & Layouts */
+import { RenameComponent } from "../../../../components/app/main/common/RenameComponent.jsx";
+
 /** Contexts, Hooks & Services */
 import { useTeamMembersPopUpLogic } from "../../../../hooks/components/app/main/teams/useTeamMembersPopUpLogic.js";
 
@@ -11,7 +14,8 @@ import {
     IconShieldOff,
     IconUserX,
     IconCheck,
-    IconX
+    IconX,
+    IconEditFilled
 } from "@tabler/icons-react";
 
 /**
@@ -31,7 +35,7 @@ import {
  * @param {string|number} props.currentUserId - The ID of the currently authenticated user (used to prevent self-kicking).
  * @returns {JSX.Element} The rendered Team Members PopUp modal component.
  */
-export const TeamMembersPopUpComponent = ({ onClose, team, viewAsAdmin, t }) => {
+export const TeamMembersPopUpComponent = ({ onClose, team, viewAsAdmin, admin, adminMembers, t }) => {
     // --- 1. Logic Hook Extraction ---
 
     /**
@@ -48,7 +52,9 @@ export const TeamMembersPopUpComponent = ({ onClose, team, viewAsAdmin, t }) => 
         isLoading, 
         isVisible, 
         apiError,
-        memberToDelete
+        memberToDelete,
+        isRoleModifyModalOpen,
+        roleToEdit
     } = membersPopUpStates;
     const {
         handleToggleAdmin, 
@@ -56,27 +62,27 @@ export const TeamMembersPopUpComponent = ({ onClose, team, viewAsAdmin, t }) => 
         handleCancelKick,
         handleConfirmKick,
         handleSearchChange, 
-        handleClose 
+        handleClose,
+        handleOpenRoleModifyModal,
+        handleCloseRoleModifyModal,
+        handleModifyRole
     } = membersPopUpActions;
 
     // --- 2. Render ---
 
-    return (
+    const innerContent = (
         <div
-            onClick={handleClose}
-            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm p-4"
+            onClick={!admin ? (e) => e.stopPropagation() : undefined}
+            className={admin ? "relative flex flex-col h-full w-full gap-4" : "relative w-full max-w-md shadow-2xl flex flex-col gap-6 bg-primary-50 rounded-[2.5rem] p-8 animate-fade-in-up"}
         >
-            {/* Modal Content Container */}
-            <div
-                className="relative w-full max-w-md shadow-2xl flex flex-col gap-6 bg-primary-50 rounded-[2.5rem] p-8 animate-fade-in-up"
-                onClick={(e) => e.stopPropagation()}
-            >
-                {/* Header Section: Title & Close Action */}
-                <div className="flex items-center justify-between">
-                    <span className="text-2xl font-bold text-quaternary-700">
-                        {t("teams_members.popup.title")}
-                    </span>
+            {/* Header Section: Title & Close Action */}
+            <div className="flex items-center justify-between shrink-0">
+                <span className="font-bold text-quaternary-700 text-2xl">
+                    {admin && members.length} {t("teams_members.popup.title")}
+                </span>
 
+                {/* El botón de cerrar solo se muestra si NO es admin (modo popup) */}
+                {!admin && (
                     <button
                         type="button"
                         className="text-primary-500/70 hover:text-primary-500 transition-colors"
@@ -84,34 +90,53 @@ export const TeamMembersPopUpComponent = ({ onClose, team, viewAsAdmin, t }) => 
                     >
                         <IconCircleXFilled className="h-8 w-8" />
                     </button>
-                </div>
+                )}
+            </div>
 
-                {/* Search Bar Section */}
-                <div className="relative w-full">
-                    <input
-                        type="text"
-                        placeholder={t("teams_members.popup.search")}
-                        value={searchTerm}
-                        onChange={handleSearchChange}
-                        className="w-full bg-primary border border-primary-200 text-quaternary-700 rounded-xl py-3 pl-12 pr-4 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-all shadow-sm"
-                    />
+            {/* Search Bar Section */}
+            <div className="relative w-full shrink-0">
+                <input
+                    type="text"
+                    placeholder={t("teams_members.popup.search")}
+                    value={searchTerm}
+                    onChange={handleSearchChange}
+                    className={`w-full ${admin ? "bg-primary-100 text-quaternary-700 placeholder:text-primary" : "bg-primary border border-primary-200 text-quaternary-700"} rounded-xl py-3 pl-12 pr-4 outline-none transition-all shadow-inner`}
+                />
 
-                    <IconSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-primary-400 w-5 h-5" />
-                    
-                    {isLoading && (
-                        <IconLoader className="absolute right-4 top-1/2 -translate-y-1/2 text-primary-500 w-5 h-5 animate-spin" />
-                    )}
-                </div>
+                <IconSearch className={`absolute left-4 top-1/2 -translate-y-1/2 ${admin ? "text-primary" : "text-primary-400"} w-5 h-5`} />
+                
+                {isLoading && (
+                    <IconLoader className="absolute right-4 top-1/2 -translate-y-1/2 text-primary-500 w-5 h-5 animate-spin" />
+                )}
+            </div>
 
-                {/* Members List Section */}
-                <div className="flex flex-col gap-2 overflow-y-auto max-h-[350px] custom-scrollbar pr-2 min-h-[150px]">
-                    {!isLoading && members.length === 0 ? (
-                        <div className="flex items-center justify-center h-full text-quaternary-400 italic text-sm mt-10">
-                            {t("teams_members.popup.no_members")}
-                        </div>
-                    ) : (
-                        members.map((member) => (
-                            <div key={member.id} className="relative overflow-hidden flex items-center gap-3 bg-primary/60 p-3 rounded-2xl border border-primary-100 shadow-sm transition-transform">
+            {/* Members List Section */}
+            <div className={`flex flex-col gap-2 overflow-y-auto custom-scrollbar pr-2 ${admin ? "flex-1 min-h-0 pb-2" : "max-h-[350px] min-h-[150px]"}`}>
+                {isLoading || members.length > 0 ? (
+                    members.map((member) => {
+                        let adminMember, completedTasks, pendingTasks = null;
+                        if (admin) {
+                            adminMember = adminMembers.find((m) => m.id === member.userId)
+                            completedTasks = adminMember.completedTasks || 0;
+                            pendingTasks = adminMember.pendingTasks || 0;
+                        }
+
+                        return (
+                            <div
+                                key={member.userId}
+                                draggable={admin}
+                                onDragStart={(e) => {
+                                    if (!admin) return;
+                                    e.dataTransfer.setData("text/plain", member.userId);
+                                    e.dataTransfer.setData("application/json", JSON.stringify(member));
+                                    e.dataTransfer.effectAllowed = "copy";
+                                }}
+                                className={`relative overflow-hidden flex items-center gap-3 ${
+                                    admin 
+                                        ? "hover:bg-primary-300/10 cursor-grab active:cursor-grabbing" 
+                                        : "bg-primary/60 border border-primary-100 shadow-sm"
+                                } p-3 rounded-2xl transition-transform`}
+                            >
                                 {/* Avatar */}
                                 <div className="w-12 h-12 rounded-full overflow-hidden flex-shrink-0 bg-primary-100">
                                     <img 
@@ -137,31 +162,50 @@ export const TeamMembersPopUpComponent = ({ onClose, team, viewAsAdmin, t }) => 
                                     </span>
                                 </div>
 
-                                {viewAsAdmin && !member.loggedUser && (
-                                    <div className="flex items-center gap-1 ml-auto pl-2 border-l border-primary-200">
-                                        <button
-                                            type="button"
-                                            onClick={() => handleToggleAdmin(member.userId, member.isAdmin)}
-                                            className={`p-1.5 rounded-lg transition-colors ${
-                                                member.isAdmin 
-                                                    ? "text-tertiary-200 hover:bg-tertiary-50"
-                                                    : "text-primary-600 hover:bg-primary-100"
-                                            }`}
-                                            title={member.isAdmin ? "Quitar administrador" : "Hacer administrador"}
-                                        >
-                                            {member.isAdmin ? <IconShieldOff className="w-5 h-5" /> : <IconShieldCheckFilled className="w-5 h-5" />}
-                                        </button>
-
-                                        <button
-                                            type="button"
-                                            onClick={() => handleTriggerKick(member.userId)}
-                                            className="p-1.5 text-tertiary-200 hover:bg-tertiary-50 rounded-lg transition-colors"
-                                            title="Expulsar del equipo"
-                                        >
-                                            <IconUserX className="w-5 h-5" />
-                                        </button>
-                                    </div>
+                                {admin && (
+                                    <span className="font-medium text-quaternary-700">
+                                        {completedTasks} / {completedTasks + pendingTasks}
+                                    </span>
                                 )}
+
+                                <div className="flex items-center justify-end gap-1 pl-2 border-l-2 border-primary-200">
+                                    {admin && (
+                                        <button
+                                            type="button"
+                                            onClick={() => handleOpenRoleModifyModal({ id: member.userId, title: member.teamRole || t("teams_members.popup.role") })}
+                                            className="p-1.5 rounded-lg transition-colors text-primary-600 hover:bg-primary-100"
+                                            title="Modificar rol"
+                                        >
+                                            <IconEditFilled className="w-5 h-5" />
+                                        </button>
+                                    )}
+
+                                    {viewAsAdmin && !member.loggedUser && (
+                                        <>
+                                            <button
+                                                type="button"
+                                                onClick={() => handleToggleAdmin(member.userId, member.isAdmin)}
+                                                className={`p-1.5 rounded-lg transition-colors ${
+                                                    member.isAdmin 
+                                                        ? "text-tertiary-200 hover:bg-tertiary-50"
+                                                        : "text-primary-600 hover:bg-primary-100"
+                                                }`}
+                                                title={member.isAdmin ? "Quitar administrador" : "Hacer administrador"}
+                                            >
+                                                {member.isAdmin ? <IconShieldOff className="w-5 h-5" /> : <IconShieldCheckFilled className="w-5 h-5" />}
+                                            </button>
+
+                                            <button
+                                                type="button"
+                                                onClick={() => handleTriggerKick(member.userId)}
+                                                className="p-1.5 text-tertiary-200 hover:bg-tertiary-50 rounded-lg transition-colors"
+                                                title="Expulsar del equipo"
+                                            >
+                                                <IconUserX className="w-5 h-5" />
+                                            </button>
+                                        </>
+                                    )}
+                                </div>
 
                                 {/* Confirmation bar */}
                                 <div className={`absolute inset-0 flex items-center justify-between gap-3 bg-tertiary-50 px-4 transition-all duration-300 ${memberToDelete === member.userId ? 'translate-x-0 opacity-100 visible' : 'translate-x-full opacity-0 invisible'}`}>
@@ -187,9 +231,25 @@ export const TeamMembersPopUpComponent = ({ onClose, team, viewAsAdmin, t }) => 
                                     </div>
                                 </div>
                             </div>
-                        ))
-                    )}
-                </div>
+                        );
+                    })
+                ) : (
+                    <div className="flex-1 flex flex-col items-center justify-center p-4 animate-fade-in-up opacity-90">
+                        <div className={`${admin ? "w-20 h-20" : "w-16 h-16"} bg-primary-200/40 rounded-full flex items-center justify-center mb-3 shadow-inner transition-transform hover:scale-105 duration-300`}>
+                            <IconSearch className={`${admin ? "w-10 h-10" : "w-8 h-8"} text-primary-500/60`} stroke={1.5} />
+                        </div>
+                        
+                        <h3 className={`${admin ? "text-lg" : "text-base"} font-bold text-quaternary-700 mb-1 text-center`}>
+                            {t("teams_members.popup.no_results.title")}
+                        </h3>
+                        
+                        <p className="text-center text-sm text-quaternary-500 max-w-[200px] leading-relaxed font-medium break-words">
+                            {`${t("teams_members.popup.no_results.description")} '${searchTerm}'`}
+                        </p>
+
+                        <div className="w-12 h-1 bg-primary-300 rounded-full mt-5 opacity-50"></div>
+                    </div>
+                )}
             </div>
 
             {/* API Error Alert Banner */}
@@ -203,6 +263,33 @@ export const TeamMembersPopUpComponent = ({ onClose, team, viewAsAdmin, t }) => 
                     <span className="block sm:inline font-medium text-center">{apiError}</span>
                 </div>
             )}
+        </div>
+    );
+
+    // --- 2. Render ---
+
+    if (admin) {
+        return (
+            <>
+                {innerContent}
+                {isRoleModifyModalOpen && (
+                    <RenameComponent
+                        onClose={handleCloseRoleModifyModal} 
+                        data={roleToEdit} 
+                        onRename={handleModifyRole}
+                        admin={true}
+                    />
+                )}
+            </>
+        );
+    }
+
+    return (
+        <div
+            onClick={handleClose}
+            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm p-4"
+        >
+            {innerContent}
         </div>
     );
 };

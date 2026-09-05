@@ -55,7 +55,7 @@ const tailwindColors = fullConfig.theme.colors;
  * @param {Function} props.t - Translation function from i18next.
  * @returns {JSX.Element|null} The rendered stages card, or null if data is invalid.
  */
-export const StagesCardComponent = ({ data, projectId, selectedId, onSelect, handleBackNavigation, formatShortDate, projectType, t }) => {
+export const StagesCardComponent = ({ data, projectId, selectedId, onSelect, handleBackNavigation, formatShortDate, projectType, admin, t }) => {
     // --- 1. Logic Hook Extraction ---
 
     /**
@@ -109,7 +109,7 @@ export const StagesCardComponent = ({ data, projectId, selectedId, onSelect, han
                     </div>
 
                     <div
-                        className={`flex items-center justify-end transition-all duration-500 ease-in-out rounded-full ${isStageSearchOpen ? "w-full bg-primary-50 px-3 py-1.5 shadow-inner" : "w-fit bg-transparent p-0"}`}
+                        className={`flex items-center justify-end transition-all duration-500 ease-in-out rounded-full ${isStageSearchOpen ? (admin ? "bg-primary-100 w-full px-3 py-1.5 shadow-inner" : "bg-primary-50 w-full px-3 py-1.5 shadow-inner") : "w-fit bg-transparent p-0"}`}
                     >
                         {/* Dynamic Search Input Field */}
                         <input
@@ -118,7 +118,7 @@ export const StagesCardComponent = ({ data, projectId, selectedId, onSelect, han
                             value={stageSearchQuery}
                             onChange={(e) => handleSearchChange(e.target.value)}
                             autoFocus={isStageSearchOpen}
-                            className={`bg-transparent outline-none text-primary-600 transition-all duration-500 ease-in-out ${isStageSearchOpen ? "w-full opacity-100 ml-2" : "w-0 opacity-0"}`}
+                            className={`bg-transparent outline-none text-primary-600 transition-all duration-500 ease-in-out ${admin ? 'placeholder:text-primary' : 'placeholder:text-primary-300'} ${isStageSearchOpen ? "w-full opacity-100 ml-2" : "w-0 opacity-0"}`}
                         />
 
                         {/* Search Toggle Icon Button */}
@@ -128,7 +128,7 @@ export const StagesCardComponent = ({ data, projectId, selectedId, onSelect, han
                             onClick={handleToggleSearch}
                         >
                             {isStageSearchOpen ? (
-                                <IconCircleXFilled className="w-6 h-6 text-primary-200" />
+                                <IconCircleXFilled className={`w-6 h-6 ${admin ? 'text-primary' : 'text-primary-200'}`} />
                             ) : (
                                 <IconSearch className="w-6 h-6" />
                             )}
@@ -160,22 +160,22 @@ export const StagesCardComponent = ({ data, projectId, selectedId, onSelect, han
                                         onDoubleClick={() => handleEditStage(stage)}
                                         onContextMenu={(e) => handleContextMenu(e, stage)}
                                         style={{ "--stage-color": colour.hex }}
-                                        className={`w-full min-w-0 flex items-center justify-between bg-transparent p-3 rounded-full transition-all duration-200 cursor-pointer ${
-                                            isActive ? "md:bg-[var(--stage-color)]" : ""
+                                        className={`w-full min-w-0 flex items-center justify-between bg-transparent ${admin && 'hover:bg-primary-300/10'} p-3 rounded-full transition-all duration-200 cursor-pointer ${
+                                            isActive && !admin ? "md:bg-[var(--stage-color)]" : ""
                                         } ${isBeingEdited ? "bg-quaternary-50/60" : "bg-transparent"}`}
                                     >
                                         {/* Stage Item: Color Indicator and Name */}
                                         <div className="flex items-center gap-4 flex-1 min-w-0">
                                             <div
                                                 className={`shrink-0 h-8 w-8 p-3 rounded-full bg-[var(--stage-color)] ${
-                                                    isActive ? "md:bg-primary" : ""
+                                                    isActive && !admin ? "md:bg-primary" : ""
                                                 }`}
                                             ></div>
 
                                             <div className="flex flex-col flex-1 min-w-0">
                                                 <div
                                                     className={`min-w-0 w-full text-xl text-quaternary-700 ${
-                                                        isActive ? "md:text-primary" : ""
+                                                        isActive && !admin ? "md:text-primary" : ""
                                                     }`}
                                                 >
                                                     <ScrollingText text={stage.name} />
@@ -184,7 +184,7 @@ export const StagesCardComponent = ({ data, projectId, selectedId, onSelect, han
                                                 <div className="flex items-center gap-2 shrink-0">
                                                     {hasDeadline && (
                                                         <span className={`flex items-center gap-[3px] text-sm text-quaternary-700 ${
-                                                            isActive ? "md:text-primary" : ""
+                                                            isActive && !admin ? "md:text-primary" : ""
                                                         }`}>
                                                             <IconCalendarEventFilled className="h-4 w-4 transition-colors duration-200 mb-0.5" />
                                                             {formattedDeadline}
@@ -207,7 +207,7 @@ export const StagesCardComponent = ({ data, projectId, selectedId, onSelect, han
                                                         >
                                                             <IconNote
                                                                 className={`h-4 w-4 transition-colors duration-200 text-quaternary-700 ${
-                                                                    isActive ? "md:text-primary" : ""
+                                                                    isActive && !admin ? "md:text-primary" : ""
                                                                 }`}
                                                             />
                                                         </div>
@@ -219,8 +219,8 @@ export const StagesCardComponent = ({ data, projectId, selectedId, onSelect, han
                                         <button
                                             type="button"
                                             onClick={(e) => handleContextMenu(e, stage)}
-                                            className={`transition-colors duration-200 ${isActive && "xl:text-primary"}`}
-                                            style={{color: !isActive && colour.hex }}
+                                            className={`transition-colors duration-200 ${isActive && !admin && "md:text-primary"}`}
+                                            style={{color:( admin || !isActive) && colour.hex }}
                                         >
                                             <IconDotsVerticalFilled className="h-5 w-5" />
                                         </button>
@@ -257,12 +257,12 @@ export const StagesCardComponent = ({ data, projectId, selectedId, onSelect, han
             </div>
 
             {/* Bottom Footer Section: Actions & Navigation */}
-            <div className="w-full flex items-center justify-between xl:justify-end">
+            <div className={`w-full flex items-center ${admin ? "justify-end" : "justify-between xl:justify-end"}`}>
                 {/* Mobile Specific Back Navigation */}
                 <button
                     type="button"
                     onClick={handleBackNavigation}
-                    className="xl:hidden flex items-center gap-1 bg-primary-200 rounded-full pr-2 text-primary"
+                    className={`${admin ? "hidden" : "flex xl:hidden"} items-center gap-1 bg-primary-200 rounded-full pr-2 text-primary`}
                 >
                     <IconCircleChevronLeftFilled className="h-9 w-9 " />
                     <span className="font-semibold">{t("stages.back_projects")}</span>
@@ -270,7 +270,7 @@ export const StagesCardComponent = ({ data, projectId, selectedId, onSelect, han
 
                 {/* Primary Action: Create New Stage */}
                 <button type="button" onClick={handleCreateNewStage}>
-                    <IconCirclePlusFilled className="h-10 w-10 text-primary-200 md:text-primary-200/70 md:hover:text-primary-200" />
+                    <IconCirclePlusFilled className="h-10 w-10 text-primary-200 xl:text-primary-200/70 xl:hover:text-primary-200" />
                 </button>
             </div>
 

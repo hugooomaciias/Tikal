@@ -56,7 +56,8 @@ export const TeamProjectsPage = () => {
         handleConfirmDelete,
         handleMouseEnterTooltip,
         handleMouseLeaveTooltip,
-        handleNavigateToBack
+        handleNavigateToBack,
+        handleNavigateToTeamAdminDashboard
     } = teamProjectsActions;
 
     // --- 2. Render ---
@@ -64,7 +65,7 @@ export const TeamProjectsPage = () => {
     return (
         <>
             <HeaderComponent
-                imageURL={activeTeam.imagePath}
+                teamImage={activeTeam.imagePath}
                 page={activeTeam.name}
                 teams={false}
                 onNavigateToBack={handleNavigateToBack}
@@ -74,7 +75,7 @@ export const TeamProjectsPage = () => {
             {/* Team projects dashboard */}
             <div className="flex-1 overflow-y-auto flex flex-col">
                 {projects.length > 0 ? (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 pt-2 px-1 pb-10">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 pt-2 px-1 pb-10">
                         {projects.map((project) => {
                             const Icon = PROJECTS_ICONS.find((i) => i.id === project.logo) || PROJECTS_ICONS[0];
                             const formattedDeadline = project.deadline ? formatShortDate(project.deadline, i18n.language) : tTeams("teams_projects.no_deadline_label");
@@ -85,6 +86,7 @@ export const TeamProjectsPage = () => {
                             return (
                                 <div
                                     key={project.id}
+                                    onClick={() => handleNavigateToTeamAdminDashboard(activeTeam, project)}
                                     className="bg-primary rounded-3xl p-6 shadow-lg flex flex-col gap-4 relative hover:-translate-y-1 hover:ring-2 hover:ring-primary-500 transition-all duration-300 cursor-pointer"
                                 >
                                     {/* Project primary info */}
@@ -146,7 +148,7 @@ export const TeamProjectsPage = () => {
                                     <div className="flex items-center gap-2 mt-auto">
                                         <button
                                             type="button"
-                                            onClick={() => handleOpenEditModal(project)}
+                                            onClick={(e) => { e.stopPropagation(); handleOpenEditModal(project); }}
                                             className="flex-1 flex items-center justify-center gap-2 bg-primary-50 text-primary-700 py-2.5 rounded-xl font-semibold hover:bg-primary-100 transition-colors"
                                         >
                                             <IconEdit className="w-5 h-5" />
@@ -155,7 +157,7 @@ export const TeamProjectsPage = () => {
 
                                         <button
                                             type="button"
-                                            onClick={() => handleTriggerDelete(project)}
+                                            onClick={(e) => { e.stopPropagation(); handleTriggerDelete(project); }}
                                             className="w-11 h-11 flex items-center justify-center bg-tertiary-50 text-tertiary-500 rounded-xl hover:bg-tertiary-100 transition-colors" 
                                             title="Borrar proyecto"
                                         >

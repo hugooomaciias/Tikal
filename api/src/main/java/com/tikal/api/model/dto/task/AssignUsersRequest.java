@@ -5,6 +5,6 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class AssignTaskRequest {
+public class AssignUsersRequest {
     private List<Integer> assignedUserIds;
 }

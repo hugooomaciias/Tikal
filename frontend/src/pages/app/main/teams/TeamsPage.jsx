@@ -74,7 +74,7 @@ export const TeamsPage = () => {
             {/* Teams dashboard */}
             <div className="flex-1 overflow-y-auto flex flex-col">
                 {displayedTeams.length > 0 ? (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 pt-2 px-1 pb-10">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 pt-2 px-1 pb-10">
                         {displayedTeams.map((team) => (
                             <div
                                 key={team.id}

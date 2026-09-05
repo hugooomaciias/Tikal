@@ -147,7 +147,7 @@ public interface TaskRepository extends JpaRepository<Task, Integer>{
     /* --- Overall Progress and Project Task Count [Total tasks, completed tasks] --- */
     @Query("SELECT COUNT(t), SUM(CASE WHEN t.isCompleted = true THEN 1 ELSE 0 END) " +
             "FROM Task t WHERE t.stage.project.id = :projectId AND t.parentTask IS NULL")
-    Object[] getProjectTaskProgress(@Param("projectId") Integer projectId);
+    List<Object[]> getProjectTaskProgress(@Param("projectId") Integer projectId);
 
     /* --- Team Effectiveness in This Project --- */
     @Query("SELECT AVG(" +

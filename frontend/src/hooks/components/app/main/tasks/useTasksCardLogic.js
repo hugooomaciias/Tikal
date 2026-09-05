@@ -62,7 +62,7 @@ export const useTasksCardLogic = (data, projectId, stageId, isCompletedFilter, s
      * Extracts global methods for task mutation (update, delete, toggle completion)
      * to synchronize local UI interactions directly with the backend API.
      */
-    const { deleteTask, updateTask, toggleTaskCompletion } = useTasks();
+    const { deleteTask, updateTask, toggleTaskCompletion, assignUserToTask } = useTasks();
 
     /**
      * Global Time Tracker Context
@@ -115,6 +115,14 @@ export const useTasksCardLogic = (data, projectId, stageId, isCompletedFilter, s
      * Tracks the metadata of the task whose description tooltip is currently rendered.
      */
     const [openTooltipId, setOpenTooltipId] = useState(null);
+
+    /**
+     * Drag Over Task State
+     *
+     * Tracks the ID of the task currently being hovered over during a drag-and-drop
+     * user assignment operation. Conditionally applies drop-zone highlighting.
+     */
+    const [dragOverTaskId, setDragOverTaskId] = useState(null);
 
     // --- 3. Derived UI Data ---
 
@@ -408,10 +416,8 @@ export const useTasksCardLogic = (data, projectId, stageId, isCompletedFilter, s
             const isThisTaskCurrentlyActive = String(activeGlobalTaskId) === String(task.id);
 
             if (isGlobalTimerActive && isThisTaskCurrentlyActive) {
-                // Si esta tarea ya está corriendo, la pausamos
                 handlePauseTask();
             } else {
-                // Si es una nueva o estaba pausada, la reanudamos
                 handleStartTask(task.id, task.name, task.colour, task.logo);
             }
         },
@@ -495,6 +501,53 @@ export const useTasksCardLogic = (data, projectId, stageId, isCompletedFilter, s
         [deleteTask, projectId, stageId],
     );
 
+    /**
+     * Assign Member to Task (Drag & Drop)
+     *
+     * Captura el ID del usuario soltado sobre una tarea. Busca la tarea en los datos
+     * actuales para obtener la lista de asignados, evita duplicados, y lanza la 
+     * actualización optimista hacia el controlador global.
+     * (Las asignaciones solo están permitidas en tareas principales).
+     *
+     * @param {string|number} taskId - El ID de la tarea receptora.
+     * @param {string|number} droppedUserId - El ID del usuario que se acaba de soltar.
+     */
+    const handleAssignMemberToTask = useCallback(
+        async (taskId, droppedUser) => {
+            const droppedUserId = droppedUser.id || droppedUser.userId;
+            
+            if (!taskId || !droppedUserId) return;
+
+            try {
+                const targetTask = data?.find(t => String(t.id) === String(taskId));
+
+                if (!targetTask) return;
+
+                const currentAssigned = targetTask.assignedUsers || [];
+                const isAlreadyAssigned = currentAssigned.some(
+                    (u) => String(u.id || u.userId) === String(droppedUserId)
+                );
+                
+                if (isAlreadyAssigned) return;
+
+                const newUserObj = { 
+                    id: droppedUserId, 
+                    userId: droppedUserId,
+                    name: droppedUser.name,
+                    avatar: droppedUser.avatar 
+                };
+                
+                const newAssignedUsers = [...currentAssigned, newUserObj];
+
+                await assignUserToTask(projectId, stageId, taskId, newAssignedUsers);
+
+            } catch (error) {
+                console.error("Error al asignar el miembro a la tarea:", error);
+            }
+        },
+        [data, projectId, stageId, assignUserToTask]
+    );
+
     // --- 6. Return Object ---
 
     return {
@@ -511,6 +564,7 @@ export const useTasksCardLogic = (data, projectId, stageId, isCompletedFilter, s
             taskToEdit,
             openTooltipId,
             i18n,
+            dragOverTaskId
         },
         tasksCardData: { filteredTasks },
         tasksCardActions: {
@@ -531,6 +585,8 @@ export const useTasksCardLogic = (data, projectId, stageId, isCompletedFilter, s
             handleDeleteTask,
             handleUpdateTask,
             handleDeleteSubtask,
+            setDragOverTaskId,
+            handleAssignMemberToTask
         },
     };
 };

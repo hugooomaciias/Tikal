@@ -285,9 +285,20 @@ export const useProjectsLogic = () => {
         navigate("/teams");
     };
 
-    /*const handleNavigateToTeam = useCallback((teamId) => {
-        navigate(`/teams/${teamId}`);
-    }, [navigate]);*/
+    /**
+     * Navigate to Team Admin Dashboard
+     *
+     * Routes the user to the specific administration dashboard for the selected team project.
+     * Passes the active team and project objects through the route state to avoid 
+     * redundant data fetching on the destination page.
+     *
+     * @param {Object} team - The active team entity.
+     * @param {Object} project - The selected project entity to administer.
+     * @returns {void}
+     */
+    const handleNavigateToTeamAdminDashboard = useCallback((team, project) => {
+        navigate(`/teams/${team.id}/projects/${project.id}/admin`, { state: { teamData: team, projectData: project } });
+    }, [navigate]);
 
     // --- 6. Return Object ---
 
@@ -314,7 +325,8 @@ export const useProjectsLogic = () => {
             handleConfirmDelete,
             handleMouseEnterTooltip,
             handleMouseLeaveTooltip,
-            handleNavigateToBack
+            handleNavigateToBack,
+            handleNavigateToTeamAdminDashboard
         }
     };
 };

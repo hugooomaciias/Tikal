@@ -100,4 +100,22 @@ export const taskService = {
     toggleCompletion: async (id) => {
         return await apiCall(`/api/task/${id}/toggle-status`, "PATCH", null);
     },
+
+    /**
+     * Assign Users
+     *
+     * Sends a PATCH request to the backend to update the users assigned to
+     * a specific task. The payload contains the user data or identifiers 
+     * to be associated with the task, updating the current roster of assignees.
+     *
+     * @async
+     * @function
+     * @param {string} id - The unique identifier of the task being updated.
+     * @param {Array<Object>|Array<string>} assignedUsers - The payload containing the users to assign to the task.
+     * @returns {Promise<Object>} The updated task object reflecting the new assigned users.
+     * @throws {Error} Throws an error if the task is not found or the assignment operation fails.
+     */
+    assignUser: async (id, assignedUsers) => {
+        return await apiCall(`/api/task/${id}/assign`, "PATCH", assignedUsers);
+    },
 };

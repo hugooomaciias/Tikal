@@ -75,6 +75,7 @@ export const TasksCardComponent = ({
     stageName,
     stageColour,
     formatShortDate,
+    admin,
     t,
 }) => {
     // --- 1. Logic Hook Extraction ---
@@ -106,6 +107,7 @@ export const TasksCardComponent = ({
         taskToEdit,
         openTooltipId,
         i18n,
+        dragOverTaskId
     } = tasksCardStates;
     const { filteredTasks } = tasksCardData;
     const {
@@ -126,6 +128,8 @@ export const TasksCardComponent = ({
         handleDeleteTask,
         handleUpdateTask,
         handleDeleteSubtask,
+        setDragOverTaskId,
+        handleAssignMemberToTask
     } = tasksCardActions;
 
     const { contextMenu, entityToRename, entityToDelete, activeEntityId } = contextMenuStates;
@@ -148,7 +152,7 @@ export const TasksCardComponent = ({
 
                     {/* Expanding Search Input Container */}
                     <div
-                        className={`flex items-center justify-end transition-all duration-500 ease-in-out rounded-full ${isTaskSearchOpen ? "w-full bg-primary-50 px-3 py-1.5 shadow-inner" : "w-fit bg-transparent p-0"}`}
+                        className={`flex items-center justify-end transition-all duration-500 ease-in-out rounded-full ${isTaskSearchOpen ? (admin ? "bg-primary-100 w-full px-3 py-1.5 shadow-inner" : "bg-primary-50 w-full px-3 py-1.5 shadow-inner") : "w-fit bg-transparent p-0"}`}
                     >
                         <input
                             type="text"
@@ -156,7 +160,7 @@ export const TasksCardComponent = ({
                             value={taskSearchQuery}
                             onChange={(e) => handleSearchChange(e.target.value)}
                             autoFocus={isTaskSearchOpen}
-                            className={`bg-transparent outline-none text-primary-600 transition-all duration-500 ease-in-out ${isTaskSearchOpen ? "w-full opacity-100 ml-2" : "w-0 opacity-0"}`}
+                            className={`bg-transparent outline-none text-primary-600 transition-all duration-500 ease-in-out ${admin ? 'placeholder:text-primary' : 'placeholder:text-primary-300'} ${isTaskSearchOpen ? "w-full opacity-100 ml-2" : "w-0 opacity-0"}`}
                         />
 
                         <button
@@ -165,7 +169,7 @@ export const TasksCardComponent = ({
                             onClick={handleSearchToggle}
                         >
                             {isTaskSearchOpen ? (
-                                <IconCircleXFilled className="w-6 h-6 text-primary-200" />
+                                <IconCircleXFilled className={`w-6 h-6 ${admin ? 'text-primary' : 'text-primary-200'}`} />
                             ) : (
                                 <IconSearch className="w-6 h-6" />
                             )}
@@ -210,8 +214,40 @@ export const TasksCardComponent = ({
                                         {/* Individual Task Card Wrapper */}
                                         <div
                                             onContextMenu={(e) => handleContextMenu(e, task)}
-                                            className={`relative min-w-0 ${isBeingEdited ? "bg-quaternary-50/60" : "bg-transparent"} ${isTooltipOpen ? "z-50" : "z-10 hover:z-40"} h-fit w-full flex flex-col ${hasSubtasks && isActive ? "py-3" : "bg-transparent"} ${task.isCompleted ? "opacity-40" : "opacity-100"} px-3 rounded-3xl transition-all duration-300`}
-                                            style={hasSubtasks && isActive ? { backgroundColor: colour.hex } : {}}
+                                            onDragEnter={(e) => {
+                                                e.preventDefault();
+                                                setDragOverTaskId(task.id);
+                                            }}
+                                            onDragOver={(e) => {
+                                                e.preventDefault();
+                                                e.dataTransfer.dropEffect = "copy";
+                                            }}
+                                            onDragLeave={(e) => {
+                                                e.preventDefault();
+                                                if (!e.currentTarget.contains(e.relatedTarget)) {
+                                                    setDragOverTaskId(null);
+                                                }
+                                            }}
+                                            onDrop={(e) => {
+                                                e.preventDefault();
+                                                setDragOverTaskId(null);
+                                            
+                                                const droppedUserJson = e.dataTransfer.getData("application/json");
+                                                if (droppedUserJson) {
+                                                    const droppedUser = JSON.parse(droppedUserJson);
+                                                    handleAssignMemberToTask(task.id, droppedUser);
+                                                } else {
+                                                    const droppedUserId = e.dataTransfer.getData("text/plain");
+                                                    if (droppedUserId) {
+                                                        handleAssignMemberToTask(task.id, { id: droppedUserId, userId: droppedUserId });
+                                                    }
+                                                }
+                                            }}
+                                            className={`relative min-w-0 ${isBeingEdited ? "bg-quaternary-50/60" : "bg-transparent"} ${isTooltipOpen ? "z-50" : "z-10 hover:z-40"} h-fit w-full flex flex-col ${hasSubtasks && isActive ? "py-3" : "bg-transparent"} ${task.isCompleted ? "opacity-40" : "opacity-100"} px-3 rounded-3xl transition-all duration-300 border-2 ${dragOverTaskId === task.id ? "shadow-md border-dashed" : "border-transparent"}`}
+                                            style={{
+                                                ...(hasSubtasks && isActive ? { backgroundColor: colour.hex } : {}),
+                                                ...(dragOverTaskId === task.id ? { backgroundColor: `${colour.hex}20`, borderColor: colour.hex } : {})
+                                            }}
                                         >
                                             {/* Task Primary Row: Check, Title, and Actions */}
                                             <div className="w-full flex flex-1 gap-4 min-w-0">
@@ -295,8 +331,31 @@ export const TasksCardComponent = ({
 
                                                 {/* Task Row Action Buttons (Play/Edit) */}
                                                 {!task.isCompleted && (
-                                                    <div className="flex items-center gap-1">
-                                                        <div className="flex items-center gap-2 shrink-0">
+                                                    <div className="flex items-center">
+                                                        {task.isGroupBased && (
+                                                            <div className="flex items-center pr-4 -space-x-2">
+                                                                {task.assignedUsers.slice(0, 3).map((user) => (
+                                                                    <div className="w-7 h-7 rounded-full overflow-hidden flex-shrink-0 bg-primary-100">
+                                                                        <img 
+                                                                            src={
+                                                                                user.avatar || 
+                                                                                `https://api.dicebear.com/10.x/glyphs/svg?glyphColor=3B7A57,2F6C4B,26563D,204533,1B392A,0E2018,2AB7CA,228498,226B7C,245866,224A57,11303B&seed=${encodeURIComponent(user.name || "User")}`
+                                                                            }
+                                                                            alt={user.name} 
+                                                                            className="w-full h-full object-cover"
+                                                                        />
+                                                                    </div>
+                                                                ))}
+
+                                                                {task.assignedUsers.length > 3 && (
+                                                                    <div className="relative w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 text-xs font-bold shadow-sm z-10" style={{ background: colour.hex, color: colour.text }}>
+                                                                        +{task.assignedUsers.length - 3}
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                        )}
+
+                                                        <div className={`flex items-center gap-2 shrink-0 ${task.isGroupBased && "pl-4 pr-1"}`} style={ task.isGroupBased ? { borderLeft: `2px solid ${colour.hex}`} : {}}>
                                                             {/* PLAY / PAUSE */}
                                                             <div
                                                                 className="p-1.5 rounded-full transition-all cursor-pointer"
@@ -447,11 +506,11 @@ export const TasksCardComponent = ({
             </div>
 
             {/* Bottom Floating Actions Section: Mobile Back & Create New Task */}
-            <div className="w-full flex items-center justify-between xl:justify-end">
+            <div className={`w-full flex items-center ${admin ? "justify-between" : "justify-between xl:justify-end"}`}>
                 <button
                     type="button"
                     onClick={handleBackNavigation}
-                    className="xl:hidden flex items-center gap-1 bg-primary-200 rounded-full pr-2 text-primary"
+                    className={`${!admin ? "xl:hidden" : ""} flex items-center gap-1 bg-primary-200 rounded-full pr-2 text-primary`}
                 >
                     <IconCircleChevronLeftFilled className="h-9 w-9 " />
                     <span className="font-semibold">{t("tasks.back_stages")}</span>

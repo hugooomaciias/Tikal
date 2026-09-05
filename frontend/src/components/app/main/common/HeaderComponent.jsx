@@ -1,5 +1,6 @@
 /** React & Third-Party Libraries */
 import { useCallback } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate, useLocation } from "react-router-dom";
 
 /** Components & Layouts */
@@ -15,8 +16,12 @@ import {
     IconSquareRoundedPlus,
     IconUser,
     IconUserShield,
-    IconChevronLeft
+    IconChevronLeft,
+    IconUsersGroup
 } from "@tabler/icons-react";
+
+/** Config, Constants & Utils */
+import { PROJECTS_ICONS } from "../../../../constants/projects_icons.js";
 
 /**
  * Application Header Component
@@ -37,8 +42,15 @@ import {
  * @param {Function} props.t - The i18n translation function.
  * @returns {JSX.Element} The rendered header component.
  */
-export const HeaderComponent = ({ imageURL, page, primaryState, secondaryState, onTogglePrimary, onToggleSecondary, theme = "", onSaveLayout, teams, onNavigateToBack, t }) => {
+export const HeaderComponent = ({ teamImage, page, projectIcon, projectName, primaryState, secondaryState, onTogglePrimary, onToggleSecondary, theme = "", onSaveLayout, teams, onNavigateToBack, t }) => {
     // --- 1. Local UI Logic ---
+
+    /**
+     * Translation Hook
+     *
+     * Provides the `t` function scoped to the "app_common" namespace for localized strings inside the project popup.
+     */
+    const { t: tCommon } = useTranslation("app_common");
 
     /**
      * Programmatic Navigation Hook
@@ -100,28 +112,63 @@ export const HeaderComponent = ({ imageURL, page, primaryState, secondaryState, 
             <div className="flex items-center justify-between">
                 {/* Page Title & Time Tracker Section */}
                 <div className="h-full w-fit flex items-center gap-2 md:gap-4 rounded-full">
-                    <button
-                        type="button"
-                        onClick={onNavigateToBack}
-                        className="h-16 w-16 flex items-center justify-center bg-primary p-3 rounded-full shadow-md text-primary-600"
-                    >
-                        <IconChevronLeft className="w-8 h-8" />
-                    </button>
+                    {onNavigateToBack && (
+                        <button
+                            type="button"
+                            onClick={onNavigateToBack}
+                            className="h-16 w-16 flex items-center justify-center bg-primary p-3 rounded-full shadow-md text-primary-600"
+                        >
+                            <IconChevronLeft className="w-8 h-8" />
+                        </button>
+                    )}
 
                     {/* Active Page Indicator */}
-                    <div className={`h-16 w-fit bg-primary flex items-center ${imageURL ? "p-2 pr-4 gap-3" : "px-5 py-3" } rounded-full shadow-md text-2xl font-bold text-primary-600`}>
-                        {imageURL && (
-                            <div className="h-full w-auto rounded-full flex-shrink-0">
-                                <img src={imageURL} alt={page} className="w-full h-full rounded-full object-cover" />
+                    <div className={`h-16 w-fit bg-primary flex items-center ${teamImage ? "p-2 pr-4 gap-3" : "px-5 py-3" } rounded-full shadow-md text-2xl font-bold text-primary-600`}>
+                        {teamImage && (
+                            <div className="h-12 w-12 rounded-full flex-shrink-0">
+                                <img src={teamImage} alt={page} className="w-full h-full rounded-full object-cover" />
                             </div>
                         )}
 
                         {theme ? ( 
                             <h2 className="text-rank-700">{page}</h2>
                         ) : (
-                            <h2>{page}</h2>
+                            teamImage ? (
+                                <div className="flex flex-col justify-center max-w-[200px] lg:max-w-[300px]">
+                                    <span className="text-[10px] font-bold text-quaternary-400 uppercase tracking-wider leading-none mb-1">
+                                        {tCommon("header.team_label")}
+                                    </span>
+                                    <span className="text-lg font-bold text-quaternary-800 leading-none truncate">
+                                        {page}
+                                    </span>
+                                </div>
+                            ) : (
+                                <h2>{page}</h2>
+                            )
                         )}
                     </div>
+
+                    {projectIcon && projectName && (
+                        <div className="hidden md:flex h-16 w-fit bg-primary items-center p-2 pr-5 gap-3 rounded-full shadow-md border border-quaternary-50">
+                            {(() => {
+                                const ProjectIcon = PROJECTS_ICONS.find(i => i.id === projectIcon)?.component || PROJECTS_ICONS[0];
+                                return (
+                                    <div className="w-12 h-12 rounded-full bg-primary-100 text-primary-500 flex items-center justify-center shrink-0">
+                                        <ProjectIcon className="w-6 h-6" />
+                                    </div>
+                                );
+                            })()}
+                            
+                            <div className="flex flex-col justify-center max-w-[200px] lg:max-w-[300px]">
+                                <span className="text-[10px] font-bold text-quaternary-400 uppercase tracking-wider leading-none mb-1">
+                                    {tCommon("header.project_label")}
+                                </span>
+                                <span className="text-lg font-bold text-quaternary-800 leading-none truncate">
+                                    {projectName}
+                                </span>
+                            </div>
+                        </div>
+                    )}
 
                     {!theme && (
                         <DynamicIslandComponent />
@@ -132,17 +179,31 @@ export const HeaderComponent = ({ imageURL, page, primaryState, secondaryState, 
                 <div className="h-full w-fit flex items-center gap-2 md:gap-4 rounded-full">
                     {/* Tasks Page Actions */}
                     {page === t("tasks_title") && (
-                        <button
-                            type="button"
-                            className={`h-fit w-fit ${primaryState ? "bg-primary-600" : "bg-primary"} p-2 rounded-full shadow-md`}
-                            onClick={onTogglePrimary}
-                        >
-                            {!primaryState ? (
-                                <IconListCheckFilled className="w-8 h-8 text-primary-600" />
-                            ) : (
-                                <IconListCheckFilled className="w-8 h-8 text-primary" />
-                            )}
-                        </button>
+                        <div className="flex items-center gap-3">
+                            <button
+                                type="button"
+                                className={`h-fit w-fit ${secondaryState ? "bg-primary-600" : "bg-primary"} p-2 rounded-full shadow-md`}
+                                onClick={onToggleSecondary}
+                            >
+                                {!secondaryState ? (
+                                    <IconUsersGroup className="w-8 h-8 text-primary-600" />
+                                ) : (
+                                    <IconUsersGroup className="w-8 h-8 text-primary" />
+                                )}
+                            </button>
+
+                            <button
+                                type="button"
+                                className={`h-fit w-fit ${primaryState ? "bg-primary-600" : "bg-primary"} p-2 rounded-full shadow-md`}
+                                onClick={onTogglePrimary}
+                            >
+                                {!primaryState ? (
+                                    <IconListCheckFilled className="w-8 h-8 text-primary-600" />
+                                ) : (
+                                    <IconListCheckFilled className="w-8 h-8 text-primary" />
+                                )}
+                            </button>
+                        </div>
                     )}
 
                     {/* Calendar Page Actions */}
@@ -203,7 +264,7 @@ export const HeaderComponent = ({ imageURL, page, primaryState, secondaryState, 
                     )}
 
                     {(page === t("teams_title") || location.pathname.includes("/teams")) && teams && (
-                        <div className="flex items-center gap-3 md:gap-4">
+                        <div className="hidden lg:flex items-center gap-3 md:gap-4">
                             <div className="relative flex items-center bg-primary rounded-full shadow-md p-1">
                                 {/* Sliding Background */}
                                 <div 

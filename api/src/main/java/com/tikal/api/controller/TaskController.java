@@ -1,6 +1,6 @@
 package com.tikal.api.controller;
 
-import com.tikal.api.model.dto.task.AssignTaskRequest;
+import com.tikal.api.model.dto.task.AssignUsersRequest;
 import com.tikal.api.model.dto.task.TaskRequest;
 import com.tikal.api.model.dto.task.TaskDTO;
 import com.tikal.api.service.TaskService;
@@ -53,7 +53,7 @@ public class TaskController {
     @PatchMapping("/{taskId}/assign")
     public ResponseEntity<Void> assignUsersToTask(
             @PathVariable Integer taskId,
-            @RequestBody AssignTaskRequest request) {
+            @RequestBody AssignUsersRequest request) {
 
         taskService.assignUsersToTask(taskId, request.getAssignedUserIds());
         return ResponseEntity.noContent().build();

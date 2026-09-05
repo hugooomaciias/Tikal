@@ -23,6 +23,8 @@ public class CalendarEventDTO {
     private EventUser organizer;
     private List<EventUser> attendees;
     private String linkedEntity;
+    private Integer projectId;
+    private Boolean isGroupBased;
 
     @Data
     @Builder

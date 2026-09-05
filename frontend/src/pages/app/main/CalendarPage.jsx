@@ -197,6 +197,7 @@ export const CalendarPage = () => {
                     onClose={closeRenameModal}
                     data={entityToRename}
                     onRename={(id, newTitle) => { handleEditEvent(id, newTitle); }}
+                    nextEvent={true}
                     t={tCalendar}
                 />
             )}
@@ -207,6 +208,7 @@ export const CalendarPage = () => {
                     onClose={closeDeleteModal}
                     data={entityToDelete}
                     onDelete={(id) => {handleDeleteEvent(id)}}
+                    nextEvent={true}
                 />
             )}
         </>

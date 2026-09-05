@@ -86,7 +86,7 @@ public class Task {
             joinColumns = @JoinColumn(name = "task_id"),
             inverseJoinColumns = @JoinColumn(name = "user_id")
     )
-    private List<User> assignedUsers;
+    private List<User> assignedUsers = new ArrayList<>();
 
     /* --- Task relation ==> Many tasks (subtasks) can belong to the same Task --- */
     @ManyToOne(optional = true)

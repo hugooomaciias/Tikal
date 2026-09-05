@@ -65,7 +65,6 @@ export const SettingsTeamPage = () => {
 
             {/* Main Form Container */}
             <form onSubmit={handleSubmit} className="w-full max-w-5xl flex flex-col gap-6 pb-12">
-                
                 {/* Visibility & Privacy */}
                 <div className="bg-primary-50/50 border border-primary-100 rounded-[1rem] p-6 md:p-8 flex flex-col md:flex-row items-start justify-between gap-8 shadow-sm">
                     {/* Descriptive context */}

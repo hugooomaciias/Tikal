@@ -38,6 +38,7 @@ import { DiosSabidurIAPage } from "./pages/app/DiosSabidurIAPage";
 
 import { TeamsPage } from "./pages/app/main/teams/TeamsPage";
 import { TeamProjectsPage } from "./pages/app/main/teams/TeamProjectsPage";
+import { TeamAdminDashboardPage } from "./pages/app/main/teams/TeamAdminDashboardPage";
 import { ChatPage } from "./pages/app/main/teams/ChatPage";
 
 /** Assets, Utils & Constants */
@@ -125,6 +126,7 @@ function App() {
                                     <Route path="/statistics" element={<StatisticsPage />} />
                                     <Route path="/teams" element={<TeamsPage />} />
                                     <Route path="/teams/:teamId/projects" element={<TeamProjectsPage />} />
+                                    <Route path="/teams/:teamId/projects/:projectId/admin" element={<TeamAdminDashboardPage />} />
                                     <Route path="/teams/chat" element={<ChatPage />} />
                                 </Route>
 

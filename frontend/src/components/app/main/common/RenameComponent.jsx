@@ -38,7 +38,7 @@ const tailwindColors = fullConfig.theme.colors;
  * @param {Function} props.onRename - Callback function triggered to execute the renaming action.
  * @returns {JSX.Element} The rendered rename modal overlay.
  */
-export const RenameComponent = ({ iaModule, onClose, data, onRename }) => {
+export const RenameComponent = ({ iaModule, onClose, data, onRename, admin, nextEvent }) => {
     // --- 1. Local UI Logic ---
 
     /**
@@ -66,7 +66,17 @@ export const RenameComponent = ({ iaModule, onClose, data, onRename }) => {
         if (newName.trim() === "") return;
 
         if (onRename) {
-            onRename(data.id, { name: newName });
+            let payload = null;
+
+            if (admin) {
+                payload = {teamRole: newName};
+            } else if (nextEvent) {
+                payload = newName;
+            } else {
+                payload = {name: newName};
+            }
+            
+            onRename(data.id, payload);
         }
 
         onClose();
@@ -77,21 +87,28 @@ export const RenameComponent = ({ iaModule, onClose, data, onRename }) => {
      *
      * Resolves the full icon metadata block for the entity, defaulting to a fallback if necessary.
      */
-    const logo = data.logo ? PROJECTS_ICONS.find((i) => i.id === data.logo) || PROJECTS_ICONS[0] : null;
+    let logo = null;
+    if (!admin) logo = data.logo ? PROJECTS_ICONS.find((i) => i.id === data.logo) || PROJECTS_ICONS[0] : null;
 
     /**
      * Target Entity Icon Component
      *
      * Extracts the specific React icon component from the resolved logo metadata.
      */
-    const LogoComponent = logo ? logo.component : null;
+    let LogoComponent = null;
+    if (!admin) LogoComponent = logo ? logo.component : null;
 
     /**
      * Target Entity Color
      *
      * Resolves the specific hex color representation associated with the entity's phase/project.
      */
-    const color = PHASE_COLOURS.find((c) => c.id === data.color);
+    let color = null;
+    if (nextEvent) {
+        color = data.color;
+    } else if (!admin) {
+        color = PHASE_COLOURS.find((c) => c.id === data.color);
+    }
 
     // --- 2. Render ---
 
@@ -110,7 +127,7 @@ export const RenameComponent = ({ iaModule, onClose, data, onRename }) => {
                     {/* Header: Title and Close Action */}
                     <div className="flex items-center justify-between">
                         <span className={`text-2xl font-bold ${iaModule ? "text-primary" : "text-quaternary-700"} `}>
-                            {iaModule ? t("rename.title.ia") : t("rename.title.event")}
+                            {iaModule ? t("rename.title.ia") : admin ? t("rename.title.role") : t("rename.title.event")}
                         </span>
 
                         <button
@@ -131,7 +148,7 @@ export const RenameComponent = ({ iaModule, onClose, data, onRename }) => {
                         {LogoComponent && <LogoComponent className="w-5 h-5" />}
 
                         {/* Entity Title */}
-                        <ScrollingText className={`font-bold ${iaModule ? "text-center" : "text-end"}`} text={data?.title} />
+                        <ScrollingText className={`font-bold ${(iaModule || admin || !LogoComponent) ? "text-center" : "text-end"}`} text={data?.title} />
                     </div>
                 </div>
 
@@ -151,7 +168,7 @@ export const RenameComponent = ({ iaModule, onClose, data, onRename }) => {
                         />
 
                         <label htmlFor="newName" className="input-label input-textarea-label-primary">
-                            {t("rename.input_label")}
+                            {admin ? t("rename.input_label.role") : t("rename.input_label.event")}
                         </label>
 
                         {/* Input Icon Decorator */}
@@ -166,7 +183,7 @@ export const RenameComponent = ({ iaModule, onClose, data, onRename }) => {
                         className={`btn md:min-w-1/2 mx-auto ${iaModule ? "bg-gradient-to-r from-primary-200 to-primary-500 text-primary" : "btn-primary"}`}
                         disabled={newName.trim() === ""}
                     >
-                        <span>{t("rename.button")}</span>
+                        <span>{admin ? t("rename.button.role") : t("rename.button.event")}</span>
                     </button>
                 </form>
             </div>

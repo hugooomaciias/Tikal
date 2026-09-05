@@ -32,9 +32,9 @@ export const TasksPage = () => {
      */
     const { t, tasksStates, tasksData, tasksActions } = useTasksLogic();
 
-    const { isDataLoaded, isCompleted, selectedProjectId, selectedStageId, mobileView, tasks } = tasksStates;
+    const { isDataLoaded, isCompleted, selectedProjectId, selectedStageId, mobileView, tasks, isTeam } = tasksStates;
     const { selectedProject, selectedStage } = tasksData;
-    const { handleProjectSelect, handleStageSelect, handleBackNavigation, toggleCompletedView } = tasksActions;
+    const { handleProjectSelect, handleStageSelect, handleBackNavigation, toggleCompletedView, toggleTeamView } = tasksActions;
 
     // --- 2. Render ---
 
@@ -47,7 +47,9 @@ export const TasksPage = () => {
             <HeaderComponent
                 page={t("tasks_title")}
                 primaryState={isCompleted}
+                secondaryState={isTeam}
                 onTogglePrimary={toggleCompletedView}
+                onToggleSecondary={toggleTeamView}
                 t={t}
             />
 
@@ -62,6 +64,7 @@ export const TasksPage = () => {
                         selectedId={selectedProjectId}
                         onSelect={handleProjectSelect}
                         formatShortDate={formatShortDate}
+                        isTeamFilter={isTeam}
                         t={t}
                     />
                 </div>

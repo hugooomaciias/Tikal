@@ -30,7 +30,7 @@ import { IconSearch, IconCircleXFilled, IconNote, IconCirclePlusFilled, IconCale
  * @param {Function} props.t - Translation function from i18next.
  * @returns {JSX.Element|null} The rendered projects card UI, or null if data is invalid.
  */
-export const ProjectsCardComponent = ({ data, selectedId, onSelect, formatShortDate, t }) => {
+export const ProjectsCardComponent = ({ data, selectedId, onSelect, formatShortDate, isTeamFilter, t }) => {
     // --- 1. Logic Hook Extraction ---
 
     /**
@@ -39,7 +39,7 @@ export const ProjectsCardComponent = ({ data, selectedId, onSelect, formatShortD
      * Extracts all managed UI states, derived datasets, and interaction handlers
      * required to power this presentational component.
      */
-    const { projectsCardStates, projectsCardData, projectsCardActions } = useProjectsCardLogic(data);
+    const { projectsCardStates, projectsCardData, projectsCardActions } = useProjectsCardLogic({ data, isTeamFilter });
 
     const {
         contextMenuRef,
@@ -125,74 +125,85 @@ export const ProjectsCardComponent = ({ data, selectedId, onSelect, formatShortD
                             const isBeingEdited = String(activeEntityId) === String(project.id);
 
                             return (
-                                <SwipeableEntityItemComponent
-                                    key={project.id}
-                                    entity={project}
-                                    contextMenuActions={contextMenuActions}
-                                >
-                                    <div
-                                        onClick={() => onSelect(project.id)}
-                                        onDoubleClick={() => handleEditProject(project)}
-                                        onContextMenu={(e) => handleContextMenu(e, project)}
-                                        className={`flex items-center justify-between gap-2 text-primary rounded-full py-3 pr-3 transition-all duration-200 cursor-pointer bg-transparent ${
-                                            isActive ? "md:bg-primary-200" : ""
-                                        } ${isBeingEdited ? "bg-quaternary-50/60" : "bg-transparent"}`}
-                                    >
-                                        {/* Project Icon and Title Section */}
-                                        <div className="flex items-center gap-4 flex-1 min-w-0">
-                                            <div className="shrink-0 h-fit w-fit bg-primary-200 rounded-full p-3">
-                                                <IconComponent className="h-8 w-8" />
-                                            </div>
-
-                                            <div className="flex flex-col flex-1 min-w-0">
-                                                <div className={`min-w-0 w-full text-xl text-quaternary-700 ${isActive ? "md:text-primary" : ""}`}>
-                                                    <ScrollingText text={project.name} />
-                                                </div>
-
-                                                <div className="flex items-center gap-2">
-                                                    {hasDeadline && (
-                                                        <span className={`flex items-center gap-[3px] text-sm text-quaternary-700 ${
-                                                            isActive ? "md:text-primary" : ""
-                                                        }`}>
-                                                            <IconCalendarEventFilled className="h-4 w-4 transition-colors duration-200 mb-0.5" />
-                                                            {formattedDeadline}
-                                                        </span>
-                                                    )}
-
-                                                    {/* Note Tooltip Toggle */}
-                                                    {hasNote && (
-                                                        <div
-                                                            className="relative group flex items-center justify-center shrink-0"
-                                                            onMouseEnter={(e) => handleMouseEnterTooltip(e, project)}
-                                                            onMouseLeave={handleMouseLeaveTooltip}
-                                                            onClick={(e) => {
-                                                                if (window.innerWidth < 768) {
-                                                                    handleToggleTooltip(e, project, isTooltipOpen);
-                                                                } else {
-                                                                    e.stopPropagation();
-                                                                }
-                                                            }}
-                                                        >
-                                                            <IconNote
-                                                                className={`h-4 w-4 transition-colors duration-200 text-quaternary-700 ${
-                                                                    isActive ? "md:text-primary" : ""
-                                                                }`}
-                                                            />
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            </div>
+                                <div key={project.id} className="w-full flex flex-col gap-3">
+                                    {project.isFirstCompleted && (
+                                        <div className="w-full flex items-center gap-4 my-2 animate-fade-in">
+                                            <div className="flex-1 h-[2px] rounded-full bg-gradient-to-r from-transparent to-primary-300" />
+                                            <span className="text-xs font-bold tracking-wider uppercase shrink-0 text-primary-300">
+                                                {t("projects.team_separator")}
+                                            </span>
+                                            <div className="flex-1 h-[2px] rounded-full bg-gradient-to-l from-transparent to-primary-300" />
                                         </div>
+                                    )}
 
-                                        <button
-                                            type="button"
-                                            onClick={(e) => handleContextMenu(e, project)}
-                                            className={`transition-colors duration-200 text-quaternary-700 ${isActive ? "xl:text-primary" : ""}`}
+                                    <SwipeableEntityItemComponent
+                                        entity={project}
+                                        contextMenuActions={contextMenuActions}
+                                    >
+                                        <div
+                                            onClick={() => onSelect(project.id)}
+                                            onDoubleClick={() => handleEditProject(project)}
+                                            onContextMenu={(e) => handleContextMenu(e, project)}
+                                            className={`flex items-center justify-between gap-2 text-primary rounded-full py-3 pr-3 transition-all duration-200 cursor-pointer bg-transparent ${
+                                                isActive ? "md:bg-primary-200" : ""
+                                            } ${isBeingEdited ? "bg-quaternary-50/60" : "bg-transparent"}`}
                                         >
-                                            <IconDotsVerticalFilled className="h-5 w-5" />
-                                        </button>
-                                    </div>
-                                </SwipeableEntityItemComponent>
+                                            {/* Project Icon and Title Section */}
+                                            <div className="flex items-center gap-4 flex-1 min-w-0">
+                                                <div className="shrink-0 h-fit w-fit bg-primary-200 rounded-full p-3">
+                                                    <IconComponent className="h-8 w-8" />
+                                                </div>
+
+                                                <div className="flex flex-col flex-1 min-w-0">
+                                                    <div className={`min-w-0 w-full text-xl text-quaternary-700 ${isActive ? "md:text-primary" : ""}`}>
+                                                        <ScrollingText text={project.name} />
+                                                    </div>
+
+                                                    <div className="flex items-center gap-2">
+                                                        {hasDeadline && (
+                                                            <span className={`flex items-center gap-[3px] text-sm text-quaternary-700 ${
+                                                                isActive ? "md:text-primary" : ""
+                                                            }`}>
+                                                                <IconCalendarEventFilled className="h-4 w-4 transition-colors duration-200 mb-0.5" />
+                                                                {formattedDeadline}
+                                                            </span>
+                                                        )}
+
+                                                        {/* Note Tooltip Toggle */}
+                                                        {hasNote && (
+                                                            <div
+                                                                className="relative group flex items-center justify-center shrink-0"
+                                                                onMouseEnter={(e) => handleMouseEnterTooltip(e, project)}
+                                                                onMouseLeave={handleMouseLeaveTooltip}
+                                                                onClick={(e) => {
+                                                                    if (window.innerWidth < 768) {
+                                                                        handleToggleTooltip(e, project, isTooltipOpen);
+                                                                    } else {
+                                                                        e.stopPropagation();
+                                                                    }
+                                                                }}
+                                                            >
+                                                                <IconNote
+                                                                    className={`h-4 w-4 transition-colors duration-200 text-quaternary-700 ${
+                                                                        isActive ? "md:text-primary" : ""
+                                                                    }`}
+                                                                />
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <button
+                                                type="button"
+                                                onClick={(e) => handleContextMenu(e, project)}
+                                                className={`transition-colors duration-200 text-quaternary-700 ${isActive ? "xl:text-primary" : ""}`}
+                                            >
+                                                <IconDotsVerticalFilled className="h-5 w-5" />
+                                            </button>
+                                        </div>
+                                    </SwipeableEntityItemComponent>
+                                </div>
                             );
                         })
                     ) : (

@@ -29,7 +29,7 @@ import { TIME_OPTIONS } from "../../../../utils/calendarUtils.js";
  * @param {Function} props.t - Core i18n translation utility.
  * @returns {JSX.Element} The completely logic-less rendered modal component interface.
  */
-export const EventPopUpComponent = ({ onClose, initialData, cascadingOptions = [], tCalendar, tCommon }) => {
+export const EventPopUpComponent = ({ onClose, initialData, cascadingOptions = [], projectId, admin, tCalendar, tCommon }) => {
     // --- 1. Logic Hook Extraction ---
 
     /**
@@ -45,6 +45,7 @@ export const EventPopUpComponent = ({ onClose, initialData, cascadingOptions = [
         initialData,
         onClose,
         cascadingOptions,
+        projectId,
         tCalendar,
     );
 
@@ -90,13 +91,15 @@ export const EventPopUpComponent = ({ onClose, initialData, cascadingOptions = [
                 {/* Central Form Wrapper */}
                 <form onSubmit={handleSubmit} className="flex flex-col gap-6" noValidate>
                     {/* Navigation Tab Toggles for Mode Context */}
-                    <TabsComponent
-                        page={"Event"}
-                        formData={formData}
-                        onChangeType={handleTabTypeChange}
-                        fieldToUpdate={"type"}
-                        t={tCalendar}
-                    />
+                    {!admin && (
+                        <TabsComponent
+                            page={"Event"}
+                            formData={formData}
+                            onChangeType={handleTabTypeChange}
+                            fieldToUpdate={"type"}
+                            t={tCalendar}
+                        />
+                    )}
 
                     {/* Dynamic Linked Context Section */}
                     {formData.type === "linked" && (

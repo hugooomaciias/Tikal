@@ -20,7 +20,7 @@ import { PHASE_COLOURS } from "../../../../../constants/phase_colours.js";
  * @param {Function} props.t - The i18n translation function.
  * @returns {JSX.Element} The rendered tabs component.
  */
-export const TabsComponent = ({ page, formData, onChangeType, onChangeSelected, fieldToUpdate, disabledType = null, t }) => {
+export const TabsComponent = ({ page, formData, onChangeType, onChangeSelected, fieldToUpdate, disabledType = null, admin = false, t }) => {
     // --- 1. Local UI Logic ---
 
     const normalizedPage = page?.toLowerCase() || "";
@@ -32,9 +32,9 @@ export const TabsComponent = ({ page, formData, onChangeType, onChangeSelected, 
      * and right (second) tabs based on the contextual `page` prop.
      */
     const firstTabType =
-        normalizedPage === "project" ? "project" : normalizedPage === "stage" ? "stage" : normalizedPage === "tasks" ? "details" : normalizedPage === "event" ? "linked" : "create";
+        normalizedPage === "project" ? "project" : normalizedPage === "stage" ? "stage" : normalizedPage === "tasks" ? "details" : normalizedPage === "event" ? "linked" : normalizedPage === "teams" ? "create" : "tasks";
     const secondTabType =
-        normalizedPage === "project" ? "list" : normalizedPage === "stage" ? "sublist" : normalizedPage === "tasks" ? "subtasks" : normalizedPage === "event" ? "unlinked" : "join";
+        normalizedPage === "project" ? "list" : normalizedPage === "stage" ? "sublist" : normalizedPage === "tasks" ? "subtasks" : normalizedPage === "event" ? "unlinked" : normalizedPage === "teams" ? "join" : "events";
 
     /**
      * Current Selection State
@@ -71,8 +71,11 @@ export const TabsComponent = ({ page, formData, onChangeType, onChangeSelected, 
         } else if (normalizedPage === "event") {
             defaultId = newType === "linked" ? "pri-100" : "sec-100";
             newDefault = PHASE_COLOURS.find((colour) => colour.id === defaultId);
-        } else {
+        } else if (normalizedPage === "teams") {
             defaultId = newType === "create" ? "pri-100" : "sec-100";
+            newDefault = PHASE_COLOURS.find((colour) => colour.id === defaultId);
+        } else {
+            defaultId = newType === "tasks" ? "pri-100" : "sec-100";
             newDefault = PHASE_COLOURS.find((colour) => colour.id === defaultId);
         }
 
@@ -84,10 +87,10 @@ export const TabsComponent = ({ page, formData, onChangeType, onChangeSelected, 
     // --- 2. Render ---
 
     return (
-        <div className="flex items-center justify-center w-full bg-primary-100 p-1.5 rounded-2xl relative overflow-hidden">
+        <div className={`flex items-center justify-center w-full bg-primary-100 p-1.5 ${admin ? "rounded-full" : "rounded-2xl"} relative overflow-hidden`}>
             {/* Animated Background Indicator */}
             <div
-                className={`absolute top-1.5 bottom-1.5 w-[calc(50%-6px)] bg-primary rounded-xl shadow-sm transition-all duration-300 ease-out z-0 ${currentValue === firstTabType ? "left-1.5" : "left-[calc(50%+1.5px)]"}`}
+                className={`absolute top-1.5 bottom-1.5 w-[calc(50%-6px)] bg-primary ${admin ? "rounded-full" : "rounded-xl"} shadow-sm transition-all duration-300 ease-out z-0 ${currentValue === firstTabType ? "left-1.5" : "left-[calc(50%+1.5px)]"}`}
             ></div>
 
             {/* Left / First Tab Button */}
@@ -109,7 +112,9 @@ export const TabsComponent = ({ page, formData, onChangeType, onChangeSelected, 
                         ? t("tasks.popup.tabs.details")
                         : normalizedPage === "event"
                           ? t("popup.tabs.linked")
-                          : t("teams.popup.tabs.create")
+                          : normalizedPage === "teams"
+                            ? t("teams.popup.tabs.create")
+                            : t("tasks_events.tabs.tasks")
                 }
             </button>
 
@@ -132,7 +137,9 @@ export const TabsComponent = ({ page, formData, onChangeType, onChangeSelected, 
                         ? t("tasks.popup.tabs.subtasks")
                         : normalizedPage === "event"
                           ? t("popup.tabs.unlinked")
-                          : t("teams.popup.tabs.join")
+                          : normalizedPage === "teams"
+                            ? t("teams.popup.tabs.join")
+                            : t("tasks_events.tabs.events")
                 }
             </button>
         </div>

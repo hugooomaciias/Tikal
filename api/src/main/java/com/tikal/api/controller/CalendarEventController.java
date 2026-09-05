@@ -4,6 +4,7 @@ package com.tikal.api.controller;
 import com.tikal.api.model.dto.calendar.CalendarEventDTO;
 import com.tikal.api.model.dto.calendar.CalendarEventRequest;
 import com.tikal.api.model.dto.calendar.ChangeTimeRequest;
+import com.tikal.api.model.dto.task.AssignUsersRequest;
 import com.tikal.api.service.CalendarEventService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -73,6 +74,19 @@ public class CalendarEventController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteEvent(@PathVariable Integer id) {
         calendarEventService.deleteEvent(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    /**
+     * PATCH /api/calendar_event/{eventId}/attendees
+     * Reassign users to a event (Drag & Drop or Multi-select)
+     */
+    @PatchMapping("/{eventId}/attendees")
+    public ResponseEntity<Void> assignUsersToTask(
+            @PathVariable Integer eventId,
+            @RequestBody AssignUsersRequest request) {
+
+        calendarEventService.assignAttendees(eventId, request.getAssignedUserIds());
         return ResponseEntity.noContent().build();
     }
 }

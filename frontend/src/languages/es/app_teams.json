@@ -57,7 +57,10 @@
         "popup": {
             "title": "Miembros",
             "search": "Buscar por nombre",
-            "no_members": "No se han encontrado miembros",
+            "no_results": {
+                "title": "Sin resultados",
+                "description": "Nadie coincide con "
+            },
             "role": "Miembro",
             "kick": "¿Expulsar del equipo?"
         }

@@ -22,6 +22,7 @@ public class TaskSyncDTO {
     private String logo;
     private String colour;
     private Boolean addToCalendar;
+    private Boolean isGroupBased;
     private List<SubtaskSyncDTO> subtasks;
     private List<AssignedUser> assignedUsers;
 

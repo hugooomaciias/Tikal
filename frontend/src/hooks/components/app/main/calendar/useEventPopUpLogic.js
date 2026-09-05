@@ -22,7 +22,7 @@ import { resolveColorObject, safeParseDate, formatDateTimeISO, resolveLinkPayloa
  * @param {Array<Object>} cascadingOptions - Injected nested hierarchical data array (projects, phases, tasks) for the link dropdown.
  * @returns {Object} A structured payload containing grouped DOM refs, state variables, derived data, and interaction handlers.
  */
-export const useEventPopUpLogic = (initialData, onClose, cascadingOptions, t) => {
+export const useEventPopUpLogic = (initialData, onClose, cascadingOptions, projectId, t) => {
     // --- 1. Contexts & DOM Refs ---
 
     const { getTempleModeData } = useSync();
@@ -300,6 +300,10 @@ export const useEventPopUpLogic = (initialData, onClose, cascadingOptions, t) =>
                 if (isEditing && initialData?.id) {
                     await updateCalendarEvent(initialData.id, payload);
                 } else {
+                    if (projectId) {
+                        payload.projectId = projectId
+                    }
+
                     await createCalendarEvent(payload);
                 }
 

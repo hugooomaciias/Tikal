@@ -2,7 +2,7 @@ import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
 import LanguageDetector from "i18next-browser-languagedetector";
 
-/** Español */
+/** Spanish */
 import esLanding from "./languages/es/landing.json";
 import esAuth from "./languages/es/auth.json";
 
@@ -24,9 +24,10 @@ import esAppSettingsTeam from "./languages/es/app_settings_team.json";
 import esAppIA from "./languages/es/app_ia.json";
 
 import esAppTeams from "./languages/es/app_teams.json";
+import esAppTeamAdmin from "./languages/es/app_team_admin.json";
 import esAppChat from "./languages/es/app_chat.json";
 
-/** Inglés */
+/** English */
 import enLanding from "./languages/en/landing.json";
 import enAuth from "./languages/en/auth.json";
 
@@ -48,6 +49,7 @@ import enAppSettingsTeam from "./languages/en/app_settings_team.json";
 import enAppIA from "./languages/en/app_ia.json";
 
 import enAppTeams from "./languages/en/app_teams.json";
+import enAppTeamAdmin from "./languages/en/app_team_admin.json";
 import enAppChat from "./languages/en/app_chat.json";
 
 const resources = {
@@ -68,6 +70,7 @@ const resources = {
         app_settings_team: esAppSettingsTeam,
         app_ia: esAppIA,
         app_teams: esAppTeams,
+        app_team_admin: esAppTeamAdmin,
         app_chat: esAppChat,
     },
     en: {
@@ -87,6 +90,7 @@ const resources = {
         app_settings_team: enAppSettingsTeam,
         app_ia: enAppIA,
         app_teams: enAppTeams,
+        app_team_admin: enAppTeamAdmin,
         app_chat: enAppChat,
     },
 };

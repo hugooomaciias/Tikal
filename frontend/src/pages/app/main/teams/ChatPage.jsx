@@ -122,7 +122,7 @@ export const ChatPage = () => {
                                     type="button"
                                     onClick={() => handleSelectChat(contact)}
                                     className={`flex items-center gap-4 w-full p-3 rounded-2xl transition-all duration-200 text-left ${
-                                        activeChat?.chatId === contact.chatId ? "md:bg-primary-300/10" : "hover:bg-black/10"
+                                        activeChat?.chatId === contact.chatId ? "md:bg-primary-300/10" : "hover:bg-primary-300/10"
                                     }`}
                                 >
                                     <img 

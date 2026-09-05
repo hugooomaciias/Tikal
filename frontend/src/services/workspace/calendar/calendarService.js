@@ -116,4 +116,23 @@ export const calendarService = {
     remove: async (id) => {
         return await apiCall(`/api/calendar_event/${id}`, "DELETE");
     },
+
+    /**
+     * Assign Attendees
+     *
+     * Sends a PATCH request to the backend to update the users (attendees) 
+     * invited or assigned to a specific calendar event. The payload contains 
+     * the user data or identifiers to be associated with the event, updating 
+     * the current roster of attendees.
+     *
+     * @async
+     * @function
+     * @param {string|number} id - The unique identifier of the calendar event being updated.
+     * @param {Array<Object>|Array<string>} attendees - The payload containing the attendees to assign to the event.
+     * @returns {Promise<Object>} The updated calendar event object reflecting the new assigned attendees.
+     * @throws {Error} Throws an error if the calendar event is not found or the assignment operation fails.
+     */
+    assignAttendees: async (id, attendees) => {
+        return await apiCall(`/api/calendar_event/${id}/attendees`, "PATCH", attendees);
+    },
 };

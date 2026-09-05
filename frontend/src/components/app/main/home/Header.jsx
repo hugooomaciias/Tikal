@@ -6,7 +6,7 @@ import {
     IconListFilled,
     IconClockHour3Filled,
     IconClipboardTextFilled,
-    IconCalendarDue,
+    IconCalendarEventFilled,
     IconEditFilled,
     IconSquareRoundedXFilled,
     IconSquareRoundedCheckFilled,
@@ -24,7 +24,7 @@ const ICON_MAP = {
     IconListFilled: IconListFilled,
     IconClockHour3Filled: IconClockHour3Filled,
     IconClipboardTextFilled: IconClipboardTextFilled,
-    IconCalendarDue: IconCalendarDue
+    IconCalendarDue: IconCalendarEventFilled
 };
 
 /**
