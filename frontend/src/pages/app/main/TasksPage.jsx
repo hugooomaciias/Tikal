@@ -36,7 +36,7 @@ export const TasksPage = () => {
     const { t, tasksStates, tasksData, tasksActions } = useTasksLogic();
 
     const { isDataLoaded, isCompleted, selectedProjectId, selectedStageId, mobileView, tasks, isTeam, apiError, isVisible } = tasksStates;
-    const { selectedProject, selectedStage } = tasksData;
+    const { selectedProject, selectedStage, autoSelectPayload } = tasksData;
     const { handleProjectSelect, handleStageSelect, handleBackNavigation, toggleCompletedView, toggleTeamView, handleShowError } = tasksActions;
 
     // --- 2. Render ---
@@ -104,6 +104,9 @@ export const TasksPage = () => {
                         stageColour={selectedStage?.colour}
                         formatShortDate={formatShortDate}
                         onError={handleShowError}
+                        taskSelected={autoSelectPayload?.taskId}
+                        pillMessage={autoSelectPayload?.pillMessage}
+                        pillClass={autoSelectPayload?.pillClass}
                         t={t}
                     />
                 </div>

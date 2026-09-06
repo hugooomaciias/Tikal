@@ -166,5 +166,5 @@ export const TeamAdminDashboardPage = () => {
                 />
             )}
         </>
-    );  
+    );
 }

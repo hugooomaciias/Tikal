@@ -11,7 +11,9 @@ import {
     IconEyeOff,
     IconCalendarEventFilled,
     IconProgress,
-    IconChartLine
+    IconChartLine,
+    IconTrophyFilled,
+    IconUserFilled
 } from "@tabler/icons-react";
 
 /** Assets, Utils & Constants */
@@ -29,7 +31,9 @@ const ICON_MAP = {
     IconBadgesFilled,
     IconCalendarEventFilled,
     IconProgress,
-    IconChartLine
+    IconChartLine,
+    IconTrophyFilled,
+    IconUserFilled
 };
 
 /**

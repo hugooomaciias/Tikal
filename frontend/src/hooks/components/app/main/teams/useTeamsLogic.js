@@ -255,13 +255,31 @@ export const useTeamsLogic = () => {
         }
     }, [leaveTeam, navigate, teamToLeave]);
 
+    /**
+     * Navigate to Team Projects
+     *
+     * Routes the user to the specific administrative project management view for the selected team.
+     * Passes the pre-fetched team entity within the router state to bypass secondary network requests.
+     *
+     * @param {Object} team - The active team entity.
+     * @returns {void}
+     */
     const handleNavigateToTeamProjects = useCallback((team) => {
         navigate(`/teams/${team.id}/projects`, { state: { teamData: team } });
     }, [navigate]);
 
-    /*const handleNavigateToTeamUserDashboard = useCallback((team) => {
-        navigate(`/teams/${team.id}`, { state: { teamData: team } });
-    }, [navigate]);*/
+    /**
+     * Navigate to Member Dashboard
+     *
+     * Routes the user to the generic member performance dashboard for the selected team.
+     * Passes the pre-fetched team entity within the router state to optimize initial rendering.
+     *
+     * @param {Object} team - The active team entity.
+     * @returns {void}
+     */
+    const handleNavigateToTeamMemberDashboard = useCallback((team) => {
+        navigate(`/teams/${team.id}/member`, { state: { teamData: team } });
+    }, [navigate]);
 
     // --- 6. Return Object ---
 
@@ -287,7 +305,8 @@ export const useTeamsLogic = () => {
             handleCloseTeamModal,
             handleOpenMembersModal,
             handleCloseMembersModal,
-            handleNavigateToTeamProjects
+            handleNavigateToTeamProjects,
+            handleNavigateToTeamMemberDashboard
         }
     };
 };

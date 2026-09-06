@@ -22,5 +22,17 @@ public class RecentActivityWidgetData {
         private String description;
         private Instant date;
         private ActivityType type;
+        private LinkedEntity linkedEntity;
+    }
+
+    @Data
+    @Builder
+    public static class LinkedEntity {
+        public Integer projectId;
+        public Integer stageId;
+        public Integer taskId;
+        public String logo;
+        public String colour;
+        public String name;
     }
 }

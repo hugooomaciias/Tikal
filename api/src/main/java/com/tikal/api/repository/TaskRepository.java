@@ -195,7 +195,7 @@ public interface TaskRepository extends JpaRepository<Task, Integer>{
 
     /* --- Recent Activity: New Tasks Assigned to the User (Last 48 Hours) --- */
     @Query("SELECT DISTINCT t FROM Task t JOIN t.assignedUsers u " +
-            "WHERE u.id = :userId AND t.stage.project.team.id = :teamId " +
+            "WHERE u.id = :userId AND t.stage.project.team.id = :teamId AND t.isCompleted = false " +
             "AND t.createdAt >= :since ORDER BY t.createdAt DESC")
     List<Task> findRecentAssignedTasks(
             @Param("userId") Integer userId,

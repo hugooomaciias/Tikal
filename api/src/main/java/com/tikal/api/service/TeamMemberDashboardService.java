@@ -63,7 +63,7 @@ public class TeamMemberDashboardService {
         }
 
         return TeamMemberDashboardDTO.HeaderTeamDTO.builder()
-                .rol(role)
+                .role(role)
                 .effectiveness(effectiveness)
                 .progress(progress)
                 .rankingPosition(myPosition)

@@ -25,6 +25,7 @@ import esAppIA from "./languages/es/app_ia.json";
 
 import esAppTeams from "./languages/es/app_teams.json";
 import esAppTeamAdmin from "./languages/es/app_team_admin.json";
+import esAppTeamMember from "./languages/es/app_team_member.json";
 import esAppChat from "./languages/es/app_chat.json";
 
 /** English */
@@ -50,6 +51,7 @@ import enAppIA from "./languages/en/app_ia.json";
 
 import enAppTeams from "./languages/en/app_teams.json";
 import enAppTeamAdmin from "./languages/en/app_team_admin.json";
+import enAppTeamMember from "./languages/en/app_team_member.json";
 import enAppChat from "./languages/en/app_chat.json";
 
 const resources = {
@@ -71,6 +73,7 @@ const resources = {
         app_ia: esAppIA,
         app_teams: esAppTeams,
         app_team_admin: esAppTeamAdmin,
+        app_team_member: esAppTeamMember,
         app_chat: esAppChat,
     },
     en: {
@@ -91,6 +94,7 @@ const resources = {
         app_ia: enAppIA,
         app_teams: enAppTeams,
         app_team_admin: enAppTeamAdmin,
+        app_team_member: enAppTeamMember,
         app_chat: enAppChat,
     },
 };

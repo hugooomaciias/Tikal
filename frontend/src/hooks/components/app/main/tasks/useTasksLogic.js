@@ -1,6 +1,7 @@
 /** React & Third-Party Libraries */
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { useTranslation } from "react-i18next";
+import { useLocation } from "react-router-dom";
 
 /** Contexts, Hooks & Services */
 import { useSync } from "../../../../core/useSync.js";
@@ -35,6 +36,23 @@ export const useTasksLogic = () => {
     * and backend loading status.
     */
    const { rawDashboardData, isDataLoaded } = useSync();
+
+    /**
+     * Router Location Hook
+     *
+     * Accesses the current router location object to intercept hidden state payloads
+     * passed during programmatic navigation (e.g., cross-module widget redirects).
+     */
+    const location = useLocation();
+
+    /**
+     * Auto-Select Payload
+     *
+     * Extracts the routing state used to automatically focus specific hierarchical 
+     * entities (Project > Stage > Task) upon initialization, usually injected by 
+     * widgets like 'Recent Activities'.
+     */
+    const autoSelectPayload = location.state?.autoSelectPayload;
     
    // --- 2. Local UI State ---
    
@@ -67,14 +85,14 @@ export const useTasksLogic = () => {
      *
      * Tracks the currently active project by its unique identifier.
      */
-    const [selectedProjectId, setSelectedProjectId] = useState(null);
+    const [selectedProjectId, setSelectedProjectId] = useState(autoSelectPayload?.projectId);
 
     /**
      * Selected Stage State
      *
      * Tracks the currently active stage within the selected project.
      */
-    const [selectedStageId, setSelectedStageId] = useState(null);
+    const [selectedStageId, setSelectedStageId] = useState(autoSelectPayload?.stageId);
 
     /**
      * API Error State
@@ -269,7 +287,7 @@ export const useTasksLogic = () => {
     return {
         t,
         tasksStates: { isDataLoaded, isCompleted, selectedProjectId, selectedStageId, mobileView, tasks, isTeam, apiError, isVisible },
-        tasksData: { selectedProject, selectedStage },
+        tasksData: { selectedProject, selectedStage, autoSelectPayload },
         tasksActions: { handleProjectSelect, handleStageSelect, handleBackNavigation, toggleCompletedView, toggleTeamView, handleShowError },
     };
 };

@@ -35,6 +35,10 @@
                 "day": "Día",
                 "project": "Proyecto"
             },
+            "no_tasks": {
+                "title": "Sin tareas pendientes",
+                "description": "Disfruta de tu tiempo libre. No tienes ninguna tarea asignada por el momento."
+            },
             "buttonNext": "Siguiente tarjeta",
             "buttonLast": "Última tarjeta"
         },

@@ -16,7 +16,7 @@ public class TeamMemberDashboardDTO {
     @Data
     @Builder
     public static class HeaderTeamDTO {
-        private String rol;
+        private String role;
         private Double effectiveness;
         private Double progress;
         private Integer rankingPosition;

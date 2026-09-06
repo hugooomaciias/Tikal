@@ -77,6 +77,9 @@ export const TasksCardComponent = ({
     formatShortDate,
     admin,
     onError,
+    taskSelected,
+    pillMessage,
+    pillClass,
     t,
 }) => {
     // --- 1. Logic Hook Extraction ---
@@ -275,11 +278,19 @@ export const TasksCardComponent = ({
                                                     onClick={handleActiveTaskToggle(task.id, isActive)}
                                                 >
                                                     {/* Task Title */}
-                                                    <div
-                                                        className={`min-w-0 w-full text-xl ${hasSubtasks && isActive ? "" : "text-quaternary-700"}`}
-                                                        style={hasSubtasks && isActive ? { color: colour.text } : {}}
-                                                    >
-                                                        <ScrollingText text={task.name} />
+                                                    <div className="w-full flex items-center justify-between gap-2">
+                                                        <div
+                                                            className={`min-w-0 flex-1 text-xl ${hasSubtasks && isActive ? "" : "text-quaternary-700"}`}
+                                                            style={hasSubtasks && isActive ? { color: colour.text } : {}}
+                                                        >
+                                                            <ScrollingText text={task.name} />
+                                                        </div>
+
+                                                        {taskSelected === task.id && pillMessage && (
+                                                            <div className={`shrink-0 flex items-center justify-center px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider shadow-sm animate-pulse ${pillClass}`}>
+                                                                {pillMessage}
+                                                            </div>
+                                                        )}
                                                     </div>
 
                                                     {/* Subtasks Count, End Date, Estimated Time & Profit and Description Note  */}

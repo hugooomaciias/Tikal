@@ -52,7 +52,8 @@ export const TeamsPage = () => {
         handleCloseTeamModal,
         handleOpenMembersModal,
         handleCloseMembersModal,
-        handleNavigateToTeamProjects
+        handleNavigateToTeamProjects,
+        handleNavigateToTeamMemberDashboard
     } = teamsActions;
 
     const displayedTeams = viewAsAdmin 
@@ -78,7 +79,7 @@ export const TeamsPage = () => {
                         {displayedTeams.map((team) => (
                             <div
                                 key={team.id}
-                                onClick={viewAsAdmin && (() => handleNavigateToTeamProjects(team))}
+                                onClick={viewAsAdmin ? (() => handleNavigateToTeamProjects(team)) : (() => handleNavigateToTeamMemberDashboard(team))}
                                 className="bg-primary rounded-3xl p-6 shadow-lg flex flex-col gap-4 relative hover:-translate-y-1 hover:ring-2 hover:ring-primary-500 transition-all duration-300 cursor-pointer"
                             >
                                 {/* Team primary info */}
@@ -104,15 +105,16 @@ export const TeamsPage = () => {
                                         <div className="flex items-center">
                                             <button 
                                                 type="button"
-                                                onClick={() => navigator.clipboard.writeText(team.code)}
+                                                onClick={(e) => { e.stopPropagation(); navigator.clipboard.writeText(team.code); }}
                                                 className="p-2 text-primary-500 hover:bg-primary-100 rounded-lg transition-colors"
                                                 title="Copiar Código"
                                             >
                                                 <IconCopyFilled className="w-5 h-5" />
                                             </button>
+
                                             <button 
                                                 type="button"
-                                                onClick={() => handleRegenerateCode(team.id)}
+                                                onClick={(e) => { e.stopPropagation(); handleRegenerateCode(team.id); }}
                                                 className="p-2 text-primary-500 hover:bg-primary-100 rounded-lg transition-colors"
                                                 title="Regenerar Código"
                                             >

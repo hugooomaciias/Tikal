@@ -28,6 +28,7 @@ public class WidgetBuilderService {
     private final StageRepository stageRepository;
     private final TeamMemberRepository teamMemberRepository;
     private final CalendarEventRepository calendarEventRepository;
+    private final MessageRepository messageRepository;
     private final PreFetchedDashboardData preFetchedData;
 
     public WidgetData buildSingleWidget(String widgetId, User user, UserSettings settings) {
@@ -1115,11 +1116,24 @@ public class WidgetBuilderService {
         // A. Tasks assigned
         List<Task> recentTasks = taskRepository.findRecentAssignedTasks(userId, teamId, past48h);
         for (Task t : recentTasks) {
+            Project p = t.getStage().getProject();
+            Stage s = t.getStage();
+
+            var linkedEntity = RecentActivityWidgetData.LinkedEntity.builder()
+                    .projectId(p.getId())
+                    .stageId(s.getId())
+                    .taskId(t.getId())
+                    .name(t.getName())
+                    .logo(p.getLogoUrl())
+                    .colour(s.getColour())
+                    .build();
+
             activities.add(RecentActivityWidgetData.ActivityData.builder()
-                    .title("Nueva Tarea")
+                    .title("Nueva Tarea Asignada")
                     .description(t.getName())
                     .date(t.getCreatedAt() != null ? t.getCreatedAt() : now)
                     .type(RecentActivityWidgetData.ActivityType.TASK)
+                    .linkedEntity(linkedEntity)
                     .build());
         }
 
@@ -1127,26 +1141,79 @@ public class WidgetBuilderService {
         List<Task> urgentTasks = taskRepository.findUpcomingDeadlines(userId, teamId, future48h);
         for (Task t : urgentTasks) {
             boolean isExpired = t.getDeadline().isBefore(now);
+            Project p = t.getStage().getProject();
+            Stage s = t.getStage();
+
+            var linkedEntity = RecentActivityWidgetData.LinkedEntity.builder()
+                    .projectId(p.getId())
+                    .stageId(s.getId())
+                    .taskId(t.getId())
+                    .name(t.getName())
+                    .logo(p.getLogoUrl())
+                    .colour(s.getColour())
+                    .build();
+
             activities.add(RecentActivityWidgetData.ActivityData.builder()
-                    .title(isExpired ? "Tarea Caducada" : "Entrega Próxima")
+                    .title(isExpired ? "Tarea atrasada" : "Entrega Próxima")
                     .description(t.getName())
                     .date(t.getDeadline())
                     .type(RecentActivityWidgetData.ActivityType.DEADLINE)
+                    .linkedEntity(linkedEntity)
                     .build());
         }
 
         // C. Events
         List<CalendarEvent> upcomingEvents = calendarEventRepository.findUpcomingTeamEvents(userId, teamId, now, future3Days);
+
+
         for (CalendarEvent e : upcomingEvents) {
+            var linkedEntity = RecentActivityWidgetData.LinkedEntity.builder()
+                    .name(e.getName())
+                    .logo(e.getProject().getLogoUrl())
+                    .colour(e.getCustomColour())
+                    .build();
+
             activities.add(RecentActivityWidgetData.ActivityData.builder()
                     .title("Próximo Evento")
                     .description(e.getName())
                     .date(e.getInitDateTime())
                     .type(RecentActivityWidgetData.ActivityType.CALENDAR)
+                    .linkedEntity(linkedEntity)
                     .build());
         }
 
-        activities.sort(Comparator.comparing(RecentActivityWidgetData.ActivityData::getDate).reversed());
+        // D. Team chat
+        teamMemberRepository.findByUserIdAndTeamId(userId, teamId).ifPresent(member -> {
+            Instant lastRead = member.getLastReadDate() != null 
+                    ? member.getLastReadDate() 
+                    : Instant.parse("2000-01-01T00:00:00Z");
+
+            Long unreadCount = messageRepository.countUnreadTeamMessages(teamId, lastRead);
+
+            if (unreadCount != null && unreadCount > 0) {
+                Message lastMessage = messageRepository.findTopByTargetTeamIdOrderBySendDateDesc(teamId);
+                
+                if (lastMessage != null) {
+                    String snippet = lastMessage.getContent();
+
+                    String emitterName = lastMessage.getEmitter() != null ? lastMessage.getEmitter().getName() : "Usuario";
+
+                    String titleString = unreadCount > 1 ? (unreadCount + " mensajes sin leer") : (unreadCount + " mensaje sin leer");
+
+                    activities.add(RecentActivityWidgetData.ActivityData.builder()
+                            .title(titleString)
+                            .description(emitterName + ": " + snippet)
+                            .date(lastMessage.getSendDate())
+                            .type(RecentActivityWidgetData.ActivityType.CHAT)
+                            .build());
+                }
+            }
+        });
+
+        Instant currentTime = Instant.now();
+        activities.sort(Comparator.comparingLong(activity -> 
+                Math.abs(ChronoUnit.SECONDS.between(currentTime, activity.getDate()))
+        ));
 
         return RecentActivityWidgetData.builder()
                 .activities(activities.stream().limit(15).collect(Collectors.toList()))

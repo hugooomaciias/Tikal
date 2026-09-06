@@ -69,9 +69,38 @@ export const useTeamDashboards = () => {
         }
     }, [updateContextData]);
 
+    /**
+     * Fetch Team Member Dashboard
+     *
+     * Retrieves the hyper-focused dashboard data for the authenticated user within a specific team[cite: 1].
+     * The response (TeamMemberDashboardDTO) is structurally divided into specific visual blocks[cite: 1]:
+     * - Header: Contains the user's specific role, global team effectiveness, individual progress, and ranking position[cite: 1].
+     * - Ranking: Displays the top 10 team members ordered by total minutes dedicated (`score`) to encourage "Deep Work"[cite: 1].
+     * - Recent Activities: Provides up to 15 dynamic activity items (CHAT, TASK, CALENDAR, ROLE, or DEADLINE)[cite: 1].
+     * - Tasks: Shows strictly the pending tasks assigned to the current user within this team, logically grouped by project (`BY_PROJECT`)[cite: 1].
+     * - Calendar: Returns the calendar's visual configuration (leaving actual event filtering to the frontend's global state)[cite: 1].
+     *
+     * @async
+     * @param {string|number} teamId - The unique identifier of the specific team.
+     * @returns {Promise<Object>} The personalized team member dashboard data payload.
+     * @throws {Error} Re-throws the service error after logging it to the console.
+     */
+    const fetchMemberDashboard = useCallback(async (teamId) => {
+        try {
+            const memberDashboardData = await dashboardService.getMemberDashboard(teamId);
+            
+            return memberDashboardData;
+            
+        } catch (error) {
+            console.error("Error fetching the team member dashboard data:", error);
+            throw error;
+        }
+    }, []);
+
     // --- 3. Return Object ---
 
     return {
-        fetchProjectDashboard
+        fetchProjectDashboard,
+        fetchMemberDashboard
     };
 };

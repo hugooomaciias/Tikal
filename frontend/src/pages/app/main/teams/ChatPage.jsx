@@ -118,7 +118,7 @@ export const ChatPage = () => {
                         <div className="flex-1 overflow-y-auto custom-scrollbar flex flex-col gap-1">
                             {contacts.map((contact) => (
                                 <button
-                                    key={contact.id}
+                                    key={contact.isTeam ? `t_${contact.chatId}` : `u_${contact.chatId}`}
                                     type="button"
                                     onClick={() => handleSelectChat(contact)}
                                     className={`flex items-center gap-4 w-full p-3 rounded-2xl transition-all duration-200 text-left ${
