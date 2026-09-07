@@ -19,14 +19,24 @@ import java.time.ZoneOffset;
 import java.time.temporal.TemporalAdjusters;
 import java.util.List;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+
 @RestController
 @RequestMapping("/api/calendar_event")
 @CrossOrigin(origins = "*")
 @RequiredArgsConstructor
+@Tag(name = "Calendar Events", description = "Operaciones para gestionar eventos de calendario")
+@SecurityRequirement(name = "bearerAuth")
 public class CalendarEventController {
     private final CalendarEventService calendarEventService;
 
-    // Retrieve events within a date range
+    /**
+     * GET /api/calendar_event
+     * Retrieve events within a date range (optional start/end). Defaults to current month if not provided.
+     */
+    @Operation(summary = "Obtener eventos por rango de fecha", description = "Devuelve los eventos dentro de un rango de fechas. Si no se proporcionan start/end, se usa el mes actual por defecto.")
     @GetMapping
     public ResponseEntity<List<CalendarEventDTO>> getEventsBetweenDates(
             @RequestParam(value = "start", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant start,
@@ -45,14 +55,22 @@ public class CalendarEventController {
         return ResponseEntity.ok(calendarEventService.getEventsBetweenDates(actualStart, actualEnd));
     }
 
-    // Creates a calendar event
+    /**
+     * POST /api/calendar_event
+     * Creates a new calendar event.
+     */
+    @Operation(summary = "Crear evento de calendario", description = "Crea un nuevo evento de calendario.")
     @PostMapping
     public ResponseEntity<CalendarEventDTO> createEvent(@Valid @RequestBody CalendarEventRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(calendarEventService.createEvent(request));
     }
 
-    // Update an entire event
+    /**
+     * PUT /api/calendar_event/{id}
+     * Update an entire calendar event.
+     */
+    @Operation(summary = "Actualizar evento de calendario", description = "Actualiza un evento de calendario completo por id.")
     @PutMapping("/{id}")
     public ResponseEntity<CalendarEventDTO> updateEvent(
             @PathVariable Integer id,
@@ -61,7 +79,11 @@ public class CalendarEventController {
         return ResponseEntity.ok(calendarEventService.updateEvent(id, request));
     }
 
-    // Change the time only
+    /**
+     * PATCH /api/calendar_event/{id}/time
+     * Change only the time of an existing event.
+     */
+    @Operation(summary = "Cambiar hora de evento", description = "Cambia únicamente la hora de un evento existente.")
     @PatchMapping("/{id}/time")
     public ResponseEntity<CalendarEventDTO> changeEventTime(
             @PathVariable Integer id,
@@ -70,7 +92,11 @@ public class CalendarEventController {
         return ResponseEntity.ok(calendarEventService.changeEventTime(id, request));
     }
 
-    // Delete event
+    /**
+     * DELETE /api/calendar_event/{id}
+     * Delete a calendar event.
+     */
+    @Operation(summary = "Eliminar evento de calendario", description = "Elimina un evento de calendario por id.")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteEvent(@PathVariable Integer id) {
         calendarEventService.deleteEvent(id);
@@ -81,6 +107,7 @@ public class CalendarEventController {
      * PATCH /api/calendar_event/{eventId}/attendees
      * Reassign users to a event (Drag & Drop or Multi-select)
      */
+    @Operation(summary = "Asignar asistentes", description = "Reasigna usuarios a un evento (arrastrar y soltar o multi-selección). Recibe una lista de ids de usuario en el body.")
     @PatchMapping("/{eventId}/attendees")
     public ResponseEntity<Void> assignUsersToTask(
             @PathVariable Integer eventId,

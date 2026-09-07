@@ -9,6 +9,9 @@ import com.tikal.api.model.entity.User;
 import com.tikal.api.repository.TimeLogRepository;
 import com.tikal.api.service.*;
 import lombok.RequiredArgsConstructor;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,6 +22,8 @@ import java.util.List;
 @RequestMapping("/dashboard")
 @CrossOrigin(origins = "*")
 @RequiredArgsConstructor
+@Tag(name = "Dashboard", description = "Endpoints para construir la vista del dashboard y widgets")
+@SecurityRequirement(name = "bearerAuth")
 public class DashboardController {
 
     private final DashboardService dashboardService;
@@ -32,6 +37,7 @@ public class DashboardController {
      * GET /dashboard/sync
      * Builds and returns the entire initial state of the user's workspace.
      */
+    @Operation(summary = "Sincronización inicial del workspace", description = "Construye y devuelve el estado inicial completo del workspace del usuario (proyectos, tareas, equipos, configuraciones, etc.).")
     @GetMapping("/sync")
     public ResponseEntity<WorkspaceSyncDTO> getInitialSync() {
         WorkspaceSyncDTO syncData = dashboardService.buildInitialWorkspaceSync();
@@ -43,6 +49,7 @@ public class DashboardController {
      * GET /dashboard/project/{projectId}
      * Builds and returns the entire dashboard state for a specific project.
      */
+    @Operation(summary = "Dashboard del proyecto", description = "Construye y devuelve el estado completo del dashboard para un proyecto específico.")
     @GetMapping("/project/{projectId}")
     public ResponseEntity<ProjectDashboardDTO> getProjectDashboard(@PathVariable Integer projectId) {
         ProjectDashboardDTO dashboardData = projectDashboardService.getProjectDashboard(projectId);
@@ -53,6 +60,7 @@ public class DashboardController {
      * GET /dashboard/temple-status
      * Builds and returns the current temple status and related gamification events for the authenticated user.
      */
+    @Operation(summary = "Estado Temple", description = "Construye y devuelve el estado actual del modo 'Temple' y los eventos de gamificación relacionados para el usuario autenticado.")
     @GetMapping("/temple-status")
     public ResponseEntity<TempleUpdateResponse> getTempleStatus() {
         User currentUser = userService.getAuthenticatedUser();
@@ -75,17 +83,18 @@ public class DashboardController {
      * GET /dashboard/team/{teamId}/member
      * Builds and returns the entire dashboard state for a standard team member.
      */
+    @Operation(summary = "Dashboard miembro de equipo", description = "Construye y devuelve el estado completo del dashboard para un miembro estándar de un equipo.")
     @GetMapping("/team/{teamId}/member")
     public ResponseEntity<TeamMemberDashboardDTO> getTeamMemberDashboard(@PathVariable Integer teamId) {
         TeamMemberDashboardDTO dashboardData = teamMemberDashboardService.getTeamMemberDashboard(teamId);
         return ResponseEntity.ok(dashboardData);
     }
 
-    /**
+    /*
      * GET /dashboard/widgets/solar-chart
      * It is called when the user changes the time filter in the drop-down menu.
      */
-    /**
+    /*
     @GetMapping("/widgets/solar-chart")
     public ResponseEntity<SolarChartWidgetData> getSolarChartData(
             @RequestParam(defaultValue = "GLOBAL") SolarChartWidgetData.TimeRangeFilter timeRange) {
@@ -97,12 +106,12 @@ public class DashboardController {
     }
     */
 
-    /**
+    /*
      * GET /dashboard/widgets/effectiveness-chart
      * It is called when the user changes the metric (Concentration/Profitability)
      * or the range (Week/Month).
      */
-    /**
+    /*
     @GetMapping("/widgets/effectiveness-chart")
     public ResponseEntity<EffectivenessChartWidgetData> getEffectivenessChartData(
             @RequestParam(defaultValue = "WEEKLY") EffectivenessChartWidgetData.TimeRange timeRange,

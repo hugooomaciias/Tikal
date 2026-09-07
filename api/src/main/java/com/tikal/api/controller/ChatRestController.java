@@ -15,18 +15,26 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+
 @RestController
 @CrossOrigin(origins = "*")
 @RequestMapping("/api/chats")
 @RequiredArgsConstructor
+@Tag(name = "Chats", description = "Operaciones REST para chats directos y de equipo")
+@SecurityRequirement(name = "bearerAuth")
 public class ChatRestController {
 
     private final ChatService chatService;
     private final UserService userService;
 
-    // ==========================================
-    // 1. SIDEBAR (Mixed Sidebar)
-    // ==========================================
+    /**
+     * GET /api/chats/sidebar
+     * Returns the mixed sidebar (direct + team chats) for the authenticated user. Optional search filter.
+     */
+    @Operation(summary = "Obtener chats de la barra lateral", description = "Devuelve la barra lateral mixta (chats directos + de equipo) para el usuario autenticado. Parámetro opcional 'search' para filtrar.")
     @GetMapping("/sidebar")
     public ResponseEntity<List<ChatSummaryDTO>> getSidebarChats(
             @RequestParam(required = false) String search) {
@@ -34,9 +42,11 @@ public class ChatRestController {
         return ResponseEntity.ok(chatService.getMixedSidebar(myId, search));
     }
 
-    // ==========================================
-    // 2. HISTORY PAGINATED (when you click a chat)
-    // ==========================================
+    /**
+     * GET /api/chats/direct/{otherUserId}
+     * Returns paginated direct chat history with another user. Marks the conversation as read for the caller.
+     */
+    @Operation(summary = "Historial de chat directo", description = "Devuelve el historial paginado de chat directo con otro usuario. Marca la conversación como leída para el llamador.")
     @GetMapping("/direct/{otherUserId}")
     public ResponseEntity<Page<ChatMessageDTO>> getDirectChatHistory(
             @PathVariable Integer otherUserId,
@@ -48,6 +58,11 @@ public class ChatRestController {
         return ResponseEntity.ok(chatService.getDirectChatHistoryPaginated(myId, otherUserId, pageable));
     }
 
+    /**
+     * GET /api/chats/team/{teamId}
+     * Returns paginated team chat history and marks the team conversation as read for the caller.
+     */
+    @Operation(summary = "Historial de chat de equipo", description = "Devuelve el historial paginado de chat de equipo y marca la conversación del equipo como leída para el llamador.")
     @GetMapping("/team/{teamId}")
     public ResponseEntity<Page<ChatMessageDTO>> getTeamChatHistory(
             @PathVariable Integer teamId,
