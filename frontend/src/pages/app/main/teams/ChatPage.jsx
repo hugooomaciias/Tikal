@@ -314,7 +314,7 @@ export const ChatPage = () => {
 
                 {/* --- Contact info panel --- */}
                 {isInfoPanelOpen && activeChat?.isTeam && (
-                    <aside className="h-full w-full md:w-1/4 flex-shrink-0 flex flex-col overflow-y-auto animate-fade-in-left gap-6 py-6 px-4 md:p-0">
+                    <aside className="h-full w-full md:w-1/4 flex-shrink-0 flex flex-col overflow-y-auto animate-fade-in-left gap-4 md:gap-6 py-6 px-4 md:p-0">
                         {/* Team or User info */}
                         <div className="flex md:flex-col items-center gap-3 md:gap-0 md:justify-center md:pt-4">
                             <button
@@ -336,7 +336,7 @@ export const ChatPage = () => {
                                 <h2 className="text-xl md:text-2xl font-semibold text-quaternary-700">{activeChat.chatName}</h2>
 
                                 {activeChat.isTeam && (
-                                    <p className="md:text-lg font-medium text-primary-500 md:mb-2">
+                                    <p className="md:text-lg font-medium text-primary-500">
                                         {teamMembers?.length || 0} {t("members.members")}
                                     </p>
                                 )}
@@ -344,7 +344,7 @@ export const ChatPage = () => {
                         </div>
 
                         {activeChat.isTeam && (
-                            <div className="flex flex-col flex-1 pb-4 gap-4">
+                            <div className="flex flex-col flex-1 pb-4 gap-4 overflow-hidden">
                                 {/* Search bar */}
                                 <div className="relative mt-2">
                                     <input 
@@ -366,31 +366,33 @@ export const ChatPage = () => {
                                 {teamMembers.length > 0 ? (
                                     <div className="flex-1 overflow-y-auto custom-scrollbar flex flex-col gap-1">
                                         {teamMembers.map((member) => (
-                                            <div key={member.userId} className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-primary-300/10 transition-colors">
-                                                <img 
-                                                    src={member.avatar} 
-                                                    alt={member.name} 
-                                                    className="w-10 h-10 rounded-full object-cover bg-primary-200 flex-shrink-0" 
-                                                />
+                                            <div key={member.userId} className="flex items-center justify-between gap-3 p-2.5 rounded-xl hover:bg-primary-300/10 transition-colors">
+                                                <div className="flex items-center justify-center gap-4">
+                                                    <img 
+                                                        src={member.avatar} 
+                                                        alt={member.name} 
+                                                        className="w-10 h-10 rounded-full object-cover bg-primary-200 flex-shrink-0" 
+                                                    />
 
-                                                <div className="flex flex-col overflow-hidden">
-                                                    <span className="font-semibold text-quaternary-700 text-sm truncate">
-                                                        {member.name}
-                                                    </span>
-                                                    <span className="text-xs text-quaternary-500 truncate">
-                                                        {member.teamRole}
-                                                    </span>
+                                                    <div className="flex flex-col overflow-hidden">
+                                                        <span className="font-semibold text-quaternary-700 text-sm truncate">
+                                                            {member.name}
+                                                        </span>
+                                                        <span className="text-xs text-quaternary-500 truncate">
+                                                            {member.teamRole}
+                                                        </span>
+                                                    </div>
                                                 </div>
                                                 
-                                                <div className="flex items-center gap-2 ml-auto pr-2">
+                                                <div className="flex items-center justify-end gap-1">
                                                     {!member.loggedUser && (
                                                         <button
                                                             type="button"
                                                             onClick={(e) => handleStartDirectChat(e, member)}
-                                                            className="p-2 rounded-full hover:bg-primary-200 transition-colors"
+                                                            className="rounded-full transition-colors"
                                                             title={"Enviar mensaje"}
                                                         >
-                                                            <IconMessageCircleFilled className="w-6 h-6 text-primary-600 hover:text-primary-700 transition-colors" />
+                                                            <IconMessageCircleFilled className="w-6 h-6 text-primary-600/90 hover:text-primary-600 transition-colors" />
                                                         </button>
                                                     )}
 

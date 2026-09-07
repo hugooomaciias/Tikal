@@ -14,10 +14,11 @@ import enLocale from "@fullcalendar/core/locales/en-gb";
 import { ScrollingText } from "../../common/ScrollingText.jsx";
 
 /** Icons */
-import { IconBook, IconChevronLeft, IconChevronRight } from "@tabler/icons-react";
+import { IconChevronLeft, IconChevronRight } from "@tabler/icons-react";
 
 /** Assets, Utils & Constants */
 import { PHASE_COLOURS } from "../../../../../constants/phase_colours.js";
+import { PROJECTS_ICONS } from "../../../../../constants/projects_icons.js";
 
 /**
  * Calendar Widget Component
@@ -86,6 +87,7 @@ export const CalendarWidget = ({ props, setCustomActions }) => {
                 end: event.endDateTime,
                 extendedProps: {
                     description: event.description,
+                    logo: event.logo,
                     colorId: matchedColor.id,
                 },
                 backgroundColor: matchedColor.hex,
@@ -154,6 +156,7 @@ export const CalendarWidget = ({ props, setCustomActions }) => {
                 }}
                 eventContent={(eventInfo) => {
                     const hexColor = eventInfo.event.backgroundColor;
+                    const Logo = PROJECTS_ICONS.find((i) => i.id === eventInfo?.event?.extendedProps?.logo);
 
                     return (
                         <div
@@ -167,7 +170,10 @@ export const CalendarWidget = ({ props, setCustomActions }) => {
                             }}
                         >
                             {/* Visual Event Indicator */}
-                            <IconBook className="h-4 w-4 text-primary" />
+                            {Logo && (
+                                <Logo.component className="h-4 w-4 text-primary" />
+                            )}
+
                             {/* Animated Event Title */}
                             <ScrollingText
                                 text={eventInfo.event.title}

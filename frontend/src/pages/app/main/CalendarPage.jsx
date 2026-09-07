@@ -47,7 +47,7 @@ export const CalendarPage = () => {
     const { calendarRef, translations, calendarStates, calendarData, calendarActions } = useCalendarLogic();
 
     const { tCalendar, tCommon } = translations;
-    const { contextMenuRef, contextMenuStates, contextMenuActions, isDataLoaded, selectedDate, eventToEdit, isMobile, apiError, isVisible } = calendarStates;
+    const { contextMenuRef, contextMenuStates, contextMenuActions, isDataLoaded, selectedDate, eventToEdit, isMobile } = calendarStates;
     const { events, highlightDates, eventsColorMap, groupedEvents, cascadingOptions, hasAllDayEvents } = calendarData;
     const {
         openNewEventModal,
@@ -212,18 +212,6 @@ export const CalendarPage = () => {
                     onDelete={(id) => {handleDeleteEvent(id)}}
                     nextEvent={true}
                 />
-            )}
-
-            {/* API Error Alert Banner */}
-            {apiError && (
-                <div
-                    className={`fixed bottom-8 left-0 right-0 mx-auto w-[90%] md:w-fit md:min-w-[350px] max-w-md bg-primary border-2 border-tertiary-200 text-tertiary-200 px-6 py-4 rounded-2xl flex items-center justify-center gap-3 shadow-2xl transition-all duration-500 ease-out z-[9999]
-                                ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10 pointer-events-none"}`}
-                    role="alert"
-                >
-                    <IconAlertTriangleFilled className="h-6 w-6 shrink-0" />
-                    <span className="block sm:inline font-medium text-center">{apiError}</span>
-                </div>
             )}
         </>
     );

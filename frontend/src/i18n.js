@@ -7,6 +7,7 @@ import esLanding from "./languages/es/landing.json";
 import esAuth from "./languages/es/auth.json";
 
 import esTutorial from "./languages/es/tutorial.json";
+import esToast from "./languages/es/app_toast.json";
 
 import esAppCommon from "./languages/es/app_common.json";
 import esAppHome from "./languages/es/app_home.json";
@@ -33,6 +34,7 @@ import enLanding from "./languages/en/landing.json";
 import enAuth from "./languages/en/auth.json";
 
 import enTutorial from "./languages/en/tutorial.json";
+import enToast from "./languages/en/app_toast.json";
 
 import enAppCommon from "./languages/en/app_common.json";
 import enAppHome from "./languages/en/app_home.json";
@@ -59,6 +61,7 @@ const resources = {
         landing: esLanding,
         auth: esAuth,
         tutorial: esTutorial,
+        app_toast: esToast,
         app_home: esAppHome,
         app_common: esAppCommon,
         app_tasks: esAppTasks,
@@ -80,6 +83,7 @@ const resources = {
         landing: enLanding,
         auth: enAuth,
         tutorial: enTutorial,
+        app_toast: enToast,
         app_home: enAppHome,
         app_common: enAppCommon,
         app_tasks: enAppTasks,

@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 
 /** Contexts, Hooks & Services */
 import { useSync } from "../../../../core/useSync.js";
+import { useToast } from "../../../../core/useToast.js";
 import { useCalendarEvents } from "../../../../controllers/calendar/useCalendar.js";
 import { useContextMenu } from "../common/useContextMenu.js";
 
@@ -36,6 +37,25 @@ export const useCalendarLogic = () => {
     // --- 1. Contexts & DOM Refs ---
 
     /**
+     * Translation Hook
+     *
+     * Provides access to the i18n instance specifically scoped to the "app_calendar"
+     * namespace to localize text content dynamically.
+     */
+    const { t: tCalendar } = useTranslation("app_calendar");
+    const { t: tCommon} = useTranslation("app_common");
+
+    /**
+     * Global Toast Notification Hook
+     *
+     * Extracts the dispatcher method from the globally provided toast context.
+     * This allows the module to safely broadcast ephemeral success or error 
+     * messages (e.g., API mutation failures) without cluttering the local 
+     * component tree with redundant UI alert states.
+     */
+    const { addToast } = useToast();
+
+    /**
      * Calendar Event Mutations
      *
      * Extracts asynchronous controller methods responsible for persisting event
@@ -51,15 +71,6 @@ export const useCalendarLogic = () => {
     const { getCalendarEvents, getTasksData, isDataLoaded } = useSync();
 
     /**
-     * Translation Hook
-     *
-     * Provides access to the i18n instance specifically scoped to the "app_calendar"
-     * namespace to localize text content dynamically.
-     */
-    const { t: tCalendar } = useTranslation("app_calendar");
-    const { t: tCommon} = useTranslation("app_common");
-
-    /**
      * Calendar DOM Reference
      *
      * Maintains a mutable reference to the underlying FullCalendar component instance.
@@ -67,23 +78,6 @@ export const useCalendarLogic = () => {
      * without triggering unnecessary React re-renders.
      */
     const calendarRef = useRef(null);
-
-    /**
-     * Context Menu Initialization
-     *
-     * Initializes the context menu hook and extracts its refs, states, and actions.
-     * Sets the project to edit when the context menu triggers an edit action.
-     */
-    const { contextMenuRef, contextMenuStates, contextMenuActions } = useContextMenu((data) => {
-        setProjectToEdit(data);
-    });
-
-    /**
-     * Context Menu Actions
-     *
-     * Destructured actions for closing specific modals managed by the context menu.
-     */
-    const { closeRenameModal, closeDeleteModal } = contextMenuActions;
 
     // --- 2. Local UI State ---
     
@@ -325,6 +319,21 @@ export const useCalendarLogic = () => {
     }, [isVisible, apiError]);
 
     // --- 5. Interaction Handlers ---
+
+    /**
+     * Show Delegated Error Handler
+     *
+     * Captures elevated errors from child components (like popups) and triggers
+     * the master toast notification.
+     *
+     * @param {string} errorMessage - The localized or raw error message to display.
+     * @returns {void}
+     */
+    const handleShowError = useCallback((errorMessage) => {
+        setTimeout(() => {
+            addToast(errorMessage, "error");
+        }, 100);
+    }, []);
 
     /**
      * Generic Calendar Click Handler
@@ -617,22 +626,19 @@ export const useCalendarLogic = () => {
     };
 
     /**
-     * Show Delegated Error Handler
+     * Context Menu Initialization
      *
-     * Captures elevated errors from child components (like popups) and triggers
-     * the master toast notification.
-     *
-     * @param {string} errorMessage - The localized or raw error message to display.
-     * @returns {void}
+     * Initializes the context menu hook and extracts its refs, states, and actions.
+     * Sets the project to edit when the context menu triggers an edit action.
      */
-    const handleShowError = useCallback((errorMessage) => {
-        setApiError(errorMessage);
-        setIsVisible(false);
+    const { contextMenuRef, contextMenuStates, contextMenuActions } = useContextMenu(handleEventClick);
 
-        setTimeout(() => {
-            setIsVisible(true);
-        }, 300);
-    }, []);
+    /**
+     * Context Menu Actions
+     *
+     * Destructured actions for closing specific modals managed by the context menu.
+     */
+    const { closeRenameModal, closeDeleteModal } = contextMenuActions;
 
     // --- 6. Return Object ---
 

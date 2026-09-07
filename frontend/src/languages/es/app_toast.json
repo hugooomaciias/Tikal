@@ -1,0 +1,35 @@
+{
+    "success": {
+        "tasks": {
+            "project": {
+                "create": "El proyecto ha sido creado con éxito",
+                "rename": "El proyecto ha sido renombrado con éxito",
+                "edit": "El proyecto ha sido actualizado con éxito",
+                "delete": "El proyecto ha sido eliminado con éxito"
+            },
+            "stage": {
+                "create": "La fase ha sido creada con éxito",
+                "rename": "La fase ha sido renombrada con éxito",
+                "edit": "La fase ha sido actualizada con éxito",
+                "delete": "La fase ha sido eliminada con éxito"
+            },
+            "task": {
+                "create": "La tarea ha sido creada con éxito",
+                "rename": "La tarea ha sido renombrada con éxito",
+                "edit": "La tarea ha sido actualizada con éxito",
+                "delete": "La tarea ha sido eliminada con éxito",
+                "complete": "La tarea ha sido completada con éxito"
+            }
+        }
+    },
+    "error": {
+        "teams": {
+            "code_copied": "No se pudo copiar el código al portapapeles"
+        }
+    },
+    "info": {
+        "teams": {
+            "code_copied": "El código de invitación ha sido copiado al portapapeles"
+        }
+    }
+}

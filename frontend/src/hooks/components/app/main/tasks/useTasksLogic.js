@@ -5,6 +5,7 @@ import { useLocation } from "react-router-dom";
 
 /** Contexts, Hooks & Services */
 import { useSync } from "../../../../core/useSync.js";
+import { useToast } from "../../../../core/useToast.js";
 
 /** Config, Constants & Utils */
 
@@ -28,6 +29,16 @@ export const useTasksLogic = () => {
      * tasks namespace.
      */
     const { t } = useTranslation("app_tasks");
+
+    /**
+     * Global Toast Notification Hook
+     *
+     * Extracts the dispatcher method from the globally provided toast context.
+     * This allows the module to safely broadcast ephemeral success or error 
+     * messages (e.g., API mutation failures) without cluttering the local 
+     * component tree with redundant UI alert states.
+     */
+    const { addToast } = useToast();
 
     /**
      * Main Context Hook
@@ -94,20 +105,6 @@ export const useTasksLogic = () => {
      */
     const [selectedStageId, setSelectedStageId] = useState(autoSelectPayload?.stageId);
 
-    /**
-     * API Error State
-     *
-     * Stores any global errors returned by the server during form submission.
-     */
-    const [apiError, setApiError] = useState("");
-
-    /**
-     * Popup Visibility State
-     *
-     * Controls the visibility of the popup for smooth entry/exit animations.
-     */
-    const [isVisible, setIsVisible] = useState(false);
-
     // --- 3. Derived UI Data ---
 
     /**
@@ -141,6 +138,36 @@ export const useTasksLogic = () => {
     // --- 4. Side Effects ---
 
     /**
+     * Show Delegated Error Handler
+     *
+     * Captures elevated errors from child components (like popups) and triggers
+     * the master toast notification.
+     *
+     * @param {string} errorMessage - The localized or raw error message to display.
+     * @returns {void}
+     */
+    const handleShowError = useCallback((errorMessage) => {
+        setTimeout(() => {
+            addToast(errorMessage, "error");
+        }, 100);
+    }, []);
+
+    /**
+     * Show Delegated Success Handler
+     *
+     * Captures positive confirmation events from child components (e.g., successful 
+     * project creation or stage update) and broadcasts a global success toast.
+     *
+     * @param {string} successMessage - The localized success message to display.
+     * @returns {void}
+     */
+    const handleShowSuccess = useCallback((successMessage) => {
+        setTimeout(() => {
+            addToast(successMessage, "success");
+        }, 100);
+    }, []);
+
+    /**
      * Initial Selection Effect
      *
      * Automatically selects the first available project and its first stage
@@ -156,33 +183,6 @@ export const useTasksLogic = () => {
             }
         }
     }, [isDataLoaded, tasks, selectedProjectId]);
-
-    /**
-     * Error Toast Auto-Hide Effect
-     *
-     * Monitors the `isVisible` state. Once the toast is fully rendered and visible,
-     * it waits 5 seconds before triggering the exit animation. After the CSS transition
-     * completes (500ms), it safely unmounts the DOM node.
-     */
-    useEffect(() => {
-        let exitTimer;
-        let unmountTimer;
-
-        if (isVisible && apiError) {
-            exitTimer = setTimeout(() => {
-                setIsVisible(false);
-
-                unmountTimer = setTimeout(() => {
-                    setApiError("");
-                }, 500);
-            }, 5000);
-        }
-
-        return () => {
-            clearTimeout(exitTimer);
-            clearTimeout(unmountTimer);
-        };
-    }, [isVisible, apiError]);
 
     // --- 5. Interaction Handlers ---
 
@@ -264,30 +264,12 @@ export const useTasksLogic = () => {
         setIsTeam((prev) => !prev);
     }, []);
 
-    /**
-     * Show Delegated Error Handler
-     *
-     * Captures elevated errors from child components (like popups) and triggers
-     * the master toast notification.
-     *
-     * @param {string} errorMessage - The localized or raw error message to display.
-     * @returns {void}
-     */
-    const handleShowError = useCallback((errorMessage) => {
-        setApiError(errorMessage);
-        setIsVisible(false);
-
-        setTimeout(() => {
-            setIsVisible(true);
-        }, 300);
-    }, []);
-
     // --- 6. Return Object ---
 
     return {
         t,
-        tasksStates: { isDataLoaded, isCompleted, selectedProjectId, selectedStageId, mobileView, tasks, isTeam, apiError, isVisible },
+        tasksStates: { isDataLoaded, isCompleted, selectedProjectId, selectedStageId, mobileView, tasks, isTeam },
         tasksData: { selectedProject, selectedStage, autoSelectPayload },
-        tasksActions: { handleProjectSelect, handleStageSelect, handleBackNavigation, toggleCompletedView, toggleTeamView, handleShowError },
+        tasksActions: { handleProjectSelect, handleStageSelect, handleBackNavigation, toggleCompletedView, toggleTeamView, handleShowError, handleShowSuccess },
     };
 };

@@ -81,7 +81,6 @@ export const TeamMembersPopUpComponent = ({ onClose, team, viewAsAdmin, admin, a
                     {admin && members.length} {t("teams_members.popup.title")}
                 </span>
 
-                {/* El botón de cerrar solo se muestra si NO es admin (modo popup) */}
                 {!admin && (
                     <button
                         type="button"
@@ -111,14 +110,14 @@ export const TeamMembersPopUpComponent = ({ onClose, team, viewAsAdmin, admin, a
             </div>
 
             {/* Members List Section */}
-            <div className={`flex flex-col gap-2 overflow-y-auto custom-scrollbar pr-2 ${admin ? "flex-1 min-h-0 pb-2" : "max-h-[350px] min-h-[150px]"}`}>
+            <div className={`flex flex-col gap-2 overflow-y-auto custom-scrollbar pr-2 ${admin ? "flex-1 min-h-0 pb-2" : "max-h-[400px] min-h-[150px]"}`}>
                 {isLoading || members.length > 0 ? (
                     members.map((member) => {
                         let adminMember, completedTasks, pendingTasks = null;
                         if (admin) {
-                            adminMember = adminMembers.find((m) => m.id === member.userId)
-                            completedTasks = adminMember.completedTasks || 0;
-                            pendingTasks = adminMember.pendingTasks || 0;
+                            adminMember = adminMembers?.find((m) => m.id === member.userId)
+                            completedTasks = adminMember?.completedTasks || 0;
+                            pendingTasks = adminMember?.pendingTasks || 0;
                         }
 
                         return (
@@ -131,7 +130,7 @@ export const TeamMembersPopUpComponent = ({ onClose, team, viewAsAdmin, admin, a
                                     e.dataTransfer.setData("application/json", JSON.stringify(member));
                                     e.dataTransfer.effectAllowed = "copy";
                                 }}
-                                className={`relative overflow-hidden flex items-center gap-3 ${
+                                className={`relative overflow-hidden flex items-center gap-3 shrink-0 ${
                                     admin 
                                         ? "hover:bg-primary-300/10 cursor-grab active:cursor-grabbing" 
                                         : "bg-primary/60 border border-primary-100 shadow-sm"

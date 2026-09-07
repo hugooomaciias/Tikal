@@ -143,7 +143,7 @@ export const NextEventsComponent = ({ groupedEvents, handleEventClick, handleCon
                                                         <span className="text-xs font-bold truncate">{event.title || event.name}</span>
                                                     </div>
 
-                                                    {event.isGroupBased && (
+                                                    {event.isGroupBased && !admin && (
                                                         <IconUsersGroup className="w-5 h-5 shrink-0 text-quaternary-700" />
                                                     )}
 

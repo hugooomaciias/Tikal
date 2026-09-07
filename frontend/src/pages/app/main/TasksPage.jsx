@@ -10,9 +10,6 @@ import { TasksCardComponent } from "../../../components/app/main/tasks/TasksCard
 /** Assets, Utils & Constants */
 import { formatShortDate } from "../../../utils/calendarUtils.js";
 
-/** Icons */
-import { IconAlertTriangleFilled } from "@tabler/icons-react";
-
 /**
  * Tasks Layout Page Component
  *
@@ -35,9 +32,9 @@ export const TasksPage = () => {
      */
     const { t, tasksStates, tasksData, tasksActions } = useTasksLogic();
 
-    const { isDataLoaded, isCompleted, selectedProjectId, selectedStageId, mobileView, tasks, isTeam, apiError, isVisible } = tasksStates;
+    const { isDataLoaded, isCompleted, selectedProjectId, selectedStageId, mobileView, tasks, isTeam } = tasksStates;
     const { selectedProject, selectedStage, autoSelectPayload } = tasksData;
-    const { handleProjectSelect, handleStageSelect, handleBackNavigation, toggleCompletedView, toggleTeamView, handleShowError } = tasksActions;
+    const { handleProjectSelect, handleStageSelect, handleBackNavigation, toggleCompletedView, toggleTeamView, handleShowError, handleShowSuccess } = tasksActions;
 
     // --- 2. Render ---
 
@@ -67,10 +64,11 @@ export const TasksPage = () => {
                         selectedId={selectedProjectId}
                         onSelect={handleProjectSelect}
                         onError={handleShowError}
+                        onSuccess={handleShowSuccess}
                         formatShortDate={formatShortDate}
                         isTeamFilter={isTeam}
                         t={t}
-                    />
+                        />
                 </div>
 
                 {/* Second Column: Stages Entity List */}
@@ -83,6 +81,7 @@ export const TasksPage = () => {
                         selectedId={selectedStageId}
                         onSelect={handleStageSelect}
                         onError={handleShowError}
+                        onSuccess={handleShowSuccess}
                         handleBackNavigation={handleBackNavigation}
                         formatShortDate={formatShortDate}
                         projectType={selectedProject ? selectedProject.type : "project"}
@@ -92,7 +91,7 @@ export const TasksPage = () => {
 
                 {/* Third Column: Tasks Entity List */}
                 <div
-                    className={`tour-tasks-2 ${mobileView === "tasks" ? "flex" : "hidden"} h-full flex-1 xl:flex flex-col items-end justify-between p-6 bg-primary rounded-[2.5rem]`}
+                    className={`tour-tasks-2 ${mobileView === "tasks" ? "flex" : "hidden"} h-full w-1 flex-1 xl:flex flex-col items-end justify-between p-6 bg-primary rounded-[2.5rem]`}
                 >
                     <TasksCardComponent
                         data={selectedStage ? selectedStage.tasks : []}
@@ -104,24 +103,13 @@ export const TasksPage = () => {
                         stageColour={selectedStage?.colour}
                         formatShortDate={formatShortDate}
                         onError={handleShowError}
+                        onSuccess={handleShowSuccess}
                         taskSelected={autoSelectPayload?.taskId}
                         pillMessage={autoSelectPayload?.pillMessage}
                         pillClass={autoSelectPayload?.pillClass}
                         t={t}
                     />
                 </div>
-
-                {/* API Error Alert Banner */}
-                {apiError && (
-                    <div
-                        className={`fixed bottom-8 left-0 right-0 mx-auto w-[90%] md:w-fit md:min-w-[350px] max-w-md bg-primary border-2 border-tertiary-200 text-tertiary-200 px-6 py-4 rounded-2xl flex items-center justify-center gap-3 shadow-2xl transition-all duration-500 ease-out z-[9999]
-                                    ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10 pointer-events-none"}`}
-                        role="alert"
-                    >
-                        <IconAlertTriangleFilled className="h-6 w-6 shrink-0" />
-                        <span className="block sm:inline font-medium text-center">{apiError}</span>
-                    </div>
-                )}
             </div>
         </>
     );

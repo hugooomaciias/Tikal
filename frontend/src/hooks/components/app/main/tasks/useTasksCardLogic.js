@@ -3,6 +3,7 @@ import { useState, useEffect, useMemo, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 
 /** Contexts, Hooks & Services */
+import { useSync } from "../../../../core/useSync.js";
 import { useContextMenu } from "../common/useContextMenu.js";
 import { useTasks } from "../../../../controllers/tasks/useTasks.js";
 import { useTimeLog } from "../../../../core/useTimeLog.js";
@@ -35,7 +36,7 @@ const tailwindColors = fullConfig.theme.colors;
  * @param {string} stageName - The display name of the parent stage, used for global timer context.
  * @returns {Object} A structured payload containing states, derived datasets, and action handlers.
  */
-export const useTasksCardLogic = (data, projectId, stageId, isCompletedFilter, stageName, onError) => {
+export const useTasksCardLogic = (data, projectId, stageId, isCompletedFilter, stageName, onError, onSuccess) => {
     // --- 1. DOM Refs & Layout State ---
 
     /**
@@ -45,6 +46,15 @@ export const useTasksCardLogic = (data, projectId, stageId, isCompletedFilter, s
      * namespace to localize text content dynamically.
      */
     const { i18n } = useTranslation("app_tasks");
+    const { t } = useTranslation("app_toast");
+
+    /**
+     * Global Synchronization Context
+     *
+     * Extracts the user's gamification data to dynamically resolve the active 
+     * visual theme (Rank CSS Variables) for the modal wrapper.
+     */
+    const { getUserProfile } = useSync();
 
     /**
      * Context Menu Hook Integration
@@ -125,6 +135,8 @@ export const useTasksCardLogic = (data, projectId, stageId, isCompletedFilter, s
     const [dragOverTaskId, setDragOverTaskId] = useState(null);
 
     // --- 3. Derived UI Data ---
+
+    const userId = getUserProfile()?.id; 
 
     /**
      * Active Global Task ID
@@ -238,8 +250,28 @@ export const useTasksCardLogic = (data, projectId, stageId, isCompletedFilter, s
         (entity, parentId = null) => async () => {
             try {
                 await toggleTaskCompletion(projectId, stageId, entity.id, parentId);
+
+                if (!entity.isCompleted) {
+                    try {
+                        const completionSound = new Audio('/sounds/task-completion.mp3'); 
+                        completionSound.volume = 0.4;
+
+                        completionSound.play().catch(error => {
+                            console.warn("El navegador bloqueó la reproducción del sonido:", error);
+                        });
+                    } catch (error) {
+                        console.error("Error al cargar el archivo de audio:", error);
+                    }
+
+                    if (onSuccess) {
+                        onSuccess(t("success.tasks.task.complete"));
+                    }
+                }
+                
             } catch (error) {
-                console.error("Error toggling task completion:", error);
+                if (onError) {
+                    onError(error.message);
+                }
             }
         },
         [projectId, stageId, toggleTaskCompletion],
@@ -578,7 +610,7 @@ export const useTasksCardLogic = (data, projectId, stageId, isCompletedFilter, s
             i18n,
             dragOverTaskId
         },
-        tasksCardData: { filteredTasks },
+        tasksCardData: { filteredTasks, userId },
         tasksCardActions: {
             handleSearchToggle,
             handleSearchChange,

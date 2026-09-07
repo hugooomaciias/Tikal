@@ -120,13 +120,13 @@ public class TaskService {
 
         Project project = task.getStage().getProject();
 
-        validateTaskPermissions(project, currentUser, "gestionar_subtareas", task);
+        validateTaskPermissions(project, currentUser, "gestionar tareas", task);
 
         boolean isAdmin = isUserAdminOfProject(project, currentUser);
 
         if (!isAdmin) {
             if (isTryingToChangeRestrictedFields(task, request)) {
-                throw new ForbiddenAccessException("Los miembros estándar solo pueden modificar subtareas. No tienes permiso para editar los detalles principales de la tarea.");
+                throw new ForbiddenAccessException("No tienes permiso para editar los detalles principales, solo las subtareas.");
             }
         } else {
             if (request.getName() != null) task.setName(request.getName());
@@ -249,7 +249,7 @@ public class TaskService {
                     break;
 
                 case "completar":
-                case "gestionar_subtareas":
+                case "gestionar tareas":
                     // Admin user or assigned user
                     if (!isAdmin && !isAssigned) {
                         throw new ForbiddenAccessException("Debes ser administrador o estar asignado para " + action + ".");

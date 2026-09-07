@@ -30,7 +30,7 @@ export const TeamsPage = () => {
      * Extracts translations, UI states, and interaction handlers to drive 
      * the behavior of the dashboard and its associated modals.
      */
-    const { t, teamsStates, teamsActions } = useTeamsLogic();
+    const { tTeams, teamsStates, teamsActions } = useTeamsLogic();
     
     const {
         teams, 
@@ -53,7 +53,8 @@ export const TeamsPage = () => {
         handleOpenMembersModal,
         handleCloseMembersModal,
         handleNavigateToTeamProjects,
-        handleNavigateToTeamMemberDashboard
+        handleNavigateToTeamMemberDashboard,
+        handleCopyCode
     } = teamsActions;
 
     const displayedTeams = viewAsAdmin 
@@ -65,11 +66,11 @@ export const TeamsPage = () => {
     return (
         <>
             <HeaderComponent 
-                page={t("teams_title")} 
+                page={tTeams("teams_title")} 
                 primaryState={viewAsAdmin} 
                 onTogglePrimary={() => setViewAsAdmin(!viewAsAdmin)}
                 teams={teams.length !== 0}
-                t={t} 
+                t={tTeams} 
             />
 
             {/* Teams dashboard */}
@@ -90,7 +91,7 @@ export const TeamsPage = () => {
 
                                     <div className="flex flex-col flex-1 min-w-0">
                                         <h3 className="text-xl font-bold text-quaternary-800 truncate">{team.name}</h3>
-                                        <span className="text-sm font-medium text-quaternary-600 truncate">{team.members} {t("teams.members")}</span>
+                                        <span className="text-sm font-medium text-quaternary-600 truncate">{team.members} {tTeams("teams.members")}</span>
                                     </div>
                                 </div>
 
@@ -98,14 +99,14 @@ export const TeamsPage = () => {
                                 {viewAsAdmin && team.isAdmin && (
                                     <div className="flex items-center justify-between bg-quaternary-50/60 p-3 rounded-xl border border-quaternary-100 mt-2">
                                         <div className="flex flex-col">
-                                            <span className="text-xs text-quaternary-500 font-bold uppercase tracking-wider">{t("teams.code")}</span>
+                                            <span className="text-xs text-quaternary-500 font-bold uppercase tracking-wider">{tTeams("teams.code")}</span>
                                             <span className="text-lg font-mono font-bold text-quaternary-900 tracking-widest">{team.code}</span>
                                         </div>
 
                                         <div className="flex items-center">
                                             <button 
                                                 type="button"
-                                                onClick={(e) => { e.stopPropagation(); navigator.clipboard.writeText(team.code); }}
+                                                onClick={(e) => handleCopyCode(e, team.code)}
                                                 className="p-2 text-primary-500 hover:bg-primary-100 rounded-lg transition-colors"
                                                 title="Copiar Código"
                                             >
@@ -132,7 +133,7 @@ export const TeamsPage = () => {
                                         className="flex-1 flex items-center justify-center gap-2 bg-primary-50 text-primary-700 py-2.5 rounded-xl font-semibold hover:bg-primary-100 transition-colors"
                                     >
                                         <IconUsers className="w-5 h-5" />
-                                        <span>{t("teams_members.label")}</span>
+                                        <span>{tTeams("teams_members.label")}</span>
                                     </button>
 
                                     {viewAsAdmin && team.isAdmin ? (
@@ -168,7 +169,7 @@ export const TeamsPage = () => {
                             </div>
 
                             <span className="text-lg font-bold">
-                                {t("teams.new")}
+                                {tTeams("teams.new")}
                             </span>
                         </button>
                     </div>
@@ -179,11 +180,11 @@ export const TeamsPage = () => {
                         </div>
 
                         <h3 className="text-2xl font-bold text-quaternary-700 mb-3 text-center">
-                            {t("teams.no_teams.title")}
+                            {tTeams("teams.no_teams.title")}
                         </h3>
 
                         <p className="text-center text-quaternary-500 max-w-sm leading-relaxed font-medium mb-8">
-                            {t("teams.no_teams.description")}
+                            {tTeams("teams.no_teams.description")}
                         </p>
 
                         <button
@@ -192,7 +193,7 @@ export const TeamsPage = () => {
                             className="flex items-center gap-2 bg-primary-50 hover:bg-primary-500 text-primary-500 hover:text-primary-50 px-8 py-3.5 rounded-2xl font-bold shadow-lg transition-all duration-500"
                         >
                             <IconPlus className="w-5 h-5 mb-0.5" />
-                            <span>{t("teams.new")}</span>
+                            <span>{tTeams("teams.new")}</span>
                         </button>
 
                     </div>
@@ -205,7 +206,7 @@ export const TeamsPage = () => {
                     onClose={handleCloseTeamModal}
                     initialData={teamToEdit}
                     viewAsAdmin={viewAsAdmin}
-                    t={t}
+                    t={tTeams}
                 />
             )}
 
@@ -215,7 +216,7 @@ export const TeamsPage = () => {
                     onClose={handleCloseMembersModal}
                     team={teamForMembers}
                     viewAsAdmin={viewAsAdmin}
-                    t={t}
+                    t={tTeams}
                 />
             )}
 

@@ -26,7 +26,7 @@ import { IconBook } from "@tabler/icons-react";
  * @param {boolean} params.isTeamFilter - Flag determining whether to include team-based projects.
  * @returns {Object} A structured payload containing UI states, derived datasets, and interaction handlers.
  */
-export const useProjectsCardLogic = ({ data, isTeamFilter, onError }) => {
+export const useProjectsCardLogic = ({ data, isTeamFilter, onError, onSuccess }) => {
     // --- 1. DOM Refs & Layout State ---
 
     /**
@@ -171,9 +171,9 @@ export const useProjectsCardLogic = ({ data, isTeamFilter, onError }) => {
             if (onError) {
                 onError(error.message);
             }
-            
-            closeRenameModal();
         }
+
+        closeRenameModal();
     };
 
     /**
@@ -193,7 +193,7 @@ export const useProjectsCardLogic = ({ data, isTeamFilter, onError }) => {
                 onError(error.message);
             }
             
-            closeDeleteModal();
+            closeRenameModal();
         }
     };
 
