@@ -215,7 +215,7 @@ public class TeamService {
         List<TeamMember> members = teamMemberRepo.findByTeamId(teamId);
 
         return members.stream()
-                .filter(member -> search == null ||
+                .filter(member -> search == null || search.trim().isEmpty() ||
                         member.getUser().getName().toLowerCase().contains(search.toLowerCase()))
                 .map(member -> new TeamMemberDTO(
                         member.getUser().getId(),
