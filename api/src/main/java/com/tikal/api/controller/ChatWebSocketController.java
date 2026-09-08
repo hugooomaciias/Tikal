@@ -14,9 +14,15 @@ import org.springframework.stereotype.Controller;
 
 import java.time.Instant;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+
 @Controller
 @RequiredArgsConstructor
 @Slf4j
+@Tag(name = "Chat WebSocket", description = "Canales WebSocket para mensajería en tiempo real")
+@SecurityRequirement(name = "bearerAuth")
 public class ChatWebSocketController {
 
     private final ChatService chatService;
@@ -28,8 +34,10 @@ public class ChatWebSocketController {
 
 
     /**
-     * Channel for direct messages (1-on-1).
+     * MESSAGE /chat.direct
+     * WebSocket channel for sending direct (1-on-1) messages.
      */
+    @Operation(summary = "Chat directo (WebSocket)", description = "Canal WebSocket para enviar mensajes directos (1-a-1).")
     @MessageMapping("/chat.direct")
     public void handleDirectMessage(@Payload DirectMessageRequest request, Authentication authentication) {
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
@@ -66,8 +74,10 @@ public class ChatWebSocketController {
     }
 
     /**
-     * Chanel for team messages
+     * MESSAGE /chat.team
+     * WebSocket channel for sending messages to a team room (broadcast to team members).
      */
+    @Operation(summary = "Chat de equipo (WebSocket)", description = "Canal WebSocket para enviar mensajes a una sala de equipo (broadcast a los miembros del equipo).")
     @MessageMapping("/chat.team")
     public void handleTeamMessage(@Payload TeamMessageRequest request, Authentication authentication) {
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
