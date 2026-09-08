@@ -128,7 +128,6 @@ export const SyncProvider = ({ children }) => {
 
     // --- 4. API & Action Methods ---
 
-    const getTasksData = useCallback(() => rawDashboardData?.tasks || null, [rawDashboardData]);
     const getUserProfile = useCallback(() => rawDashboardData?.userProfile || null, [rawDashboardData]);
     const getHomeGeneralInformation = useCallback(() => rawDashboardData?.homeGeneralInformation || null, [rawDashboardData]);
     const getHomeLayout = useCallback(() => rawDashboardData?.settings?.layoutsDashboards?.home || null, [rawDashboardData]);
@@ -142,11 +141,15 @@ export const SyncProvider = ({ children }) => {
     const getSettings = useCallback(() => rawDashboardData?.settings || null, [rawDashboardData]);
     const getAISessions = useCallback(() => rawDashboardData?.aiSessions || null, [rawDashboardData]);
     const getTeamsData = useCallback(() => rawDashboardData?.teams || null, [rawDashboardData]);
+    const getSidebarChats = useCallback(() => rawDashboardData?.sidebarChats || null, [rawDashboardData]);
     const getTeamMembersData = useCallback((teamId) => {
         if (!rawDashboardData?.teamMembers) return null;
         return rawDashboardData.teamMembers[teamId] || null;
     }, [rawDashboardData]);
-    const getSidebarChats = useCallback(() => rawDashboardData?.sidebarChats || null, [rawDashboardData]);
+    const getTasksData = useCallback((projectId) => {
+        if (!rawDashboardData?.tasks) return null;
+        return rawDashboardData.tasks[projectId] || rawDashboardData.tasks;
+    }, [rawDashboardData]);
 
     /**
      * Update Context Data (The Golden Key)

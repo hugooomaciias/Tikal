@@ -4,7 +4,9 @@ import { useTranslation } from "react-i18next";
 
 /** Contexts, Hooks & Services */
 import { useSync } from "../../../../core/useSync.js";
+import { useToast } from "../../../../core/useToast.js";
 import { useCalendarEvents } from "../../../../controllers/calendar/useCalendar.js";
+import { useContextMenu } from "../common/useContextMenu.js";
 
 /** Config, Constants & Utils */
 import { PHASE_COLOURS } from "../../../../../constants/phase_colours.js";
@@ -35,6 +37,25 @@ export const useCalendarLogic = () => {
     // --- 1. Contexts & DOM Refs ---
 
     /**
+     * Translation Hook
+     *
+     * Provides access to the i18n instance specifically scoped to the "app_calendar"
+     * namespace to localize text content dynamically.
+     */
+    const { t: tCalendar } = useTranslation("app_calendar");
+    const { t: tCommon} = useTranslation("app_common");
+
+    /**
+     * Global Toast Notification Hook
+     *
+     * Extracts the dispatcher method from the globally provided toast context.
+     * This allows the module to safely broadcast ephemeral success or error 
+     * messages (e.g., API mutation failures) without cluttering the local 
+     * component tree with redundant UI alert states.
+     */
+    const { addToast } = useToast();
+
+    /**
      * Calendar Event Mutations
      *
      * Extracts asynchronous controller methods responsible for persisting event
@@ -50,15 +71,6 @@ export const useCalendarLogic = () => {
     const { getCalendarEvents, getTasksData, isDataLoaded } = useSync();
 
     /**
-     * Translation Hook
-     *
-     * Provides access to the i18n instance specifically scoped to the "app_calendar"
-     * namespace to localize text content dynamically.
-     */
-    const { t: tCalendar } = useTranslation("app_calendar");
-    const { t: tCommon} = useTranslation("app_common");
-
-    /**
      * Calendar DOM Reference
      *
      * Maintains a mutable reference to the underlying FullCalendar component instance.
@@ -67,6 +79,8 @@ export const useCalendarLogic = () => {
      */
     const calendarRef = useRef(null);
 
+    // --- 2. Local UI State ---
+    
     /**
      * Mobile Layout State
      *
@@ -74,8 +88,6 @@ export const useCalendarLogic = () => {
      * to dictate responsive layout shifts in the primary calendar grid.
      */
     const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
-
-    // --- 2. Local UI State ---
 
     /**
      * Current View State
@@ -100,6 +112,20 @@ export const useCalendarLogic = () => {
      * intrinsically triggers the rendering of the EventPopUpComponent modal.
      */
     const [eventToEdit, setEventToEdit] = useState(null);
+
+    /**
+     * API Error State
+     *
+     * Stores any global errors returned by the server during form submission.
+     */
+    const [apiError, setApiError] = useState("");
+
+    /**
+     * Popup Visibility State
+     *
+     * Controls the visibility of the popup for smooth entry/exit animations.
+     */
+    const [isVisible, setIsVisible] = useState(false);
 
     // --- 3. Derived UI Data ---
 
@@ -129,6 +155,7 @@ export const useCalendarLogic = () => {
                     allDay: event.isCompleteDay,
                     backgroundColor: colourObj.hex || tailwindColors.primary[500],
                     borderColor: colourObj.hex || tailwindColors.primary[500],
+                    isGroupBased: event.isGroupBased,
                     extendedProps: {
                         description: event.description || "",
                         eventDate: eventDate,
@@ -264,7 +291,49 @@ export const useCalendarLogic = () => {
         }
     }, [currentView, selectedDate]);
 
+    /**
+     * Error Toast Auto-Hide Effect
+     *
+     * Monitors the `isVisible` state. Once the toast is fully rendered and visible,
+     * it waits 5 seconds before triggering the exit animation. After the CSS transition
+     * completes (500ms), it safely unmounts the DOM node.
+     */
+    useEffect(() => {
+        let exitTimer;
+        let unmountTimer;
+
+        if (isVisible && apiError) {
+            exitTimer = setTimeout(() => {
+                setIsVisible(false);
+
+                unmountTimer = setTimeout(() => {
+                    setApiError("");
+                }, 500);
+            }, 5000);
+        }
+
+        return () => {
+            clearTimeout(exitTimer);
+            clearTimeout(unmountTimer);
+        };
+    }, [isVisible, apiError]);
+
     // --- 5. Interaction Handlers ---
+
+    /**
+     * Show Delegated Error Handler
+     *
+     * Captures elevated errors from child components (like popups) and triggers
+     * the master toast notification.
+     *
+     * @param {string} errorMessage - The localized or raw error message to display.
+     * @returns {void}
+     */
+    const handleShowError = useCallback((errorMessage) => {
+        setTimeout(() => {
+            addToast(errorMessage, "error");
+        }, 100);
+    }, []);
 
     /**
      * Generic Calendar Click Handler
@@ -447,7 +516,8 @@ export const useCalendarLogic = () => {
                 endDateTime: endDateTime,
             });
         } catch (error) {
-            console.error("Error al mover el evento:", error);
+            handleShowError(error.message);
+            
             revert();
         }
     }, [updateCalendarEventDates]);
@@ -473,7 +543,8 @@ export const useCalendarLogic = () => {
                 endDateTime: endDateTime,
             });
         } catch (error) {
-            console.error("Error al redimensionar el evento:", error);
+            handleShowError(error.message);
+
             revert();
         }
     }, [updateCalendarEventDates]);
@@ -512,7 +583,9 @@ export const useCalendarLogic = () => {
         try {
             await updateCalendarEvent(id, payload);
         } catch (error) {
-            console.error("Error al renombrar el evento:", error);
+            handleShowError(error.message);
+            
+            closeRenameModal();
         }
     }, [getCalendarEvents, updateCalendarEvent]);
 
@@ -527,7 +600,9 @@ export const useCalendarLogic = () => {
         try {
             await deleteCalendarEvent(id);
         } catch (error) {
-            console.error("Error al eliminar el evento:", error);
+            handleShowError(error.message);
+            
+            closeDeleteModal();
         }
     }, [deleteCalendarEvent]);
 
@@ -550,12 +625,27 @@ export const useCalendarLogic = () => {
         setEventToEdit(null);
     };
 
+    /**
+     * Context Menu Initialization
+     *
+     * Initializes the context menu hook and extracts its refs, states, and actions.
+     * Sets the project to edit when the context menu triggers an edit action.
+     */
+    const { contextMenuRef, contextMenuStates, contextMenuActions } = useContextMenu(handleEventClick);
+
+    /**
+     * Context Menu Actions
+     *
+     * Destructured actions for closing specific modals managed by the context menu.
+     */
+    const { closeRenameModal, closeDeleteModal } = contextMenuActions;
+
     // --- 6. Return Object ---
 
     return {
         calendarRef,
         translations: { tCalendar, tCommon },
-        calendarStates: { isDataLoaded, selectedDate, eventToEdit, isMobile },
+        calendarStates: { contextMenuRef, contextMenuStates, contextMenuActions, isDataLoaded, selectedDate, eventToEdit, isMobile, apiError, isVisible },
         calendarData: { events, highlightDates, eventsColorMap, groupedEvents, cascadingOptions, hasAllDayEvents },
         calendarActions: {
             openNewEventModal,
@@ -568,7 +658,8 @@ export const useCalendarLogic = () => {
             handleEventDrop,
             handleEventResize,
             handleEditEvent,
-            handleDeleteEvent
+            handleDeleteEvent,
+            handleShowError
         },
     };
 };

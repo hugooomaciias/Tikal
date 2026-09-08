@@ -7,6 +7,9 @@ import { ProjectsCardComponent } from "../../../components/app/main/tasks/Projec
 import { StagesCardComponent } from "../../../components/app/main/tasks/StagesCardComponent.jsx";
 import { TasksCardComponent } from "../../../components/app/main/tasks/TasksCardComponent.jsx";
 
+/** Assets, Utils & Constants */
+import { formatShortDate } from "../../../utils/calendarUtils.js";
+
 /**
  * Tasks Layout Page Component
  *
@@ -29,9 +32,9 @@ export const TasksPage = () => {
      */
     const { t, tasksStates, tasksData, tasksActions } = useTasksLogic();
 
-    const { isDataLoaded, isCompleted, selectedProjectId, selectedStageId, mobileView, tasks } = tasksStates;
-    const { selectedProject, selectedStage } = tasksData;
-    const { handleProjectSelect, handleStageSelect, handleBackNavigation, toggleCompletedView, formatShortDate } = tasksActions;
+    const { isDataLoaded, isCompleted, selectedProjectId, selectedStageId, mobileView, tasks, isTeam } = tasksStates;
+    const { selectedProject, selectedStage, autoSelectPayload } = tasksData;
+    const { handleProjectSelect, handleStageSelect, handleBackNavigation, toggleCompletedView, toggleTeamView, handleShowError, handleShowSuccess } = tasksActions;
 
     // --- 2. Render ---
 
@@ -44,7 +47,9 @@ export const TasksPage = () => {
             <HeaderComponent
                 page={t("tasks_title")}
                 primaryState={isCompleted}
+                secondaryState={isTeam}
                 onTogglePrimary={toggleCompletedView}
+                onToggleSecondary={toggleTeamView}
                 t={t}
             />
 
@@ -58,9 +63,12 @@ export const TasksPage = () => {
                         data={tasks}
                         selectedId={selectedProjectId}
                         onSelect={handleProjectSelect}
+                        onError={handleShowError}
+                        onSuccess={handleShowSuccess}
                         formatShortDate={formatShortDate}
+                        isTeamFilter={isTeam}
                         t={t}
-                    />
+                        />
                 </div>
 
                 {/* Second Column: Stages Entity List */}
@@ -72,6 +80,8 @@ export const TasksPage = () => {
                         projectId={selectedProjectId}
                         selectedId={selectedStageId}
                         onSelect={handleStageSelect}
+                        onError={handleShowError}
+                        onSuccess={handleShowSuccess}
                         handleBackNavigation={handleBackNavigation}
                         formatShortDate={formatShortDate}
                         projectType={selectedProject ? selectedProject.type : "project"}
@@ -81,7 +91,7 @@ export const TasksPage = () => {
 
                 {/* Third Column: Tasks Entity List */}
                 <div
-                    className={`tour-tasks-2 ${mobileView === "tasks" ? "flex" : "hidden"} h-full flex-1 xl:flex flex-col items-end justify-between p-6 bg-primary rounded-[2.5rem]`}
+                    className={`tour-tasks-2 ${mobileView === "tasks" ? "flex" : "hidden"} h-full w-1 flex-1 xl:flex flex-col items-end justify-between p-6 bg-primary rounded-[2.5rem]`}
                 >
                     <TasksCardComponent
                         data={selectedStage ? selectedStage.tasks : []}
@@ -92,6 +102,11 @@ export const TasksPage = () => {
                         stageName={selectedStage?.name}
                         stageColour={selectedStage?.colour}
                         formatShortDate={formatShortDate}
+                        onError={handleShowError}
+                        onSuccess={handleShowSuccess}
+                        taskSelected={autoSelectPayload?.taskId}
+                        pillMessage={autoSelectPayload?.pillMessage}
+                        pillClass={autoSelectPayload?.pillClass}
                         t={t}
                     />
                 </div>

@@ -19,7 +19,7 @@ import { useTasks } from "../../../../controllers/tasks/useTasks.js";
  * @param {Function} t - Internationalization function for dynamic error messages.
  * @returns {Object} A structured payload containing form state, computed flags, and event handlers.
  */
-export const useTasksPopUpLogic = (initialData, onClose, projectId, stageId, t) => {
+export const useTasksPopUpLogic = (initialData, onClose, onError, projectId, stageId, t) => {
     // --- 1. Local UI State ---
 
     /**
@@ -118,21 +118,6 @@ export const useTasksPopUpLogic = (initialData, onClose, projectId, stageId, t) 
      */
     const [isLoading, setIsLoading] = useState(false);
 
-    /**
-     * API Error Message State
-     *
-     * Stores the error message returned from a failed network request.
-     */
-    const [apiError, setApiError] = useState("");
-
-    /**
-     * Popup Visibility State
-     *
-     * Controls the visibility of the error popup for animation purposes.
-     * When true, the popup scales in and becomes fully opaque.
-     */
-    const [isVisible, setIsVisible] = useState(false);
-
     // --- 3. Derived UI Data ---
 
     /**
@@ -150,26 +135,6 @@ export const useTasksPopUpLogic = (initialData, onClose, projectId, stageId, t) 
      * Memoized to prevent unnecessary re-evaluations.
      */
     const isEditing = useMemo(() => Boolean(initialData), [initialData]);
-
-    // --- 4. Side Effects ---
-
-    /**
-     * Popup Auto-Hide Effect
-     *
-     * Monitors the `apiError` state. When an error is present, it displays
-     * the popup and sets a timeout to automatically close it after 5 seconds.
-     * It cleans up the timeout if the component unmounts or if the error changes.
-     */
-    useEffect(() => {
-        let timer;
-        if (apiError) {
-            setIsVisible(true);
-            timer = setTimeout(() => {
-                onClose();
-            }, 5000);
-        }
-        return () => clearTimeout(timer);
-    }, [apiError, onClose]);
 
     // --- 5. Interaction Handlers ---
 
@@ -389,7 +354,6 @@ export const useTasksPopUpLogic = (initialData, onClose, projectId, stageId, t) 
     const handleSubmit = useCallback(
         async (e) => {
             e.preventDefault();
-            setApiError("");
 
             if (validateForm()) {
                 setIsLoading(true);
@@ -446,7 +410,11 @@ export const useTasksPopUpLogic = (initialData, onClose, projectId, stageId, t) 
                         handleClose();
                     }
                 } catch (error) {
-                    setApiError(error.message || "Ocurrió un error al crear la tarea.");
+                    if (onError) {
+                        onError(error.message);
+                    }
+                    
+                    handleClose();
                 } finally {
                     setIsLoading(false);
                 }
@@ -677,7 +645,7 @@ export const useTasksPopUpLogic = (initialData, onClose, projectId, stageId, t) 
     // --- 6. Return Object ---
 
     return {
-        tasksPopUpStates: { hoveredTooltip, formData, errors, timeUnit, focusedInput, isLoading, apiError, isVisible },
+        tasksPopUpStates: { hoveredTooltip, formData, errors, timeUnit, focusedInput, isLoading },
         tasksPopUpData: { isEditing },
         tasksPopUpActions: {
             handleTimeUnitChange,

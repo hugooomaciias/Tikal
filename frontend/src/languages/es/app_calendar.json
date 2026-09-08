@@ -1,8 +1,17 @@
 {
     "calendar_title": "Calendario",
-    "next_events": "Próximas eventos",
-    "today": "Hoy",
-    "tomorrow": "Mañana",
+    "next_events": {
+        "title": "Próximos eventos",
+        "no_events": {
+            "title": "Agenda despejada",
+            "description": {
+                "calendar": "No tienes próximos eventos a la vista. ¡Disfruta de tu tiempo libre!",
+                "admin": "No hay próximos eventos a la vista. Pulsa el botón + para programar uno nuevo."
+            }
+        },
+        "today": "Hoy",
+        "tomorrow": "Mañana"
+    },
     "popup": {
         "title": {
             "new": "Nuevo evento",

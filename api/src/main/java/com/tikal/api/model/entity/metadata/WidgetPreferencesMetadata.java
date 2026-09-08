@@ -14,6 +14,7 @@ import java.util.Map;
 public class WidgetPreferencesMetadata implements Serializable {
 
     /* --- We use a dynamic map with a key (widget name) and a JSON generic object with specific preferences --- */
+    @io.swagger.v3.oas.annotations.media.Schema(description = "Mapa dinámico con las preferencias por widget. La estructura de cada valor depende del widget.", example = "{\"time_tracker\": {\"showProjects\": true}}")
     private Map<String, Object> preferences = new HashMap<>();
 
     public void addPreference(String widgetId, Object config) {

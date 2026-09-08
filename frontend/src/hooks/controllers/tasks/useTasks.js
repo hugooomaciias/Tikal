@@ -296,6 +296,75 @@ export const useTasks = () => {
         }
     };
 
+    /**
+     * Assign User to Task
+     *
+     * Delegates to `taskService.assignUser` to update the assigned users for a task.
+     * Since the backend does not return the updated entity, it performs a pure 
+     * optimistic update by directly injecting the `assignedUsers` payload into the 
+     * nested context tree.
+     *
+     * @async
+     * @param {string} projectId - The unique identifier of the grandparent project.
+     * @param {string} stageId - The unique identifier of the parent stage.
+     * @param {string} taskId - The unique identifier of the task (or subtask) to update.
+     * @param {Array<Object>} assignedUsers - The full array of user objects to assign.
+     * @param {string|null} [parentId=null] - The parent task ID if assigning to a subtask.
+     * @returns {Promise<boolean>} True upon successful mutation.
+     * @throws {Error} Re-throws the service error after logging.
+     */
+    const assignUserToTask = async (projectId, stageId, taskId, assignedUsers, parentId = null) => {
+        try {
+            const backendPayload = {
+                assignedUserIds: assignedUsers.map(user => user.id || user.userId)
+            };
+
+            await taskService.assignUser(taskId, backendPayload);
+
+            updateContextData("tasks", (currentData = []) => {
+                return currentData.map((project) => {
+                    if (project.id === projectId) {
+                        return {
+                            ...project,
+                            stages: project.stages.map((stage) => {
+                                if (stage.id === stageId) {
+                                    return {
+                                        ...stage,
+                                        tasks: stage.tasks.map((task) => {
+                                            if (task.id === taskId) {
+                                                return { ...task, assignedUsers: assignedUsers };
+                                            }
+
+                                            if (parentId && task.id === parentId) {
+                                                return {
+                                                    ...task,
+                                                    subtasks: (task.subtasks || []).map((subtask) =>
+                                                        subtask.id === taskId 
+                                                            ? { ...subtask, assignedUsers: assignedUsers } 
+                                                            : subtask
+                                                    ),
+                                                };
+                                            }
+
+                                            return task;
+                                        }),
+                                    };
+                                }
+                                return stage;
+                            }),
+                        };
+                    }
+                    return project;
+                });
+            });
+
+            return true;
+        } catch (error) {
+            console.error("Error asignando usuarios a la tarea:", error);
+            throw error;
+        }
+    };
+
     // --- 3. Return Object ---
 
     return {
@@ -303,5 +372,6 @@ export const useTasks = () => {
         updateTask,
         deleteTask,
         toggleTaskCompletion,
+        assignUserToTask
     };
 };

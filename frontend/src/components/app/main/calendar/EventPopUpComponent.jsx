@@ -29,7 +29,7 @@ import { TIME_OPTIONS } from "../../../../utils/calendarUtils.js";
  * @param {Function} props.t - Core i18n translation utility.
  * @returns {JSX.Element} The completely logic-less rendered modal component interface.
  */
-export const EventPopUpComponent = ({ onClose, initialData, cascadingOptions = [], tCalendar, tCommon }) => {
+export const EventPopUpComponent = ({ onClose, onError, initialData, cascadingOptions = [], projectId, admin, tCalendar, tCommon }) => {
     // --- 1. Logic Hook Extraction ---
 
     /**
@@ -44,7 +44,9 @@ export const EventPopUpComponent = ({ onClose, initialData, cascadingOptions = [
     const { eventPopUpStates, eventPopUpData, eventPopUpActions } = useEventPopUpLogic(
         initialData,
         onClose,
+        onError,
         cascadingOptions,
+        projectId,
         tCalendar,
     );
 
@@ -90,13 +92,15 @@ export const EventPopUpComponent = ({ onClose, initialData, cascadingOptions = [
                 {/* Central Form Wrapper */}
                 <form onSubmit={handleSubmit} className="flex flex-col gap-6" noValidate>
                     {/* Navigation Tab Toggles for Mode Context */}
-                    <TabsComponent
-                        page={"Event"}
-                        formData={formData}
-                        onChangeType={handleTabTypeChange}
-                        fieldToUpdate={"type"}
-                        t={tCalendar}
-                    />
+                    {!admin && (
+                        <TabsComponent
+                            page={"Event"}
+                            formData={formData}
+                            onChangeType={handleTabTypeChange}
+                            fieldToUpdate={"type"}
+                            t={tCalendar}
+                        />
+                    )}
 
                     {/* Dynamic Linked Context Section */}
                     {formData.type === "linked" && (
@@ -112,7 +116,7 @@ export const EventPopUpComponent = ({ onClose, initialData, cascadingOptions = [
                             />
 
                             {/* Auto Tracker Boolean Toggle Layout */}
-                            <div className="flex items-center justify-between">
+                            {/*<div className="flex items-center justify-between">
                                 <span className="text-primary-500 text-sm font-bold">
                                     {tCalendar("popup.linked.start_time_tracker")}
                                 </span>
@@ -125,7 +129,7 @@ export const EventPopUpComponent = ({ onClose, initialData, cascadingOptions = [
                                         className={`inline-block h-4 w-4 rounded-full bg-primary transform transition-transform duration-300 ${formData.autoTracker ? "translate-x-6" : "translate-x-1"}`}
                                     />
                                 </button>
-                            </div>
+                            </div>*/}
                         </div>
                     )}
 

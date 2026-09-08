@@ -12,7 +12,21 @@ import { PROJECTS_ICONS } from "../../../../../constants/projects_icons.js";
 /** Icons */
 import { IconBook } from "@tabler/icons-react";
 
-export const useProjectsCardLogic = (data) => {
+/**
+ * Projects Card Logic Hook
+ *
+ * This headless hook abstracts the state management and interaction logic for
+ * the Projects dashboard view. It handles dynamic cross-filtering (search queries 
+ * and team-based toggles), context menu integration, tooltip visibility, and proxies
+ * CRUD interactions to the global `useProjects` controller.
+ *
+ * @hook
+ * @param {Object} params - The hook parameters.
+ * @param {Array<Object>} params.data - The raw array of project entities.
+ * @param {boolean} params.isTeamFilter - Flag determining whether to include team-based projects.
+ * @returns {Object} A structured payload containing UI states, derived datasets, and interaction handlers.
+ */
+export const useProjectsCardLogic = ({ data, isTeamFilter, onError, onSuccess }) => {
     // --- 1. DOM Refs & Layout State ---
 
     /**
@@ -83,24 +97,48 @@ export const useProjectsCardLogic = (data) => {
     /**
      * Filtered Projects
      *
-     * Computes the subset of projects that match the user's active search query.
-     * Memoized to prevent recalculating the filtered array during unrelated state updates.
+     * Computes the subset of projects matching:
+     * 1. The active search query text.
+     * 2. The team filter toggle (if false, explicitly excludes team-based projects).
+     * 
+     * Then sorts the array by placing individual projects first and team projects last,
+     * injecting the `isFirstCompleted` flag into the first team project to generate 
+     * the UI separation line.
      */
     const filteredProjects = useMemo(() => {
         if (!data || !Array.isArray(data)) return [];
 
-        return data.filter((project) => {
+        const validMatches = data.filter((project) => {
             if (!project || !project.name) return false;
-            return project.name.toLowerCase().includes(projectSearchQuery.toLowerCase());
+
+
+            const matchesSearch = project.name.toLowerCase().includes(projectSearchQuery.toLowerCase());
+
+            const matchesTeam = isTeamFilter ? true : !project.groupBased;
+
+            return matchesSearch && matchesTeam;
         });
-    }, [data, projectSearchQuery]);
+
+        const userProjects = validMatches.filter((project) => !project.groupBased);
+        const teamProjects = validMatches.filter((project) => project.groupBased);
+
+        if (teamProjects.length > 0) {
+            teamProjects[0] = {
+                ...teamProjects[0],
+                isFirstCompleted: true,
+            };
+        }
+
+        return [...userProjects, ...teamProjects];
+    }, [data, projectSearchQuery, isTeamFilter]);
 
     // --- 4. Side Effects ---
 
     /**
      * Tooltip Auto-Close Effect
      *
-     * Automatically dismisses the active tooltip after 4 seconds to prevent UI clutter.
+     * Triggers a timer to automatically close an opened tooltip after 4 seconds to prevent UI clutter.
+     * Cleans up the timeout if the component unmounts or the target ID changes.
      */
     useEffect(() => {
         let timeoutId;
@@ -130,8 +168,12 @@ export const useProjectsCardLogic = (data) => {
         try {
             await deleteProject(id);
         } catch (error) {
-            console.error("Error al borrar el proyecto:", error);
+            if (onError) {
+                onError(error.message);
+            }
         }
+
+        closeRenameModal();
     };
 
     /**
@@ -147,7 +189,11 @@ export const useProjectsCardLogic = (data) => {
         try {
             await updateProject(id, data);
         } catch (error) {
-            console.error("Error al actualizar el proyecto:", error);
+            if (onError) {
+                onError(error.message);
+            }
+            
+            closeRenameModal();
         }
     };
 

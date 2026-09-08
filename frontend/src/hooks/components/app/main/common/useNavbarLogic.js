@@ -160,6 +160,8 @@ export const useNavbarLogic = () => {
         if (!location.pathname.startsWith("/teams")) {
             setIsTeamsOpen(false);
             setIsFloatingTeamsOpen(false);
+        } else if (location.pathname !== "/teams" && location.pathname !== "/teams/chat") {
+            setIsFloatingTeamsOpen(false);
         }
     }, [location.pathname]);
 

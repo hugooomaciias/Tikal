@@ -9,6 +9,11 @@ import {
     IconBadgesFilled,
     IconEye,
     IconEyeOff,
+    IconCalendarEventFilled,
+    IconProgress,
+    IconChartLine,
+    IconTrophyFilled,
+    IconUserFilled
 } from "@tabler/icons-react";
 
 /** Assets, Utils & Constants */
@@ -24,6 +29,11 @@ const ICON_MAP = {
     IconBoltFilled,
     IconTimelineEventFilled,
     IconBadgesFilled,
+    IconCalendarEventFilled,
+    IconProgress,
+    IconChartLine,
+    IconTrophyFilled,
+    IconUserFilled
 };
 
 /**
@@ -39,7 +49,7 @@ const ICON_MAP = {
  * @param {Array<Object>} props.data - An array of statistical data objects to display (contains title, value, logo, custom).
  * @returns {JSX.Element|null} The rendered main data header overlay, or null if data is invalid.
  */
-export const MainDataHeaderComponent = ({ data }) => {
+export const MainDataHeaderComponent = ({ data, team }) => {
     // --- 1. Local UI Logic ---
 
     /**
@@ -115,7 +125,7 @@ export const MainDataHeaderComponent = ({ data }) => {
                                 <div className="flex flex-col">
                                     {/* Metric Label */}
                                     <span className="text-sm md:text-base font-medium text-quaternary-500">
-                                        {index === 0 ? (
+                                        {index === 0 && !team ? (
                                             <>
                                                 Horas <span className="hidden md:inline"> registradas</span>
                                             </>

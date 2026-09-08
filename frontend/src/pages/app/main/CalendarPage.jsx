@@ -10,7 +10,6 @@ import DatePicker from "react-datepicker";
 
 /** Contexts, Hooks & Services */
 import { useCalendarLogic } from "../../../hooks/components/app/main/calendar/useCalendarLogic.js";
-import { useContextMenu } from "../../../hooks/components/app/main/common/useContextMenu.js";
 import i18n from "../../../i18n.js";
 
 /** Components & Layouts */
@@ -21,6 +20,9 @@ import { DeleteComponent } from "../../../components/app/main/common/DeleteCompo
 import { NextEventsComponent } from "../../../components/app/main/calendar/NextEventsComponent.jsx";
 import { ContextMenuComponent } from "../../../components/app/main/common/ContextMenuComponent.jsx";
 import { renderEventContent, renderCustomDayContents } from "../../../components/app/main/calendar/CalendarRenders.jsx";
+
+/** Icons */
+import { IconAlertTriangleFilled } from "@tabler/icons-react";
 
 /**
  * Calendar Page Component
@@ -45,7 +47,7 @@ export const CalendarPage = () => {
     const { calendarRef, translations, calendarStates, calendarData, calendarActions } = useCalendarLogic();
 
     const { tCalendar, tCommon } = translations;
-    const { isDataLoaded, selectedDate, eventToEdit, isMobile } = calendarStates;
+    const { contextMenuRef, contextMenuStates, contextMenuActions, isDataLoaded, selectedDate, eventToEdit, isMobile } = calendarStates;
     const { events, highlightDates, eventsColorMap, groupedEvents, cascadingOptions, hasAllDayEvents } = calendarData;
     const {
         openNewEventModal,
@@ -58,10 +60,9 @@ export const CalendarPage = () => {
         handleEventDrop,
         handleEventResize,
         handleEditEvent,
-        handleDeleteEvent
+        handleDeleteEvent,
+        handleShowError
     } = calendarActions;
-
-    const { contextMenuRef, contextMenuStates, contextMenuActions } = useContextMenu(handleEventClick);
 
     const { contextMenu, entityToRename, entityToDelete } = contextMenuStates;
     const { closeRenameModal, closeDeleteModal, handleContextMenu } = contextMenuActions;
@@ -184,6 +185,7 @@ export const CalendarPage = () => {
             {eventToEdit && (
                 <EventPopUpComponent
                     onClose={closeEventModal}
+                    onError={handleShowError}
                     initialData={eventToEdit}
                     cascadingOptions={cascadingOptions}
                     tCalendar={tCalendar}
@@ -197,6 +199,7 @@ export const CalendarPage = () => {
                     onClose={closeRenameModal}
                     data={entityToRename}
                     onRename={(id, newTitle) => { handleEditEvent(id, newTitle); }}
+                    nextEvent={true}
                     t={tCalendar}
                 />
             )}
@@ -207,6 +210,7 @@ export const CalendarPage = () => {
                     onClose={closeDeleteModal}
                     data={entityToDelete}
                     onDelete={(id) => {handleDeleteEvent(id)}}
+                    nextEvent={true}
                 />
             )}
         </>

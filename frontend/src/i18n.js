@@ -2,11 +2,12 @@ import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
 import LanguageDetector from "i18next-browser-languagedetector";
 
-/** Español */
+/** Spanish */
 import esLanding from "./languages/es/landing.json";
 import esAuth from "./languages/es/auth.json";
 
 import esTutorial from "./languages/es/tutorial.json";
+import esToast from "./languages/es/app_toast.json";
 
 import esAppCommon from "./languages/es/app_common.json";
 import esAppHome from "./languages/es/app_home.json";
@@ -24,13 +25,16 @@ import esAppSettingsTeam from "./languages/es/app_settings_team.json";
 import esAppIA from "./languages/es/app_ia.json";
 
 import esAppTeams from "./languages/es/app_teams.json";
+import esAppTeamAdmin from "./languages/es/app_team_admin.json";
+import esAppTeamMember from "./languages/es/app_team_member.json";
 import esAppChat from "./languages/es/app_chat.json";
 
-/** Inglés */
+/** English */
 import enLanding from "./languages/en/landing.json";
 import enAuth from "./languages/en/auth.json";
 
 import enTutorial from "./languages/en/tutorial.json";
+import enToast from "./languages/en/app_toast.json";
 
 import enAppCommon from "./languages/en/app_common.json";
 import enAppHome from "./languages/en/app_home.json";
@@ -48,6 +52,8 @@ import enAppSettingsTeam from "./languages/en/app_settings_team.json";
 import enAppIA from "./languages/en/app_ia.json";
 
 import enAppTeams from "./languages/en/app_teams.json";
+import enAppTeamAdmin from "./languages/en/app_team_admin.json";
+import enAppTeamMember from "./languages/en/app_team_member.json";
 import enAppChat from "./languages/en/app_chat.json";
 
 const resources = {
@@ -55,6 +61,7 @@ const resources = {
         landing: esLanding,
         auth: esAuth,
         tutorial: esTutorial,
+        app_toast: esToast,
         app_home: esAppHome,
         app_common: esAppCommon,
         app_tasks: esAppTasks,
@@ -68,12 +75,15 @@ const resources = {
         app_settings_team: esAppSettingsTeam,
         app_ia: esAppIA,
         app_teams: esAppTeams,
+        app_team_admin: esAppTeamAdmin,
+        app_team_member: esAppTeamMember,
         app_chat: esAppChat,
     },
     en: {
         landing: enLanding,
         auth: enAuth,
         tutorial: enTutorial,
+        app_toast: enToast,
         app_home: enAppHome,
         app_common: enAppCommon,
         app_tasks: enAppTasks,
@@ -87,6 +97,8 @@ const resources = {
         app_settings_team: enAppSettingsTeam,
         app_ia: enAppIA,
         app_teams: enAppTeams,
+        app_team_admin: enAppTeamAdmin,
+        app_team_member: enAppTeamMember,
         app_chat: enAppChat,
     },
 };

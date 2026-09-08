@@ -87,7 +87,6 @@ export const DiosSabidurIAPage = () => {
 
                 <div className="relative z-10 w-full flex-1 flex flex-col overflow-hidden md:pl-4">
                     {/* Empty State vs. Active Chat View */}
-
                     {!isChatActive ? (
                         <div className="flex-1 flex flex-col items-center justify-center animate-fade-in p-4 md:p-0">
                             {/* Avatar */}

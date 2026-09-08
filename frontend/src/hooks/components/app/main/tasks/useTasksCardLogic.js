@@ -3,6 +3,7 @@ import { useState, useEffect, useMemo, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 
 /** Contexts, Hooks & Services */
+import { useSync } from "../../../../core/useSync.js";
 import { useContextMenu } from "../common/useContextMenu.js";
 import { useTasks } from "../../../../controllers/tasks/useTasks.js";
 import { useTimeLog } from "../../../../core/useTimeLog.js";
@@ -35,7 +36,7 @@ const tailwindColors = fullConfig.theme.colors;
  * @param {string} stageName - The display name of the parent stage, used for global timer context.
  * @returns {Object} A structured payload containing states, derived datasets, and action handlers.
  */
-export const useTasksCardLogic = (data, projectId, stageId, isCompletedFilter, stageName) => {
+export const useTasksCardLogic = (data, projectId, stageId, isCompletedFilter, stageName, onError, onSuccess) => {
     // --- 1. DOM Refs & Layout State ---
 
     /**
@@ -45,6 +46,15 @@ export const useTasksCardLogic = (data, projectId, stageId, isCompletedFilter, s
      * namespace to localize text content dynamically.
      */
     const { i18n } = useTranslation("app_tasks");
+    const { t } = useTranslation("app_toast");
+
+    /**
+     * Global Synchronization Context
+     *
+     * Extracts the user's gamification data to dynamically resolve the active 
+     * visual theme (Rank CSS Variables) for the modal wrapper.
+     */
+    const { getUserProfile } = useSync();
 
     /**
      * Context Menu Hook Integration
@@ -62,7 +72,7 @@ export const useTasksCardLogic = (data, projectId, stageId, isCompletedFilter, s
      * Extracts global methods for task mutation (update, delete, toggle completion)
      * to synchronize local UI interactions directly with the backend API.
      */
-    const { deleteTask, updateTask, toggleTaskCompletion } = useTasks();
+    const { deleteTask, updateTask, toggleTaskCompletion, assignUserToTask } = useTasks();
 
     /**
      * Global Time Tracker Context
@@ -116,7 +126,17 @@ export const useTasksCardLogic = (data, projectId, stageId, isCompletedFilter, s
      */
     const [openTooltipId, setOpenTooltipId] = useState(null);
 
+    /**
+     * Drag Over Task State
+     *
+     * Tracks the ID of the task currently being hovered over during a drag-and-drop
+     * user assignment operation. Conditionally applies drop-zone highlighting.
+     */
+    const [dragOverTaskId, setDragOverTaskId] = useState(null);
+
     // --- 3. Derived UI Data ---
+
+    const userId = getUserProfile()?.id; 
 
     /**
      * Active Global Task ID
@@ -230,8 +250,28 @@ export const useTasksCardLogic = (data, projectId, stageId, isCompletedFilter, s
         (entity, parentId = null) => async () => {
             try {
                 await toggleTaskCompletion(projectId, stageId, entity.id, parentId);
+
+                if (!entity.isCompleted) {
+                    try {
+                        const completionSound = new Audio('/sounds/task-completion.mp3'); 
+                        completionSound.volume = 0.4;
+
+                        completionSound.play().catch(error => {
+                            console.warn("El navegador bloqueó la reproducción del sonido:", error);
+                        });
+                    } catch (error) {
+                        console.error("Error al cargar el archivo de audio:", error);
+                    }
+
+                    if (onSuccess) {
+                        onSuccess(t("success.tasks.task.complete"));
+                    }
+                }
+                
             } catch (error) {
-                console.error("Error toggling task completion:", error);
+                if (onError) {
+                    onError(error.message);
+                }
             }
         },
         [projectId, stageId, toggleTaskCompletion],
@@ -408,10 +448,8 @@ export const useTasksCardLogic = (data, projectId, stageId, isCompletedFilter, s
             const isThisTaskCurrentlyActive = String(activeGlobalTaskId) === String(task.id);
 
             if (isGlobalTimerActive && isThisTaskCurrentlyActive) {
-                // Si esta tarea ya está corriendo, la pausamos
                 handlePauseTask();
             } else {
-                // Si es una nueva o estaba pausada, la reanudamos
                 handleStartTask(task.id, task.name, task.colour, task.logo);
             }
         },
@@ -448,7 +486,11 @@ export const useTasksCardLogic = (data, projectId, stageId, isCompletedFilter, s
             try {
                 await deleteTask(projectId, stageId, id);
             } catch (error) {
-                console.error("Error deleting task:", error);
+                if (onError) {
+                    onError(error.message);
+                }
+                
+                closeDeleteModal();
             }
         },
         [deleteTask, projectId, stageId],
@@ -469,7 +511,11 @@ export const useTasksCardLogic = (data, projectId, stageId, isCompletedFilter, s
             try {
                 await updateTask(projectId, stageId, id, updateData, parentId);
             } catch (error) {
-                console.error("Error updating entity:", error);
+                if (onError) {
+                    onError(error.message);
+                }
+                
+                closeRenameModal();
             }
         },
         [updateTask, projectId, stageId],
@@ -489,10 +535,61 @@ export const useTasksCardLogic = (data, projectId, stageId, isCompletedFilter, s
             try {
                 await deleteTask(projectId, stageId, subtaskId, parentId);
             } catch (error) {
-                console.error("Error deleting subtask:", error);
+                if (onError) {
+                    onError(error.message);
+                }
             }
         },
         [deleteTask, projectId, stageId],
+    );
+
+    /**
+     * Assign Member to Task (Drag & Drop)
+     *
+     * Captura el ID del usuario soltado sobre una tarea. Busca la tarea en los datos
+     * actuales para obtener la lista de asignados, evita duplicados, y lanza la 
+     * actualización optimista hacia el controlador global.
+     * (Las asignaciones solo están permitidas en tareas principales).
+     *
+     * @param {string|number} taskId - El ID de la tarea receptora.
+     * @param {string|number} droppedUserId - El ID del usuario que se acaba de soltar.
+     */
+    const handleAssignMemberToTask = useCallback(
+        async (taskId, droppedUser) => {
+            const droppedUserId = droppedUser.id || droppedUser.userId;
+            
+            if (!taskId || !droppedUserId) return;
+
+            try {
+                const targetTask = data?.find(t => String(t.id) === String(taskId));
+
+                if (!targetTask) return;
+
+                const currentAssigned = targetTask.assignedUsers || [];
+                const isAlreadyAssigned = currentAssigned.some(
+                    (u) => String(u.id || u.userId) === String(droppedUserId)
+                );
+                
+                if (isAlreadyAssigned) return;
+
+                const newUserObj = { 
+                    id: droppedUserId, 
+                    userId: droppedUserId,
+                    name: droppedUser.name,
+                    avatar: droppedUser.avatar 
+                };
+                
+                const newAssignedUsers = [...currentAssigned, newUserObj];
+
+                await assignUserToTask(projectId, stageId, taskId, newAssignedUsers);
+
+            } catch (error) {
+                if (onError) {
+                    onError(error.message);
+                }
+            }
+        },
+        [data, projectId, stageId, assignUserToTask]
     );
 
     // --- 6. Return Object ---
@@ -511,8 +608,9 @@ export const useTasksCardLogic = (data, projectId, stageId, isCompletedFilter, s
             taskToEdit,
             openTooltipId,
             i18n,
+            dragOverTaskId
         },
-        tasksCardData: { filteredTasks },
+        tasksCardData: { filteredTasks, userId },
         tasksCardActions: {
             handleSearchToggle,
             handleSearchChange,
@@ -531,6 +629,8 @@ export const useTasksCardLogic = (data, projectId, stageId, isCompletedFilter, s
             handleDeleteTask,
             handleUpdateTask,
             handleDeleteSubtask,
+            setDragOverTaskId,
+            handleAssignMemberToTask
         },
     };
 };

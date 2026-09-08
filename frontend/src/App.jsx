@@ -3,7 +3,9 @@ import React from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate, Outlet } from "react-router-dom";
 
 /** Contexts, Hooks & Services */
-import { AuthProvider } from "./context/AuthContext";
+import { useAuth } from "./hooks/core/useAuth.js";
+import { AuthProvider } from "./context/AuthContext.jsx";
+import { ToastProvider } from "./context/ToastContext.jsx";
 import { SyncProvider } from "./context/SyncContext";
 import { TimeLogProvider } from "./context/TimeLogContext.jsx";
 
@@ -36,11 +38,38 @@ import { SettingsTeamPage } from "./pages/app/settings/TeamPage";
 
 import { DiosSabidurIAPage } from "./pages/app/DiosSabidurIAPage";
 
-import { TeamsPage } from "./pages/app/main/teams/TeamsPage.jsx";
-import { ChatPage } from "./pages/app/main/teams/ChatPage.jsx";
+import { TeamsPage } from "./pages/app/main/teams/TeamsPage";
+import { TeamProjectsPage } from "./pages/app/main/teams/TeamProjectsPage";
+import { TeamAdminDashboardPage } from "./pages/app/main/teams/TeamAdminDashboardPage";
+import { TeamMemberDashboardPage } from "./pages/app/main/teams/TeamMemberDashboardPage";
+import { ChatPage } from "./pages/app/main/teams/ChatPage";
 
 /** Assets, Utils & Constants */
 import "./i18n";
+
+/**
+ * Dynamic Fallback Route Component
+ *
+ * Acts as a smart catch-all for undefined URLs (404s). It consumes the global
+ * authentication state to route the user to the most appropriate context:
+ * - Authenticated users are safely redirected back to their internal dashboard ("/home").
+ * - Unauthenticated users are kicked back to the public landing page ("/").
+ * 
+ * It waits for the AuthProvider to finish its initial loading sequence to prevent
+ * premature redirects to the public landing page on direct deep-links.
+ *
+ * @component
+ * @returns {JSX.Element|null} A React Router Navigate component pointing to the dynamic fallback URL.
+ */
+const DynamicFallbackRoute = () => {
+    const { isAuthenticated, isLoading } = useAuth();
+
+    if (isLoading) {
+        return null; 
+    }
+    
+    return <Navigate to={isAuthenticated ? "/home" : "/"} replace />;
+};
 
 /**
  * Synced App Layout Component
@@ -90,99 +119,104 @@ function App() {
     return (
         <Router>
             <AuthProvider>
-                <Routes>
-                    {/* Landing Pages */}
-                    <Route path="/" element={<LandingPage />} />
-                    <Route path="/payment" element={<PaymentPage />} />
+                <ToastProvider>
+                    <Routes>
+                        {/* Landing Pages */}
+                        <Route path="/" element={<LandingPage />} />
+                        <Route path="/payment" element={<PaymentPage />} />
 
-                    {/* Public Authentication Routes */}
-                    <Route element={<PublicRoute />}>
-                        <Route path="/login" element={<LoginPage />} />
-                        <Route path="/register" element={<RegisterPage />} />
-                    </Route>
+                        {/* Public Authentication Routes */}
+                        <Route element={<PublicRoute />}>
+                            <Route path="/login" element={<LoginPage />} />
+                            <Route path="/register" element={<RegisterPage />} />
+                        </Route>
 
-                    {/* Password Recovery Routes */}
-                    <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+                        {/* Password Recovery Routes */}
+                        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
 
-                    <Route element={<SyncProvider />}>
-                        <Route element={<SyncedAppLayout />}>
-                            {/* Loading Screen Route */}
-                            <Route path="/loading" element={<LoadingPage />} />
+                        <Route element={<SyncProvider />}>
+                            <Route element={<SyncedAppLayout />}>
+                                {/* Loading Screen Route */}
+                                <Route path="/loading" element={<LoadingPage />} />
 
-                            {/* Protected App Routes */}
-                            <Route element={<TimeLogProvider />}>
-                                <Route 
-                                    element={
-                                        <ProtectedRoute>
-                                            <MainBasePage />
-                                        </ProtectedRoute>
-                                    }
-                                >
-                                    <Route path="/home" element={<HomePage />} />
-                                    <Route path="/tasks" element={<TasksPage />} />
-                                    <Route path="/calendar" element={<CalendarPage />} />
-                                    <Route path="/statistics" element={<StatisticsPage />} />
-                                    <Route path="/teams" element={<TeamsPage />} />
-                                    <Route path="/teams/chat" element={<ChatPage />} />
+                                {/* Protected App Routes */}
+                                <Route element={<TimeLogProvider />}>
+                                    <Route 
+                                        element={
+                                            <ProtectedRoute>
+                                                <MainBasePage />
+                                            </ProtectedRoute>
+                                        }
+                                    >
+                                        <Route path="/home" element={<HomePage />} />
+                                        <Route path="/tasks" element={<TasksPage />} />
+                                        <Route path="/calendar" element={<CalendarPage />} />
+                                        <Route path="/statistics" element={<StatisticsPage />} />
+                                        <Route path="/teams" element={<TeamsPage />} />
+                                        <Route path="/teams/:teamId/projects" element={<TeamProjectsPage />} />
+                                        <Route path="/teams/:teamId/projects/:projectId/admin" element={<TeamAdminDashboardPage />} />
+                                        <Route path="/teams/:teamId/member" element={<TeamMemberDashboardPage />} />
+                                        <Route path="/teams/chat" element={<ChatPage />} />
+                                    </Route>
+
+                                    <Route
+                                        path="/temple-mode"
+                                        element={
+                                            <ProtectedRoute>
+                                                <TempleModePage />
+                                            </ProtectedRoute>
+                                        }
+                                    />
+
+                                    <Route 
+                                        element={
+                                            <ProtectedRoute>
+                                                <SettingsBasePage />
+                                            </ProtectedRoute>
+                                        }
+                                    >
+                                        <Route path="/settings" element={null} />
+                                        <Route path="/settings-account" element={<AccountPage />} />
+                                        <Route path="/settings-preferences" element={<PreferencesPage />} />
+                                        <Route path="/settings-productivity" element={<ProductivityPage />} />
+                                        <Route path="/settings-notifications" element={<NotificationsPage />} />
+                                        <Route path="/settings-team" element={<SettingsTeamPage />} />
+                                    </Route>
                                 </Route>
 
                                 <Route
-                                    path="/temple-mode"
+                                    path="/wip"
                                     element={
                                         <ProtectedRoute>
-                                            <TempleModePage />
+                                            <WIPComponent />
                                         </ProtectedRoute>
                                     }
                                 />
 
-                                <Route 
+                                <Route
+                                    path="/dios-sabiduria"
                                     element={
                                         <ProtectedRoute>
-                                            <SettingsBasePage />
+                                            <DiosSabidurIAPage />
                                         </ProtectedRoute>
                                     }
-                                >
-                                    <Route path="/settings" element={null} />
-                                    <Route path="/settings-account" element={<AccountPage />} />
-                                    <Route path="/settings-preferences" element={<PreferencesPage />} />
-                                    <Route path="/settings-productivity" element={<ProductivityPage />} />
-                                    <Route path="/settings-notifications" element={<NotificationsPage />} />
-                                    <Route path="/settings-team" element={<SettingsTeamPage />} />
-                                </Route>
+                                />
+
+                                <Route
+                                    path="/dios-sabiduria/:chatId"
+                                    element={
+                                        <ProtectedRoute>
+                                            <DiosSabidurIAPage />
+                                        </ProtectedRoute>
+                                    }
+                                />
                             </Route>
-
-                            <Route
-                                path="/wip"
-                                element={
-                                    <ProtectedRoute>
-                                        <WIPComponent />
-                                    </ProtectedRoute>
-                                }
-                            />
-
-                            <Route
-                                path="/dios-sabiduria"
-                                element={
-                                    <ProtectedRoute>
-                                        <DiosSabidurIAPage />
-                                    </ProtectedRoute>
-                                }
-                            />
-
-                            <Route
-                                path="/dios-sabiduria/:chatId"
-                                element={
-                                    <ProtectedRoute>
-                                        <DiosSabidurIAPage />
-                                    </ProtectedRoute>
-                                }
-                            />
                         </Route>
-                    </Route>
 
-                    {/* Fallback Redirection */}
-                    <Route path="*" element={<Navigate to="/" replace />} />
-                </Routes>
+                        {/* Fallback Redirection */}
+                        <Route path="*" element={<DynamicFallbackRoute />} />
+                    </Routes>
+                </ToastProvider>
             </AuthProvider>
         </Router>
     );

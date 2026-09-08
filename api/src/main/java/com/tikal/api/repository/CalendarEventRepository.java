@@ -87,4 +87,16 @@ public interface CalendarEventRepository extends JpaRepository<CalendarEvent, In
                                                                      @Param("stageIds") Collection<Integer> stageIds,
                                                                      @Param("taskIds") Collection<Integer> taskIds,
                                                                      @Param("eventType") EventType eventType);
+
+    /* --- Recent Activity: Team Events in the Next 3 Days --- */
+    @Query("SELECT DISTINCT c FROM CalendarEvent c LEFT JOIN c.attendees a " +
+            "WHERE (c.organizer.id = :userId OR a.id = :userId) " +
+            "AND c.project.team.id = :teamId " +
+            "AND c.initDateTime BETWEEN :now AND :threshold " +
+            "ORDER BY c.initDateTime ASC")
+    List<CalendarEvent> findUpcomingTeamEvents(
+            @Param("userId") Integer userId,
+            @Param("teamId") Integer teamId,
+            @Param("now") Instant now,
+            @Param("threshold") Instant threshold);
 }

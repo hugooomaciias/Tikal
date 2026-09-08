@@ -166,7 +166,7 @@ export const useSolarChartWidgetLogic = ({ props }) => {
      * Memoized to avoid recalculating the filtered array on unrelated state changes.
      */
     const visibleSlicesBase = useMemo(() => {
-        return chartData.filter((d) => !hiddenProjects.includes(d.id));
+        return chartData.filter((d) => !hiddenProjects.includes(d.id) && d.basePercentage > 5);
     }, [chartData, hiddenProjects]);
 
     /**

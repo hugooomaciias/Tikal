@@ -390,6 +390,8 @@ public class DashboardService {
                     .isCompleteDay(event.getIsCompleteDay())
                     .organizer(organizerDto)
                     .attendees(attendeesDto)
+                    .projectId(event.getProject() != null ? event.getProject().getId() : null)
+                    .isGroupBased(event.getProject() != null ? event.getProject().getIsGroupBased() : null)
                     .build();
 
         }).collect(Collectors.toList());
@@ -497,7 +499,9 @@ public class DashboardService {
                         tasksByStage,
                         subtaskByParent,
                         stagesWithDeadline,
-                        tasksWithDeadline))
+                        tasksWithDeadline,
+                        project.getIsGroupBased()
+                ))
                 .collect(Collectors.toList());
 
         return ProjectSyncDTO.builder()
@@ -509,6 +513,8 @@ public class DashboardService {
                 .addToCalendar(projectsWithDeadline.contains(project.getId()))
                 .type(project.getProjectType())
                 .stages(stageDTOs)
+                .groupBased(project.getIsGroupBased())
+                .teamId(project.getTeam() != null ? project.getTeam().getId() : null)
                 .build();
     }
 
@@ -516,7 +522,8 @@ public class DashboardService {
                                                  Map<Integer, List<Task>> tasksByStage,
                                                  Map<Integer, List<Task>> subtaskByParent,
                                                  Set<Integer> stagesWithDeadline,
-                                                 Set<Integer> tasksWithDeadline) {
+                                                 Set<Integer> tasksWithDeadline,
+                                                 Boolean isGroupBased) {
 
         List<Task> myTasks = tasksByStage.getOrDefault(stage.getId(), Collections.emptyList())
                 .stream()
@@ -527,7 +534,7 @@ public class DashboardService {
         String logo = stage.getProject().getLogoUrl();
 
         List<TaskSyncDTO> taskDTOs = myTasks.stream()
-                .map(task -> mapTaskToTaskSyncDTO(logo, colour, task, subtaskByParent, tasksWithDeadline))
+                .map(task -> mapTaskToTaskSyncDTO(logo, colour, task, subtaskByParent, tasksWithDeadline, isGroupBased))
                 .collect(Collectors.toList());
 
         return StageSyncDTO.builder()
@@ -545,7 +552,8 @@ public class DashboardService {
 
     private TaskSyncDTO mapTaskToTaskSyncDTO(String logo, String colour, Task task,
                                              Map<Integer, List<Task>> subtaskByParent,
-                                             Set<Integer> tasksWithDeadline) {
+                                             Set<Integer> tasksWithDeadline,
+                                             Boolean isGroupBased) {
 
         List<Task> mySubtasks = subtaskByParent.getOrDefault(task.getId(), Collections.emptyList());
 
@@ -571,6 +579,7 @@ public class DashboardService {
                 .deadline(task.getDeadline())
                 .isCompleted(task.getIsCompleted())
                 .addToCalendar(tasksWithDeadline.contains(task.getId()))
+                .isGroupBased(isGroupBased)
                 .colour(colour)
                 .logo(logo)
                 .numberOfSubTask(subtaskSyncDTOS.size())

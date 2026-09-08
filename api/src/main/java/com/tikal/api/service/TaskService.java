@@ -3,6 +3,7 @@ package com.tikal.api.service;
 import com.tikal.api.exception.BadRequestException;
 import com.tikal.api.exception.ForbiddenAccessException;
 import com.tikal.api.exception.ResourceNotFoundException;
+import com.tikal.api.model.dto.sync.domain.TaskSyncDTO;
 import com.tikal.api.model.dto.task.*;
 import com.tikal.api.model.entity.*;
 import com.tikal.api.model.entity.enumerated.EventType;
@@ -119,14 +120,20 @@ public class TaskService {
 
         Project project = task.getStage().getProject();
 
-        validateTaskPermissions(project, currentUser, "gestionar_subtareas", task);
+        validateTaskPermissions(project, currentUser, "gestionar tareas", task);
 
-        if (isUserAdminOfProject(project, currentUser)) {
+        boolean isAdmin = isUserAdminOfProject(project, currentUser);
+
+        if (!isAdmin) {
+            if (isTryingToChangeRestrictedFields(task, request)) {
+                throw new ForbiddenAccessException("No tienes permiso para editar los detalles principales, solo las subtareas.");
+            }
+        } else {
             if (request.getName() != null) task.setName(request.getName());
             if (request.getDescription() != null) task.setDescription(request.getDescription());
             if (request.getEstimatedTime() != null) task.setEstimatedTime(request.getEstimatedTime());
             if (request.getEstimatedProfit() != null) task.setEstimatedProfit(request.getEstimatedProfit());
-            if (request.getDeadline() != null) task.setDeadline(request.getDeadline());
+            task.setDeadline(request.getDeadline());
             if (request.getTimeUnit() != null) task.setTimeUnit(request.getTimeUnit());
         }
 
@@ -160,7 +167,8 @@ public class TaskService {
 
         boolean hasDeadline = false;
         if (updatedTask.getParentTask() == null) {
-            hasDeadline = syncDeadlineEvent(updatedTask, currentUser, request.getAddToCalendar());
+            Boolean addToCalendar = isAdmin && request.getAddToCalendar(); 
+            hasDeadline = syncDeadlineEvent(updatedTask, currentUser, addToCalendar);
         }
 
         Set<Integer> deadlineSet = hasDeadline ? Set.of(updatedTask.getId()) : Set.of();
@@ -241,7 +249,7 @@ public class TaskService {
                     break;
 
                 case "completar":
-                case "gestionar_subtareas":
+                case "gestionar tareas":
                     // Admin user or assigned user
                     if (!isAdmin && !isAssigned) {
                         throw new ForbiddenAccessException("Debes ser administrador o estar asignado para " + action + ".");
@@ -288,6 +296,17 @@ public class TaskService {
             User userToAssign = userService.getUserById(userId);
             task.getAssignedUsers().add(userToAssign);
         }
+    }
+
+    private boolean isTryingToChangeRestrictedFields(Task task, TaskRequest request) {        
+        if (request.getName() != null && !request.getName().equals(task.getName())) return true;
+        if (request.getDescription() != null && !request.getDescription().equals(task.getDescription())) return true;
+        if (request.getEstimatedTime() != null && !request.getEstimatedTime().equals(task.getEstimatedTime())) return true;
+        if (request.getEstimatedProfit() != null && (request.getEstimatedProfit().doubleValue() != task.getEstimatedProfit().doubleValue())) return true;
+        if (request.getDeadline() != null && !request.getDeadline().equals(task.getDeadline())) return true;
+        if (request.getTimeUnit() != null && !request.getTimeUnit().equals(task.getTimeUnit())) return true;
+        
+        return false;
     }
 
     // Auxiliar method to know if the user is admin
@@ -343,6 +362,14 @@ public class TaskService {
                 ? task.getSubtasks().stream().map(this::toDtoSubtask).toList()
                 : null;
 
+        List<TaskDTO.AssignedUser> assignedUsers = task.getAssignedUsers().stream()
+                .map(u -> TaskDTO.AssignedUser.builder()
+                        .id(u.getId())
+                        .name(u.getName())
+                        .avatar(u.getAvatarUrl())
+                        .build())
+                .toList();
+
         return TaskDTO.builder()
                 .id(task.getId())
                 .name(task.getName())
@@ -358,8 +385,10 @@ public class TaskService {
                 .colour(task.getStage().getColour())
                 .logo(task.getStage().getProject().getLogoUrl())
                 .addToCalendar(tasksWithDeadline.contains(task.getId()))
+                .isGroupBased(task.getStage().getProject().getIsGroupBased())
                 .subtasks(subtasks)
                 .subtasksCount(count)
+                .assignedUsers(assignedUsers)
                 .build();
     }
 

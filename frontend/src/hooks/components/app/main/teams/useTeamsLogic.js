@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 
 /** Contexts, Hooks & Controllers */
 import { useSync } from "../../../../core/useSync.js";
+import { useToast } from "../../../../core/useToast.js";
 import { useTeams } from "../../../../controllers/teams/useTeams.js";
 
 /**
@@ -26,7 +27,18 @@ export const useTeamsLogic = () => {
      *
      * Provides the `t` function scoped to the "app_teams" namespace for localized strings.
      */
-    const { t } = useTranslation("app_teams");
+    const { t: tTeams } = useTranslation("app_teams");
+    const { t: tToast } = useTranslation("app_toast");
+
+    /**
+     * Global Toast Notification Hook
+     *
+     * Extracts the dispatcher method from the globally provided toast context.
+     * This allows the module to safely broadcast ephemeral success or error 
+     * messages (e.g., API mutation failures) without cluttering the local 
+     * component tree with redundant UI alert states.
+     */
+    const { addToast } = useToast();
 
     /**
      * Programmatic Navigation
@@ -124,6 +136,36 @@ export const useTeamsLogic = () => {
     // --- 5. Interaction Handlers ---
 
     /**
+     * Show Delegated Error Handler
+     *
+     * Captures elevated errors from child components (like popups) and triggers
+     * the master toast notification.
+     *
+     * @param {string} errorMessage - The localized or raw error message to display.
+     * @returns {void}
+     */
+    const handleShowError = useCallback((errorMessage) => {
+        setTimeout(() => {
+            addToast(errorMessage, "error");
+        }, 100);
+    }, []);
+
+    /**
+     * Show Delegated Info Handler
+     *
+     * Captures neutral or informational events from child components (e.g., text copied 
+     * to clipboard or sync warnings) and broadcasts a generic informational toast.
+     *
+     * @param {string} infoMessage - The localized informational message to display.
+     * @returns {void}
+     */
+    const handleShowInfo = useCallback((infoMessage) => {
+        setTimeout(() => {
+            addToast(infoMessage, "info");
+        }, 100);
+    }, []);
+
+    /**
      * Create Modal Trigger
      *
      * Flushes any active edit state and mounts the Team PopUp in "Creation" mode.
@@ -203,7 +245,7 @@ export const useTeamsLogic = () => {
         } catch (error) {
             console.error(error.message);
         }
-    }, [regenerateTeamCode, t]);
+    }, [regenerateTeamCode, tTeams]);
 
     /**
      * Trigger Leave Confirmation
@@ -244,7 +286,10 @@ export const useTeamsLogic = () => {
 
         try {
             await leaveTeam(teamToLeave.id);
-            navigate("/home");
+
+            if (teams.length <= 1) {
+                navigate("/home");
+            }
         } catch (error) {
             console.error(error.response?.data?.message || "Error al cambiar rol de administrador");
         } finally {
@@ -252,10 +297,58 @@ export const useTeamsLogic = () => {
         }
     }, [leaveTeam, navigate, teamToLeave]);
 
+    /**
+     * Copy Team Code Handler
+     *
+     * Copies the provided team code to the user's system clipboard using the native 
+     * navigator API. Prevents event bubbling and triggers a global UI info toast 
+     * upon success, or an error toast if clipboard access is denied.
+     *
+     * @param {React.MouseEvent} e - The native click event.
+     * @param {string} code - The team invite code to copy.
+     */
+    const handleCopyCode = useCallback(async (e, code) => {
+        e.stopPropagation();
+        
+        try {
+            await navigator.clipboard.writeText(code);
+
+            handleShowInfo(tToast("info.teams.code_copied"));
+        } catch (error) {
+            handleShowError(tToast("error.teams.code_copied"));
+        }
+    }, [handleShowInfo, handleShowError, tToast]);
+
+    /**
+     * Navigate to Team Projects
+     *
+     * Routes the user to the specific administrative project management view for the selected team.
+     * Passes the pre-fetched team entity within the router state to bypass secondary network requests.
+     *
+     * @param {Object} team - The active team entity.
+     * @returns {void}
+     */
+    const handleNavigateToTeamProjects = useCallback((team) => {
+        navigate(`/teams/${team.id}/projects`, { state: { teamData: team } });
+    }, [navigate]);
+
+    /**
+     * Navigate to Member Dashboard
+     *
+     * Routes the user to the generic member performance dashboard for the selected team.
+     * Passes the pre-fetched team entity within the router state to optimize initial rendering.
+     *
+     * @param {Object} team - The active team entity.
+     * @returns {void}
+     */
+    const handleNavigateToTeamMemberDashboard = useCallback((team) => {
+        navigate(`/teams/${team.id}/member`, { state: { teamData: team } });
+    }, [navigate]);
+
     // --- 6. Return Object ---
 
     return {
-        t,
+        tTeams,
         teamsStates: {
             teams, 
             viewAsAdmin, 
@@ -275,7 +368,10 @@ export const useTeamsLogic = () => {
             handleOpenEditModal,
             handleCloseTeamModal,
             handleOpenMembersModal,
-            handleCloseMembersModal
+            handleCloseMembersModal,
+            handleNavigateToTeamProjects,
+            handleNavigateToTeamMemberDashboard,
+            handleCopyCode
         }
     };
 };

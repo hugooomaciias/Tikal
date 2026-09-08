@@ -76,7 +76,7 @@ export const useTeams = () => {
      * Create Team
      *
      * Delegates to `teamService.create` to generate a new team on the backend.
-     * The backend automatically assigns the creator as an admin and generates an invite code[cite: 1].
+     * The backend automatically assigns the creator as an admin and generates an invite code.
      * Then, it appends the new team object to the global `teams` array.
      *
      * @async
@@ -103,13 +103,13 @@ export const useTeams = () => {
      * Join Team
      *
      * Delegates to `teamService.join` to enter a team via an invitation code.
-     * Handles semantic backend validation (e.g., throwing a 400 error if already a member)[cite: 1].
+     * Handles semantic backend validation (e.g., throwing a 400 error if already a member).
      * Upon success, the retrieved team is added to the user's global state.
      *
      * @async
      * @param {Object} joinData - Payload containing the `code`.
      * @returns {Promise<Object>} The joined team data.
-     * @throws {Error} Re-throws to allow the UI to handle 400 errors (e.g., showing a toast)[cite: 1].
+     * @throws {Error} Re-throws to allow the UI to handle 400 errors (e.g., showing a toast).
      */
     const joinTeam = async (joinData) => {
         try {
@@ -132,7 +132,7 @@ export const useTeams = () => {
      * Update Team Name
      *
      * Updates the name of an existing team using a specific endpoint to separate 
-     * this responsibility from image updates[cite: 1]. Performs a `.map()` to update the global state.
+     * this responsibility from image updates. Performs a `.map()` to update the global state.
      *
      * @async
      * @param {string} teamId - The unique identifier of the team.
@@ -160,7 +160,7 @@ export const useTeams = () => {
      * Update Team Image
      *
      * Submits a FormData payload to update the avatar. If the file is omitted, 
-     * the backend restores the default DiceBear pattern[cite: 1]. Updates the avatar URL in the state.
+     * the backend restores the default DiceBear pattern. Updates the avatar URL in the state.
      *
      * @async
      * @param {string} teamId - The unique identifier of the team.
@@ -187,7 +187,7 @@ export const useTeams = () => {
     /**
      * Regenerate Team Code
      *
-     * Invalidates the current invite code and generates a new one. Admin only[cite: 1].
+     * Invalidates the current invite code and generates a new one. Admin only.
      * Updates the specific team's `code` property in the context tree.
      *
      * @async
@@ -215,7 +215,7 @@ export const useTeams = () => {
      * Leave Team
      *
      * Removes the current user from the team. The backend dictates if the exit is blocked 
-     * (e.g., sole admin leaving) or if the team is cascade-deleted[cite: 1]. On success, 
+     * (e.g., sole admin leaving) or if the team is cascade-deleted. On success, 
      * the team is filtered out of the global state.
      *
      * @async
@@ -238,7 +238,7 @@ export const useTeams = () => {
     /**
      * Toggle Member Admin Status
      *
-     * Elevates or demotes a team member. The backend blocks self-demotion[cite: 1].
+     * Elevates or demotes a team member. The backend blocks self-demotion.
      * Performs a nested update: traverses the `teams` array, finds the team, and maps its `members`.
      *
      * @async
@@ -273,7 +273,7 @@ export const useTeams = () => {
      * Update Member Role
      *
      * Modifies the professional role (e.g., "Tester") of a member. The backend allows this 
-     * if the user is an admin or editing their own profile[cite: 1].
+     * if the user is an admin or editing their own profile.
      *
      * @async
      * @param {string} teamId - The team ID.
@@ -283,7 +283,7 @@ export const useTeams = () => {
      */
     const updateMemberRole = async (teamId, userId, roleData) => {
         try {
-            const updatedMember = await teamService.updateMemberRole(teamId, userId, roleData);
+            await teamService.updateMemberRole(teamId, userId, roleData);
 
             updateContextData("teamMembers", (prevMembers = {}) => {
                 if (!prevMembers[teamId]) return prevMembers;
@@ -291,12 +291,10 @@ export const useTeams = () => {
                 return {
                     ...prevMembers,
                     [teamId]: prevMembers[teamId].map(member => 
-                        member.id === userId ? { ...member, teamRole: updatedMember.teamRole } : member
+                        member.userId === userId ? { ...member, teamRole: roleData.teamRole } : member
                     )
                 };
             });
-
-            return updatedMember;
         } catch (error) {
             console.error("Error actualizando el rol del miembro:", error);
             throw error;
@@ -307,7 +305,7 @@ export const useTeams = () => {
      * Kick Member
      *
      * Forcibly removes a member from the team. Admin action only. The backend prevents 
-     * admins from kicking themselves[cite: 1]. Filters the member out of the specific team's list.
+     * admins from kicking themselves. Filters the member out of the specific team's list.
      *
      * @async
      * @param {string} teamId - The team ID.

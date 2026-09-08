@@ -62,8 +62,13 @@ export const useTaskWidgetLogic = ({ props }) => {
      * Active Card Index State
      *
      * Tracks which card in the deck is currently visible at the forefront.
+     * Dynamically initializes based on the specific grouping mode injected by the backend:
+     * "BY_PROJECT" (used in team dashboards) starts at index 0[cite: 1], while 
+     * "BY_DEADLINE" (used in the Home layout) starts at index 1 to bypass timeline offsets.
      */
-    const [activeIndex, setActiveIndex] = useState(1);
+    const [activeIndex, setActiveIndex] = useState(() => {
+        return props?.selectedGroupingMode === "BY_PROJECT" ? 0 : 1;
+    });
 
     // --- 3. Derived UI Data ---
 

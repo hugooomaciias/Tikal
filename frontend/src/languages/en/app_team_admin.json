@@ -1,0 +1,19 @@
+{
+    "general_info": {
+        "left_days": "Days remaining",
+        "progress": "Progress",
+        "effectiveness": "Effectiveness",
+        "logged_minutes": "Logged minutes"
+    },
+    "tasks_events": {
+        "tabs": {
+            "tasks": "Tasks",
+            "events": "Events"
+        }
+    },
+    "members": {
+        "title": "Members",
+        "search": "Search members",
+        "role": "Member"
+    }
+}

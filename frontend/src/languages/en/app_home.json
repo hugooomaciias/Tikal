@@ -35,6 +35,10 @@
                 "day": "Day",
                 "project": "Project"
             },
+            "no_tasks": {
+                "title": "No pending tasks",
+                "description": "Enjoy your free time. You don’t have any tasks assigned to you at the moment."
+            },
             "buttonNext": "Next card",
             "buttonLast": "Last card"
         },

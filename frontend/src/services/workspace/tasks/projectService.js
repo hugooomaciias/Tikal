@@ -70,4 +70,21 @@ export const projectService = {
     remove: async (id) => {
         return await apiCall(`/api/project/${id}`, "DELETE", null);
     },
+
+    /**
+     * Get Team Projects
+     *
+     * Sends a GET request to the backend to retrieve all projects associated
+     * with a specific team. This is used to populate the team-specific
+     * projects dashboard.
+     *
+     * @async
+     * @function
+     * @param {string|number} teamId - The unique identifier of the team.
+     * @returns {Promise<Array<Object>>} A promise resolving to an array of project objects belonging to the specified team.
+     * @throws {Error} Throws an error if the team is not found or the fetch operation fails.
+     */
+    getTeamProjects: async (teamId) => {
+        return await apiCall(`/api/project/team/${teamId}`, "GET", null);
+    },
 };

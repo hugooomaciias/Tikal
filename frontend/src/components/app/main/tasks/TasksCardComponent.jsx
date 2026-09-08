@@ -75,22 +75,24 @@ export const TasksCardComponent = ({
     stageName,
     stageColour,
     formatShortDate,
+    admin,
+    onError,
+    onSuccess,
+    taskSelected,
+    pillMessage,
+    pillClass,
     t,
 }) => {
     // --- 1. Logic Hook Extraction ---
 
-    /**
-     * Logic Hook Destructuring
-     *
-     * Extracts all necessary UI states, memoized filtered datasets, and action handlers
-     * from the headless hook to drive the visual render cycle.
-     */
     const { tasksCardStates, tasksCardData, tasksCardActions } = useTasksCardLogic(
         data,
         projectId,
         stageId,
         isCompletedFilter,
         stageName,
+        onError,
+        onSuccess
     );
 
     const {
@@ -106,8 +108,9 @@ export const TasksCardComponent = ({
         taskToEdit,
         openTooltipId,
         i18n,
+        dragOverTaskId
     } = tasksCardStates;
-    const { filteredTasks } = tasksCardData;
+    const { filteredTasks, userId } = tasksCardData;
     const {
         handleSearchToggle,
         handleSearchChange,
@@ -126,6 +129,8 @@ export const TasksCardComponent = ({
         handleDeleteTask,
         handleUpdateTask,
         handleDeleteSubtask,
+        setDragOverTaskId,
+        handleAssignMemberToTask
     } = tasksCardActions;
 
     const { contextMenu, entityToRename, entityToDelete, activeEntityId } = contextMenuStates;
@@ -138,9 +143,9 @@ export const TasksCardComponent = ({
     return (
         <>
             {/* Main Content Layout Wrapper */}
-            <div className="h-full w-full flex flex-col items-center gap-4 overflow-hidden">
+            <div className="h-full w-full flex flex-col items-center gap-4 overflow-hidden min-w-0">
                 {/* Header Section: Title & Interactive Search Bar */}
-                <div className="h-10 w-full flex items-center justify-between text-quaternary-700">
+                <div className="h-10 w-full flex items-center justify-between text-quaternary-700 shrink-0">
                     <div className="flex items-center gap-2">
                         {!isTaskSearchOpen && <span className="text-2xl font-bold">{filteredTasks.length}</span>}
                         {!isTaskSearchOpen && <span className="text-2xl font-bold">{t("tasks.title")}</span>}
@@ -148,7 +153,7 @@ export const TasksCardComponent = ({
 
                     {/* Expanding Search Input Container */}
                     <div
-                        className={`flex items-center justify-end transition-all duration-500 ease-in-out rounded-full ${isTaskSearchOpen ? "w-full bg-primary-50 px-3 py-1.5 shadow-inner" : "w-fit bg-transparent p-0"}`}
+                        className={`flex items-center justify-end transition-all duration-500 ease-in-out rounded-full ${isTaskSearchOpen ? (admin ? "bg-primary-100 w-full px-3 py-1.5 shadow-inner" : "bg-primary-50 w-full px-3 py-1.5 shadow-inner") : "w-fit bg-transparent p-0"}`}
                     >
                         <input
                             type="text"
@@ -156,7 +161,7 @@ export const TasksCardComponent = ({
                             value={taskSearchQuery}
                             onChange={(e) => handleSearchChange(e.target.value)}
                             autoFocus={isTaskSearchOpen}
-                            className={`bg-transparent outline-none text-primary-600 transition-all duration-500 ease-in-out ${isTaskSearchOpen ? "w-full opacity-100 ml-2" : "w-0 opacity-0"}`}
+                            className={`bg-transparent outline-none text-primary-600 transition-all duration-500 ease-in-out ${admin ? 'placeholder:text-primary' : 'placeholder:text-primary-300'} ${isTaskSearchOpen ? "w-full opacity-100 ml-2" : "w-0 opacity-0"}`}
                         />
 
                         <button
@@ -165,7 +170,7 @@ export const TasksCardComponent = ({
                             onClick={handleSearchToggle}
                         >
                             {isTaskSearchOpen ? (
-                                <IconCircleXFilled className="w-6 h-6 text-primary-200" />
+                                <IconCircleXFilled className={`w-6 h-6 ${admin ? 'text-primary' : 'text-primary-200'}`} />
                             ) : (
                                 <IconSearch className="w-6 h-6" />
                             )}
@@ -174,7 +179,8 @@ export const TasksCardComponent = ({
                 </div>
 
                 {/* Scrollable Tasks List Container */}
-                <div className="h-fit w-full flex flex-1 flex-col gap-3 overflow-y-auto custom-scrollbar">
+                {/* 🔥 SOLUCIÓN: min-w-0 añadido aquí para que el scroll limite su ancho */}
+                <div className="h-fit w-full flex flex-1 flex-col gap-3 overflow-y-auto custom-scrollbar min-w-0">
                     {filteredTasks.length > 0 ? (
                         filteredTasks.map((task) => {
                             const activeColourId = stageColour || task.colour;
@@ -190,9 +196,10 @@ export const TasksCardComponent = ({
                             const isThisTaskInContext = String(activeGlobalTaskId) === String(task.id) && isAnyTaskInContext;
                             const isThisTaskTimerRunning = isGlobalTimerActive && String(activeGlobalTaskId) === String(task.id);
                             const isBeingEdited = String(activeEntityId) === String(task.id);
+                            const isUserAssigned = task?.assignedUsers.find((au) => au.id === userId);
 
                             return (
-                                <div key={`task-wrapper-${task.id}`} className="w-full flex flex-col gap-3">
+                                <div key={`task-wrapper-${task.id}`} className="w-full flex flex-col gap-3 min-w-0">
                                     {task.isFirstCompleted && (
                                         <div className="w-full flex items-center gap-4 my-2 animate-fade-in">
                                             <div className="flex-1 h-[2px] rounded-full" style={{ background: `linear-gradient(to right, transparent, ${colour.hex})` }} />
@@ -210,15 +217,48 @@ export const TasksCardComponent = ({
                                         {/* Individual Task Card Wrapper */}
                                         <div
                                             onContextMenu={(e) => handleContextMenu(e, task)}
-                                            className={`relative min-w-0 ${isBeingEdited ? "bg-quaternary-50/60" : "bg-transparent"} ${isTooltipOpen ? "z-50" : "z-10 hover:z-40"} h-fit w-full flex flex-col ${hasSubtasks && isActive ? "py-3" : "bg-transparent"} ${task.isCompleted ? "opacity-40" : "opacity-100"} px-3 rounded-3xl transition-all duration-300`}
-                                            style={hasSubtasks && isActive ? { backgroundColor: colour.hex } : {}}
+                                            onDragEnter={(e) => {
+                                                e.preventDefault();
+                                                setDragOverTaskId(task.id);
+                                            }}
+                                            onDragOver={(e) => {
+                                                e.preventDefault();
+                                                e.dataTransfer.dropEffect = "copy";
+                                            }}
+                                            onDragLeave={(e) => {
+                                                e.preventDefault();
+                                                if (!e.currentTarget.contains(e.relatedTarget)) {
+                                                    setDragOverTaskId(null);
+                                                }
+                                            }}
+                                            onDrop={(e) => {
+                                                e.preventDefault();
+                                                setDragOverTaskId(null);
+                                            
+                                                const droppedUserJson = e.dataTransfer.getData("application/json");
+                                                if (droppedUserJson) {
+                                                    const droppedUser = JSON.parse(droppedUserJson);
+                                                    handleAssignMemberToTask(task.id, droppedUser);
+                                                } else {
+                                                    const droppedUserId = e.dataTransfer.getData("text/plain");
+                                                    if (droppedUserId) {
+                                                        handleAssignMemberToTask(task.id, { id: droppedUserId, userId: droppedUserId });
+                                                    }
+                                                }
+                                            }}
+                                            className={`relative min-w-0 ${isBeingEdited ? "bg-quaternary-50/60" : "bg-transparent"} ${isTooltipOpen ? "z-50" : "z-10 hover:z-40"} h-fit w-full flex flex-col ${hasSubtasks && isActive ? "py-3" : "bg-transparent"} ${task.isCompleted ? "opacity-40" : "opacity-100"} px-3 rounded-3xl transition-all duration-300 border-2 ${dragOverTaskId === task.id ? "shadow-md border-dashed" : "border-transparent"}`}
+                                            style={{
+                                                ...(hasSubtasks && isActive ? { backgroundColor: colour.hex } : {}),
+                                                ...(dragOverTaskId === task.id ? { backgroundColor: `${colour.hex}20`, borderColor: colour.hex } : {})
+                                            }}
                                         >
                                             {/* Task Primary Row: Check, Title, and Actions */}
-                                            <div className="w-full flex flex-1 gap-4 min-w-0">
+                                            <div className="w-full flex flex-1 gap-4 min-w-0 items-center">
+                                                
                                                 {/* Completion Checkbox Button */}
                                                 <button
                                                     onClick={handleToggleCompletion(task)}
-                                                    className={`shrink-0 h-7 w-7 flex items-center justify-center p-[0.20rem] ${hasSubtasks && isActive ? "" : "mt-1"} rounded-full`}
+                                                    className={`shrink-0 h-7 w-7 flex items-center justify-center p-[0.20rem] rounded-full`}
                                                     style={
                                                         hasSubtasks && isActive
                                                             ? { backgroundColor: tailwindColors.primary.DEFAULT }
@@ -236,30 +276,37 @@ export const TasksCardComponent = ({
                                                     className="flex-1 flex flex-col cursor-pointer min-w-0"
                                                     onClick={handleActiveTaskToggle(task.id, isActive)}
                                                 >
-                                                    {/* Task Title */}
-                                                    <div
-                                                        className={`min-w-0 w-full text-xl ${hasSubtasks && isActive ? "" : "text-quaternary-700"}`}
-                                                        style={hasSubtasks && isActive ? { color: colour.text } : {}}
-                                                    >
-                                                        <ScrollingText text={task.name} />
+                                                    <div className="w-full flex items-center justify-between gap-2 min-w-0">
+                                                        <div
+                                                            className={`min-w-0 flex-1 text-xl ${hasSubtasks && isActive ? "" : "text-quaternary-700"}`}
+                                                            style={hasSubtasks && isActive ? { color: colour.text } : {}}
+                                                        >
+                                                            <ScrollingText text={task.name} />
+                                                        </div>
+
+                                                        {taskSelected === task.id && pillMessage && (
+                                                            <div className={`shrink-0 flex items-center justify-center px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider shadow-sm animate-pulse ${pillClass}`}>
+                                                                {pillMessage}
+                                                            </div>
+                                                        )}
                                                     </div>
 
                                                     {/* Subtasks Count, End Date, Estimated Time & Profit and Description Note  */}
                                                     {(!isActive || (isActive && !hasSubtasks)) && (
-                                                        <div className="flex items-center gap-2 text-xs text-quaternary-400">
-                                                            <span>
+                                                        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-quaternary-400 mt-1 min-w-0">
+                                                            <span className="shrink-0">
                                                                 {task.subtasks.length || t("tasks.no_subtasks")}{" "}
                                                                 {t("tasks.subtasks")}
                                                             </span>
 
                                                             {hasDeadline && (
-                                                                <span className="flex items-center gap-[3px]">
-                                                                    <IconCalendarEventFilled className="h-4 w-4 transition-colors duration-200 text-quaternary-700" />
+                                                                <span className="flex items-center gap-[3px] shrink-0">
+                                                                    <IconCalendarEventFilled className="h-4 w-4 transition-colors duration-200 text-quaternary-700 mb-0.5" />
                                                                     {formattedDeadline}
                                                                 </span>
                                                             )}
 
-                                                            <div className="flex items-center">
+                                                            <div className="flex items-center gap-1 shrink-0">
                                                                 {hasEstimatedTime && (
                                                                     <IconStopwatch className="h-4 w-4 transition-colors duration-200 text-quaternary-700" />
                                                                 )}
@@ -270,7 +317,7 @@ export const TasksCardComponent = ({
 
                                                                 {hasNote && (
                                                                     <div
-                                                                        className="relative group flex items-center justify-center shrink-0"
+                                                                        className="relative group flex items-center justify-center shrink-0 ml-1"
                                                                         onMouseEnter={(e) => handleMouseEnterTooltip(e, task)}
                                                                         onMouseLeave={handleMouseLeaveTooltip}
                                                                         onClick={(e) => {
@@ -295,67 +342,95 @@ export const TasksCardComponent = ({
 
                                                 {/* Task Row Action Buttons (Play/Edit) */}
                                                 {!task.isCompleted && (
-                                                    <div className="flex items-center gap-1">
-                                                        <div className="flex items-center gap-2 shrink-0">
-                                                            {/* PLAY / PAUSE */}
-                                                            <div
-                                                                className="p-1.5 rounded-full transition-all cursor-pointer"
-                                                                style={
-                                                                    isActive && hasSubtasks
-                                                                        ? { backgroundColor: `${colour.alt}10`, color: colour.alt, border: `2px solid ${colour.alt}` }
-                                                                        : { backgroundColor: `${colour.hex}10`, color: colour.hex, border: `2px solid ${colour.hex}` }
-                                                                }
-                                                                onMouseEnter={(e) => handleButtonMouseEnter(e, colour.hex, colour.alt, isActive && hasSubtasks)}
-                                                                onMouseLeave={(e) => handleButtonMouseLeave(e, colour.hex, colour.alt, isActive && hasSubtasks)}
-                                                                onClick={handlePlayTask(task)}
-                                                            >
-                                                                {isThisTaskTimerRunning ? (
-                                                                    <IconPlayerPauseFilled className="w-4 h-4" style={{ color: "inherit" }} />
-                                                                ) : (
-                                                                    <IconPlayerPlayFilled className="w-4 h-4" style={{ color: "inherit" }} />
+                                                    <div className="flex items-center shrink-0">
+                                                        {task.isGroupBased && (
+                                                            <div className="flex items-center pr-4 -space-x-2 shrink-0">
+                                                                {task.assignedUsers.slice(0, 3).map((user) => (
+                                                                    <div key={`user-${user.id || user.userId}`} className="w-7 h-7 rounded-full overflow-hidden flex-shrink-0 bg-primary-100">
+                                                                        <img 
+                                                                            src={
+                                                                                user.avatar || 
+                                                                                `https://api.dicebear.com/10.x/glyphs/svg?glyphColor=3B7A57,2F6C4B,26563D,204533,1B392A,0E2018,2AB7CA,228498,226B7C,245866,224A57,11303B&seed=${encodeURIComponent(user.name || "User")}`
+                                                                            }
+                                                                            alt={user.name} 
+                                                                            className="w-full h-full object-cover"
+                                                                        />
+                                                                    </div>
+                                                                ))}
+
+                                                                {task.assignedUsers.length > 3 && (
+                                                                    <div className="relative w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 text-xs font-bold shadow-sm z-10" style={{ background: colour.hex, color: colour.text }}>
+                                                                        +{task.assignedUsers.length - 3}
+                                                                    </div>
                                                                 )}
                                                             </div>
+                                                        )}
 
-                                                            {/* STOP / EDIT */}
-                                                            {isThisTaskInContext ? (
-                                                                <div
-                                                                    onClick={handleStopTask}
-                                                                    className="p-1.5 rounded-full transition-all cursor-pointer"
-                                                                    style={
-                                                                        isActive && hasSubtasks
-                                                                            ? { backgroundColor: `${colour.alt}10`, color: colour.alt, border: `2px solid ${colour.alt}` }
-                                                                            : { backgroundColor: `${colour.hex}10`, color: colour.hex, border: `2px solid ${colour.hex}` }
-                                                                    }
-                                                                    onMouseEnter={(e) => handleButtonMouseEnter(e, colour.hex, colour.alt, isActive && hasSubtasks)}
-                                                                    onMouseLeave={(e) => handleButtonMouseLeave(e, colour.hex, colour.alt, isActive && hasSubtasks)}
-                                                                >
-                                                                    <IconPlayerStopFilled className="w-4 h-4" style={{ color: "inherit" }} />
-                                                                </div>
-                                                            ) : (
-                                                                <div
-                                                                    onClick={handleEditTask(task)}
-                                                                    className="p-1.5 rounded-full transition-all cursor-pointer"
-                                                                    style={
-                                                                        isActive && hasSubtasks
-                                                                            ? { backgroundColor: `${colour.alt}10`, color: colour.alt, border: `2px solid ${colour.alt}` }
-                                                                            : { backgroundColor: `${colour.hex}10`, color: colour.hex, border: `2px solid ${colour.hex}` }
-                                                                    }
-                                                                    onMouseEnter={(e) => handleButtonMouseEnter(e, colour.hex, colour.alt, isActive && hasSubtasks)}
-                                                                    onMouseLeave={(e) => handleButtonMouseLeave(e, colour.hex, colour.alt, isActive && hasSubtasks)}
-                                                                >
-                                                                    <IconEditFilled className="w-4 h-4" style={{ color: "inherit" }} />
-                                                                </div>
-                                                            )}
-                                                        </div>
+                                                        {isUserAssigned && (
+                                                            <>
+                                                                <div className={`flex items-center gap-2 shrink-0 ${task.isGroupBased && "pl-4 pr-1"}`} style={ task.isGroupBased ? { borderLeft: `2px solid ${colour.hex}`} : {}}>
+                                                                    {/* PLAY / PAUSE */}
+                                                                    <div
+                                                                        className="p-1.5 rounded-full transition-all cursor-pointer"
+                                                                        style={
+                                                                            isActive && hasSubtasks
+                                                                                ? { backgroundColor: `${colour.alt}10`, color: colour.alt, border: `2px solid ${colour.alt}` }
+                                                                                : { backgroundColor: `${colour.hex}10`, color: colour.hex, border: `2px solid ${colour.hex}` }
+                                                                        }
+                                                                        onMouseEnter={(e) => handleButtonMouseEnter(e, colour.hex, colour.alt, isActive && hasSubtasks)}
+                                                                        onMouseLeave={(e) => handleButtonMouseLeave(e, colour.hex, colour.alt, isActive && hasSubtasks)}
+                                                                        onClick={handlePlayTask(task)}
+                                                                    >
+                                                                        {isThisTaskTimerRunning ? (
+                                                                            <IconPlayerPauseFilled className="w-4 h-4" style={{ color: "inherit" }} />
+                                                                        ) : (
+                                                                            <IconPlayerPlayFilled className="w-4 h-4" style={{ color: "inherit" }} />
+                                                                        )}
+                                                                    </div>
 
-                                                        <button
-                                                            type="button"
-                                                            onClick={(e) => handleContextMenu(e, task)}
-                                                            className="transition-colors duration-200"
-                                                            style={{color: isActive ? colour.alt : colour.hex }}
-                                                        >
-                                                            <IconDotsVerticalFilled className="h-5 w-5" />
-                                                        </button>
+                                                                    {/* STOP / EDIT */}
+                                                                    {isThisTaskInContext ? (
+                                                                        <div
+                                                                            onClick={handleStopTask}
+                                                                            className="p-1.5 rounded-full transition-all cursor-pointer"
+                                                                            style={
+                                                                                isActive && hasSubtasks
+                                                                                    ? { backgroundColor: `${colour.alt}10`, color: colour.alt, border: `2px solid ${colour.alt}` }
+                                                                                    : { backgroundColor: `${colour.hex}10`, color: colour.hex, border: `2px solid ${colour.hex}` }
+                                                                            }
+                                                                            onMouseEnter={(e) => handleButtonMouseEnter(e, colour.hex, colour.alt, isActive && hasSubtasks)}
+                                                                            onMouseLeave={(e) => handleButtonMouseLeave(e, colour.hex, colour.alt, isActive && hasSubtasks)}
+                                                                        >
+                                                                            <IconPlayerStopFilled className="w-4 h-4" style={{ color: "inherit" }} />
+                                                                        </div>
+                                                                    ) : (
+                                                                        <div
+                                                                            onClick={handleEditTask(task)}
+                                                                            className="p-1.5 rounded-full transition-all cursor-pointer"
+                                                                            style={
+                                                                                isActive && hasSubtasks
+                                                                                    ? { backgroundColor: `${colour.alt}10`, color: colour.alt, border: `2px solid ${colour.alt}` }
+                                                                                    : { backgroundColor: `${colour.hex}10`, color: colour.hex, border: `2px solid ${colour.hex}` }
+                                                                            }
+                                                                            onMouseEnter={(e) => handleButtonMouseEnter(e, colour.hex, colour.alt, isActive && hasSubtasks)}
+                                                                            onMouseLeave={(e) => handleButtonMouseLeave(e, colour.hex, colour.alt, isActive && hasSubtasks)}
+                                                                        >
+                                                                            <IconEditFilled className="w-4 h-4" style={{ color: "inherit" }} />
+                                                                        </div>
+                                                                    )}
+                                                                </div>
+
+                                                                <button
+                                                                    type="button"
+                                                                    onClick={(e) => handleContextMenu(e, task)}
+                                                                    className="transition-colors duration-200"
+                                                                    style={{color: isActive ? colour.alt : colour.hex }}
+                                                                >
+                                                                    <IconDotsVerticalFilled className="h-5 w-5" />
+                                                                </button>
+                                                            </>
+                                                        )}
+
                                                     </div>
                                                 )}
                                             </div>
@@ -366,7 +441,7 @@ export const TasksCardComponent = ({
                                                     {task.subtasks.map((sub) => (
                                                         <div
                                                             key={`sub-${sub.id}`}
-                                                            className="w-full flex items-center justify-between text-sm"
+                                                            className="w-full flex items-center justify-between text-sm min-w-0"
                                                             style={{ color: colour.text }}
                                                         >
                                                             {/* Subtask Checkbox & Name */}
@@ -385,7 +460,7 @@ export const TasksCardComponent = ({
                                                             </div>
 
                                                             {/* Subtask Context Actions (Rename/Delete) */}
-                                                            <div className="flex items-center gap-2 ml-4">
+                                                            <div className="flex items-center gap-2 ml-4 shrink-0">
                                                                 <button
                                                                     onClick={() =>
                                                                         handleActionRename({
@@ -447,11 +522,11 @@ export const TasksCardComponent = ({
             </div>
 
             {/* Bottom Floating Actions Section: Mobile Back & Create New Task */}
-            <div className="w-full flex items-center justify-between xl:justify-end">
+            <div className={`w-full flex items-center ${admin ? "justify-between" : "justify-between xl:justify-end"}`}>
                 <button
                     type="button"
                     onClick={handleBackNavigation}
-                    className="xl:hidden flex items-center gap-1 bg-primary-200 rounded-full pr-2 text-primary"
+                    className={`${!admin ? "xl:hidden" : ""} flex items-center gap-1 bg-primary-200 rounded-full pr-2 text-primary`}
                 >
                     <IconCircleChevronLeftFilled className="h-9 w-9 " />
                     <span className="font-semibold">{t("tasks.back_stages")}</span>
@@ -468,6 +543,7 @@ export const TasksCardComponent = ({
             {taskToEdit && (
                 <TaskPopUpComponent
                     onClose={handleClosePopUp}
+                    onError={onError}
                     initialData={taskToEdit === "new" ? null : taskToEdit}
                     projectId={projectId}
                     stageId={stageId}

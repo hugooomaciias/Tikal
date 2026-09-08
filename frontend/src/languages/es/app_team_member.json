@@ -1,0 +1,37 @@
+{
+    "general_info": {
+        "role": {
+            "title": "Rol",
+            "default": "Miembro"
+        },
+        "progress": "Progreso",
+        "effectiveness": "Efectividad",
+        "ranking": "Ranking"
+    },
+    "widgets": {
+        "ranking": {
+            "default_role": "Miembro"
+        },
+        "recent_activities": {
+            "no_recent": {
+                "title": "Todo al día",
+                "description": "Tu equipo no ha registrado nuevas actividades ni mensajes últimamente."
+            },
+            "title": "Actividades recientes",
+            "subtitle": {
+                "calendar": "Empieza: ",
+                "deadline": "Caduca: "
+            },
+            "expand": {
+                "more": "más",
+                "less": "menos"
+            }
+        },
+        "calendar": {
+            "title": "Calendario"
+        },
+        "tasks": {
+            "title": "Tareas"
+        }
+    }
+}

@@ -1,0 +1,35 @@
+{
+    "success": {
+        "tasks": {
+            "project": {
+                "create": "The project has been successfully created",
+                "rename": "The project has been successfully renamed",
+                "edit": "The project has been successfully updated",
+                "delete": "The project has been successfully deleted"
+            },
+            "stage": {
+                "create": "The stage has been successfully created",
+                "rename": "The stage has been successfully renamed",
+                "edit": "The stage has been successfully updated",
+                "delete": "The stage has been successfully deleted"
+            },
+            "task": {
+                "create": "The task has been successfully created",
+                "rename": "The task has been successfully renamed",
+                "edit": "The task has been successfully updated",
+                "delete": "The task has been successfully deleted",
+                "complete": "The task has been successfully completed"
+            }
+        }
+    },
+    "error": {
+        "teams": {
+            "code_copied": "Failed to copy the code to the clipboard"
+        }
+    },
+    "info": {
+        "teams": {
+            "code_copied": "The invitation code has been copied to the clipboard"
+        }
+    }
+}

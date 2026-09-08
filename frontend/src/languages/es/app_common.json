@@ -14,6 +14,10 @@
         },
         "logout": "Cerrar sesión"
     },
+    "header": {
+        "team_label": "Equipo",
+        "project_label": "Proyecto"
+    },
     "confirm_time_log": {
         "title": "Registrar actividad",
         "description": "¿A qué le has dedicado tiempo exactamente durante este último bloque en la siguiente tarea?",
@@ -53,10 +57,17 @@
     "rename": {
         "title": {
             "event": "Renombrar evento",
-            "ia": "Renombrar chat"
+            "ia": "Renombrar chat",
+            "role": "Modificar rol"
         },
-        "input_label": "Nuevo nombre",
-        "button": "Renombrar"
+        "input_label": {
+            "event": "Nuevo nombre",
+            "role": "Nuevo role"
+        },
+        "button": {
+            "event": "Renombrar",
+            "role": "Modificar"
+        }
     },
     "delete": {
         "title": {

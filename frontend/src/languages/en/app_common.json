@@ -14,6 +14,10 @@
         },
         "logout": "Log out"
     },
+    "header": {
+        "team_label": "Team",
+        "project_label": "Project"
+    },
     "confirm_time_log": {
         "title": "Log time",
         "description": "What exactly did you spend time on during this last block in the following task?",
@@ -50,10 +54,17 @@
     "rename": {
         "title": {
             "event": "Rename event",
-            "ia": "Rename chat"
+            "ia": "Rename chat",
+            "role": "Modify role"
         },
-        "input_label": "New name",
-        "button": "Rename"
+        "input_label": {
+            "event": "New name",
+            "role": "New role"
+        },
+        "button": {
+            "event": "Rename",
+            "role": "Modify"
+        }
     },
     "delete": {
         "title": {

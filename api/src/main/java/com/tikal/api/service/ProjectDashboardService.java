@@ -57,14 +57,22 @@ public class ProjectDashboardService {
             leftDays = days > 0 ? (int) days : 0;
         }
 
-        Object[] progressData = taskRepository.getProjectTaskProgress(projectId);
-        int totalTasks = progressData[0] != null ? ((Number) progressData[0]).intValue() : 0;
-        int completedTasks = progressData[1] != null ? ((Number) progressData[1]).intValue() : 0;
-        int pendingTasks = totalTasks - completedTasks;
+        List<Object[]> progressResult = taskRepository.getProjectTaskProgress(projectId);
 
-        int progress = 0;
+        int totalTasks = 0;
+        int completedTasks = 0;
+        int pendingTasks = 0;
+
+        if (!progressResult.isEmpty() && progressResult.get(0) != null) {
+            Object[] row = progressResult.get(0);
+            totalTasks = row[0] != null ? ((Number) row[0]).intValue() : 0;
+            completedTasks = row[1] != null ? ((Number) row[1]).intValue() : 0;
+            pendingTasks = totalTasks - completedTasks;
+        }
+
+        Double progress = 0.0;
         if (totalTasks > 0) {
-            progress = (int) Math.round((completedTasks * 100.0) / totalTasks);
+            progress = Math.round(((double) completedTasks / totalTasks) * 1000.0) / 10.0;
         }
 
         Double effectivenessRaw = taskRepository.getProjectTeamEffectiveness(projectId);
@@ -82,7 +90,7 @@ public class ProjectDashboardService {
                 .leftDays(leftDays)
                 .completedTasks(completedTasks)
                 .pendingTasks(pendingTasks)
-                .progress(progress)
+                .progress(Integer.valueOf((int) Math.round(progress)))
                 .teamEffectiveness(teamEffectiveness)
                 .totalLoggedMinutes(project.getTotalLoggedMinutes())
                 .members(membersData)
@@ -133,7 +141,7 @@ public class ProjectDashboardService {
         return project.getStages().stream().map(stage -> {
             List<TaskSyncDTO> taskDTOs = stage.getTasks().stream()
                     .filter(t -> t.getParentTask() == null)
-                    .map(task -> mapTaskToDTO(task, project.getLogoUrl(), stage.getColour()))
+                    .map(task -> mapTaskToDTO(task, project.getLogoUrl(), stage.getColour(), project.getIsGroupBased()))
                     .collect(Collectors.toList());
 
             return StageSyncDTO.builder()
@@ -148,7 +156,7 @@ public class ProjectDashboardService {
         }).collect(Collectors.toList());
     }
 
-    private TaskSyncDTO mapTaskToDTO(Task task, String logo, String colour) {
+    private TaskSyncDTO mapTaskToDTO(Task task, String logo, String colour, Boolean isGroupBased) {
         List<TaskSyncDTO.AssignedUser> assignedUsers = task.getAssignedUsers().stream()
                 .map(u -> TaskSyncDTO.AssignedUser.builder()
                         .id(u.getId())
@@ -179,6 +187,7 @@ public class ProjectDashboardService {
                 .numberOfSubTask(subtasks.size())
                 .subtasks(subtasks)
                 .assignedUsers(assignedUsers)
+                .isGroupBased(isGroupBased)
                 .build();
     }
 
@@ -210,6 +219,7 @@ public class ProjectDashboardService {
                     .eventType(event.getEventType())
                     .organizer(organizer)
                     .attendees(attendees)
+                    .projectId(event.getProject() != null ? event.getProject().getId() : null)
                     .build();
         }).collect(Collectors.toList());
     }

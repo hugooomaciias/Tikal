@@ -14,8 +14,6 @@ import { TaskWidget } from "../../../../../components/app/main/home/widgets/Task
 import { AIWidget } from "../../../../../components/app/main/home/widgets/AIWidget.jsx";
 import { CalendarWidget } from "../../../../../components/app/main/home/widgets/CalendarWidget.jsx";
 
-/** Config, Constants & Utils */
-
 /**
  * Widget Configuration Map
  *

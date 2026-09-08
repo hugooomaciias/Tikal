@@ -1,8 +1,17 @@
 {
     "calendar_title": "Calendar",
-    "next_events": "Next events",
-    "today": "Today",
-    "tomorrow": "Tomorrow",
+    "next_events": {
+        "title": "Next events",
+        "no_events": {
+            "title": "No appointments scheduled",
+            "description": {
+                "calendar": "You don't have any upcoming events on your calendar. Enjoy your free time!",
+                "admin": "There are no upcoming events. Click the + button to schedule a new one."
+            }
+        },
+        "today": "Today",
+        "tomorrow": "Tomorrow"
+    },
     "popup": {
         "title": {
             "new": "New event",

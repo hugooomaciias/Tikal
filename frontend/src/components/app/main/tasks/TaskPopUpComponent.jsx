@@ -19,8 +19,7 @@ import {
     IconStopwatch,
     IconLoader,
     IconMoneybag,
-    IconClockHour3,
-    IconAlertTriangleFilled
+    IconClockHour3
 } from "@tabler/icons-react";
 
 /**
@@ -40,7 +39,7 @@ import {
  * @param {Function} props.t - Translation function from i18next for multi-language support.
  * @returns {JSX.Element} The rendered Task PopUp modal component.
  */
-export const TaskPopUpComponent = ({ onClose, initialData, projectId, stageId, t }) => {
+export const TaskPopUpComponent = ({ onClose, onError, initialData, projectId, stageId, t }) => {
     // --- 1. Logic Hook Extraction ---
 
     /**
@@ -52,12 +51,13 @@ export const TaskPopUpComponent = ({ onClose, initialData, projectId, stageId, t
     const { tasksPopUpStates, tasksPopUpData, tasksPopUpActions } = useTasksPopUpLogic(
         initialData,
         onClose,
+        onError,
         projectId,
         stageId,
         t,
     );
 
-    const { hoveredTooltip, formData, errors, timeUnit, focusedInput, isLoading, apiError, isVisible } =
+    const { hoveredTooltip, formData, errors, timeUnit, focusedInput, isLoading } =
         tasksPopUpStates;
     const { isEditing } = tasksPopUpData;
     const {
@@ -385,18 +385,6 @@ export const TaskPopUpComponent = ({ onClose, initialData, projectId, stageId, t
                     document.body,
                 )
             }
-
-            {/* API Error Alert Banner */}
-            {apiError && (
-                <div
-                    className={`absolute bottom-8 left-0 right-0 mx-auto w-[90%] md:w-fit md:min-w-[350px] max-w-md bg-primary border-2 border-tertiary-200 text-tertiary-200 px-6 py-4 rounded-2xl flex items-center justify-center gap-3 shadow-2xl transition-all duration-500 ease-out z-50
-                                ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10 pointer-events-none"}`}
-                    role="alert"
-                >
-                    <IconAlertTriangleFilled className="h-6 w-6 shrink-0" />
-                    <span className="block sm:inline font-medium text-center">{apiError}</span>
-                </div>
-            )}
         </div>
     );
 };

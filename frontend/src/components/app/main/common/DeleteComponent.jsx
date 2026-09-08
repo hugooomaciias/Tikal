@@ -37,7 +37,7 @@ const tailwindColors = fullConfig.theme.colors;
  * @param {Function} props.onDelete - Callback function triggered to confirm and execute the deletion.
  * @returns {JSX.Element} The rendered deletion confirmation modal overlay.
  */
-export const DeleteComponent = ({ iaModule, isLeave, onClose, data, onDelete }) => {
+export const DeleteComponent = ({ iaModule, isLeave, onClose, data, onDelete, nextEvent }) => {
     // --- 1. Local UI Logic ---
 
     /**
@@ -66,7 +66,12 @@ export const DeleteComponent = ({ iaModule, isLeave, onClose, data, onDelete }) 
      *
      * Resolves the specific hex color representation associated with the entity's phase/project.
      */
-    const color = PHASE_COLOURS.find((c) => c.id === data.color);
+    let color = null;
+    if (nextEvent) {
+        color = data.color;
+    } else {
+        color = PHASE_COLOURS.find((c) => c.id === data.color);
+    }
 
     /**
      * Delete Confirmation Handler
@@ -120,7 +125,7 @@ export const DeleteComponent = ({ iaModule, isLeave, onClose, data, onDelete }) 
                         {LogoComponent && <LogoComponent className="w-5 h-5" />}
 
                         {/* Entity Title */}
-                        <ScrollingText className={`font-bold ${iaModule || isLeave ? "text-center" : "text-end"}`} text={data?.title || data.name} />
+                        <ScrollingText className={`font-bold ${(iaModule || isLeave || !LogoComponent) ? "text-center" : "text-end"}`} text={data?.title || data.name} />
                     </div>
 
                     {/* Action Buttons Section */}

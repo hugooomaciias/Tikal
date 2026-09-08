@@ -133,6 +133,45 @@ export const useCalendarEvents = () => {
         }
     };
 
+    /**
+     * Assign Attendees to Calendar Event
+     *
+     * Delegates to `calendarService.assignAttendees` to update the users attending
+     * a specific event. It formats the payload to match the backend's expected schema
+     * (an array of IDs), and simultaneously performs an optimistic update by injecting
+     * the raw user objects directly into the global `calendarEvents` state so the UI
+     * reflects the change instantly without requiring a full refetch.
+     *
+     * @async
+     * @param {string|number} id - The unique identifier of the calendar event to update.
+     * @param {Array<Object>} attendees - The full array of user objects to assign.
+     * @returns {Promise<boolean>} True upon successful mutation.
+     * @throws {Error} Re-throws the service error after logging, allowing the caller to handle it.
+     */
+    const assignAttendeesToEvent = async (id, attendees) => {
+        try {
+            const backendPayload = {
+                assignedUserIds: attendees.map((user) => user.id || user.userId)
+            };
+
+            await calendarService.assignAttendees(id, backendPayload);
+
+            updateContextData("calendarEvents", (currentEvents = []) => {
+                return currentEvents.map((event) => {
+                    if (event.id.toString() === id.toString()) {
+                        return { ...event, attendees: attendees };
+                    }
+                    return event;
+                });
+            });
+
+            return true;
+        } catch (error) {
+            console.error("Error asignando asistentes al evento:", error);
+            throw error;
+        }
+    };
+
     // --- 3. Return Object ---
 
     return {
@@ -140,5 +179,6 @@ export const useCalendarEvents = () => {
         updateCalendarEvent,
         updateCalendarEventDates,
         deleteCalendarEvent,
+        assignAttendeesToEvent
     };
 };

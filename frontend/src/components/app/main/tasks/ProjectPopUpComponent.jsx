@@ -7,7 +7,7 @@ import { DatePickerComponent } from "../common/popups/DatepickerComponent.jsx";
 import { PickerComponent } from "../common/popups/PickerComponent.jsx";
 
 /** Icons */
-import { IconCircleXFilled, IconNote, IconLoader, IconAlertTriangleFilled } from "@tabler/icons-react";
+import { IconCircleXFilled, IconNote, IconLoader } from "@tabler/icons-react";
 
 /** Assets, Utils & Constants */
 import { PROJECTS_ICONS } from "../../../../constants/projects_icons.js";
@@ -26,14 +26,16 @@ import { PROJECTS_ICONS } from "../../../../constants/projects_icons.js";
  * @param {Function} props.t - Translation function from i18next.
  * @returns {JSX.Element} The rendered popup modal.
  */
-export const ProjectPopUpComponent = ({ onClose, initialData, t }) => {
+export const ProjectPopUpComponent = ({ onClose, onError, initialData, activeTeam, t }) => {
     const { projectsPopUpStates, projectsPopUpData, projectsPopUpActions } = useProjectsPopUpLogic(
         t,
         initialData,
         onClose,
+        activeTeam,
+        onError
     );
 
-    const { selectedIcon, formData, errors, isLoading, apiError, isVisible } = projectsPopUpStates;
+    const { selectedIcon, formData, errors, isLoading } = projectsPopUpStates;
     const { isEditing } = projectsPopUpData;
     const {
         handleChange,
@@ -215,18 +217,6 @@ export const ProjectPopUpComponent = ({ onClose, initialData, t }) => {
                     </button>
                 </form>
             </div>
-
-            {/* API Error Alert Banner */}
-            {apiError && (
-                <div
-                    className={`absolute bottom-8 left-0 right-0 mx-auto w-[90%] md:w-fit md:min-w-[350px] max-w-md bg-primary border-2 border-tertiary-200 text-tertiary-200 px-6 py-4 rounded-2xl flex items-center justify-center gap-3 shadow-2xl transition-all duration-500 ease-out z-50
-                                ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10 pointer-events-none"}`}
-                    role="alert"
-                >
-                    <IconAlertTriangleFilled className="h-6 w-6 shrink-0" />
-                    <span className="block sm:inline font-medium text-center">{apiError}</span>
-                </div>
-            )}
         </div>
     );
 };

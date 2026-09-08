@@ -27,7 +27,7 @@ export const useTeamMembersPopUpLogic = (t, team, onClose, viewAsAdmin) => {
      *
      * Injects the necessary backend mutation and query methods for managing team members.
      */
-    const { fetchTeamMembers, toggleMemberAdmin, kickMember } = useTeams();
+    const { fetchTeamMembers, toggleMemberAdmin, kickMember, updateMemberRole } = useTeams();
 
     /**
      * Synchronization Context
@@ -89,6 +89,20 @@ export const useTeamMembersPopUpLogic = (t, team, onClose, viewAsAdmin) => {
      * trigger the confirmation overlay strictly on their specific card.
      */
     const [memberToDelete, setMemberToDelete] = useState(null);
+
+    /**
+     * Role Modify Modal State
+     *
+     * Tracks the mount status of the sub-modal used to modify a team member's specific role.
+     */
+    const [isRoleModifyModalOpen, setIsRoleModifyModalOpen] = useState(false);
+
+    /**
+     * Active Role Edit Tracker
+     *
+     * Stores the specific member's payload currently selected for a role update.
+     */
+    const [roleToEdit, setRoleToEdit] = useState(null);
 
     // --- 3. Derived UI Data ---
 
@@ -239,6 +253,60 @@ export const useTeamMembersPopUpLogic = (t, team, onClose, viewAsAdmin) => {
     }, []);
 
     /**
+     * Open Role Modification Modal
+     *
+     * Mounts the role modification sub-modal and injects the target member's payload.
+     *
+     * @param {Object} rolePayload - The member payload containing the current role data.
+     * @returns {void}
+     */
+    const handleOpenRoleModifyModal = useCallback((role) => {
+        setRoleToEdit(role);
+        setIsRoleModifyModalOpen(true)
+    }, []);
+
+    /**
+     * Close Role Modification Modal
+     *
+     * Dismounts the role modification sub-modal and clears the active edit tracking state.
+     *
+     * @returns {void}
+     */
+    const handleCloseRoleModifyModal = useCallback(() => {
+        setRoleToEdit(null);
+        setIsRoleModifyModalOpen(false)
+    }, []);
+
+    /**
+     * Modify Member Role Handler
+     *
+     * Executes the backend mutation to update a specific team member's customized role.
+     * Performs an optimistic update on the active search results array if necessary,
+     * then closes the modification modal.
+     *
+     * @async
+     * @param {string|number} userId - The unique identifier of the target user.
+     * @param {string} newRole - The newly assigned role string.
+     * @returns {Promise<void>}
+     */
+    const handleModifyRole = useCallback(async (userId, newRole) => {
+        try {
+            await updateMemberRole(team.id, userId, newRole);
+
+            if (searchTerm && searchResults) {
+                setSearchResults((prev) => 
+                    prev.map((m) => m.userId === userId ? { ...m, teamRole: newRole } : m)
+                );
+            }
+
+            setRoleToEdit(null);
+            setIsRoleModifyModalOpen(false);
+        } catch (error) {
+            console.error("Error al renombrar el chat:", error);
+        }
+    }, [team]);
+
+    /**
      * Close Modal Handler
      *
      * Flushes all active local UI states (search, errors, results) and triggers 
@@ -262,7 +330,9 @@ export const useTeamMembersPopUpLogic = (t, team, onClose, viewAsAdmin) => {
             isLoading, 
             isVisible, 
             apiError,
-            memberToDelete
+            memberToDelete,
+            isRoleModifyModalOpen,
+            roleToEdit
         },
         membersPopUpActions: { 
             handleToggleAdmin, 
@@ -270,7 +340,10 @@ export const useTeamMembersPopUpLogic = (t, team, onClose, viewAsAdmin) => {
             handleCancelKick,
             handleConfirmKick,
             handleSearchChange, 
-            handleClose 
+            handleClose,
+            handleOpenRoleModifyModal,
+            handleCloseRoleModifyModal,
+            handleModifyRole
         },
     };
 };
