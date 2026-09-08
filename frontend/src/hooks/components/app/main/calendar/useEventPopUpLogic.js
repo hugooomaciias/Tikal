@@ -297,13 +297,13 @@ export const useEventPopUpLogic = (initialData, onClose, onError, cascadingOptio
                     ...linkPayload
                 }
 
+                if (projectId) {
+                    payload.projectId = projectId
+                }
+
                 if (isEditing && initialData?.id) {
                     await updateCalendarEvent(initialData.id, payload);
                 } else {
-                    if (projectId) {
-                        payload.projectId = projectId
-                    }
-
                     await createCalendarEvent(payload);
                 }
 

@@ -174,7 +174,7 @@ export const ChatPage = () => {
                 </aside>
 
                 {/* --- Active chat canvas --- */}
-                <div className={`${(!activeChat || isInfoPanelOpen) ? "hidden md:flex" : "flex" } flex-1 bg-primary md:bg-primary-100 rounded-[2rem] flex-col overflow-hidden shadow-lg relative`}>
+                <div className={`${(!activeChat || isInfoPanelOpen) ? "hidden md:flex" : "flex" } flex-1 bg-primary md:bg-primary-100 rounded-2xl flex-col overflow-hidden shadow-lg relative`}>
                     {activeChat ? (
                         <>
                             {/* Chat Header */}

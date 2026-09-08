@@ -103,6 +103,14 @@ export const useTeamAdminDashboardLogic = () => {
      */
     const [dashboardData, setDashboardData] = useState(null);
 
+    /**
+     * Selected Date State
+     *
+     * Represents the canonical "active" date within the calendar context. This coordinates
+     * both the mini DatePicker component and the primary FullCalendar grid to remain in sync.
+     */
+    const [selectedDate, setSelectedDate] = useState(new Date());
+
     // --- 3. Derived UI Data ---
 
     /**
@@ -347,6 +355,8 @@ export const useTeamAdminDashboardLogic = () => {
             endTime = `${String(endObj.getHours()).padStart(2, "0")}:${String(endObj.getMinutes()).padStart(2, "0")}`;
         }
 
+        console.log(event);
+
         setEventToEdit({
             id: event.id,
             title: event.title,
@@ -356,7 +366,7 @@ export const useTeamAdminDashboardLogic = () => {
             endDate: endObj,
             startTime: startTime,
             endTime: endTime,
-            color: event.extendedProps.color,
+            color: event.colour || event.extendedProps.color,
             allDay: event.allDay || false,
             isNew: false,
             linkedEntity: linkedEntity,
@@ -419,6 +429,15 @@ export const useTeamAdminDashboardLogic = () => {
         }
     }, [deleteCalendarEvent]);
 
+    /**
+     * Close Event Modal
+     *
+     * Semantically closes the event modal by clearing the active event payload.
+     */
+    const closeEventModal = () => {
+        setEventToEdit(null);
+    };
+
     // --- 6. Return Object ---
 
     return {
@@ -450,7 +469,8 @@ export const useTeamAdminDashboardLogic = () => {
             handleBackNavigation,
             handleEventClick,
             handleEditEvent,
-            handleDeleteEvent
+            handleDeleteEvent,
+            closeEventModal
         }
     };
 }

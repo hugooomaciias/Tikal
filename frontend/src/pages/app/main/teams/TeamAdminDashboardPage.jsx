@@ -39,7 +39,7 @@ export const TeamAdminDashboardPage = () => {
         eventToEdit
     } = teamAdminDashboardStates;
     const { dashboardData, teamProjectGeneralInformation, selectedStage, groupedCalendarEvents } = teamAdminDashboardData;
-    const { handleNavigateToBack, handleTabChange, handleStageSelect, handleBackNavigation, handleEventClick, handleEditEvent, handleDeleteEvent } = teamAdminDashboardActions;
+    const { handleNavigateToBack, handleTabChange, handleStageSelect, handleBackNavigation, handleEventClick, handleEditEvent, handleDeleteEvent, closeEventModal } = teamAdminDashboardActions;
 
     const { contextMenuRef, contextMenuStates, contextMenuActions } = useContextMenu(handleEventClick);
     
@@ -141,7 +141,8 @@ export const TeamAdminDashboardPage = () => {
                 <EventPopUpComponent
                     onClose={closeEventModal}
                     initialData={eventToEdit}
-                    cascadingOptions={cascadingOptions}
+                    projectId={activeProject?.id}
+                    admin={true}
                     tCalendar={tCalendar}
                     tCommon={tCommon}
                 />

@@ -130,7 +130,7 @@ export const useTeamMembersPopUpLogic = (t, team, onClose, viewAsAdmin) => {
             setIsLoading(true);
 
             try {
-                const results = await fetchTeamMembers(team.id, searchTerm);
+                const results = await fetchTeamMembers(team.id, searchTerm !== "" && searchTerm);
 
                 if (searchTerm) {
                     setSearchResults(results);
