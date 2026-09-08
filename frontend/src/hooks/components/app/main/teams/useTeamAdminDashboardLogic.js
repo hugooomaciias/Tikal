@@ -355,8 +355,6 @@ export const useTeamAdminDashboardLogic = () => {
             endTime = `${String(endObj.getHours()).padStart(2, "0")}:${String(endObj.getMinutes()).padStart(2, "0")}`;
         }
 
-        console.log(event);
-
         setEventToEdit({
             id: event.id,
             title: event.title,
