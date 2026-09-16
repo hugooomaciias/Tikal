@@ -1,8 +1,8 @@
 package com.tikal.api.controller;
 
+import com.tikal.api.exception.dto.ErrorResponse;
 import com.tikal.api.model.dto.chat.ChatMessageDTO;
 import com.tikal.api.model.dto.chat.ChatSummaryDTO;
-// ...existing code... (removed unused import Message)
 import com.tikal.api.service.ChatService;
 import com.tikal.api.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -42,9 +42,7 @@ public class ChatRestController {
      */
     @Operation(summary = "Obtener chats de la barra lateral", description = "Devuelve la barra lateral mixta (chats directos + de equipo) para el usuario autenticado. Parámetro opcional 'search' para filtrar.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Listado de resúmenes de chat", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ChatSummaryDTO.class))),
-            @ApiResponse(responseCode = "401", description = "No autorizado"),
-            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+            @ApiResponse(responseCode = "200", description = "Listado de resúmenes de chat", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ChatSummaryDTO.class)))
     })
     @GetMapping("/sidebar")
     public ResponseEntity<List<ChatSummaryDTO>> getSidebarChats(
@@ -59,10 +57,7 @@ public class ChatRestController {
      */
     @Operation(summary = "Historial de chat directo", description = "Devuelve el historial paginado de chat directo con otro usuario. Marca la conversación como leída para el llamador.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Página de mensajes directos", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ChatMessageDTO.class))),
-            @ApiResponse(responseCode = "401", description = "No autorizado"),
-            @ApiResponse(responseCode = "404", description = "Usuario no encontrado"),
-            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+            @ApiResponse(responseCode = "200", description = "Página de mensajes directos", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ChatMessageDTO.class)))
     })
     @GetMapping("/direct/{otherUserId}")
     public ResponseEntity<Page<ChatMessageDTO>> getDirectChatHistory(
@@ -81,10 +76,7 @@ public class ChatRestController {
      */
     @Operation(summary = "Historial de chat de equipo", description = "Devuelve el historial paginado de chat de equipo y marca la conversación del equipo como leída para el llamador.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Página de mensajes de equipo", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ChatMessageDTO.class))),
-            @ApiResponse(responseCode = "401", description = "No autorizado"),
-            @ApiResponse(responseCode = "404", description = "Equipo no encontrado"),
-            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+            @ApiResponse(responseCode = "200", description = "Página de mensajes de equipo", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ChatMessageDTO.class)))
     })
     @GetMapping("/team/{teamId}")
     public ResponseEntity<Page<ChatMessageDTO>> getTeamChatHistory(

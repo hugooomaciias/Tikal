@@ -36,9 +36,7 @@ public class AiController {
      */
     @Operation(summary = "Obtener sesiones", description = "Devuelve todas las sesiones de chat del usuario autenticado.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Listado de sesiones AI", content = @Content(mediaType = "application/json", schema = @Schema(implementation = AiSessionDTO.class))),
-            @ApiResponse(responseCode = "401", description = "No autorizado"),
-            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+            @ApiResponse(responseCode = "200", description = "Listado de sesiones AI", content = @Content(mediaType = "application/json", schema = @Schema(implementation = AiSessionDTO.class)))
     })
     @GetMapping("/sessions")
     public ResponseEntity<List<AiSessionDTO>> getMySessions() {
@@ -53,9 +51,7 @@ public class AiController {
      */
     @Operation(summary = "Crear sesión", description = "Crea una nueva sesión de chat vacía para el usuario.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Sesión creada", content = @Content(mediaType = "application/json", schema = @Schema(implementation = AiSessionDTO.class))),
-            @ApiResponse(responseCode = "401", description = "No autorizado"),
-            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+            @ApiResponse(responseCode = "200", description = "Sesión creada", content = @Content(mediaType = "application/json", schema = @Schema(implementation = AiSessionDTO.class)))
     })
     @PostMapping("/sessions")
     public ResponseEntity<AiSessionDTO> createNewSession() {
@@ -68,11 +64,7 @@ public class AiController {
      */
     @Operation(summary = "Obtener mensajes de sesión", description = "Devuelve el historial de mensajes de una sesión de chat AI específica.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Página de mensajes de la sesión", content = @Content(mediaType = "application/json", schema = @Schema(implementation = AiMessageDTO.class))),
-            @ApiResponse(responseCode = "400", description = "Parámetros inválidos"),
-            @ApiResponse(responseCode = "401", description = "No autorizado"),
-            @ApiResponse(responseCode = "404", description = "Sesión no encontrada"),
-            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+            @ApiResponse(responseCode = "200", description = "Página de mensajes de la sesión", content = @Content(mediaType = "application/json", schema = @Schema(implementation = AiMessageDTO.class)))
     })
     @GetMapping("/sessions/{sessionId}/messages")
     public ResponseEntity<Page<AiMessageDTO>> getSessionMessages(
@@ -88,11 +80,7 @@ public class AiController {
      */
     @Operation(summary = "Actualizar título de sesión", description = "Actualiza el título de una sesión de chat AI específica.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Título actualizado", content = @Content(mediaType = "application/json", schema = @Schema(implementation = AiSessionDTO.class))),
-            @ApiResponse(responseCode = "400", description = "Título inválido"),
-            @ApiResponse(responseCode = "401", description = "No autorizado"),
-            @ApiResponse(responseCode = "404", description = "Sesión no encontrada"),
-            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+            @ApiResponse(responseCode = "200", description = "Título actualizado", content = @Content(mediaType = "application/json", schema = @Schema(implementation = AiSessionDTO.class)))
     })
     @PatchMapping("/sessions/{sessionId}")
     public ResponseEntity<AiSessionDTO> updateSessionTitle(
@@ -107,11 +95,7 @@ public class AiController {
      */
     @Operation(summary = "Enviar mensaje al AI", description = "Envía un nuevo mensaje del usuario al AI y devuelve la respuesta del AI.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Mensaje enviado y respuesta recibida", content = @Content(mediaType = "application/json", schema = @Schema(implementation = AiMessageDTO.class))),
-            @ApiResponse(responseCode = "400", description = "Solicitud inválida"),
-            @ApiResponse(responseCode = "401", description = "No autorizado"),
-            @ApiResponse(responseCode = "404", description = "Sesión no encontrada"),
-            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+            @ApiResponse(responseCode = "200", description = "Mensaje enviado y respuesta recibida", content = @Content(mediaType = "application/json", schema = @Schema(implementation = AiMessageDTO.class)))
     })
     @PostMapping("/sessions/{sessionId}/message")
     public ResponseEntity<AiMessageDTO> sendMessage(
@@ -128,10 +112,7 @@ public class AiController {
      */
     @Operation(summary = "Iniciar nuevo chat", description = "Inicia una nueva sesión de chat y envía el primer mensaje al AI, devolviendo la respuesta del AI.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Nuevo chat iniciado y respuesta del AI", content = @Content(mediaType = "application/json", schema = @Schema(implementation = AiNewChatResponse.class))),
-            @ApiResponse(responseCode = "400", description = "Solicitud inválida"),
-            @ApiResponse(responseCode = "401", description = "No autorizado"),
-            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+            @ApiResponse(responseCode = "200", description = "Nuevo chat iniciado y respuesta del AI", content = @Content(mediaType = "application/json", schema = @Schema(implementation = AiNewChatResponse.class)))
     })
     @PostMapping("/sessions/new-chat")
     public ResponseEntity<AiNewChatResponse> startNewChat(
@@ -146,10 +127,7 @@ public class AiController {
      */
     @Operation(summary = "Eliminar sesión AI", description = "Elimina una sesión de chat y todos sus mensajes.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "204", description = "Sesión eliminada (sin contenido)"),
-            @ApiResponse(responseCode = "401", description = "No autorizado"),
-            @ApiResponse(responseCode = "404", description = "Sesión no encontrada"),
-            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+            @ApiResponse(responseCode = "204", description = "Sesión eliminada (sin contenido)")
     })
     @DeleteMapping("/sessions/{sessionId}")
     public ResponseEntity<Void> startNewChat(

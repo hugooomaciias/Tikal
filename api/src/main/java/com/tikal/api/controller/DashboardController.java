@@ -13,7 +13,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -44,11 +43,7 @@ public class DashboardController {
      * Builds and returns the entire initial state of the user's workspace.
      */
     @Operation(summary = "Sincronización inicial del workspace", description = "Construye y devuelve el estado inicial completo del workspace del usuario (proyectos, tareas, equipos, configuraciones, etc.).")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Workspace sincronizado", content = @Content(mediaType = "application/json", schema = @Schema(implementation = WorkspaceSyncDTO.class))),
-            @ApiResponse(responseCode = "401", description = "No autorizado"),
-            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
-    })
+    @ApiResponse(responseCode = "200", description = "Workspace sincronizado", content = @Content(mediaType = "application/json", schema = @Schema(implementation = WorkspaceSyncDTO.class)))
     @GetMapping("/sync")
     public ResponseEntity<WorkspaceSyncDTO> getInitialSync() {
         WorkspaceSyncDTO syncData = dashboardService.buildInitialWorkspaceSync();
@@ -61,13 +56,7 @@ public class DashboardController {
      * Builds and returns the entire dashboard state for a specific project.
      */
     @Operation(summary = "Dashboard del proyecto", description = "Construye y devuelve el estado completo del dashboard para un proyecto específico.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Dashboard del proyecto", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ProjectDashboardDTO.class))),
-            @ApiResponse(responseCode = "401", description = "No autorizado"),
-            @ApiResponse(responseCode = "403", description = "Prohibido"),
-            @ApiResponse(responseCode = "404", description = "Proyecto no encontrado"),
-            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
-    })
+    @ApiResponse(responseCode = "200", description = "Dashboard del proyecto", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ProjectDashboardDTO.class)))
     @GetMapping("/project/{projectId}")
     public ResponseEntity<ProjectDashboardDTO> getProjectDashboard(@Parameter(description = "ID del proyecto", example = "5", in = ParameterIn.PATH) @PathVariable Integer projectId) {
         ProjectDashboardDTO dashboardData = projectDashboardService.getProjectDashboard(projectId);
@@ -79,11 +68,7 @@ public class DashboardController {
      * Builds and returns the current temple status and related gamification events for the authenticated user.
      */
     @Operation(summary = "Estado Temple", description = "Construye y devuelve el estado actual del modo 'Temple' y los eventos de gamificación relacionados para el usuario autenticado.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Estado Temple generado", content = @Content(mediaType = "application/json", schema = @Schema(implementation = TempleUpdateResponse.class))),
-            @ApiResponse(responseCode = "401", description = "No autorizado"),
-            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
-    })
+    @ApiResponse(responseCode = "200", description = "Estado Temple generado", content = @Content(mediaType = "application/json", schema = @Schema(implementation = TempleUpdateResponse.class)))
     @GetMapping("/temple-status")
     public ResponseEntity<TempleUpdateResponse> getTempleStatus() {
         User currentUser = userService.getAuthenticatedUser();
@@ -107,13 +92,7 @@ public class DashboardController {
      * Builds and returns the entire dashboard state for a standard team member.
      */
     @Operation(summary = "Dashboard miembro de equipo", description = "Construye y devuelve el estado completo del dashboard para un miembro estándar de un equipo.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Dashboard del miembro de equipo", content = @Content(mediaType = "application/json", schema = @Schema(implementation = TeamMemberDashboardDTO.class))),
-            @ApiResponse(responseCode = "401", description = "No autorizado"),
-            @ApiResponse(responseCode = "403", description = "Prohibido"),
-            @ApiResponse(responseCode = "404", description = "Equipo no encontrado"),
-            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
-    })
+    @ApiResponse(responseCode = "200", description = "Dashboard del miembro de equipo", content = @Content(mediaType = "application/json", schema = @Schema(implementation = TeamMemberDashboardDTO.class)))
     @GetMapping("/team/{teamId}/member")
     public ResponseEntity<TeamMemberDashboardDTO> getTeamMemberDashboard(@Parameter(description = "ID del equipo", example = "7", in = ParameterIn.PATH) @PathVariable Integer teamId) {
         TeamMemberDashboardDTO dashboardData = teamMemberDashboardService.getTeamMemberDashboard(teamId);
