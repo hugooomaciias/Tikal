@@ -233,7 +233,7 @@ export const BaseWidget = ({
 
             {/* Widget Content Body */}
             <div
-                className={`flex-1 ${isCalendarWidget || isEffectivenessWidget ? "mt-0" : isTimeTracker ? "mt-7" : "mt-4"}`}
+                className={`flex-1 ${isEffectivenessWidget ? "mt-0" : isTimeTracker ? "mt-7" : "mt-4"}`}
             >
                 {childrenWithProps}
             </div>

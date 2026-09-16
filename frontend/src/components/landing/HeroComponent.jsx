@@ -121,7 +121,7 @@ export const HeroComponent = () => {
     // --- 2. Render ---
 
     return (
-        <div className="w-full max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 items-center justify-items-center gap-16 p-12 md:p-8 mt-28 md:mt-0">
+        <div className="w-full max-w-6xl 2xl:max-w-[2000px] mx-auto grid grid-cols-1 md:grid-cols-2 items-center justify-items-center gap-16 p-12 md:p-8 mt-28 md:mt-0">
             {/* Left Column: Brand Messaging & CTA Actions */}
             <div>
                 {/* Brand Hero Title */}
@@ -157,7 +157,7 @@ export const HeroComponent = () => {
                 {/* Mock Provider Context Wrapper */}
                 <TimeLogContext.Provider value={mockTimeTrackerData}>
                     {/* Primary Foreground Widget: Time Tracker */}
-                    <div className="w-[70%] h-[280px] shadow-xl rounded-[2.5rem] mb-32 shrink-0 animate-float">
+                    <div className="w-[320px] h-[280px] shadow-xl rounded-[2.5rem] mb-32 shrink-0 animate-float">
                         <BaseWidget
                             t={t}
                             title="Time tracker"

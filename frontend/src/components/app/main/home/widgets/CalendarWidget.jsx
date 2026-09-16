@@ -1,7 +1,8 @@
 /** React & Third-Party Libraries */
-import { useMemo, useRef, useEffect } from "react";
+import { useState, useMemo, useRef, useEffect } from "react";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
+import listPlugin from "@fullcalendar/list";
 import interactionPlugin from "@fullcalendar/interaction";
 
 /** Contexts, Hooks & Services */
@@ -69,6 +70,8 @@ export const CalendarWidget = ({ props, setCustomActions }) => {
      */
     const startHour = props?.startHour || "00:00:00";
 
+    const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+
     /**
      * Formatted Calendar Events
      *
@@ -95,6 +98,34 @@ export const CalendarWidget = ({ props, setCustomActions }) => {
             };
         });
     }, [props?.events]);
+
+    /**
+     * Window Resize Listener
+     * Mantiene actualizado el estado isMobile si el usuario gira el teléfono o redimensiona el navegador.
+     */
+    useEffect(() => {
+        const handleResize = () => setIsMobile(window.innerWidth < 768);
+        window.addEventListener("resize", handleResize);
+        return () => window.removeEventListener("resize", handleResize);
+    }, []);
+
+    /**
+     * Dynamic View Switcher
+     * Si el usuario redimensiona la pantalla en tiempo real (ej. pasa de tablet a móvil),
+     * esto fuerza al calendario a cambiar de vista sin necesidad de recargar la página.
+     */
+    useEffect(() => {
+        if (calendarRef.current) {
+            const api = calendarRef.current.getApi();
+            const currentView = api.view.type;
+            const targetView = isMobile ? "listWeek" : "dayGridWeek";
+
+            // Solo cambiamos la vista si es diferente, para evitar parpadeos innecesarios
+            if (currentView !== targetView) {
+                api.changeView(targetView);
+            }
+        }
+    }, [isMobile]);
 
     /**
      * Header Actions Injection Effect
@@ -130,12 +161,12 @@ export const CalendarWidget = ({ props, setCustomActions }) => {
     // --- 2. Render ---
 
     return (
-        <div className="h-full w-full calendar-widget-container">
+        <div className="h-full w-full calendar-widget-container main-calendar-theme">
             {/* Interactive Calendar Grid Layout */}
             <FullCalendar
                 ref={calendarRef}
-                plugins={[dayGridPlugin, interactionPlugin]}
-                initialView="dayGridWeek"
+                plugins={[dayGridPlugin, interactionPlugin, listPlugin]}
+                initialView={isMobile ? "listWeek" : "dayGridWeek"}
                 eventClassNames={["!bg-transparent", "!border-none", "!shadow-none"]}
                 locale={i18n.language === "es" ? esLocale : enLocale}
                 headerToolbar={false}
@@ -146,7 +177,7 @@ export const CalendarWidget = ({ props, setCustomActions }) => {
                 allDaySlot={false}
                 height="100%"
                 dayHeaderFormat={{ weekday: "short", day: "numeric" }}
-                stickyHeaderDates={false}
+                stickyHeaderDates={true}
                 events={events}
                 slotLabelFormat={{
                     hour: "numeric",
@@ -155,30 +186,25 @@ export const CalendarWidget = ({ props, setCustomActions }) => {
                     meridiem: false,
                 }}
                 eventContent={(eventInfo) => {
-                    const hexColor = eventInfo.event.backgroundColor;
+                    console.log(eventInfo);
+                    const color = PHASE_COLOURS.find((c) => c.id === eventInfo?.event?.extendedProps.colorId) || PHASE_COLOURS[0];
                     const Logo = PROJECTS_ICONS.find((i) => i.id === eventInfo?.event?.extendedProps?.logo);
 
                     return (
                         <div
-                            className="h-full w-full flex items-center gap-1 rounded-lg px-2 py-1 overflow-hidden"
-                            style={{
-                                backgroundColor: hexColor,
-                                borderLeft: "0",
-                                borderRight: "0",
-                                borderBottom: "0",
-                                boxSizing: "border-box",
-                            }}
+                            className="h-full w-full flex items-center gap-1.5 rounded-lg px-2 py-1.5 overflow-hidden shadow-sm"
+                            style={{ backgroundColor: color.hex, color: color.text }}
                         >
-                            {/* Visual Event Indicator */}
                             {Logo && (
-                                <Logo.component className="h-4 w-4 text-primary" />
+                                <Logo.component className="h-4 w-4 shrink-0" />
                             )}
-
-                            {/* Animated Event Title */}
-                            <ScrollingText
-                                text={eventInfo.event.title}
-                                className="text-[10px] font-bold leading-none w-full text-primary"
-                            />
+    
+                            <div className="flex-1 min-w-0">
+                                <ScrollingText
+                                    text={eventInfo.event.title}
+                                    className="text-[11px] font-bold leading-none w-full tracking-wide"
+                                />
+                            </div>
                         </div>
                     );
                 }}

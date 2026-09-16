@@ -17,7 +17,8 @@ import {
     IconUser,
     IconUserShield,
     IconChevronLeft,
-    IconUsersGroup
+    IconUsersGroup,
+    IconMenu4
 } from "@tabler/icons-react";
 
 /** Config, Constants & Utils */
@@ -42,7 +43,7 @@ import { PROJECTS_ICONS } from "../../../../constants/projects_icons.js";
  * @param {Function} props.t - The i18n translation function.
  * @returns {JSX.Element} The rendered header component.
  */
-export const HeaderComponent = ({ teamImage, page, projectIcon, projectName, primaryState, secondaryState, onTogglePrimary, onToggleSecondary, theme = "", onSaveLayout, teams, onNavigateToBack, t }) => {
+export const HeaderComponent = ({ page, isMobile, teamImage, projectIcon, projectName, primaryState, secondaryState, onTogglePrimary, onToggleSecondary, onOpenMobileMenu, theme = "", onSaveLayout, teams, onNavigateToBack, t }) => {
     // --- 1. Local UI Logic ---
 
     /**
@@ -112,20 +113,40 @@ export const HeaderComponent = ({ teamImage, page, projectIcon, projectName, pri
             <div className="flex items-center justify-between">
                 {/* Page Title & Time Tracker Section */}
                 <div className="h-full w-fit flex items-center gap-2 md:gap-4 rounded-full">
-                    {onNavigateToBack && (
+                    {onNavigateToBack && !isMobile && (
                         <button
                             type="button"
                             onClick={onNavigateToBack}
-                            className="h-16 w-16 flex items-center justify-center bg-primary p-3 rounded-full shadow-md text-primary-600"
+                            className="h-11 w-11 md:h-16 md:w-16 flex items-center justify-center bg-primary p-2.5 md:p-3 rounded-full shadow-md text-primary-600"
                         >
                             <IconChevronLeft className="w-8 h-8" />
                         </button>
                     )}
 
+                    {isMobile && (
+                        <button
+                            type="button"
+                            className={`h-11 w-11 md:h-16 md:w-16 flex items-center justify-center bg-primary p-2.5 md:p-3 rounded-full shadow-md ${theme ? "text-rank-700" : "text-primary-600"}`}
+                            onClick={onOpenMobileMenu}
+                        >
+                            <IconMenu4 className="w-8 h-8" />
+                        </button>
+                    )}
+
                     {/* Active Page Indicator */}
-                    <div className={`h-16 w-fit bg-primary flex items-center ${teamImage ? "p-2 pr-4 gap-3" : "px-5 py-3" } rounded-full shadow-md text-2xl font-bold text-primary-600`}>
+                    <div className={`h-11 md:h-16 w-fit bg-primary flex items-center ${teamImage ? "p-2 pr-4 gap-3" : "px-5 py-3" } rounded-full shadow-md text-2xl font-bold text-primary-600`}>
+                        {isMobile && teamImage && (
+                            <button
+                                type="button"
+                                onClick={onNavigateToBack}
+                                className="h-8 w-8 flex items-center justify-center bg-primary-100 p-1 pr-1.5 rounded-full shadow-md text-primary-600"
+                            >
+                                <IconChevronLeft className="w-8 h-8" />
+                            </button>
+                        )}
+
                         {teamImage && (
-                            <div className="h-12 w-12 rounded-full flex-shrink-0">
+                            <div className="h-8 w-8 md:h-12 md:w-12 rounded-full flex-shrink-0">
                                 <img src={teamImage} alt={page} className="w-full h-full rounded-full object-cover" />
                             </div>
                         )}
@@ -134,16 +155,16 @@ export const HeaderComponent = ({ teamImage, page, projectIcon, projectName, pri
                             <h2 className="text-rank-700">{page}</h2>
                         ) : (
                             teamImage ? (
-                                <div className="flex flex-col justify-center max-w-[200px] lg:max-w-[300px]">
-                                    <span className="text-[10px] font-bold text-quaternary-400 uppercase tracking-wider leading-none mb-1">
+                                <div className="flex flex-col justify-center">
+                                    <span className="text-[8px] md:text-[10px] font-bold text-quaternary-400 uppercase tracking-wider leading-none mb-0.5 md:mb-1">
                                         {tCommon("header.team_label")}
                                     </span>
-                                    <span className="text-lg font-bold text-quaternary-800 leading-none truncate">
+                                    <span className="text-sm md:text-lg font-bold text-quaternary-800 leading-none truncate">
                                         {page}
                                     </span>
                                 </div>
                             ) : (
-                                <h2>{page}</h2>
+                                <h2 className="text-lg md:text-2xl truncate">{page}</h2>
                             )
                         )}
                     </div>
@@ -170,37 +191,37 @@ export const HeaderComponent = ({ teamImage, page, projectIcon, projectName, pri
                         </div>
                     )}
 
-                    {!theme && (
+                    {!theme && (page != t("home_title")) && (
                         <DynamicIslandComponent />
                     )}
                 </div>
 
                 {/* Contextual Action Bar Section */}
-                <div className="h-full w-fit flex items-center gap-2 md:gap-4 rounded-full">
+                <div className="h-full w-fit flex items-center gap-2 md:gap-3 rounded-full">
                     {/* Tasks Page Actions */}
                     {page === t("tasks_title") && (
                         <div className="flex items-center gap-3">
                             <button
                                 type="button"
-                                className={`h-fit w-fit ${secondaryState ? "bg-primary-600" : "bg-primary"} p-2 rounded-full shadow-md`}
+                                className={`h-11 w-11 md:h-16 md:w-fit flex items-center justify-center shrink-0 ${secondaryState ? "bg-primary-600" : "bg-primary"} p-2.5 md:p-3.5 rounded-full shadow-md`}
                                 onClick={onToggleSecondary}
                             >
                                 {!secondaryState ? (
-                                    <IconUsersGroup className="w-8 h-8 text-primary-600" />
+                                    <IconUsersGroup className="w-9 h-9 text-primary-600" />
                                 ) : (
-                                    <IconUsersGroup className="w-8 h-8 text-primary" />
+                                    <IconUsersGroup className="w-9 h-9 text-primary" />
                                 )}
                             </button>
 
                             <button
                                 type="button"
-                                className={`h-fit w-fit ${primaryState ? "bg-primary-600" : "bg-primary"} p-2 rounded-full shadow-md`}
+                                className={`h-11 w-11 md:h-16 md:w-fit flex items-center justify-center shrink-0 ${primaryState ? "bg-primary-600" : "bg-primary"} p-2.5 md:p-3.5 rounded-full shadow-md`}
                                 onClick={onTogglePrimary}
                             >
                                 {!primaryState ? (
-                                    <IconListCheckFilled className="w-8 h-8 text-primary-600" />
+                                    <IconListCheckFilled className="w-9 h-9 text-primary-600" />
                                 ) : (
-                                    <IconListCheckFilled className="w-8 h-8 text-primary" />
+                                    <IconListCheckFilled className="w-9 h-9 text-primary" />
                                 )}
                             </button>
                         </div>
@@ -210,20 +231,20 @@ export const HeaderComponent = ({ teamImage, page, projectIcon, projectName, pri
                     {page === t("calendar_title") && (
                         <button
                             type="button"
-                            className="h-fit w-fit bg-primary text-primary-600 hover:bg-primary-600 hover:text-primary p-2 rounded-full shadow-md transition-colors duration-200"
+                            className="h-11 w-11 md:h-16 md:w-fit flex items-center justify-center shrink-0 bg-primary text-primary-600 hover:bg-primary-600 hover:text-primary p-2.5 md:p-3.5 rounded-full shadow-md transition-colors duration-200"
                             onClick={onTogglePrimary}
                         >
-                            <IconPlusFilled className="w-8 h-8" />
+                            <IconPlusFilled className="w-9 h-9" />
                         </button>
                     )}
 
                     {/* Statistics Page Actions */}
-                    {page === t("statistics_title") && (
+                    {(page === t("statistics_title") || page === t("home_title")) && (
                         <div
-                            className={`relative hidden md:flex items-center justify-center overflow-hidden h-12 rounded-full shadow-md transition-all duration-300 ease-in-out ${
+                            className={`relative hidden h-16 w-16 md:flex items-center justify-center rounded-full shadow-md md:p-3 transition-all duration-300 ease-in-out overflow-hidden ${
                                 primaryState
-                                    ? "bg-primary-600 text-primary w-[96px]"
-                                    : "bg-primary text-primary-600 hover:bg-primary-600 hover:text-primary w-12"
+                                    ? "bg-primary-600 text-primary"
+                                    : "bg-primary text-primary-600 hover:bg-primary-600 hover:text-primary"
                             }`}
                         >
                             {/* Edit Mode Toggle Action */}
@@ -234,7 +255,7 @@ export const HeaderComponent = ({ teamImage, page, projectIcon, projectName, pri
                                     `}
                                 onClick={handleEnableEditMode}
                             >
-                                <IconEditFilled className="w-8 h-8" />
+                                <IconEditFilled className="w-9 h-9" />
                             </button>
 
                             {/* Edit Mode Interactive Toolset */}
@@ -249,9 +270,9 @@ export const HeaderComponent = ({ teamImage, page, projectIcon, projectName, pri
                                     onClick={secondaryState ? handleSaveLayout : handleDisableEditMode}
                                     className="cursor-pointer transition-transform">
                                     {!secondaryState ? (
-                                        <IconSquareRoundedXFilled className="w-8 h-8" />
+                                        <IconSquareRoundedXFilled className="w-9 h-9" />
                                     ) : (
-                                        <IconSquareRoundedCheckFilled className="w-8 h-8" />
+                                        <IconSquareRoundedCheckFilled className="w-9 h-9" />
                                     )}
                                 </button>
 
@@ -305,7 +326,7 @@ export const HeaderComponent = ({ teamImage, page, projectIcon, projectName, pri
                         <button
                             type="button"
                             onClick={handleNavigateIA}
-                            className={`h-fit w-fit ${theme ? "bg-rank" : "bg-primary"} p-3 rounded-full shadow-md`}>
+                            className={`h-11 w-11 md:h-16 md:w-fit flex items-center justify-center shrink-0 ${theme ? "bg-rank" : "bg-primary"} p-2.5 md:p-3 rounded-full shadow-md`}>
                             <div
                                 className={`w-10 h-10 ${theme ? "bg-rank-700" : "bg-primary-600"}`}
                                 style={{

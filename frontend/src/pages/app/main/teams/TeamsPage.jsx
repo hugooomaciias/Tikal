@@ -1,3 +1,6 @@
+/** React & Third-Party Libraries */
+import { useOutletContext } from "react-router-dom";
+
 /** Components & Layouts */
 import { HeaderComponent } from "../../../../components/app/main/common/HeaderComponent.jsx";
 import { TeamPopUpComponent } from "../../../../components/app/main/teams/TeamPopUpComponent.jsx";
@@ -30,7 +33,7 @@ export const TeamsPage = () => {
      * Extracts translations, UI states, and interaction handlers to drive 
      * the behavior of the dashboard and its associated modals.
      */
-    const { tTeams, teamsStates, teamsActions } = useTeamsLogic();
+    const { tTeams, teamsStates, teamsActions } = useTeamsLogic({ useOutletContext });
     
     const {
         teams, 
@@ -39,7 +42,8 @@ export const TeamsPage = () => {
         teamToEdit,
         isMembersModalOpen,
         teamForMembers,
-        teamToLeave
+        teamToLeave,
+        isMobile
     } = teamsStates;
     const {
         setViewAsAdmin,
@@ -54,7 +58,8 @@ export const TeamsPage = () => {
         handleCloseMembersModal,
         handleNavigateToTeamProjects,
         handleNavigateToTeamMemberDashboard,
-        handleCopyCode
+        handleCopyCode,
+        onOpenMobileMenu
     } = teamsActions;
 
     const displayedTeams = viewAsAdmin 
@@ -66,10 +71,12 @@ export const TeamsPage = () => {
     return (
         <>
             <HeaderComponent 
-                page={tTeams("teams_title")} 
+                page={tTeams("teams_title")}
+                isMobile={isMobile}
                 primaryState={viewAsAdmin} 
                 onTogglePrimary={() => setViewAsAdmin(!viewAsAdmin)}
                 teams={teams.length !== 0}
+                onOpenMobileMenu={onOpenMobileMenu}
                 t={tTeams} 
             />
 

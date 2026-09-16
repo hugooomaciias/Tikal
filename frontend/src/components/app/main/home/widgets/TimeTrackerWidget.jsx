@@ -29,63 +29,82 @@ export const TimeTrackerWidget = () => {
      */
     const { timeTrackerWidgetStates, timeTrackerWidgetData, timeTrackerWidgetActions } = useTimeTrackerWidgetLogic();
 
-    const { isTimerRunning, accumulatedSeconds, displayTaskName } = timeTrackerWidgetStates;
-    const { hours, minutes, seconds, colors, DisplayIcon } = timeTrackerWidgetData;
+    const { isTimerRunning, displayTaskName } = timeTrackerWidgetStates;
+    const { hours, minutes, seconds, colors, DisplayIcon, isIdle, isPaused, statusText } = timeTrackerWidgetData;
     const { handleToggleClick, handleTriggerStopSequence } = timeTrackerWidgetActions;
+
+    const renderStatusDot = () => {
+        if (isTimerRunning) return <span className="w-2 h-2 rounded-full bg-current animate-pulse shadow-[0_0_8px_rgba(239,68,68,0.6)]" />;
+        if (isPaused) return <span className="w-2 h-2 rounded-full bg-current opacity-80 shadow-[0_0_6px_rgba(245,158,11,0.4)]" />;
+        return <span className="w-2 h-2 rounded-full border-2 border-current bg-transparent" />;
+    };
 
     // --- 2. Render ---
 
     return (
-        <div className="h-full w-full flex flex-col items-center justify-end gap-2">
-            {/* Header: Task Info & Icon */}
-            <div className="w-full flex items-center justify-between gap-3 shrink-0" style={{ color: colors.light }}>
-                {/* Scrolling Titles */}
-                <div className="min-w-0 flex flex-1 flex-col items-start text-xl">
-                    <ScrollingText text={displayTaskName} className="font-semibold" />
+        <div className="w-full h-full flex flex-col justify-end gap-8">
+            <div className="w-full flex items-center justify-between gap-3 shrink-0">
+                <div className="flex flex-1 flex-col items-start min-w-0" style={{ color: colors.light }}>
+                    {/* Status */}
+                    <div className="flex items-center gap-1.5 mb-1">
+                        {renderStatusDot()}
+                        <span className="text-[9px] font-bold tracking-[0.2em] uppercase">
+                            {statusText}
+                        </span>
+                    </div>
+                    {/* Task name */}
+                    <div className="w-full text-xl">
+                        <ScrollingText text={displayTaskName} className="font-bold" />
+                    </div>
                 </div>
 
-                {/* Project Icon */}
-                <div className="mr-1 p-1.5 rounded-xl" style={{ backgroundColor: `${colors.dark}15` }}>
-                    <DisplayIcon className="w-6 h-6" />
+                {/* Project icon */}
+                <div 
+                    className="w-14 h-14 shrink-0 rounded-full flex items-center justify-center shadow-sm"
+                    style={{ backgroundColor: colors.light, color: colors.dark }}
+                >
+                    <DisplayIcon className="w-8 h-8 opacity-80 drop-shadow-sm" />
                 </div>
             </div>
 
-            {/* Timer & Controls Section */}
-            <div className="h-[100px] w-full flex items-end justify-between mt-2">
-                {/* Timer Display */}
-                <div
-                    className="h-full flex flex-col items-start justify-center rounded-2xl p-3 min-w-[110px]"
-                    style={{ backgroundColor: colors.light, color: colors.dark }}
-                >
-                    <span className="text-3xl font-semibold leading-none tabular-nums">{hours}h</span>
-                    <span className="text-2xl font-extralight tracking-wider leading-none tabular-nums">
-                        {minutes}:{seconds}
-                    </span>
+            {/* Timer section */}
+            <div className="w-full flex flex-col md:flex-row items-center md:items-end justify-between gap-6 md:gap-0 shrink-0">
+                {/* Mobile timer */}
+                <div className="flex md:hidden items-center justify-center drop-shadow-md" style={{ color: colors.light }}>
+                    <span className="text-[4rem] sm:text-[5rem] font-bold tabular-nums tracking-tighter leading-none">{hours}</span>
+                    <span className="text-4xl sm:text-5xl font-light opacity-40 mx-1.5 mb-1.5">:</span>
+                    <span className="text-[4rem] sm:text-[5rem] font-bold tabular-nums tracking-tighter leading-none">{minutes}</span>
+                    <span className="text-4xl sm:text-5xl font-light opacity-40 mx-1.5 mb-1.5">:</span>
+                    <span className="text-[4rem] sm:text-[5rem] font-bold tabular-nums tracking-tighter leading-none">{seconds}</span>
                 </div>
 
-                {/* Timer Control Buttons */}
-                <div className="h-full flex flex-col justify-between">
-                    {/* Play / Pause Toggle Button */}
+                {/* Desktop timer */}
+                <div className="hidden md:flex flex-col items-start" style={{ color: colors.light }}>
+                    <span className="text-4xl font-black leading-none tabular-nums tracking-tighter drop-shadow-md">{hours}h</span>
+                    <span className="text-xl font-light leading-none tabular-nums opacity-80 mt-1">{minutes}:{seconds}</span>
+                </div>
+
+                {/* Timer controls */}
+                <div 
+                    className="flex items-center gap-1 rounded-full p-1.5 shadow-md"
+                    style={{ backgroundColor: colors.light, color: colors.dark }}
+                >
+                    {/* Toggle Play/Pause */}
                     <button
-                        className="flex items-center justify-center rounded-full p-2 transition-transform duration-100 hover:scale-105 cursor-pointer border-none outline-none"
-                        style={{ backgroundColor: colors.light, color: colors.dark }}
                         type="button"
                         onClick={handleToggleClick}
+                        className="bg-[var(--bg-normal)] p-3 rounded-full shadow-inner transition-all duration-300 hover:brightness-95"
+                        style={{ "--bg-normal": `${colors.dark}30` }}
                     >
-                        {isTimerRunning ? (
-                            <IconPlayerPauseFilled className="w-6 h-6" />
-                        ) : (
-                            <IconPlayerPlayFilled className="w-6 h-6" />
-                        )}
+                        {isTimerRunning ? <IconPlayerPauseFilled className="w-6 h-6" /> : <IconPlayerPlayFilled className="w-6 h-6" />}
                     </button>
 
-                    {/* Stop Button */}
+                    {/* Stop */}
                     <button
                         type="button"
-                        className="flex items-center justify-center rounded-full p-2 transition-transform duration-100 hover:scale-105 cursor-pointer border-none outline-none disabled:opacity-40 disabled:cursor-not-allowed"
-                        style={{ backgroundColor: colors.light, color: colors.dark }}
                         onClick={handleTriggerStopSequence}
-                        disabled={accumulatedSeconds === 0}
+                        disabled={isIdle}
+                        className="p-3 rounded-full transition-colors disabled:opacity-30 hover:bg-black/10"
                     >
                         <IconPlayerStopFilled className="w-6 h-6" />
                     </button>

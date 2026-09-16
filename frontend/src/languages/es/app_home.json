@@ -1,10 +1,16 @@
 {
+    "home_title": "Inicio",
     "header": {
         "first_stat": "Proyectos terminados",
         "second_stat": "Proyectos en proceso",
         "third_stat": "Proyectos pendientes"
     },
     "widgets": {
+        "time_tracker": {
+            "idle": "Inactivo",
+            "in_progress": "En progreso",
+            "paused": "Pausado"
+        },
         "time_log": {
             "title": "Registros de tiempo",
             "no_time_logs": {

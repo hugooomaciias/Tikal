@@ -1,5 +1,6 @@
 /** React & Third-Party Libraries */
 import { useMemo, useCallback } from "react";
+import { useTranslation } from "react-i18next";
 
 /** Contexts, Hooks & Services */
 import { useTimeLog } from "../../../../../core/useTimeLog.js";
@@ -33,6 +34,13 @@ const tailwindColors = fullConfig.theme.colors;
  */
 export const useTimeTrackerWidgetLogic = () => {
     // --- 1. Contexts & DOM Refs ---
+
+    /**
+     * Translation Hook
+     *
+     * Provides access to the i18n instance scoped to the localized namespaces.
+     */
+    const { t } = useTranslation("app_home");
 
     /**
      * Global Time Tracker Context
@@ -107,6 +115,13 @@ export const useTimeTrackerWidgetLogic = () => {
         return formatTimeSegments(accumulatedSeconds);
     }, [accumulatedSeconds]);
 
+    const isIdle = !isTimerRunning && accumulatedSeconds === 0;
+    const isPaused = !isTimerRunning && accumulatedSeconds > 0;
+
+    let statusText = t("widgets.time_tracker.idle");
+    if (isTimerRunning) statusText = t("widgets.time_tracker.in_progress");
+    else if (isPaused) statusText = t("widgets.time_tracker.paused");
+
     // --- 3. Interaction Handlers ---
 
     /**
@@ -137,8 +152,8 @@ export const useTimeTrackerWidgetLogic = () => {
     // --- 6. Return Object ---
 
     return {
-        timeTrackerWidgetStates: { isTimerRunning, accumulatedSeconds, displayTaskName },
-        timeTrackerWidgetData: { hours, minutes, seconds, colors, DisplayIcon },
+        timeTrackerWidgetStates: { isTimerRunning, displayTaskName },
+        timeTrackerWidgetData: { hours, minutes, seconds, colors, DisplayIcon, isIdle, isPaused, statusText },
         timeTrackerWidgetActions: { handleToggleClick, handleTriggerStopSequence }
     };
 };

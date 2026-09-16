@@ -1,4 +1,5 @@
 /** React & Third-Party Libraries */
+import { useOutletContext } from "react-router-dom";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
@@ -21,9 +22,6 @@ import { NextEventsComponent } from "../../../components/app/main/calendar/NextE
 import { ContextMenuComponent } from "../../../components/app/main/common/ContextMenuComponent.jsx";
 import { renderEventContent, renderCustomDayContents } from "../../../components/app/main/calendar/CalendarRenders.jsx";
 
-/** Icons */
-import { IconAlertTriangleFilled } from "@tabler/icons-react";
-
 /**
  * Calendar Page Component
  *
@@ -44,7 +42,7 @@ export const CalendarPage = () => {
      * Extracts all required business logic, including layout state arrays, overarching metadata,
      * localization functions, and layout modification action handlers from the headless hooks.
      */
-    const { calendarRef, translations, calendarStates, calendarData, calendarActions } = useCalendarLogic();
+    const { calendarRef, translations, calendarStates, calendarData, calendarActions } = useCalendarLogic({ useOutletContext });
 
     const { tCalendar, tCommon } = translations;
     const { contextMenuRef, contextMenuStates, contextMenuActions, isDataLoaded, selectedDate, eventToEdit, isMobile } = calendarStates;
@@ -61,7 +59,8 @@ export const CalendarPage = () => {
         handleEventResize,
         handleEditEvent,
         handleDeleteEvent,
-        handleShowError
+        handleShowError,
+        onOpenMobileMenu
     } = calendarActions;
 
     const { contextMenu, entityToRename, entityToDelete } = contextMenuStates;
@@ -75,7 +74,14 @@ export const CalendarPage = () => {
 
     return (
         <>
-            <HeaderComponent page={tCalendar("calendar_title")} primaryState={eventToEdit} onTogglePrimary={openNewEventModal} t={tCalendar} />
+            <HeaderComponent
+                isMobile={isMobile}
+                page={tCalendar("calendar_title")}
+                primaryState={eventToEdit}
+                onTogglePrimary={openNewEventModal}
+                onOpenMobileMenu={onOpenMobileMenu}
+                t={tCalendar}
+            />
 
             {/* Central Data Wrapper Container */}
             <div className="tour-calendar flex-1 flex gap-2 overflow-hidden">
@@ -99,7 +105,7 @@ export const CalendarPage = () => {
                     {/* Content Split Display Spacer */}
                     <hr className="border-t-2 border-primary-50 w-full shrink-0 mt-2 mb-4" />
 
-                    {/* Event Feed Activity List Scroller */}
+                    {/* Event Feed Activity List Scroller */}º
                     <NextEventsComponent
                         groupedEvents={groupedEvents}
                         handleEventClick={handleEventClick}

@@ -45,9 +45,9 @@ export const AIWidget = () => {
     // --- 2. Render ---
 
     return (
-        <div className="h-full w-full flex flex-col items-center justify-end gap-5">
-            {/* Masked Icon Wrapper */}
-            <div className="relative flex items-center justify-center">
+        <div className="h-full w-full flex flex-col items-center justify-center relative">
+            {/* Masked icon wrapper */}
+            <div className="relative flex items-center justify-center drop-shadow-sm transition-transform hover:scale-105 duration-300">
                 <div
                     className="w-28 h-28 bg-primary/80"
                     style={{
@@ -61,15 +61,19 @@ export const AIWidget = () => {
                 />
             </div>
 
-            {/* Interactive Action Button */}
-            <button
-                type="button"
-                onClick={handleNavigateIA}
-                className="flex items-center gap-2 bg-primary-900/40 px-3 py-1 rounded-full border border-primary/40 transition-all duration-300 ease-in-out hover:border-primary/80 hover:shadow-[0_0_15px_rgba(74,222,128,0.4)] group">
-                <span className="text-[10px] font-bold tracking-[0.2em] text-primary/80 uppercase transition-colors duration-300 group-hover:text-primary">
-                    {t("widgets.ai.title")}
-                </span>
-            </button>
+            {/* Interactive action button  */}
+            <div className="absolute bottom-2 md:bottom-3 w-full flex justify-center">
+                <button
+                    type="button"
+                    onClick={handleNavigateIA}
+                    className="flex items-center gap-2 bg-primary-900/40 px-4 py-1.5 rounded-full border border-primary/40 transition-all duration-300 ease-in-out hover:border-primary/80 hover:bg-primary-900/60 hover:shadow-[0_0_15px_rgba(74,222,128,0.4)] group"
+                >
+                    <span className="text-[10px] font-bold tracking-[0.2em] text-primary/80 uppercase transition-colors duration-300 group-hover:text-primary">
+                        {t("widgets.ai.title")}
+                    </span>
+                </button>
+            </div>
+            
         </div>
     );
 };

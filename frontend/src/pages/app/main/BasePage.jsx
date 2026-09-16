@@ -1,8 +1,8 @@
 /** React & Third-Party Libraries */
-import { Outlet, Navigate } from "react-router-dom";
+import { Outlet } from "react-router-dom";
 
 /** Contexts, Hooks & Services */
-import { useTimeLog } from "../../../hooks/core/useTimeLog.js";
+import { useBaseLogic } from "../../../hooks/components/app/main/useBaseLogic.js";
 
 /** Components & Layouts */
 import { NavbarComponent } from "../../../components/app/main/common/NavbarComponent.jsx";
@@ -19,30 +19,37 @@ import { NavbarComponent } from "../../../components/app/main/common/NavbarCompo
  * @returns {JSX.Element} The rendered layout shell containing the routing outlet.
  */
 export const MainBasePage = () => {
-    // --- 1. Local UI Logic ---
+    // --- 1. Logic Hook Extraction ---
 
-    const { trackerStates } = useTimeLog();
-    
     /**
-     * Temple Mode Lock-in Guard
-     * 
-     * If the user manually alters the URL to escape an active Temple Mode session,
-     * this intercepts the render cycle and forces them back to the Temple Mode route.
+     * Base Layout State & Derived Data
+     *
+     * Extracts the core layout states (such as mobile viewport detection and sidebar 
+     * visibility) and dynamic styling configurations (like Temple Mode constraints 
+     * and conditional CSS layout classes) directly from the headless logic hook. 
+     * This keeps the root structural shell purely presentational.
      */
-    if (trackerStates.activeWidgetData?.isTempleMode) {
-        return <Navigate to="/temple-mode" replace />;
-    }
+    const { basePageStates, basePageData, basePageActions } = useBaseLogic();
+
+    const { isMobileMenuOpen, isMobile } = basePageStates;
+    const { isTempleMode,  isTeams, isTeamProjects, layoutClasses } = basePageData;
+    const {  handleOpenMobileMenu, handleCloseMobileMenu  } = basePageActions;
 
     // --- 2. Render ---
 
     return (
-        <div className="flex flex-col md:flex-row h-[100dvh] bg-gradient-to-t md:bg-gradient-to-r from-primary-50 to-primary-300 p-2 md:p-4 gap-4 md:gap-8 overflow-hidden">
+        <div className={layoutClasses}>
             {/* Vertical Navbar */}
-            <NavbarComponent />
+            {!isTempleMode && (
+                <NavbarComponent
+                    isMobileMenuOpen={isMobileMenuOpen}
+                    onCloseMobileMenu={() => handleCloseMobileMenu()}
+                />
+            )}
 
             {/* Main Content Area */}
-            <section className="flex-1 flex flex-col gap-6 w-full h-full overflow-hidden">
-                <Outlet />
+            <section className={`flex-1 flex flex-col w-full h-full overflow-hidden ${(isTeams || isTeamProjects) ? "gap-2 md:gap-4" : !isTempleMode ? "gap-4 md:gap-6" : ""}`}>
+                <Outlet context={{ isMobile, isMobileMenuOpen, onOpenMobileMenu: () => handleOpenMobileMenu(), onCloseMobileMenu: () => handleCloseMobileMenu() }} />
             </section>
         </div>
     );
