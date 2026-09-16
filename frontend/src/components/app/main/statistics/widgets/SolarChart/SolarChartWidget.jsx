@@ -108,7 +108,7 @@ export const SolarChartWidget = ({ props }) => {
             {/* Top Section: Main Content and Chart */}
             <div className="w-full flex flex-col items-center gap-6 my-auto shrink-0">
                 {/* Interactive Nivo Pie Chart Container */}
-                <div className="min-h-[230px] w-full mt-2">
+                <div className="min-h-[200px] md:min-h-[230px] w-full mt-2">
                     <ResponsivePie
                         data={visibleChartData}
                         colors={{ datum: "data.color" }}
@@ -150,7 +150,7 @@ export const SolarChartWidget = ({ props }) => {
                         <span className="text-sm md:text-base font-medium text-quaternary-500 leading-none">
                             {t("widgets.solar_chart.most_recurring")}
                         </span>
-                        <span className="text-lg md:text-xl font-bold -mt-1 leading-none">{mostRecurringName}</span>
+                        <span className="text-lg md:text-xl font-bold md:-mt-1 leading-none">{mostRecurringName}</span>
                     </div>
                 </div>
             </div>

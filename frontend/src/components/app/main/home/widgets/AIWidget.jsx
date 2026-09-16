@@ -45,7 +45,7 @@ export const AIWidget = () => {
     // --- 2. Render ---
 
     return (
-        <div className="h-full w-full flex flex-col items-center justify-center relative">
+        <div className="h-full w-full flex flex-col items-center justify-center md:justify-end md:gap-3 relative">
             {/* Masked icon wrapper */}
             <div className="relative flex items-center justify-center drop-shadow-sm transition-transform hover:scale-105 duration-300">
                 <div
@@ -62,7 +62,7 @@ export const AIWidget = () => {
             </div>
 
             {/* Interactive action button  */}
-            <div className="absolute bottom-2 md:bottom-3 w-full flex justify-center">
+            <div className="absolute bottom-2 md:relative md:bottom-0 w-full flex justify-center">
                 <button
                     type="button"
                     onClick={handleNavigateIA}

@@ -87,12 +87,11 @@ export const TimeGoalWidget = ({ props }) => {
     // --- 2. Render ---
 
     return (
-        <div className="h-full w-full flex flex-col items-center justify-center relative select-none">
-            {/* Background SVG Chart Container */}
-            <div className="w-full h-full">
-                {/* Nivo Semi-Circular Progress Gauge */}
+        <div className="h-full w-full flex flex-col items-center justify-center select-none p-4">
+            <div className="relative w-full max-w-[280px] aspect-[2/1]">
                 <ResponsivePie
                     data={percentageData}
+                    margin={{ top: 0, right: 0, bottom: 0, left: 0 }}
                     startAngle={-90}
                     endAngle={90}
                     innerRadius={0.94}
@@ -104,17 +103,17 @@ export const TimeGoalWidget = ({ props }) => {
                     isInteractive={false}
                     animate={true}
                     motionConfig="gentle"
-                    centerY={0.7}
+                    centerY={1} 
                 />
-            </div>
 
-            {/* Central Overlay Text Content */}
-            <div className="absolute inset-0 flex flex-col items-center justify-end gap-1 text-quaternary-700 mb-2">
-                {/* Current Value Display */}
-                <span className="text-4xl font-bold leading-none">{currentMinutes}</span>
-
-                {/* Total Target Goal Display */}
-                <span className="text-xl font-medium">de {goalH} h</span>
+                <div className="absolute bottom-0 left-1/2 -translate-x-1/2 flex flex-col items-center text-quaternary-700 w-full">
+                    <span className="text-5xl font-black leading-none drop-shadow-sm">
+                        {currentMinutes}
+                    </span>
+                    <span className="text-xl font-medium mt-1 opacity-80 whitespace-nowrap">
+                        de {goalH} h
+                    </span>
+                </div>
             </div>
         </div>
     );

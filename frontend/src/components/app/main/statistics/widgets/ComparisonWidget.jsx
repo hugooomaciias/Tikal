@@ -1,9 +1,6 @@
 /** React & Third-Party Libraries */
-import React, { useEffect, useMemo } from "react";
+import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
-
-/** Components & Layouts */
-import { TabsComponent } from "../../common/widgets/TabsComponent";
 
 /** Icons */
 import { IconTrendingUp, IconTrendingDown, IconMinus } from "@tabler/icons-react";
@@ -24,13 +21,6 @@ import { IconTrendingUp, IconTrendingDown, IconMinus } from "@tabler/icons-react
  */
 export const ComparisonWidget = ({ props, setCustomActions }) => {
     // --- 1. Local UI Logic ---
-
-    /**
-     * Translation Hook
-     *
-     * Provides access to the i18n instance scoped to the "app_statistics" namespace.
-     */
-    const { t } = useTranslation("app_statistics");
 
     /**
      * Metrics Array
@@ -76,7 +66,7 @@ export const ComparisonWidget = ({ props, setCustomActions }) => {
     }
 
     return (
-        <div className="h-full flex flex-col items-start justify-between w-full">
+        <div className="h-full flex flex-col items-start justify-center gap-8 md:justify-between md:gap-0 w-full">
             {/* Dynamic Metrics List Layout */}
             {metrics.map((metric, index) => {
                 const { bg, Icon } = getMetricStyles(metric.direction);
@@ -84,12 +74,12 @@ export const ComparisonWidget = ({ props, setCustomActions }) => {
                 return (
                     <div key={index} className="flex items-center gap-4 text-quaternary-700">
                         {/* Status Icon Compartment */}
-                        <div className={`${bg} p-2 rounded-xl shadow-sm flex-shrink-0`}>
-                            <Icon className={`h-5 w-5 md:h-7 md:w-7 text-primary`} />
+                        <div className={`${bg} p-2 rounded-2xl md:rounded-xl shadow-sm flex-shrink-0`}>
+                            <Icon className={`h-10 w-10 md:h-7 md:w-7 text-primary`} />
                         </div>
 
                         {/* Metric Text Information Column */}
-                        <div className="flex flex-col">
+                        <div className="flex flex-col gap-3 md:gap-0">
                             {/* Metric Label */}
                             <span className="text-base font-medium text-quaternary-500 leading-none">
                                 {metric.label}
