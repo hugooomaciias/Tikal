@@ -31,9 +31,11 @@ const tailwindColors = fullConfig.theme.colors;
  * from the visual layer, acting as a single source of truth for the calendar's internal state.
  *
  * @hook
+ * @param {Object} props - The hook injection payload.
+ * @param {Function} props.useOutletContext - React Router's hook injected to extract global layout states (e.g., viewport flags and mobile menu triggers) while keeping the headless hook agnostic of router boundaries.
  * @returns {Object} A structured payload containing internationalization, DOM refs, component states, derived data, and handler functions.
  */
-export const useCalendarLogic = () => {
+export const useCalendarLogic = ({ useOutletContext }) => {
     // --- 1. Contexts & DOM Refs ---
 
     /**
@@ -71,6 +73,16 @@ export const useCalendarLogic = () => {
     const { getCalendarEvents, getTasksData, isDataLoaded } = useSync();
 
     /**
+     * Outlet Context Extraction
+     *
+     * Retrieves global layout states and interaction handlers injected by the parent 
+     * route wrapper (`MainBasePage`). It extracts the viewport detection flag (`isMobile`) 
+     * to toggle between the desktop grid and mobile carousel, along with the trigger 
+     * function (`onOpenMobileMenu`) to expand the mobile navigation drawer.
+     */
+    const { onOpenMobileMenu, isMobile } = useOutletContext();
+
+    /**
      * Calendar DOM Reference
      *
      * Maintains a mutable reference to the underlying FullCalendar component instance.
@@ -80,14 +92,6 @@ export const useCalendarLogic = () => {
     const calendarRef = useRef(null);
 
     // --- 2. Local UI State ---
-    
-    /**
-     * Mobile Layout State
-     *
-     * Tracks the current viewport classification. Evaluated on mount and via resize events
-     * to dictate responsive layout shifts in the primary calendar grid.
-     */
-    const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
     /**
      * Current View State
@@ -659,7 +663,8 @@ export const useCalendarLogic = () => {
             handleEventResize,
             handleEditEvent,
             handleDeleteEvent,
-            handleShowError
+            handleShowError,
+            onOpenMobileMenu
         },
     };
 };

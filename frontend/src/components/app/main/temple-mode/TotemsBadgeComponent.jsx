@@ -171,7 +171,7 @@ export const TotemsBadgeComponent = ({ totems, lockedTotems, nextTargetTotem, tT
             </div>
 
             {/* Expandable Menu */}
-            <div className={`absolute top-full left-0 right-0 w-full z-50 transition-all duration-300 origin-top backdrop-blur-sm ${isTotemsMenuOpen ? "md:opacity-100 md:scale-y-100" : "md:opacity-0 md:scale-y-0 md:pointer-events-none"}`}>
+            <div className={`absolute top-full left-0 right-0 w-full z-30 transition-all duration-300 origin-top backdrop-blur-sm ${isTotemsMenuOpen ? "md:opacity-100 md:scale-y-100" : "md:opacity-0 md:scale-y-0 md:pointer-events-none"}`}>
                 <div className={`relative isolate border border-rank-700 border-t-0 shadow-2xl rounded-[2rem] ${isTotemsMenuOpen ? "md:rounded-t-none" : ""} p-4 flex flex-col gap-2 backdrop-blur-xl h-max max-h-[50dvh] bg-rank-900/80 overflow-y-auto custom-scrollbar`}>
                     {totems.map((totem) => (
                         <div key={totem.id} className="w-full flex flex-col gap-2">

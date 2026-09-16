@@ -25,7 +25,6 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 
@@ -43,12 +42,7 @@ public class CalendarEventController {
      * Retrieve events within a date range (optional start/end). Defaults to current month if not provided.
      */
     @Operation(summary = "Obtener eventos por rango de fecha", description = "Devuelve los eventos dentro de un rango de fechas. Si no se proporcionan start/end, se usa el mes actual por defecto.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Listado de eventos", content = @Content(mediaType = "application/json", schema = @Schema(implementation = CalendarEventDTO.class))),
-            @ApiResponse(responseCode = "400", description = "Fechas inválidas"),
-            @ApiResponse(responseCode = "401", description = "No autorizado"),
-            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
-    })
+    @ApiResponse(responseCode = "200", description = "Listado de eventos", content = @Content(mediaType = "application/json", schema = @Schema(implementation = CalendarEventDTO.class)))
     @GetMapping
     public ResponseEntity<List<CalendarEventDTO>> getEventsBetweenDates(
             @Parameter(in = ParameterIn.QUERY, description = "Fecha/hora de inicio (ISO instant). Ej: 2026-01-01T00:00:00Z", example = "2026-01-01T00:00:00Z") @RequestParam(value = "start", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant start,
@@ -72,13 +66,7 @@ public class CalendarEventController {
      * Creates a new calendar event.
      */
     @Operation(summary = "Crear evento de calendario", description = "Crea un nuevo evento de calendario.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "Evento creado", content = @Content(mediaType = "application/json", schema = @Schema(implementation = CalendarEventDTO.class))),
-            @ApiResponse(responseCode = "400", description = "Solicitud inválida"),
-            @ApiResponse(responseCode = "401", description = "No autorizado"),
-            @ApiResponse(responseCode = "409", description = "Conflicto (evento solapado)"),
-            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
-    })
+    @ApiResponse(responseCode = "201", description = "Evento creado", content = @Content(mediaType = "application/json", schema = @Schema(implementation = CalendarEventDTO.class)))
     @PostMapping
     public ResponseEntity<CalendarEventDTO> createEvent(@Valid @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Datos del evento a crear", required = true, content = @Content(schema = @Schema(implementation = CalendarEventRequest.class))) @RequestBody CalendarEventRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED)
@@ -90,13 +78,7 @@ public class CalendarEventController {
      * Update an entire calendar event.
      */
     @Operation(summary = "Actualizar evento de calendario", description = "Actualiza un evento de calendario completo por id.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Evento actualizado", content = @Content(mediaType = "application/json", schema = @Schema(implementation = CalendarEventDTO.class))),
-            @ApiResponse(responseCode = "400", description = "Solicitud inválida"),
-            @ApiResponse(responseCode = "401", description = "No autorizado"),
-            @ApiResponse(responseCode = "404", description = "Evento no encontrado"),
-            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
-    })
+    @ApiResponse(responseCode = "200", description = "Evento actualizado", content = @Content(mediaType = "application/json", schema = @Schema(implementation = CalendarEventDTO.class)))
     @PutMapping("/{id}")
     public ResponseEntity<CalendarEventDTO> updateEvent(
             @Parameter(description = "ID del evento", example = "14", in = ParameterIn.PATH) @PathVariable Integer id,
@@ -110,13 +92,7 @@ public class CalendarEventController {
      * Change only the time of an existing event.
      */
     @Operation(summary = "Cambiar hora de evento", description = "Cambia únicamente la hora de un evento existente.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Hora cambiada correctamente", content = @Content(mediaType = "application/json", schema = @Schema(implementation = CalendarEventDTO.class))),
-            @ApiResponse(responseCode = "400", description = "Solicitud inválida"),
-            @ApiResponse(responseCode = "401", description = "No autorizado"),
-            @ApiResponse(responseCode = "404", description = "Evento no encontrado"),
-            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
-    })
+    @ApiResponse(responseCode = "200", description = "Hora cambiada correctamente", content = @Content(mediaType = "application/json", schema = @Schema(implementation = CalendarEventDTO.class)))
     @PatchMapping("/{id}/time")
     public ResponseEntity<CalendarEventDTO> changeEventTime(
             @Parameter(description = "ID del evento", example = "14", in = ParameterIn.PATH) @PathVariable Integer id,
@@ -130,13 +106,7 @@ public class CalendarEventController {
      * Delete a calendar event.
      */
     @Operation(summary = "Eliminar evento de calendario", description = "Elimina un evento de calendario por id.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "204", description = "Evento eliminado (sin contenido)"),
-            @ApiResponse(responseCode = "401", description = "No autorizado"),
-            @ApiResponse(responseCode = "403", description = "Acceso prohibido"),
-            @ApiResponse(responseCode = "404", description = "Evento no encontrado"),
-            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
-    })
+    @ApiResponse(responseCode = "204", description = "Evento eliminado (sin contenido)")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteEvent(@Parameter(description = "ID del evento a eliminar", example = "14", in = ParameterIn.PATH) @PathVariable Integer id) {
         calendarEventService.deleteEvent(id);
@@ -148,13 +118,7 @@ public class CalendarEventController {
      * Reassign users to a event (Drag & Drop or Multi-select)
      */
     @Operation(summary = "Asignar asistentes", description = "Reasigna usuarios a un evento (arrastrar y soltar o multi-selección). Recibe una lista de ids de usuario en el body.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "204", description = "Asistentes asignados correctamente (sin contenido)"),
-            @ApiResponse(responseCode = "400", description = "Solicitud inválida"),
-            @ApiResponse(responseCode = "401", description = "No autorizado"),
-            @ApiResponse(responseCode = "404", description = "Evento o usuario no encontrado"),
-            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
-    })
+    @ApiResponse(responseCode = "204", description = "Asistentes asignados correctamente (sin contenido)")
     @PatchMapping("/{eventId}/attendees")
     public ResponseEntity<Void> assignUsersToTask(
             @Parameter(description = "ID del evento", example = "14", in = ParameterIn.PATH) @PathVariable Integer eventId,

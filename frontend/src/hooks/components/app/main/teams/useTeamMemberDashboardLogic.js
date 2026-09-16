@@ -67,9 +67,11 @@ const WIDGET_CONFIG = {
  * collaborative metrics and formats them into a strictly defined grid layout.
  *
  * @hook
+ * @param {Object} props - The hook injection payload.
+ * @param {Function} props.useOutletContext - React Router's hook injected to extract global layout states (e.g., viewport flags and mobile menu triggers) while keeping the headless hook agnostic of router boundaries.
  * @returns {Object} A structured payload containing core layout state, derived entities, and interaction handlers.
  */
-export const useTeamMemberDashboardLogic = () => {
+export const useTeamMemberDashboardLogic = ({ useOutletContext }) => {
     // --- 1. DOM Refs ---
 
     /**
@@ -98,7 +100,17 @@ export const useTeamMemberDashboardLogic = () => {
      * strategies for the dashboard metrics via `useTeamDashboards`.
      */
     const { getTeamsData, getTasksData, getCalendarEvents, getUserProfile } = useSync();
-    const { fetchMemberDashboard } = useTeamDashboards()
+    const { fetchMemberDashboard } = useTeamDashboards();
+
+    /**
+     * Outlet Context Extraction
+     *
+     * Retrieves global layout states and interaction handlers injected by the parent 
+     * route wrapper (`MainBasePage`). It extracts the viewport detection flag (`isMobile`) 
+     * to toggle between the desktop grid and mobile carousel, along with the trigger 
+     * function (`onOpenMobileMenu`) to expand the mobile navigation drawer.
+     */
+    const { onOpenMobileMenu, isMobile } = useOutletContext();
 
     // --- 2. Local UI State ---
 
@@ -116,6 +128,15 @@ export const useTeamMemberDashboardLogic = () => {
      * Maintains the local collection of hydrated widgets ready to be rendered by the grid.
      */
     const [widgets, setWidgets] = useState([]);
+
+    /**
+     * Mobile Carousel Active Index State
+     *
+     * Tracks the currently focused widget within the mobile viewport.
+     * This state specifically drives the visual pagination indicators (dots) 
+     * rendered below the native CSS swipeable carousel.
+     */
+    const [activeWidgetIndex, setActiveWidgetIndex] = useState(0);
 
     // --- 3. Derived UI Data ---
 
@@ -265,13 +286,34 @@ export const useTeamMemberDashboardLogic = () => {
         navigate("/teams");
     };
 
+        /**
+     * Mobile Carousel Scroll Handler
+     *
+     * Dynamically calculates which widget is currently centered in the viewport 
+     * based on the container's horizontal scroll position. It divides the total 
+     * scrollable width by the amount of active widgets to determine the snap thresholds, 
+     * updating the local index state only when a threshold boundary is crossed.
+     *
+     * @param {React.UIEvent<HTMLDivElement>} e - The scroll event triggered by the carousel container.
+     * @returns {void}
+     */
+    const handleScroll = (e) => {
+        const { scrollLeft, scrollWidth } = e.target;
+
+        const widthPerItem = scrollWidth / widgets.length;
+        const newIndex = Math.round(scrollLeft / widthPerItem);
+        
+        if (newIndex !== activeWidgetIndex) {
+            setActiveWidgetIndex(newIndex);
+        }
+    };
 
     // --- 6. Return Object ---
 
     return {
         t,
-        teamMemberDashboardStates: { activeTeam, widgets },
+        teamMemberDashboardStates: { activeTeam, widgets, isMobile, activeWidgetIndex },
         teamMemberDashboardData: { dashboardData, teamMemberGeneralInformation },
-        teamMemberDashboardActions: { handleNavigateToBack }
+        teamMemberDashboardActions: { handleNavigateToBack, onOpenMobileMenu, handleScroll }
     };
 }

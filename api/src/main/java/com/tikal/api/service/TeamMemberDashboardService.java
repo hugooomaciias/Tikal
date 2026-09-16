@@ -19,8 +19,6 @@ public class TeamMemberDashboardService {
     private final TeamMemberRepository teamMemberRepository;
     private final TaskRepository taskRepository;
     private final WidgetBuilderService widgetBuilderService;
-    // Opcional si necesitas traer los datos exactos del widget de calendario:
-    // private final WidgetBuilderService widgetBuilderService;
 
     @Transactional(readOnly = true)
     public TeamMemberDashboardDTO getTeamMemberDashboard(Integer teamId) {

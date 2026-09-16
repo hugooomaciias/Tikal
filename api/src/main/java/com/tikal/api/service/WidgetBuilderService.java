@@ -1109,6 +1109,7 @@ public class WidgetBuilderService {
         Instant now = Instant.now();
         Instant past48h = now.minus(48, ChronoUnit.HOURS);
         Instant future48h = now.plus(48, ChronoUnit.HOURS);
+        Instant future24h = now.plus(24, ChronoUnit.HOURS);
         Instant future3Days = now.plus(3, ChronoUnit.DAYS);
 
         List<RecentActivityWidgetData.ActivityData> activities = new ArrayList<>();
@@ -1163,7 +1164,7 @@ public class WidgetBuilderService {
         }
 
         // C. Events
-        List<CalendarEvent> upcomingEvents = calendarEventRepository.findUpcomingTeamEvents(userId, teamId, now, future3Days);
+        List<CalendarEvent> upcomingEvents = calendarEventRepository.findUpcomingTeamEvents(userId, teamId, now, future24h);
 
 
         for (CalendarEvent e : upcomingEvents) {

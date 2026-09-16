@@ -13,7 +13,10 @@ import {
     IconProgress,
     IconChartLine,
     IconTrophyFilled,
-    IconUserFilled
+    IconUserFilled,
+    IconListFilled,
+    IconClipboardTextFilled,
+    IconCalendarDue
 } from "@tabler/icons-react";
 
 /** Assets, Utils & Constants */
@@ -33,7 +36,10 @@ const ICON_MAP = {
     IconProgress,
     IconChartLine,
     IconTrophyFilled,
-    IconUserFilled
+    IconUserFilled,
+    IconListFilled,
+    IconClipboardTextFilled,
+    IconCalendarDue
 };
 
 /**
@@ -49,7 +55,7 @@ const ICON_MAP = {
  * @param {Array<Object>} props.data - An array of statistical data objects to display (contains title, value, logo, custom).
  * @returns {JSX.Element|null} The rendered main data header overlay, or null if data is invalid.
  */
-export const MainDataHeaderComponent = ({ data, team }) => {
+export const MainDataHeaderComponent = ({ data, home, team }) => {
     // --- 1. Local UI Logic ---
 
     /**
@@ -75,22 +81,24 @@ export const MainDataHeaderComponent = ({ data, team }) => {
     return (
         <div className="relative w-full">
             {/* Mobile Visibility Control Action */}
-            <button
-                onClick={handleToggleVisibility}
-                className={`absolute md:hidden z-20 flex items-center justify-center p-1.5 rounded-full text-primary-500 transition-all duration-300
-                    ${isVisible ? "top-1 left-4 bg-primary-100 shadow-lg -translate-y-1/3 -translate-x-1/2" : "top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2"}
-                `}
-            >
-                {/* Visibility Toggle Label & Icon */}
-                {isVisible ? (
-                    <IconEyeOff className="w-5 h-5" />
-                ) : (
-                    <div className="w-full flex items-center justify-center gap-2">
-                        <IconEye className="w-5 h-5" />
-                        <span className="text-sm font-semibold">Mostrar estadísticas</span>
-                    </div>
-                )}
-            </button>
+            {!home && (
+                <button
+                    onClick={handleToggleVisibility}
+                    className={`absolute md:hidden z-20 flex items-center justify-center p-1.5 rounded-full text-primary-500 transition-all duration-300
+                        ${isVisible ? "top-1 left-4 bg-primary-100 shadow-lg -translate-y-1/3 -translate-x-1/2" : "top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2"}
+                    `}
+                >
+                    {/* Visibility Toggle Label & Icon */}
+                    {isVisible ? (
+                        <IconEyeOff className="w-5 h-5" />
+                    ) : (
+                        <div className="w-full flex items-center justify-center gap-2">
+                            <IconEye className="w-5 h-5" />
+                            <span className="text-sm font-semibold">Mostrar estadísticas</span>
+                        </div>
+                    )}
+                </button>
+            )}
 
             {/* Prominent Data Header Card */}
             <header
@@ -125,7 +133,7 @@ export const MainDataHeaderComponent = ({ data, team }) => {
                                 <div className="flex flex-col">
                                     {/* Metric Label */}
                                     <span className="text-sm md:text-base font-medium text-quaternary-500">
-                                        {index === 0 && !team ? (
+                                        {index === 0 && !team && !home  ? (
                                             <>
                                                 Horas <span className="hidden md:inline"> registradas</span>
                                             </>

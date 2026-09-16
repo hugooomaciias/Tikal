@@ -157,16 +157,9 @@ function App() {
                                         <Route path="/teams/:teamId/projects/:projectId/admin" element={<TeamAdminDashboardPage />} />
                                         <Route path="/teams/:teamId/member" element={<TeamMemberDashboardPage />} />
                                         <Route path="/teams/chat" element={<ChatPage />} />
+                                        <Route path="/temple-mode" element={<TempleModePage />} />
                                     </Route>
 
-                                    <Route
-                                        path="/temple-mode"
-                                        element={
-                                            <ProtectedRoute>
-                                                <TempleModePage />
-                                            </ProtectedRoute>
-                                        }
-                                    />
 
                                     <Route 
                                         element={

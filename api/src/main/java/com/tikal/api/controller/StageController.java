@@ -1,5 +1,6 @@
 package com.tikal.api.controller;
 
+import com.tikal.api.exception.dto.ErrorResponse;
 import com.tikal.api.model.dto.task.StageRequest;
 import com.tikal.api.model.dto.task.StageDTO;
 import com.tikal.api.service.StageService;
@@ -35,9 +36,7 @@ public class StageController {
      */
     @Operation(summary = "Obtener mis stages", description = "Devuelve los stages pertenecientes al usuario autenticado.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Listado de stages", content = @Content(mediaType = "application/json", schema = @Schema(implementation = StageDTO.class))),
-            @ApiResponse(responseCode = "401", description = "No autorizado"),
-            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+            @ApiResponse(responseCode = "200", description = "Listado de stages", content = @Content(mediaType = "application/json", schema = @Schema(implementation = StageDTO.class)))
     })
     @GetMapping
     public ResponseEntity<List<StageDTO>> getMyStages() {
@@ -50,10 +49,7 @@ public class StageController {
      */
     @Operation(summary = "Obtener stages por proyecto", description = "Devuelve los stages que pertenecen a un proyecto específico.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Listado de stages del proyecto", content = @Content(mediaType = "application/json", schema = @Schema(implementation = StageDTO.class))),
-            @ApiResponse(responseCode = "401", description = "No autorizado"),
-            @ApiResponse(responseCode = "404", description = "Proyecto no encontrado"),
-            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+            @ApiResponse(responseCode = "200", description = "Listado de stages del proyecto", content = @Content(mediaType = "application/json", schema = @Schema(implementation = StageDTO.class)))
     })
     @GetMapping("/by_project/{id}")
     public ResponseEntity<List<StageDTO>> getStagesByProject(@Parameter(description = "ID del proyecto", example = "5", in = ParameterIn.PATH) @PathVariable("id") Integer projectId) {
@@ -66,10 +62,7 @@ public class StageController {
      */
     @Operation(summary = "Crear stage", description = "Crea un nuevo stage.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "Stage creado", content = @Content(mediaType = "application/json", schema = @Schema(implementation = StageDTO.class))),
-            @ApiResponse(responseCode = "400", description = "Solicitud inválida"),
-            @ApiResponse(responseCode = "401", description = "No autorizado"),
-            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+            @ApiResponse(responseCode = "201", description = "Stage creado", content = @Content(mediaType = "application/json", schema = @Schema(implementation = StageDTO.class)))
     })
     @PostMapping
     public ResponseEntity<StageDTO> createStage(@io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Datos para crear un stage", required = true, content = @Content(schema = @Schema(implementation = StageRequest.class))) @RequestBody StageRequest request) {
@@ -82,11 +75,7 @@ public class StageController {
      */
     @Operation(summary = "Eliminar stage", description = "Elimina un stage por id.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "204", description = "Stage eliminado (sin contenido)"),
-            @ApiResponse(responseCode = "401", description = "No autorizado"),
-            @ApiResponse(responseCode = "403", description = "Prohibido"),
-            @ApiResponse(responseCode = "404", description = "Stage no encontrado"),
-            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+            @ApiResponse(responseCode = "204", description = "Stage eliminado (sin contenido)")
     })
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteStage(@Parameter(description = "ID del stage a eliminar", example = "3", in = ParameterIn.PATH) @PathVariable("id") Integer id) {
@@ -100,11 +89,7 @@ public class StageController {
      */
     @Operation(summary = "Actualizar stage", description = "Actualiza un stage existente.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Stage actualizado", content = @Content(mediaType = "application/json", schema = @Schema(implementation = StageDTO.class))),
-            @ApiResponse(responseCode = "400", description = "Solicitud inválida"),
-            @ApiResponse(responseCode = "401", description = "No autorizado"),
-            @ApiResponse(responseCode = "404", description = "Stage no encontrado"),
-            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+            @ApiResponse(responseCode = "200", description = "Stage actualizado", content = @Content(mediaType = "application/json", schema = @Schema(implementation = StageDTO.class)))
     })
     @PatchMapping("/{id}")
     public ResponseEntity<StageDTO> updateStage(

@@ -224,6 +224,33 @@ export const renderEventContent = (eventInfo, handleContextMenu) => {
         );
     }
 
+    if (view.type === "listWeek" || view.type === "listDay") {
+        return (
+            <div className="flex items-center justify-between gap-3">
+                <div 
+                    className="flex items-center justify-between w-full overflow-hidden rounded-lg px-2 py-1.5 shadow-sm"
+                    style={{ backgroundColor: color.hex, color: color.text }}
+                >
+                    <div className="flex items-center gap-2 min-w-0">
+                        {LogoComponent && (
+                            <LogoComponent.component className="w-5 h-5 shrink-0" />
+                        )}
+
+                        <ScrollingText
+                            text={event.title}
+                            className="text-[11px] font-bold leading-none w-full tracking-wide"
+                        />
+                    </div>
+                </div>
+
+                <IconDotsVerticalFilled 
+                    onClick={onContextMenuClick} 
+                    className="h-5 w-5 shrink-0 cursor-pointer opacity-70 hover:opacity-100 transition-opacity" 
+                />
+            </div>
+        );
+    }
+
     {/* Default Fallback Render Block: Generic List */}
     return (
         <div className="flex items-center justify-between w-full overflow-hidden">

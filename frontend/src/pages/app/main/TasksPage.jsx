@@ -1,3 +1,6 @@
+/** React & Third-Party Libraries */
+import { useOutletContext } from "react-router-dom";
+
 /** Contexts, Hooks & Services */
 import { useTasksLogic } from "../../../hooks/components/app/main/tasks/useTasksLogic.js";
 
@@ -30,11 +33,11 @@ export const TasksPage = () => {
      * Extracts all core layout states, memoized hierarchical entities, and interaction routing
      * handlers from the headless hook to drive the visual render cycle.
      */
-    const { t, tasksStates, tasksData, tasksActions } = useTasksLogic();
+    const { t, tasksStates, tasksData, tasksActions } = useTasksLogic({ useOutletContext });
 
-    const { isDataLoaded, isCompleted, selectedProjectId, selectedStageId, mobileView, tasks, isTeam } = tasksStates;
+    const { isDataLoaded, isCompleted, selectedProjectId, selectedStageId, mobileView, tasks, isTeam, isMobile } = tasksStates;
     const { selectedProject, selectedStage, autoSelectPayload } = tasksData;
-    const { handleProjectSelect, handleStageSelect, handleBackNavigation, toggleCompletedView, toggleTeamView, handleShowError, handleShowSuccess } = tasksActions;
+    const { handleProjectSelect, handleStageSelect, handleBackNavigation, toggleCompletedView, toggleTeamView, handleShowError, handleShowSuccess, onOpenMobileMenu } = tasksActions;
 
     // --- 2. Render ---
 
@@ -46,10 +49,12 @@ export const TasksPage = () => {
         <>
             <HeaderComponent
                 page={t("tasks_title")}
+                isMobile={isMobile}
                 primaryState={isCompleted}
                 secondaryState={isTeam}
                 onTogglePrimary={toggleCompletedView}
                 onToggleSecondary={toggleTeamView}
+                onOpenMobileMenu={onOpenMobileMenu}
                 t={t}
             />
 

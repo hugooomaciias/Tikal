@@ -1,15 +1,14 @@
 /** React & Third-Party Libraries */
+import { useOutletContext } from "react-router-dom";
 import { Responsive, WidthProvider } from "react-grid-layout/legacy";
 
 /** Contexts, Hooks & Services */
 import { useHomeLogic } from "../../../hooks/components/app/main/home/useHomeLogic.js";
 
 /** Components & Layouts */
-import { Header } from "../../../components/app/main/home/Header.jsx";
-import { BaseWidget } from "../../../components/app/main/common/widgets/BaseWidget.jsx";
-
-/** Icons */
-import { IconCircleXFilled } from "@tabler/icons-react";
+import { HeaderComponent } from "../../../components/app/main/common/HeaderComponent.jsx";
+import { MainDataHeaderComponent } from "../../../components/app/main/common/MainDataHeaderComponent.jsx";
+import { DashboardWidgetCard } from "../../../components/app/main/common/DashboardWidgetCard.jsx";
 
 /** Assets, Utils & Constants */
 import "react-grid-layout/css/styles.css";
@@ -38,11 +37,12 @@ export const HomePage = () => {
      * Extracts the resolved layout states, hydrated widget payload, translation mapping,
      * and grid interaction handlers directly from the headless logic hook.
      */
-    const { t, homeStates, homeData, homeActions } = useHomeLogic();
+    const { t, homeStates, homeData, homeActions } = useHomeLogic({ useOutletContext });
 
-    const { isDataLoaded, isEditing, checkChanges, widgets } = homeStates;
+    const { isDataLoaded, isEditing, checkChanges, widgets, isMobile, activeWidgetIndex } = homeStates;
     const { homeGeneralInformation } = homeData;
-    const { handleLayoutChange, removeWidget, enableEditMode, disableEditMode, saveLayout } = homeActions;
+    const { handleLayoutChange, removeWidget, enableEditMode, disableEditMode, saveLayout, onOpenMobileMenu, handleScroll } = homeActions;
+
 
     // --- 2. Render ---
 
@@ -52,80 +52,70 @@ export const HomePage = () => {
 
     return (
         <>
-            <Header
-                data={homeGeneralInformation}
-                isEditing={isEditing}
-                checkChanges={checkChanges}
-                onEnableEdit={enableEditMode}
-                onDisableEdit={disableEditMode}
-                onSaveLayout={saveLayout}
-            />
+            <div className="flex flex-col gap-4 md:gap-6">
+                {/* Top Interactive Actions Toolbar */}
+                <HeaderComponent
+                    page={t("home_title")}
+                    isMobile={isMobile}
+                    primaryState={isEditing}
+                    secondaryState={checkChanges}
+                    onTogglePrimary={enableEditMode}
+                    onToggleSecondary={disableEditMode}
+                    onSaveLayout={saveLayout}
+                    onOpenMobileMenu={onOpenMobileMenu}
+                    t={t}
+                />
 
-            {/* Dashboard Responsive Grid Area */}
-            <div className={`tour-body flex-1 overflow-y-auto custom-scrollbar ${isEditing ? "pb-32" : ""}`}>
-                <ResponsiveGridLayout
-                    className="layout"
-                    layouts={{
-                        lg: widgets.map((w) => w.grid),
-                        md: widgets.map((w) => w.grid),
-                        sm: widgets.map((w) => w.grid),
-                        xs: widgets.map((w) => w.grid),
-                        xxs: widgets.map((w) => w.grid),
-                    }}
-                    rowHeight={256}
-                    compactType="vertical"
-                    breakpoints={{ lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0 }}
-                    cols={{ lg: 4, md: 3, sm: 2, xs: 1, xxs: 1 }}
-                    isDraggable={isEditing}
-                    isResizable={isEditing}
-                    onLayoutChange={handleLayoutChange}
-                    margin={[10, 10]}
-                    containerPadding={[9, 9]}
-                >
-                    {widgets.map((widget) => {
-                        const allowsDrag = widget.grid.isDraggable !== false;
-                        const allowsResize = widget.grid.isResizable !== false;
+                {/* High-level Global Statistics Hero Card */}
+                <MainDataHeaderComponent data={homeGeneralInformation} home={true} />
+            </div>
 
-                        const isModifiable = isEditing && (allowsDrag || allowsResize);
-
-                        return (
+            {/* Dashboard Grid & Carrousel Area */}
+            <div className={`flex-1 overflow-y-auto custom-scrollbar ${isEditing ? "pb-32" : ""}`}>
+                {isMobile ? (
+                    <div className="flex flex-col w-full h-full">
+                        <div 
+                            className="flex w-full h-full overflow-x-auto overflow-y-hidden snap-x snap-mandatory gap-4 px-4 pb-2 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+                            onScroll={handleScroll}
+                        >
+                            {widgets.map((widget) => (
+                                <div key={widget.id} className="w-[90%] sm:w-[80%] h-full flex-shrink-0 snap-center flex items-center justify-center">
+                                    <DashboardWidgetCard widget={widget} isEditing={isEditing} isMobile={isMobile} onRemove={removeWidget} t={t} />
+                                </div>
+                            ))}
+                        </div>
+                        
+                        <div className="flex justify-center items-center gap-2 pt-3 pb-6 shrink-0 h-fit">
+                            {widgets.map((_, index) => (
+                                <div key={index} className={`h-2 rounded-full transition-all duration-300 ${activeWidgetIndex === index ? "w-6 bg-primary-600" : "w-2 bg-primary-200"}`} />
+                            ))}
+                        </div>
+                    </div>
+                ) : (
+                    <ResponsiveGridLayout
+                        className="layout"
+                        layouts={{
+                            lg: widgets.map((w) => w.grid), md: widgets.map((w) => w.grid),
+                            sm: widgets.map((w) => w.grid), xs: widgets.map((w) => w.grid),
+                            xxs: widgets.map((w) => w.grid),
+                        }}
+                        rowHeight={240}
+                        compactType="vertical"
+                        breakpoints={{ lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0 }}
+                        cols={{ lg: 4, md: 3, sm: 2, xs: 1, xxs: 1 }}
+                        isDraggable={isEditing}
+                        isResizable={isEditing}
+                        onLayoutChange={handleLayoutChange}
+                        margin={[10, 10]}
+                        containerPadding={[9, 9]}
+                    >
+                        {widgets.map((widget) => (
                             <div key={widget.id} className="relative group h-full">
-                                {/* Edit Mode Controls Overlay */}
-                                {isModifiable && (
-                                    <button
-                                        onMouseDown={(e) => e.stopPropagation()}
-                                        onClick={() => removeWidget(widget.id)}
-                                        title="Eliminar widget"
-                                        className="absolute z-50 -top-2 -right-2 w-8 h-8 bg-primary rounded-full flex items-center justify-center transition-all duration-300"
-                                    >
-                                        <IconCircleXFilled className="w-full h-full text-tertiary-200/70 hover:text-tertiary-200" />
-                                    </button>
-                                )}
-
-                                {/* Drag Handle Overlay */}
-                                {isEditing && allowsDrag && (
-                                    <div className="absolute inset-0 z-40 cursor-move rounded-3xl" />
-                                )}
-
-                                {/* Dynamic Widget Injection Component */}
-                                <BaseWidget
-                                    t={t}
-                                    title={widget.config.title}
-                                    subtitle={widget.config.subtitle}
-                                    bgColor={widget.config.bgColor}
-                                    textColor={widget.config.textColor}
-                                    actions={widget.config.actions}
-                                    pageLink={widget.config.pageLink}
-                                    className={`transition-all duration-300 ${isModifiable ? `opacity-60 border-dashed border-[3px] ${widget.config.borderColor ? widget.config.borderColor : "border-primary-50"} cursor-move` : "opacity-100"}`}
-                                >
-                                    {widget.config.content && (
-                                        <widget.config.content.component props={widget.config.content.props} />
-                                    )}
-                                </BaseWidget>
+                                <DashboardWidgetCard widget={widget} isEditing={isEditing} isMobile={isMobile} onRemove={removeWidget} t={t} />
                             </div>
-                        );
-                    })}
-                </ResponsiveGridLayout>
+                        ))}
+                    </ResponsiveGridLayout>
+                )}
             </div>
         </>
     );

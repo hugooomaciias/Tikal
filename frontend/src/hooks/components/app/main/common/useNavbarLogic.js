@@ -8,8 +8,6 @@ import { useSync } from "../../../../core/useSync.js";
 import { useAuth } from "../../../../core/useAuth.js";
 import { useTimeLog } from "../../../../core/useTimeLog.js";
 
-/** Config, Constants & Utils */
-
 /**
  * Navbar Logic Hook
  *
@@ -18,9 +16,12 @@ import { useTimeLog } from "../../../../core/useTimeLog.js";
  * authentication flows, and dynamic translation resolutions to keep the JSX purely visual.
  *
  * @hook
+ * @param {Object} props - The hook injection payload containing external context delegates.
+ * @param {Function} [props.onCloseMobileMenu] - Optional callback to programmatically close the mobile drawer during routing changes.
+ * @param {boolean} [props.isMobileMenuOpen] - Flag indicating if the mobile viewport menu is currently active.
  * @returns {Object} A structured payload containing all necessary state, derived data, and action handlers required by the Navbar UI.
  */
-export const useNavbarLogic = () => {
+export const useNavbarLogic = ({ onCloseMobileMenu, isMobileMenuOpen }) => {
     // --- 1. DOM Refs & Layout State ---
 
     /**
@@ -160,9 +161,14 @@ export const useNavbarLogic = () => {
         if (!location.pathname.startsWith("/teams")) {
             setIsTeamsOpen(false);
             setIsFloatingTeamsOpen(false);
+            
+            if (onCloseMobileMenu) {
+                onCloseMobileMenu();
+            }
         } else if (location.pathname !== "/teams" && location.pathname !== "/teams/chat") {
             setIsFloatingTeamsOpen(false);
         }
+
     }, [location.pathname]);
 
     // --- 5. Interaction Handlers ---
@@ -206,30 +212,25 @@ export const useNavbarLogic = () => {
      * @returns {void}
      */
     const handleToggleTeams = useCallback((defaultPath) => {
-        if (!isExpanded) {
-            setIsFloatingTeamsOpen((prev) => {
-                const willOpen = !prev;
-                if (willOpen && defaultPath && !location.pathname.startsWith("/teams")) {
-                    navigate(defaultPath);
-                    setIsFloatingTeamsOpen(true);
-                }
+        const isCurrentlyInTeams = location.pathname.startsWith("/teams");
 
-                return willOpen;
-            });
+        if (!isExpanded && !isMobileMenuOpen) {
+            const willOpen = !isFloatingTeamsOpen;
+            setIsFloatingTeamsOpen(willOpen);
 
+            if (willOpen && defaultPath && !isCurrentlyInTeams) {
+                navigate(defaultPath);
+            }
             return;
         }
 
-        setIsTeamsOpen((prev) => {
-            const willOpen = !prev;
-            if (willOpen && defaultPath && !location.pathname.startsWith("/teams")) {
-                navigate(defaultPath);
-                setIsTeamsOpen(true);
-            }
-
-            return willOpen;
-        });
-    }, [isExpanded, location.pathname, navigate]);
+        const willOpen = !isTeamsOpen;
+        setIsTeamsOpen(willOpen);
+        
+        if (willOpen && defaultPath && !isCurrentlyInTeams) {
+            navigate(defaultPath);
+        }
+    }, [isExpanded, isMobileMenuOpen, isFloatingTeamsOpen, isTeamsOpen, location.pathname, navigate]);
 
     /**
      * Floating Menu Close Handler

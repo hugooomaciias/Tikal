@@ -3,6 +3,10 @@ package com.tikal.api.exception;
 import com.tikal.api.exception.dto.ErrorResponse;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.security.SignatureException;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,6 +25,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RestControllerAdvice
+@ApiResponses(value = {
+        @ApiResponse(
+                responseCode = "4XX",
+                description = "Errores de cliente (Ej: 400 Bad Request, 401 Unauthorized, 403 Forbidden, 404 Not Found). Revisa el mensaje de error para más detalles.",
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))
+        )
+})
 public class GlobalExceptionHandler {
 
     // ==========================================

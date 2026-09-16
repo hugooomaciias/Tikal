@@ -22,9 +22,11 @@ import { generateCascadingOptions } from "../../../../../utils/calendarUtils.js"
  * unachieved totems, and computing visual separators for the UI rendering engine.
  *
  * @hook
+ * @param {Object} props - The hook injection payload.
+ * @param {Function} props.useOutletContext - React Router's hook injected to extract global layout states (e.g., viewport flags and mobile menu triggers) while keeping the headless hook agnostic of router boundaries.
  * @returns {Object} A structured payload containing translations, UI states, derived datasets, and action handlers.
  */
-export const useTempleModeLogic = () => {
+export const useTempleModeLogic = ({ useOutletContext }) => {
     // --- 1. DOM Refs & Layout State ---
     
     /**
@@ -79,6 +81,16 @@ export const useTempleModeLogic = () => {
      * that plays exclusively while the countdown timer is actively ticking.
      */
     const runningAudioRef = useRef(null);
+
+    /**
+     * Outlet Context Extraction
+     *
+     * Retrieves global layout states and interaction handlers injected by the parent 
+     * route wrapper (`MainBasePage`). It extracts the viewport detection flag (`isMobile`) 
+     * to toggle between the desktop grid and mobile carousel, along with the trigger 
+     * function (`onOpenMobileMenu`) to expand the mobile navigation drawer.
+     */
+    const { isMobile, isMobileMenuOpen, onOpenMobileMenu, onCloseMobileMenu } = useOutletContext();
 
     // --- 2. Local UI State ---
 
@@ -413,8 +425,8 @@ export const useTempleModeLogic = () => {
 
     return {
         translations: { tTemple, tCommon },
-        templeModeStates: { menuRef, isDataLoaded, isRunning, isPopUpOpen },
+        templeModeStates: { menuRef, isDataLoaded, isRunning, isPopUpOpen, isMobile, isMobileMenuOpen },
         templeModeData: { data, additionalData, currentTime, formattedTime, timerProgressPercentage, cascadingOptions },
-        templeModeActions: { handleOpenTimerConfig, handleClosePopUp, handleStopSession }
+        templeModeActions: { handleOpenTimerConfig, handleClosePopUp, handleStopSession, onOpenMobileMenu, onCloseMobileMenu }
     };
 };

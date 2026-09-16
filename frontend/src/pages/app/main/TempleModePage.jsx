@@ -1,3 +1,6 @@
+/** React & Third-Party Libraries */
+import { useOutletContext } from "react-router-dom";
+
 /** Contexts, Hooks & Services */
 import { useTempleModeLogic } from "../../../hooks/components/app/main/temple-mode/useTempleModeLogic.js";
 
@@ -31,12 +34,12 @@ export const TempleModePage = () => {
      * This strictly isolates the complex business logic and interval engines from the purely 
      * visual rendering hierarchy.
      */
-    const { translations, templeModeStates, templeModeData, templeModeActions } = useTempleModeLogic();
+    const { translations, templeModeStates, templeModeData, templeModeActions } = useTempleModeLogic({ useOutletContext });
 
     const { tTemple, tCommon } = translations;
-    const { menuRef, isDataLoaded, isRunning, isPopUpOpen } = templeModeStates;
+    const { menuRef, isDataLoaded, isRunning, isPopUpOpen, isMobile, isMobileMenuOpen } = templeModeStates;
     const { data, additionalData, currentTime, formattedTime, timerProgressPercentage, cascadingOptions } = templeModeData;
-    const { handleOpenTimerConfig, handleClosePopUp, handleStopSession } = templeModeActions;
+    const { handleOpenTimerConfig, handleClosePopUp, handleStopSession, onOpenMobileMenu, onCloseMobileMenu } = templeModeActions;
 
     if (!isDataLoaded || !templeModeData) {
         return null;
@@ -64,16 +67,22 @@ export const TempleModePage = () => {
         >
             {/* Vertical Navbar Navigation Layer */}
             {!isRunning && (
-                <NavbarComponent theme={theme} />
+                <NavbarComponent
+                    isMobileMenuOpen={isMobileMenuOpen}
+                    onCloseMobileMenu={onCloseMobileMenu}
+                    theme={theme}
+                />
             )}
 
             {/* Core Scrollable Content Area */}
             <section className="flex-1 flex flex-col gap-4 md:gap-6 w-full h-full overflow-y-auto custom-scrollbar ">
-                <div className="flex flex-col gap-3 md:gap-4 w-full min-w-0">
+                <div className="flex flex-col gap-4 md:gap-6 w-full min-w-0">
                     <HeaderComponent
                         page={tTemple("temple-mode_title")}
+                        isMobile={isMobile}
                         templeName={data.templeName}
                         theme={theme}
+                        onOpenMobileMenu={onOpenMobileMenu}
                         t={tTemple}
                     />
 

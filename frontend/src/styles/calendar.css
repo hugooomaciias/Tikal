@@ -68,7 +68,7 @@
 }
 
 .main-calendar-theme .fc .fc-col-header-cell-cushion {
-    @apply no-underline text-sm font-bold text-quaternary-700 py-2 uppercase tracking-wide !important;
+    @apply no-underline text-sm font-bold text-quaternary-700 uppercase tracking-wide !important;
 }
 
 .main-calendar-theme .fc .fc-daygrid-day-number {
@@ -170,20 +170,30 @@
     @apply no-underline text-sm font-medium text-primary-600 !important;
 }
 
-.main-calendar-theme .fc-list-event td {
-    @apply border-none py-4 align-middle !important;
-}
-
 .main-calendar-theme .fc-list-event-dot {
     @apply border-[6px] rounded-full !important;
 }
 
-.main-calendar-theme .fc-list-event-title {
-    @apply pr-2 text-sm font-bold text-quaternary-700 !important;
-}
-
 .main-calendar-theme .fc-list-event-time {
     @apply text-sm font-medium text-quaternary-500 !important;
+}
+
+.main-calendar-theme .fc-list-event-graphic {
+    display: none !important;
+}
+
+.main-calendar-theme .fc-list-event-title {
+    width: 100%;
+    max-width: 0;
+    padding: 0 !important;
+}
+
+/* Quitar el hover gris nativo y ajustar el padding de la fila */
+.main-calendar-theme .fc-list-event:hover td {
+    background-color: transparent !important;
+}
+.main-calendar-theme .fc-list-event td {
+    @apply border-none py-1.5 px-2 align-middle !important;
 }
 
 .main-calendar-theme .fc-event,

@@ -17,9 +17,11 @@ import { useTeams } from "../../../../controllers/teams/useTeams.js";
  * of administrative actions (like leaving a team or regenerating codes).
  *
  * @hook
+ * @param {Object} props - The hook injection payload.
+ * @param {Function} props.useOutletContext - React Router's hook injected to extract global layout states (e.g., viewport flags and mobile menu triggers) while keeping the headless hook agnostic of router boundaries.
  * @returns {Object} A structured payload containing localized translations, UI states, and interaction handlers.
  */
-export const useTeamsLogic = () => {
+export const useTeamsLogic = ({ useOutletContext }) => {
     // --- 1. DOM Refs & Layout State ---
 
     /**
@@ -60,6 +62,16 @@ export const useTeamsLogic = () => {
      * Retrieves the globally cached list of teams associated with the active user session.
      */
     const { getTeamsData } = useSync();
+
+    /**
+     * Outlet Context Extraction
+     *
+     * Retrieves global layout states and interaction handlers injected by the parent 
+     * route wrapper (`MainBasePage`). It extracts the viewport detection flag (`isMobile`) 
+     * to toggle between the desktop grid and mobile carousel, along with the trigger 
+     * function (`onOpenMobileMenu`) to expand the mobile navigation drawer.
+     */
+    const { onOpenMobileMenu, isMobile } = useOutletContext();
 
     // --- 2. Local UI State ---
 
@@ -356,7 +368,8 @@ export const useTeamsLogic = () => {
             teamToEdit,
             isMembersModalOpen,
             teamForMembers,
-            teamToLeave
+            teamToLeave,
+            isMobile
         },
         teamsActions: { 
             setViewAsAdmin,
@@ -371,7 +384,8 @@ export const useTeamsLogic = () => {
             handleCloseMembersModal,
             handleNavigateToTeamProjects,
             handleNavigateToTeamMemberDashboard,
-            handleCopyCode
+            handleCopyCode,
+            onOpenMobileMenu
         }
     };
 };

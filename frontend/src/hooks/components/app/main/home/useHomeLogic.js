@@ -75,11 +75,20 @@ const WIDGET_CONFIG = {
  * synchronization logic and edit-mode behaviors to ensure the JSX remains purely visual.
  *
  * @hook
+ * @param {Object} props - The hook injection payload.
+ * @param {Function} props.useOutletContext - React Router's hook injected to extract global layout states (e.g., viewport flags and mobile menu triggers) while keeping the headless hook agnostic of router boundaries.
  * @returns {Object} A structured payload containing all necessary states, derived data, and action handlers.
  */
-export const useHomeLogic = () => {
+export const useHomeLogic = ({ useOutletContext }) => {
     // --- 1. DOM Refs & Layout State ---
 
+    /**
+     * Translation Hook
+     *
+     * Provides access to the i18n instance specifically scoped to the "app_home" namespace.
+     */
+    const { t } = useTranslation("app_home");
+    
     /**
      * Main Context Hook
      *
@@ -97,11 +106,14 @@ export const useHomeLogic = () => {
     const { updateDashboardLayout } = useSettingsController();
 
     /**
-     * Translation Hook
+     * Outlet Context Extraction
      *
-     * Provides access to the i18n instance specifically scoped to the "app_home" namespace.
+     * Retrieves global layout states and interaction handlers injected by the parent 
+     * route wrapper (`MainBasePage`). It extracts the viewport detection flag (`isMobile`) 
+     * to toggle between the desktop grid and mobile carousel, along with the trigger 
+     * function (`onOpenMobileMenu`) to expand the mobile navigation drawer.
      */
-    const { t } = useTranslation("app_home");
+    const { onOpenMobileMenu, isMobile } = useOutletContext();
 
     // --- 2. Local UI State ---
 
@@ -128,6 +140,15 @@ export const useHomeLogic = () => {
      * repositioned or removed during edit mode.
      */
     const [widgets, setWidgets] = useState([]);
+
+    /**
+     * Mobile Carousel Active Index State
+     *
+     * Tracks the currently focused widget within the mobile viewport.
+     * This state specifically drives the visual pagination indicators (dots) 
+     * rendered below the native CSS swipeable carousel.
+     */
+    const [activeWidgetIndex, setActiveWidgetIndex] = useState(0);
 
     // --- 3. Derived UI Data ---
 
@@ -317,12 +338,34 @@ export const useHomeLogic = () => {
         }
     }, [widgets, checkChanges, updateDashboardLayout]);
 
+    /**
+     * Mobile Carousel Scroll Handler
+     *
+     * Dynamically calculates which widget is currently centered in the viewport 
+     * based on the container's horizontal scroll position. It divides the total 
+     * scrollable width by the amount of active widgets to determine the snap thresholds, 
+     * updating the local index state only when a threshold boundary is crossed.
+     *
+     * @param {React.UIEvent<HTMLDivElement>} e - The scroll event triggered by the carousel container.
+     * @returns {void}
+     */
+    const handleScroll = (e) => {
+        const { scrollLeft, scrollWidth } = e.target;
+
+        const widthPerItem = scrollWidth / widgets.length;
+        const newIndex = Math.round(scrollLeft / widthPerItem);
+        
+        if (newIndex !== activeWidgetIndex) {
+            setActiveWidgetIndex(newIndex);
+        }
+    };
+
     // --- 6. Return Object ---
 
     return {
         t,
-        homeStates: { isDataLoaded, isEditing, checkChanges, widgets },
+        homeStates: { isDataLoaded, isEditing, checkChanges, widgets, isMobile, activeWidgetIndex },
         homeData: { homeGeneralInformation },
-        homeActions: { handleLayoutChange, removeWidget, enableEditMode, disableEditMode, saveLayout },
+        homeActions: { handleLayoutChange, removeWidget, enableEditMode, disableEditMode, saveLayout, onOpenMobileMenu, handleScroll },
     };
 };

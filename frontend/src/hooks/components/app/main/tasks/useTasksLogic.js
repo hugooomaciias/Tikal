@@ -17,9 +17,11 @@ import { useToast } from "../../../../core/useToast.js";
  * It cleanly delegates the global sync context down to the presentational UI layers.
  *
  * @hook
+ * @param {Object} props - The hook injection payload.
+ * @param {Function} props.useOutletContext - React Router's hook injected to extract global layout states (e.g., viewport flags and mobile menu triggers) while keeping the headless hook agnostic of router boundaries.
  * @returns {Object} A structured payload containing core layout state, derived entities, and interaction handlers.
  */
-export const useTasksLogic = () => {
+export const useTasksLogic = ({ useOutletContext }) => {
     // --- 1. DOM Refs & Layout State ---
     
     /**
@@ -47,6 +49,16 @@ export const useTasksLogic = () => {
     * and backend loading status.
     */
    const { rawDashboardData, isDataLoaded } = useSync();
+
+   /**
+     * Outlet Context Extraction
+     *
+     * Retrieves global layout states and interaction handlers injected by the parent 
+     * route wrapper (`MainBasePage`). It extracts the viewport detection flag (`isMobile`) 
+     * to toggle between the desktop grid and mobile carousel, along with the trigger 
+     * function (`onOpenMobileMenu`) to expand the mobile navigation drawer.
+     */
+   const { onOpenMobileMenu, isMobile } = useOutletContext();
 
     /**
      * Router Location Hook
@@ -268,8 +280,8 @@ export const useTasksLogic = () => {
 
     return {
         t,
-        tasksStates: { isDataLoaded, isCompleted, selectedProjectId, selectedStageId, mobileView, tasks, isTeam },
+        tasksStates: { isDataLoaded, isCompleted, selectedProjectId, selectedStageId, mobileView, tasks, isTeam, isMobile },
         tasksData: { selectedProject, selectedStage, autoSelectPayload },
-        tasksActions: { handleProjectSelect, handleStageSelect, handleBackNavigation, toggleCompletedView, toggleTeamView, handleShowError, handleShowSuccess },
+        tasksActions: { handleProjectSelect, handleStageSelect, handleBackNavigation, toggleCompletedView, toggleTeamView, handleShowError, handleShowSuccess, onOpenMobileMenu },
     };
 };
