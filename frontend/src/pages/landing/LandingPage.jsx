@@ -12,7 +12,7 @@ import { FooterComponent } from "../../components/landing/FooterComponent.jsx";
 import { LanguagePickerComponent } from "../../components/landing/languagePickerComponent.jsx";
 
 /** Icons */
-import { IconMenu2Filled, IconX } from "@tabler/icons-react";
+import { IconMenu4, IconX } from "@tabler/icons-react";
 
 /**
  * Landing Page Presentational Component
@@ -90,7 +90,7 @@ export const LandingPage = () => {
                             {isMobileMenuOpen ? (
                                 <IconX className={`h-6 w-6 ${mobileTextColour}`} />
                             ) : (
-                                <IconMenu2Filled className={`h-6 w-6 ${mobileTextColour}`} />
+                                <IconMenu4 className={`h-6 w-6 ${mobileTextColour}`} />
                             )}
                         </button>
                     </div>
