@@ -196,7 +196,7 @@ export const FilterComponent = ({
                                         <button
                                             key={s.id}
                                             onClick={() => toggleTempProjectVisibility(s.id)}
-                                            className={`relative flex flex-col items-center justify-center p-4 rounded-2xl transition-all duration-300 shadow-sm border-2 ${isHidden ? "border-transparent opacity-60 grayscale bg-gray-100" : "border-primary-100"}`}
+                                            className={`relative flex flex-col items-center justify-center p-2.5 md:p-4 rounded-2xl transition-all duration-300 shadow-sm border-2 ${isHidden ? "border-transparent opacity-60 grayscale bg-gray-100" : "border-primary-100"}`}
                                             style={{ backgroundColor: isHidden ? undefined : s.color }}
                                         >
                                             {!isHidden && (

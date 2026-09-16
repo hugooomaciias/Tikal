@@ -111,7 +111,6 @@ export const BaseWidget = ({
     const isTempleMode = title === t("widgets.temple_mode.title");
     const isAIWidget = title === "Dios de la SabidurIA";
     const isTaskWidget = title === t("widgets.tasks.title");
-    const isCalendarWidget = title === t("widgets.calendar.title");
     const isTimeTracker = title === "Time tracker";
     const isEffectivenessWidget = title === t("widgets.effectiveness_chart.title");
     const isSolarChartWidget = title === t("widgets.solar_chart.title");

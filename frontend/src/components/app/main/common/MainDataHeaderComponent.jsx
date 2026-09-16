@@ -56,62 +56,16 @@ const ICON_MAP = {
  * @returns {JSX.Element|null} The rendered main data header overlay, or null if data is invalid.
  */
 export const MainDataHeaderComponent = ({ data, home, team }) => {
-    // --- 1. Local UI Logic ---
-
-    /**
-     * Visibility Toggle State
-     *
-     * Tracks the current collapse/expand state of the specialized summary header on mobile devices.
-     */
-    const [isVisible, setIsVisible] = useState(true);
-
-    /**
-     * Toggle Visibility Handler
-     *
-     * Triggers the inversion of the visibility state when the user interacts with the mobile toggle button.
-     */
-    const handleToggleVisibility = () => {
-        setIsVisible(!isVisible);
-    };
-
     // --- 2. Render ---
 
     if (!data || !Array.isArray(data)) return null;
 
     return (
         <div className="relative w-full">
-            {/* Mobile Visibility Control Action */}
-            {!home && (
-                <button
-                    onClick={handleToggleVisibility}
-                    className={`absolute md:hidden z-20 flex items-center justify-center p-1.5 rounded-full text-primary-500 transition-all duration-300
-                        ${isVisible ? "top-1 left-4 bg-primary-100 shadow-lg -translate-y-1/3 -translate-x-1/2" : "top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2"}
-                    `}
-                >
-                    {/* Visibility Toggle Label & Icon */}
-                    {isVisible ? (
-                        <IconEyeOff className="w-5 h-5" />
-                    ) : (
-                        <div className="w-full flex items-center justify-center gap-2">
-                            <IconEye className="w-5 h-5" />
-                            <span className="text-sm font-semibold">Mostrar estadísticas</span>
-                        </div>
-                    )}
-                </button>
-            )}
-
             {/* Prominent Data Header Card */}
-            <header
-                className={`relative w-full bg-primary shadow-md rounded-[2.5rem] transition-all duration-500 ease-in-out overflow-hidden
-                ${isVisible ? "h-fit py-6 px-6 md:px-8" : "h-12 py-0 px-8 flex items-center justify-center opacity-90 hover:opacity-100"}
-            `}
-            >
+            <header className="relative h-fit w-full bg-primary shadow-md rounded-[2.5rem] py-6 px-6 md:px-8 transition-all duration-500 ease-in-out overflow-hidden">
                 {/* Statistical Data Grid Layout */}
-                <div
-                    className={`w-full grid grid-cols-2 md:flex md:flex-row items-center justify-between gap-x-2 gap-y-6 md:gap-10 transition-all duration-300
-                ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-10 pointer-events-none"}
-            `}
-                >
+                <div className="w-full grid grid-cols-2 md:flex md:flex-row items-center justify-between gap-x-2 gap-y-6 md:gap-10 transition-all duration-300">
                     {/* Metrics Iteration Render */}
                     {data.map((option, index) => {
                         /**

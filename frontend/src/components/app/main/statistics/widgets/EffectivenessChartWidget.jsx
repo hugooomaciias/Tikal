@@ -114,8 +114,9 @@ export const EffectivenessChartWidget = ({ props, setCustomActions }) => {
     useEffect(() => {
         const actions = (
             <div className="text-sm text-quaternary-700 font-bold">
-                <div className="flex items-center gap-2">
+                <div className="flex flex-col md:flex-row items-center gap-2">
                     <span className="text-nowrap">{t("widgets.effectiveness_chart.axis.y")}</span>
+
                     <TabsComponent
                         widget="EffectivenessY"
                         value={metric}

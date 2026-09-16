@@ -125,7 +125,7 @@ export const ConcentrationHeatmapWidget = ({ props }) => {
                         <div
                             key={index}
                             title={day.dayOfMonth ? `${day.minutesDedicated} min` : ""}
-                            className={`relative group/celda h-5 md:h-[26px] flex items-center justify-center rounded-md text-[11px] font-bold transition-all duration-300 ${INTENSITY_COLORS[day.intensity]}`}
+                            className={`relative group/celda h-11 md:h-[26px] flex items-center justify-center rounded-md text-[11px] font-bold transition-all duration-300 ${INTENSITY_COLORS[day.intensity]}`}
                         >
                             {/* Day Number Display */}
                             <span className="leading-none">{day.dayOfMonth}</span>
