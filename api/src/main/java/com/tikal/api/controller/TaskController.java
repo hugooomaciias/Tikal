@@ -1,5 +1,6 @@
 package com.tikal.api.controller;
 
+import com.tikal.api.exception.dto.ErrorResponse;
 import com.tikal.api.model.dto.task.AssignUsersRequest;
 import com.tikal.api.model.dto.task.TaskRequest;
 import com.tikal.api.model.dto.task.TaskDTO;
@@ -36,10 +37,7 @@ public class TaskController {
      */
     @Operation(summary = "Obtener tareas por stage", description = "Devuelve las tareas que pertenecen a un stage específico.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Listado de tareas", content = @Content(mediaType = "application/json", schema = @Schema(implementation = TaskDTO.class))),
-            @ApiResponse(responseCode = "401", description = "No autorizado"),
-            @ApiResponse(responseCode = "404", description = "Stage no encontrado"),
-            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+            @ApiResponse(responseCode = "200", description = "Listado de tareas", content = @Content(mediaType = "application/json", schema = @Schema(implementation = TaskDTO.class)))
     })
     @GetMapping("/by_stage/{stageId}")
     public ResponseEntity<List<TaskDTO>> getTasksByStage(@Parameter(description = "ID del stage", example = "14", in = ParameterIn.PATH) @PathVariable Integer stageId) {
@@ -52,11 +50,7 @@ public class TaskController {
      */
     @Operation(summary = "Crear tarea", description = "Crea una nueva tarea.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "Tarea creada correctamente", content = @Content(mediaType = "application/json", schema = @Schema(implementation = TaskDTO.class))),
-            @ApiResponse(responseCode = "400", description = "Solicitud inválida"),
-            @ApiResponse(responseCode = "401", description = "No autorizado"),
-            @ApiResponse(responseCode = "409", description = "Conflicto (tarea duplicada)"),
-            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+            @ApiResponse(responseCode = "201", description = "Tarea creada correctamente", content = @Content(mediaType = "application/json", schema = @Schema(implementation = TaskDTO.class)))
     })
     @PostMapping
     public ResponseEntity<TaskDTO> createTask(@io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Datos para crear la tarea", required = true, content = @Content(schema = @Schema(implementation = TaskRequest.class))) @RequestBody TaskRequest request) {
@@ -69,11 +63,7 @@ public class TaskController {
      */
     @Operation(summary = "Eliminar tarea", description = "Elimina una tarea por id.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "204", description = "Tarea eliminada correctamente (sin contenido)"),
-            @ApiResponse(responseCode = "401", description = "No autorizado"),
-            @ApiResponse(responseCode = "403", description = "Acceso prohibido"),
-            @ApiResponse(responseCode = "404", description = "Tarea no encontrada"),
-            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+            @ApiResponse(responseCode = "204", description = "Tarea eliminada correctamente (sin contenido)")
     })
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteTask(@Parameter(description = "ID de la tarea a eliminar", example = "14", in = ParameterIn.PATH) @PathVariable Integer id) {
@@ -87,11 +77,7 @@ public class TaskController {
      */
     @Operation(summary = "Actualizar tarea", description = "Actualiza una tarea existente.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Tarea actualizada", content = @Content(mediaType = "application/json", schema = @Schema(implementation = TaskDTO.class))),
-            @ApiResponse(responseCode = "400", description = "Solicitud inválida"),
-            @ApiResponse(responseCode = "401", description = "No autorizado"),
-            @ApiResponse(responseCode = "404", description = "Tarea no encontrada"),
-            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+            @ApiResponse(responseCode = "200", description = "Tarea actualizada", content = @Content(mediaType = "application/json", schema = @Schema(implementation = TaskDTO.class)))
     })
     @PatchMapping("/{id}")
     public ResponseEntity<TaskDTO> updateTask(
@@ -106,11 +92,7 @@ public class TaskController {
      */
     @Operation(summary = "Alternar estado de tarea", description = "Alterna el estado de finalización de una tarea.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Estado alternado correctamente", content = @Content(mediaType = "application/json", schema = @Schema(implementation = TaskDTO.class))),
-            @ApiResponse(responseCode = "400", description = "Solicitud inválida"),
-            @ApiResponse(responseCode = "401", description = "No autorizado"),
-            @ApiResponse(responseCode = "404", description = "Tarea no encontrada"),
-            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+            @ApiResponse(responseCode = "200", description = "Estado alternado correctamente", content = @Content(mediaType = "application/json", schema = @Schema(implementation = TaskDTO.class)))
     })
     @PatchMapping("/{id}/toggle-status")
     public ResponseEntity<TaskDTO> toggleTaskStatus(@Parameter(description = "ID de la tarea", example = "14", in = ParameterIn.PATH) @PathVariable("id") Integer id) {
@@ -123,12 +105,7 @@ public class TaskController {
      */
     @Operation(summary = "Asignar usuarios a tarea", description = "Reasigna usuarios a una tarea (arrastrar y soltar o multi-selección). Recibe una lista de ids de usuario en el body.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "204", description = "Usuarios asignados correctamente (sin contenido)"),
-            @ApiResponse(responseCode = "400", description = "Solicitud inválida"),
-            @ApiResponse(responseCode = "401", description = "No autorizado"),
-            @ApiResponse(responseCode = "403", description = "Acceso prohibido"),
-            @ApiResponse(responseCode = "404", description = "Tarea o usuario no encontrados"),
-            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+            @ApiResponse(responseCode = "204", description = "Usuarios asignados correctamente (sin contenido)")
     })
     @PatchMapping("/{taskId}/assign")
     public ResponseEntity<Void> assignUsersToTask(

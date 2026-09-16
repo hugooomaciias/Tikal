@@ -1,5 +1,6 @@
 package com.tikal.api.controller;
 
+import com.tikal.api.exception.dto.ErrorResponse;
 import com.tikal.api.model.dto.timer.ActiveTimerDTO;
 import com.tikal.api.model.dto.timer.TimeLogBatchRequest;
 import com.tikal.api.model.dto.timer.TimeLogDTO;
@@ -39,10 +40,7 @@ public class TimeLogController {
      */
     @Operation(summary = "Obtener registros por día", description = "Devuelve los registros de tiempo para un día específico.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Listado de registros para el día", content = @Content(mediaType = "application/json", schema = @Schema(implementation = TimeLogDTO.class))),
-            @ApiResponse(responseCode = "400", description = "Fecha inválida"),
-            @ApiResponse(responseCode = "401", description = "No autorizado"),
-            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+            @ApiResponse(responseCode = "200", description = "Listado de registros para el día", content = @Content(mediaType = "application/json", schema = @Schema(implementation = TimeLogDTO.class)))
     })
     @GetMapping("/list_by_day")
     public ResponseEntity<List<TimeLogDTO>> getTimeLogByDay(@Parameter(description = "Día a consultar (YYYY-MM-DD)", example = "2026-01-10", in = ParameterIn.QUERY) @RequestParam LocalDate day) {
@@ -55,9 +53,7 @@ public class TimeLogController {
      */
     @Operation(summary = "Obtener temporizador activo", description = "Devuelve el temporizador activo actualmente para el usuario autenticado.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Temporizador activo", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ActiveTimerDTO.class))),
-            @ApiResponse(responseCode = "401", description = "No autorizado"),
-            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+            @ApiResponse(responseCode = "200", description = "Temporizador activo", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ActiveTimerDTO.class)))
     })
     @GetMapping("/active")
     public ResponseEntity<ActiveTimerDTO> getActiveTime() {
@@ -70,11 +66,7 @@ public class TimeLogController {
      */
     @Operation(summary = "Crear registro de tiempo", description = "Crea una nueva entrada de registro de tiempo.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "Registro creado", content = @Content(mediaType = "application/json", schema = @Schema(implementation = TimeLogDTO.class))),
-            @ApiResponse(responseCode = "400", description = "Solicitud inválida"),
-            @ApiResponse(responseCode = "401", description = "No autorizado"),
-            @ApiResponse(responseCode = "409", description = "Conflicto (registro duplicado o temporizador activo)") ,
-            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+            @ApiResponse(responseCode = "201", description = "Registro creado", content = @Content(mediaType = "application/json", schema = @Schema(implementation = TimeLogDTO.class)))
     })
     @PostMapping
     public ResponseEntity<TimeLogDTO> createTimeLog(@io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Datos del registro de tiempo a crear", required = true, content = @Content(schema = @Schema(implementation = TimeLogRequest.class))) @RequestBody TimeLogRequest request) {
@@ -87,11 +79,7 @@ public class TimeLogController {
      */
     @Operation(summary = "Iniciar temporizador", description = "Inicia un nuevo temporizador (crea y arranca un registro de tiempo).")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "Temporizador iniciado", content = @Content(mediaType = "application/json", schema = @Schema(implementation = TimeLogDTO.class))),
-            @ApiResponse(responseCode = "400", description = "Solicitud inválida"),
-            @ApiResponse(responseCode = "409", description = "Conflicto (ya existe un temporizador en ejecución)"),
-            @ApiResponse(responseCode = "401", description = "No autorizado"),
-            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+            @ApiResponse(responseCode = "201", description = "Temporizador iniciado", content = @Content(mediaType = "application/json", schema = @Schema(implementation = TimeLogDTO.class)))
     })
     @PostMapping("/start")
     public ResponseEntity<TimeLogDTO> startTimer(@io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Datos para iniciar el temporizador", required = true, content = @Content(schema = @Schema(implementation = TimeLogRequest.class))) @RequestBody TimeLogRequest request) {
@@ -104,11 +92,7 @@ public class TimeLogController {
      */
     @Operation(summary = "Actualizar registro de tiempo", description = "Actualiza un registro de tiempo existente.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Registro actualizado", content = @Content(mediaType = "application/json", schema = @Schema(implementation = TimeLogDTO.class))),
-            @ApiResponse(responseCode = "400", description = "Solicitud inválida"),
-            @ApiResponse(responseCode = "401", description = "No autorizado"),
-            @ApiResponse(responseCode = "404", description = "Registro no encontrado"),
-            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+            @ApiResponse(responseCode = "200", description = "Registro actualizado", content = @Content(mediaType = "application/json", schema = @Schema(implementation = TimeLogDTO.class)))
     })
     @PutMapping("/{id}")
     public ResponseEntity<TimeLogDTO> updateTimeLog(@Parameter(description = "ID del registro", example = "12", in = ParameterIn.PATH) @PathVariable Integer id, @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Nuevos datos del registro", required = true, content = @Content(schema = @Schema(implementation = TimeLogRequest.class))) @RequestBody TimeLogRequest request) {
@@ -121,11 +105,7 @@ public class TimeLogController {
      */
     @Operation(summary = "Pausar temporizador", description = "Pausa un registro de tiempo en ejecución.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Temporizador pausado", content = @Content(mediaType = "application/json", schema = @Schema(implementation = TimeLogDTO.class))),
-            @ApiResponse(responseCode = "400", description = "Solicitud inválida"),
-            @ApiResponse(responseCode = "401", description = "No autorizado"),
-            @ApiResponse(responseCode = "404", description = "Registro no encontrado"),
-            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+            @ApiResponse(responseCode = "200", description = "Temporizador pausado", content = @Content(mediaType = "application/json", schema = @Schema(implementation = TimeLogDTO.class)))
     })
     @PatchMapping("/{id}/pause")
     public ResponseEntity<TimeLogDTO> pauseTimer(@Parameter(description = "ID del registro a pausar", example = "12", in = ParameterIn.PATH) @PathVariable Integer id, @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Datos de la pausa", required = true, content = @Content(schema = @Schema(implementation = TimeLogPause.class))) @RequestBody TimeLogPause request) {
@@ -138,11 +118,7 @@ public class TimeLogController {
      */
     @Operation(summary = "Detener lote de temporizadores", description = "Detiene un lote de temporizadores en ejecución.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Temporizadores detenidos y devueltos", content = @Content(mediaType = "application/json", schema = @Schema(implementation = TimeLogDTO.class))),
-            @ApiResponse(responseCode = "400", description = "Solicitud inválida"),
-            @ApiResponse(responseCode = "401", description = "No autorizado"),
-            @ApiResponse(responseCode = "409", description = "Conflicto al detener temporizadores"),
-            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+            @ApiResponse(responseCode = "200", description = "Temporizadores detenidos y devueltos", content = @Content(mediaType = "application/json", schema = @Schema(implementation = TimeLogDTO.class)))
     })
     @PatchMapping("/stop")
     public ResponseEntity<List<TimeLogDTO>> pauseTimer(@io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Lista de temporizadores a detener (id, endDateTime opcional)", required = true, content = @Content(schema = @Schema(implementation = TimeLogBatchRequest.class))) @RequestBody TimeLogBatchRequest request) {
@@ -155,10 +131,7 @@ public class TimeLogController {
      */
     @Operation(summary = "Eliminar registro de tiempo", description = "Elimina una entrada de registro de tiempo.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "204", description = "Registro eliminado correctamente (sin contenido)"),
-            @ApiResponse(responseCode = "401", description = "No autorizado"),
-            @ApiResponse(responseCode = "404", description = "Registro no encontrado"),
-            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+            @ApiResponse(responseCode = "204", description = "Registro eliminado correctamente (sin contenido)")
     })
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteTask(@Parameter(description = "ID del registro a eliminar", example = "12", in = ParameterIn.PATH) @PathVariable Integer id) {

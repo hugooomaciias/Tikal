@@ -416,13 +416,13 @@ public class DashboardService {
 
         return List.of(
                 WorkspaceSyncDTO.HeaderInformation.builder()
-                        .title("Tareas pendientes")
+                        .title("Tareas")
                         .value(String.valueOf(pendingTasks != null ? pendingTasks : 0))
                         .logo("IconListFilled")
                         .custom("")
                         .build(),
                 WorkspaceSyncDTO.HeaderInformation.builder()
-                        .title("Proyectos totales")
+                        .title("Proyectos")
                         .value(String.valueOf(totalProjects != null ? totalProjects : 0))
                         .logo("IconClipboardTextFilled")
                         .custom("")

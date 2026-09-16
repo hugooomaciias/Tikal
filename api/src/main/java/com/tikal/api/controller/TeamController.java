@@ -37,9 +37,7 @@ public class TeamController {
      */
     @Operation(summary = "Buscar equipos", description = "Busca los equipos en los que participa el usuario autenticado. El parámetro opcional 'isAdmin' filtra por membresía de administrador.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Listado de equipos", content = @Content(mediaType = "application/json", schema = @Schema(implementation = TeamDTO.class))),
-            @ApiResponse(responseCode = "401", description = "No autorizado"),
-            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+            @ApiResponse(responseCode = "200", description = "Listado de equipos", content = @Content(mediaType = "application/json", schema = @Schema(implementation = TeamDTO.class)))
     })
     @GetMapping
     public ResponseEntity<List<TeamDTO>> getTeams(
@@ -58,11 +56,7 @@ public class TeamController {
      */
     @Operation(summary = "Crear equipo", description = "Crea un nuevo equipo. El usuario autenticado se convierte en propietario/administrador del equipo creado.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "Equipo creado", content = @Content(mediaType = "application/json", schema = @Schema(implementation = TeamDTO.class))),
-            @ApiResponse(responseCode = "400", description = "Solicitud inválida"),
-            @ApiResponse(responseCode = "401", description = "No autorizado"),
-            @ApiResponse(responseCode = "409", description = "Conflicto (nombre ya existe)"),
-            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+            @ApiResponse(responseCode = "201", description = "Equipo creado", content = @Content(mediaType = "application/json", schema = @Schema(implementation = TeamDTO.class)))
     })
     @PostMapping
     public ResponseEntity<TeamDTO> createTeam(@io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Datos para crear un equipo", required = true, content = @Content(schema = @Schema(implementation = CreateTeamRequest.class))) @RequestBody CreateTeamRequest request) {
@@ -76,11 +70,7 @@ public class TeamController {
      */
     @Operation(summary = "Unirse por código", description = "Unirse a un equipo usando su código de invitación.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Unido al equipo correctamente", content = @Content(mediaType = "application/json", schema = @Schema(implementation = TeamDTO.class))),
-            @ApiResponse(responseCode = "400", description = "Código inválido"),
-            @ApiResponse(responseCode = "401", description = "No autorizado"),
-            @ApiResponse(responseCode = "409", description = "Conflicto (ya miembro)"),
-            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+            @ApiResponse(responseCode = "200", description = "Unido al equipo correctamente", content = @Content(mediaType = "application/json", schema = @Schema(implementation = TeamDTO.class)))
     })
     @PostMapping("/join")
     public ResponseEntity<TeamDTO> joinTeam(@io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Código de invitación para unirse al equipo", required = true, content = @Content(schema = @Schema(implementation = JoinTeamRequest.class))) @RequestBody JoinTeamRequest request) {
@@ -94,11 +84,7 @@ public class TeamController {
      */
     @Operation(summary = "Regenerar código de invitación", description = "Regenera el código de invitación de un equipo (solo admin). Devuelve el nuevo código.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Nuevo código generado", content = @Content(mediaType = "application/json", schema = @Schema(implementation = JoinTeamRequest.class))),
-            @ApiResponse(responseCode = "401", description = "No autorizado"),
-            @ApiResponse(responseCode = "403", description = "Prohibido (no admin)"),
-            @ApiResponse(responseCode = "404", description = "Equipo no encontrado"),
-            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+            @ApiResponse(responseCode = "200", description = "Nuevo código generado", content = @Content(mediaType = "application/json", schema = @Schema(implementation = JoinTeamRequest.class)))
     })
     @PatchMapping("/{teamId}/code/regenerate")
     public ResponseEntity<JoinTeamRequest> regenerateInvitationCode(@Parameter(description = "ID del equipo", example = "7", in = ParameterIn.PATH) @PathVariable Integer teamId) {
@@ -113,11 +99,7 @@ public class TeamController {
      */
     @Operation(summary = "Abandonar equipo", description = "Abandonar un equipo en el que el usuario autenticado es miembro.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "204", description = "Usuario abandonó el equipo (sin contenido)"),
-            @ApiResponse(responseCode = "400", description = "Solicitud inválida"),
-            @ApiResponse(responseCode = "401", description = "No autorizado"),
-            @ApiResponse(responseCode = "404", description = "Equipo no encontrado"),
-            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+            @ApiResponse(responseCode = "204", description = "Usuario abandonó el equipo (sin contenido)")
     })
     @DeleteMapping("/{teamId}/leave")
     public ResponseEntity<Void> leaveTeam(@Parameter(description = "ID del equipo a abandonar", example = "7", in = ParameterIn.PATH) @PathVariable Integer teamId) {
@@ -132,12 +114,7 @@ public class TeamController {
      */
     @Operation(summary = "Actualizar equipo", description = "Actualizar datos generales de un equipo (solo admin).")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Equipo actualizado", content = @Content(mediaType = "application/json", schema = @Schema(implementation = TeamDTO.class))),
-            @ApiResponse(responseCode = "400", description = "Solicitud inválida"),
-            @ApiResponse(responseCode = "401", description = "No autorizado"),
-            @ApiResponse(responseCode = "403", description = "Prohibido (no admin)"),
-            @ApiResponse(responseCode = "404", description = "Equipo no encontrado"),
-            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+            @ApiResponse(responseCode = "200", description = "Equipo actualizado", content = @Content(mediaType = "application/json", schema = @Schema(implementation = TeamDTO.class)))
     })
     @PutMapping("/{teamId}")
     public ResponseEntity<TeamDTO> updateTeam(
@@ -154,12 +131,7 @@ public class TeamController {
      */
     @Operation(summary = "Subir imagen del equipo", description = "Sube o elimina la imagen del equipo. El parámetro multipart 'file' es opcional.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Imagen actualizada", content = @Content(mediaType = "application/json", schema = @Schema(implementation = TeamDTO.class))),
-            @ApiResponse(responseCode = "400", description = "Archivo inválido"),
-            @ApiResponse(responseCode = "401", description = "No autorizado"),
-            @ApiResponse(responseCode = "403", description = "Prohibido (no admin)"),
-            @ApiResponse(responseCode = "404", description = "Equipo no encontrado"),
-            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+            @ApiResponse(responseCode = "200", description = "Imagen actualizada", content = @Content(mediaType = "application/json", schema = @Schema(implementation = TeamDTO.class)))
     })
     @PostMapping("/{teamId}/image")
     public ResponseEntity<TeamDTO> uploadTeamImage(
@@ -177,11 +149,7 @@ public class TeamController {
      */
     @Operation(summary = "Obtener miembros", description = "Devuelve la lista de miembros de un equipo. El parámetro opcional 'search' filtra por nombre.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Listado de miembros", content = @Content(mediaType = "application/json", schema = @Schema(implementation = TeamMemberDTO.class))),
-            @ApiResponse(responseCode = "401", description = "No autorizado"),
-            @ApiResponse(responseCode = "403", description = "Prohibido"),
-            @ApiResponse(responseCode = "404", description = "Equipo no encontrado"),
-            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+            @ApiResponse(responseCode = "200", description = "Listado de miembros", content = @Content(mediaType = "application/json", schema = @Schema(implementation = TeamMemberDTO.class)))
     })
     @GetMapping("/{teamId}/members")
     public ResponseEntity<List<TeamMemberDTO>> getTeamMembers(
@@ -198,12 +166,7 @@ public class TeamController {
      */
     @Operation(summary = "Eliminar miembro", description = "Elimina a un miembro del equipo especificado (solo admin).")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "204", description = "Miembro eliminado (sin contenido)"),
-            @ApiResponse(responseCode = "400", description = "Solicitud inválida"),
-            @ApiResponse(responseCode = "401", description = "No autorizado"),
-            @ApiResponse(responseCode = "403", description = "Prohibido (no admin)"),
-            @ApiResponse(responseCode = "404", description = "Usuario o equipo no encontrado"),
-            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+            @ApiResponse(responseCode = "204", description = "Miembro eliminado (sin contenido)")
     })
     @DeleteMapping("/{teamId}/members/{userId}")
     public ResponseEntity<Void> kickMember(
@@ -220,12 +183,7 @@ public class TeamController {
      */
     @Operation(summary = "Alternar admin", description = "Conceder o revocar privilegios de administrador a un miembro del equipo (solo admin).")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "204", description = "Estado de admin actualizado (sin contenido)"),
-            @ApiResponse(responseCode = "400", description = "Solicitud inválida"),
-            @ApiResponse(responseCode = "401", description = "No autorizado"),
-            @ApiResponse(responseCode = "403", description = "Prohibido (no admin)"),
-            @ApiResponse(responseCode = "404", description = "Usuario o equipo no encontrado"),
-            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+            @ApiResponse(responseCode = "204", description = "Estado de admin actualizado (sin contenido)")
     })
     @PatchMapping("/{teamId}/members/{userId}/admin")
     public ResponseEntity<Void> toggleAdminStatus(
@@ -243,12 +201,7 @@ public class TeamController {
      */
     @Operation(summary = "Actualizar rol", description = "Actualizar el rol de un miembro en el equipo (admin o el propio usuario).")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "204", description = "Rol actualizado (sin contenido)"),
-            @ApiResponse(responseCode = "400", description = "Solicitud inválida"),
-            @ApiResponse(responseCode = "401", description = "No autorizado"),
-            @ApiResponse(responseCode = "403", description = "Prohibido"),
-            @ApiResponse(responseCode = "404", description = "Usuario o equipo no encontrado"),
-            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+            @ApiResponse(responseCode = "204", description = "Rol actualizado (sin contenido)")
     })
     @PatchMapping("/{teamId}/members/{userId}/role")
     public ResponseEntity<Void> updateTeamRole(
