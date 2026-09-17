@@ -170,7 +170,7 @@ export const RecentActivitiesWidget = ({ props }) => {
 
     return (
         <div className="relative w-full h-full overflow-hidden">
-            <div className="absolute inset-0 flex flex-col overflow-y-auto custom-scrollbar pr-2 gap-1 pb-2">
+            <div className="absolute inset-0 flex flex-col overflow-y-auto custom-scrollbar pr-2 pb-2 gap-1">
                 {activities.length > 0 ? (
                     activities.map((activity, index) => {
                         const { icon: IconComponent, color } = getActivityConfig(activity.type);
@@ -202,55 +202,63 @@ export const RecentActivitiesWidget = ({ props }) => {
                                 {/* Content Body */}
                                 <div className="flex flex-col min-w-0 flex-1">
                                     {/* Header: Title and Date */}
-                                    <div className="flex justify-between items-start gap-2">
-                                        <span className="text-sm font-bold text-quaternary-700 truncate leading-tight">
-                                            {activity.title}
-                                        </span>
-                                    </div>
-    
-                                    {/* Collapsible Description */}
-                                    <div className="relative text-xs font-medium text-quaternary-500 transition-all duration-300">
-                                        {(activity.type === "CALENDAR" || activity.type === "DEADLINE") && (
-                                            <>
-                                                <span>{activity.type === "CALENDAR" ? t("widgets.recent_activities.subtitle.calendar") : t("widgets.recent_activities.subtitle.deadline")}</span>
-                                                <span className="">{formatShortDate(activity.date, i18n.language, activity.type === "CALENDAR")}</span>
-                                            </>
-                                        )}
-    
-                                        {isChat && (
-                                            <p className={`${isExpanded ? "line-clamp-none" : "line-clamp-1"}`}>
-                                                {isLongDescription && !isExpanded 
-                                                    ? `${activity.description.substring(0, CHARACTER_THRESHOLD)}...` 
-                                                    : activity.description?.length > 500 
-                                                        ? `${activity.description.substring(0, 500)}...`
-                                                        : activity.description
-                                                }
-                                            </p>
-                                        )}
-                                    </div>
-    
-                                    {/* Expand/Collapse toggle button */}
-                                    {isLongDescription && (
-                                        <button 
-                                            type="button"
-                                            onClick={() => toggleExpand(index)}
-                                            className="flex items-center gap-1 mt-1.5 text-[10px] font-bold uppercase tracking-wider text-primary-500 hover:text-primary-600 transition-colors w-fit"
-                                        >
-                                            {isExpanded ? (
-                                                <>{t("widgets.recent_activities.expand.less")}<IconChevronUp className="w-3 h-3" stroke={3} /></>
-                                            ) : (
-                                                <>{t("widgets.recent_activities.expand.more")}<IconChevronDown className="w-3 h-3" stroke={3} /></>
+                                    <div className="flex flex-col md:flex-row md:items-start justify-between gap-2 md:gap-4 w-full">
+                                        <div className=" flex flex-col min-w-0 flex-1">
+                                            <span className="text-sm font-bold text-quaternary-700 truncate leading-tight">
+                                                {activity.title}
+                                            </span>
+
+                                            {/* Collapsible Description */}
+                                            <div className="relative text-xs font-medium text-quaternary-500 transition-all duration-300">
+                                                {(activity.type === "CALENDAR" || activity.type === "DEADLINE") && (
+                                                    <div className="flex gap-1">
+                                                        <span>{activity.type === "CALENDAR" ? t("widgets.recent_activities.subtitle.calendar") : t("widgets.recent_activities.subtitle.deadline")}</span>
+                                                        <span className="">{formatShortDate(activity.date, i18n.language, activity.type === "CALENDAR")}</span>
+                                                    </div>
+                                                )}
+            
+                                                {isChat && (
+                                                    <p className={`${isExpanded ? "line-clamp-none" : "line-clamp-1"}`}>
+                                                        {isLongDescription && !isExpanded 
+                                                            ? `${activity.description.substring(0, CHARACTER_THRESHOLD)}...` 
+                                                            : activity.description?.length > 500 
+                                                                ? `${activity.description.substring(0, 500)}...`
+                                                                : activity.description
+                                                        }
+                                                    </p>
+                                                )}
+                                            </div>
+
+                                            {/* Expand/Collapse toggle button */}
+                                            {isLongDescription && (
+                                                <button 
+                                                    type="button"
+                                                    onClick={() => toggleExpand(index)}
+                                                    className="flex items-center gap-1 mt-1.5 text-[10px] font-bold uppercase tracking-wider text-primary-500 hover:text-primary-600 transition-colors w-fit"
+                                                >
+                                                    {isExpanded ? (
+                                                        <>{t("widgets.recent_activities.expand.less")}<IconChevronUp className="w-3 h-3" stroke={3} /></>
+                                                    ) : (
+                                                        <>{t("widgets.recent_activities.expand.more")}<IconChevronDown className="w-3 h-3" stroke={3} /></>
+                                                    )}
+                                                </button>
                                             )}
-                                        </button>
-                                    )}
-                                </div>
-    
-                                {linkedEntity && (
-                                    <div className="absolute right-5 max-w-40 flex items-center justify-center gap-2 py-1 px-2 rounded-lg" style={{ backgroundColor: entityColor.hex, color: entityColor.text }}>
-                                        <EntityLogo.component className="h-5 w-5" />
-                                        <ScrollingText text={linkedEntity?.name} className="text-xs" />
+                                        </div>
+
+                                        {/* Linked entity pill */}
+                                        {linkedEntity && (
+                                            <div 
+                                                className="w-fit max-w-[180px] md:max-w-40 flex items-center justify-center gap-1.5 py-1 px-2.5 rounded-lg shrink-0" 
+                                                style={{ backgroundColor: entityColor.hex, color: entityColor.text }}
+                                            >
+                                                <EntityLogo.component className="h-4 w-4 shrink-0" />p
+                                                <div className="flex-1 min-w-0">
+                                                    <ScrollingText text={linkedEntity?.name} className="text-xs font-bold" />
+                                                </div>
+                                            </div>
+                                        )}
                                     </div>
-                                )}
+                                </div>
                             </div>
                         );
                     })

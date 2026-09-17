@@ -120,6 +120,15 @@ export const useTeamsLogic = ({ useOutletContext }) => {
      */
     const [teamToLeave, setTeamToLeave] = useState(null);
 
+    /**
+     * Mobile Carousel Active Index State
+     *
+     * Tracks the currently focused widget within the mobile viewport.
+     * This state specifically drives the visual pagination indicators (dots) 
+     * rendered below the native CSS swipeable carousel.
+     */
+    const [activeTeamIndex, setActiveTeamIndex] = useState(0);
+
     // --- 3. Derived UI Data ---
 
     /**
@@ -357,6 +366,28 @@ export const useTeamsLogic = ({ useOutletContext }) => {
         navigate(`/teams/${team.id}/member`, { state: { teamData: team } });
     }, [navigate]);
 
+    /**
+     * Mobile Carousel Scroll Handler
+     *
+     * Dynamically calculates which widget is currently centered in the viewport 
+     * based on the container's horizontal scroll position. It divides the total 
+     * scrollable width by the amount of active widgets to determine the snap thresholds, 
+     * updating the local index state only when a threshold boundary is crossed.
+     *
+     * @param {React.UIEvent<HTMLDivElement>} e - The scroll event triggered by the carousel container.
+     * @returns {void}
+     */
+    const handleScroll = (e) => {
+        const { scrollLeft, scrollWidth } = e.target;
+
+        const widthPerItem = scrollWidth / teams.length;
+        const newIndex = Math.round(scrollLeft / widthPerItem);
+        
+        if (newIndex !== activeTeamIndex) {
+            setActiveTeamIndex(newIndex);
+        }
+    };
+
     // --- 6. Return Object ---
 
     return {
@@ -369,7 +400,8 @@ export const useTeamsLogic = ({ useOutletContext }) => {
             isMembersModalOpen,
             teamForMembers,
             teamToLeave,
-            isMobile
+            isMobile,
+            activeTeamIndex
         },
         teamsActions: { 
             setViewAsAdmin,
@@ -385,7 +417,8 @@ export const useTeamsLogic = ({ useOutletContext }) => {
             handleNavigateToTeamProjects,
             handleNavigateToTeamMemberDashboard,
             handleCopyCode,
-            onOpenMobileMenu
+            onOpenMobileMenu,
+            handleScroll
         }
     };
 };

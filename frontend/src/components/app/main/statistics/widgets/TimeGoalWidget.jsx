@@ -88,7 +88,7 @@ export const TimeGoalWidget = ({ props }) => {
 
     return (
         <div className="h-full w-full flex flex-col items-center justify-center select-none p-4">
-            <div className="relative w-full max-w-[280px] aspect-[2/1]">
+            <div className="relative w-full max-w-[280px] aspect-[2/1] pb-4">
                 <ResponsivePie
                     data={percentageData}
                     margin={{ top: 0, right: 0, bottom: 0, left: 0 }}
@@ -103,10 +103,10 @@ export const TimeGoalWidget = ({ props }) => {
                     isInteractive={false}
                     animate={true}
                     motionConfig="gentle"
-                    centerY={1} 
+                    centerY={0.7} 
                 />
 
-                <div className="absolute bottom-0 left-1/2 -translate-x-1/2 flex flex-col items-center text-quaternary-700 w-full">
+                <div className="absolute bottom-0 left-1/2 -translate-x-1/2 flex flex-col items-center text-quaternary-700 w-full pb-4">
                     <span className="text-5xl font-black leading-none drop-shadow-sm">
                         {currentMinutes}
                     </span>

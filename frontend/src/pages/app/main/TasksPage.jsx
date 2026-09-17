@@ -96,7 +96,7 @@ export const TasksPage = () => {
 
                 {/* Third Column: Tasks Entity List */}
                 <div
-                    className={`tour-tasks-2 ${mobileView === "tasks" ? "flex" : "hidden"} h-full w-1 flex-1 xl:flex flex-col items-end justify-between p-6 bg-primary rounded-[2.5rem]`}
+                    className={`tour-tasks-2 ${mobileView === "tasks" ? "flex" : "hidden"} h-full xl:max-w-[41.66%] flex-1 xl:flex flex-col items-end justify-between p-6 bg-primary rounded-[2.5rem]`}
                 >
                     <TasksCardComponent
                         data={selectedStage ? selectedStage.tasks : []}
