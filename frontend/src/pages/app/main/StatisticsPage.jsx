@@ -78,7 +78,7 @@ export const StatisticsPage = () => {
                             onScroll={handleScroll}
                         >
                             {widgets.map((widget) => (
-                                <div key={widget.id} className="w-[90%] sm:w-[80%] h-full flex-shrink-0 snap-center flex items-center justify-center">
+                                <div key={widget.id} className="w-[95%] h-full flex-shrink-0 snap-center flex items-center justify-center">
                                     <DashboardWidgetCard widget={widget} isEditing={isEditing} isMobile={isMobile} onRemove={removeWidget} t={t} />
                                 </div>
                             ))}
