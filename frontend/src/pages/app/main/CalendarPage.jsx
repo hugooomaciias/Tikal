@@ -105,7 +105,7 @@ export const CalendarPage = () => {
                     {/* Content Split Display Spacer */}
                     <hr className="border-t-2 border-primary-50 w-full shrink-0 mt-2 mb-4" />
 
-                    {/* Event Feed Activity List Scroller */}º
+                    {/* Event Feed Activity List Scroller */}
                     <NextEventsComponent
                         groupedEvents={groupedEvents}
                         handleEventClick={handleEventClick}

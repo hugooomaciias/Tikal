@@ -107,7 +107,7 @@ export const TimeGoalWidget = ({ props }) => {
                 />
 
                 <div className="absolute bottom-0 left-1/2 -translate-x-1/2 flex flex-col items-center text-quaternary-700 w-full pb-4">
-                    <span className="text-5xl font-black leading-none drop-shadow-sm">
+                    <span className="text-4xl font-black leading-none drop-shadow-sm">
                         {currentMinutes}
                     </span>
                     <span className="text-xl font-medium mt-1 opacity-80 whitespace-nowrap">

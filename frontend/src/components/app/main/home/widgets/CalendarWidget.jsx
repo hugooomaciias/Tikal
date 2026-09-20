@@ -186,7 +186,6 @@ export const CalendarWidget = ({ props, setCustomActions }) => {
                     meridiem: false,
                 }}
                 eventContent={(eventInfo) => {
-                    console.log(eventInfo);
                     const color = PHASE_COLOURS.find((c) => c.id === eventInfo?.event?.extendedProps.colorId) || PHASE_COLOURS[0];
                     const Logo = PROJECTS_ICONS.find((i) => i.id === eventInfo?.event?.extendedProps?.logo);
 
