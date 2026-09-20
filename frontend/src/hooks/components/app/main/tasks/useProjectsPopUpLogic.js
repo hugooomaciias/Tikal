@@ -177,8 +177,10 @@ export const useProjectsPopUpLogic = (t, initialData, onClose, activeTeam, onErr
                     handleClose();
                 } else {
                     const isGroupBased = activeTeam ? true : false;
-                    projectPayload.isGroupBased = isGroupBased;
-                    projectPayload.teamId = activeTeam.id;
+                    if (isGroupBased) {
+                        projectPayload.isGroupBased = isGroupBased;
+                        projectPayload.teamId = activeTeam.id;                    
+                    }
 
                     await createProject(projectPayload);
 
