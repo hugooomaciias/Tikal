@@ -47,7 +47,7 @@ export const useEventPopUpLogic = (initialData, onClose, onError, cascadingOptio
         startTime: initialData?.startTime ? initialData.startTime : "10:00",
         endTime: initialData?.endTime ? initialData.endTime : "11:00",
         allDay: initialData?.allDay || false,
-        note: initialData?.note || "",
+        note: initialData?.note || initialData?.description || "",
     });
 
     /**
