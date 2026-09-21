@@ -25,6 +25,8 @@ import { resolveColorObject, safeParseDate, formatDateTimeISO, resolveLinkPayloa
 export const useEventPopUpLogic = (initialData, onClose, onError, cascadingOptions, projectId, t) => {
     // --- 1. Contexts & DOM Refs ---
 
+    console.log(initialData)
+
     const { getTempleModeData } = useSync();
     const { createCalendarEvent, updateCalendarEvent } = useCalendarEvents();
 
