@@ -25,6 +25,8 @@ import { resolveColorObject, safeParseDate, formatDateTimeISO, resolveLinkPayloa
 export const useEventPopUpLogic = (initialData, onClose, onError, cascadingOptions, projectId, t) => {
     // --- 1. Contexts & DOM Refs ---
 
+    console.log(initialData)
+
     const { getTempleModeData } = useSync();
     const { createCalendarEvent, updateCalendarEvent } = useCalendarEvents();
 
@@ -47,7 +49,7 @@ export const useEventPopUpLogic = (initialData, onClose, onError, cascadingOptio
         startTime: initialData?.startTime ? initialData.startTime : "10:00",
         endTime: initialData?.endTime ? initialData.endTime : "11:00",
         allDay: initialData?.allDay || false,
-        note: initialData?.note || "",
+        note: initialData?.note || initialData?.description || "",
     });
 
     /**
